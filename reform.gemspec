@@ -6,8 +6,8 @@ require 'reform/version'
 Gem::Specification.new do |spec|
   spec.name          = "reform"
   spec.version       = Reform::VERSION
-  spec.authors       = ["Nick Sutterer"]
-  spec.email         = ["apotonick@gmail.com"]
+  spec.authors       = ["Nick Sutterer", "Garrett Heinlen"]
+  spec.email         = ["apotonick@gmail.com", "heinleng@gmail.com"]
   spec.description   = %q{Freeing your AR models from form logic.}
   spec.summary       = %q{Freeing your AR models from form logic.}
   spec.homepage      = ""
@@ -20,4 +20,6 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
+  spec.add_development_dependency "minitest"
+  spec.add_development_dependency "activemodel"
 end
