@@ -1,0 +1,108 @@
+require 'delegate'
+
+class Form  < SimpleDelegator
+  # reasons for delegation:
+  # presentation: this object is used in the presentation layer by #form_for.
+    # problem: #form_for uses respond_to?(:email_before_type_cast) which goes to an internal hash in the actual record.
+  # validation: this object also contains the validation rules itself, should be separated.
+  def to_key
+    @model.to_key
+  end
+
+  #def self.model_name
+  #  ActiveModel::Name.new(self, nil, "Student")
+  #end
+
+
+  def initialize(model) # model: new or existing?
+    @model = model  # DISCUSS: not needed?
+    # here the mapping between model(s) and form should happen.
+
+    # this used to be our composition object with "magic" accessors:
+    super(Fields.new(model.attributes))
+    #super(model)
+  end
+
+  def map
+    @model
+  end
+
+  # workflow methods:
+  def validate(params)
+    # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
+    params.each do |k,v|
+      send("#{k}=", v)
+    end
+
+    valid?
+  end
+  def save
+    return yield self.map if block_given?
+
+    @model.save(self)
+
+
+  end
+
+  # FIXME: make AM optional. fix AM requires.
+  require 'active_model/naming'
+  require 'active_model/translation'
+  require 'active_model/validations'
+  include ActiveModel::Validations
+
+  # Keeps values of the form fields. What's in here is to be displayed in the browser!
+  # we need this intermediate object to display both "original values" and new input from the form after submitting.
+  class Fields < OpenStruct
+  end
+
+  # maps model(s) to form and back.
+  class Mapper
+    # DISCUSS: use representable here, like a boss.
+    def initialize(objects)
+      @objects = objects
+    end
+
+    class << self
+      def attribute(name, opts)
+        form_attributes << name
+
+        owner = opts[:on]
+        define_method(owner) do
+          @objects[owner]
+        end
+        delegate name, "#{name}=", to: owner
+      end
+
+      def attributes(names, *args)
+        names.each do |name|
+          attribute(name, *args)
+        end
+      end
+
+      def form_attributes
+        @form_attributes ||= []
+      end
+    end
+
+    # contains all knowledge to present the "nested" setup to the form, which doesn't know internals of this.
+    # DISCUSS: do we also map back here for saving? yes!
+
+    def attributes
+      hash = {}
+      self.class.form_attributes.each do |name|
+        hash[name] = send(name)
+      end
+      hash
+
+      # this returns a hash to fill the Form::Fields object
+      #{email: email, grade: grade}
+    end
+
+    # TODO: remove this to an optional layer since we don't want this everywhere (e.g. when using services).
+    def save(attributes)
+      self.class.form_attributes.each do |name|
+        send("#{name}=", attributes.send(name))
+      end
+    end
+  end
+end
