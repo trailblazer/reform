@@ -5,4 +5,3 @@ module Reform
 end
 
 require 'reform/form'
-require 'reform/model_mapper'

@@ -100,7 +100,13 @@ module Reform
   end
 
   require 'representable/hash'
-  class Map < Representable::Decorator
+  class Representer < Representable::Decorator
     include Representable::Hash
+
+    def self.properties(names, *args)
+      names.each do |name|
+        property(name, *args)
+      end
+    end
   end
 end

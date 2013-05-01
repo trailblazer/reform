@@ -1,13 +1,25 @@
 require 'test_helper'
 
+class RepresenterTest < MiniTest::Spec
+  describe "::properties" do
+    class SongRepresenter < Reform::Representer
+      properties [:title, :year]
+    end
+    let (:rpr) { SongRepresenter.new(OpenStruct.new(:title => "Disconnect, Disconnect", :year => 1990)) }
+
+    it "accepts array of property names" do
+      rpr.to_hash.must_equal({"title"=>"Disconnect, Disconnect", "year" => 1990} )
+    end
+  end
+end
+
 class ReformTest < MiniTest::Spec
   let (:duran)  { OpenStruct.new(:name => "Duran Duran") }
   let (:rio)    { OpenStruct.new(:title => "Rio") }
 
   let (:form) { SongForm.new(SongAndArtistMap, comp) }
 
-  class SongAndArtistMap < Representable::Decorator
-    include Representable::Hash
+  class SongAndArtistMap < Reform::Representer
     property :name, on: :artist
     property :title, on: :song
   end
