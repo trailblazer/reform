@@ -32,7 +32,7 @@ class ReformTest < MiniTest::Spec
       map({:artist => [:name], :song => [:title]}) #SongAndArtistMap.representable_attrs
     end
 
-    let (:comp) { SongAndArtist.new(:artist => OpenStruct.new, :song => rio) }
+    let (:comp) { SongAndArtist.new(:artist => @artist=OpenStruct.new, :song => rio) }
 
     it "delegates to models as defined" do
       comp.name.must_equal nil
@@ -46,8 +46,8 @@ class ReformTest < MiniTest::Spec
     end
 
     it "creates readers to models" do
-      comp.song.title.must_equal "Rio"
-      comp.artist.name.must_equal nil
+      comp.song.object_id.must_equal rio.object_id
+      comp.artist.object_id.must_equal @artist.object_id
     end
 
     describe "::map_from" do
