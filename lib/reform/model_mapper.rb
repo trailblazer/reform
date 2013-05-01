@@ -28,6 +28,15 @@ class Reform::ModelMapper
       end
     end
   end
+  def nested_hash_for(attrs)
+    {}.tap do |hsh|
+      attrs.each do |name, val|
+        obj = model_for_property(name)
+        hsh[obj] ||= {}
+        hsh[obj][name] = val
+      end
+    end
+  end
 
   # TODO: remove this to an optional layer since we don't want this everywhere (e.g. when using services).
   def save(*args)
