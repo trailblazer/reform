@@ -6,7 +6,9 @@ Decouples your models from form objects, workflows and validations.
 
 Add this line to your Gemfile:
 
-    gem 'reform'
+```ruby
+gem 'reform'
+```
 
 
 ## Features
