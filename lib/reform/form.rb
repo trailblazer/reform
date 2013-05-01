@@ -19,12 +19,8 @@ class Form  < SimpleDelegator
     # here the mapping between model(s) and form should happen.
 
     # this used to be our composition object with "magic" accessors:
-    super(Fields.new(model.attributes))
+    super(  Fields.new(model.attributes))
     #super(model)
-  end
-
-  def map
-    @model
   end
 
   # workflow methods:
@@ -37,7 +33,14 @@ class Form  < SimpleDelegator
     valid?
   end
   def save
-    return yield self.map if block_given?
+    # FIXME: move to Mapper.
+    map = {}
+    @model.class.form_attributes.each do |cfg|
+      map[cfg.last[:on]] ||= {}
+      map[cfg.last[:on]][cfg.first] = send(cfg.first)
+    end
+
+    return yield self, map if block_given?
 
     @model.save(self)
 
@@ -64,7 +67,7 @@ class Form  < SimpleDelegator
 
     class << self
       def attribute(name, opts)
-        form_attributes << name
+        form_attributes << [name, opts]
 
         owner = opts[:on]
         define_method(owner) do
@@ -89,8 +92,8 @@ class Form  < SimpleDelegator
 
     def attributes
       hash = {}
-      self.class.form_attributes.each do |name|
-        hash[name] = send(name)
+      self.class.form_attributes.each do |cfg|
+        hash[cfg.first] = send(cfg.first)
       end
       hash
 
@@ -100,8 +103,8 @@ class Form  < SimpleDelegator
 
     # TODO: remove this to an optional layer since we don't want this everywhere (e.g. when using services).
     def save(attributes)
-      self.class.form_attributes.each do |name|
-        send("#{name}=", attributes.send(name))
+      self.class.form_attributes.each do |cfg|
+        send("#{name}=", attributes.send(cfg.first))
       end
     end
   end
