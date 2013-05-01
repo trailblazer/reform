@@ -5,13 +5,8 @@ class Form  < SimpleDelegator
   # presentation: this object is used in the presentation layer by #form_for.
   # problem: #form_for uses respond_to?(:email_before_type_cast) which goes to an internal hash in the actual record.
   # validation: this object also contains the validation rules itself, should be separated.
-  def to_key
-    @mapper.to_key
-  end
 
-  #def self.model_name
-  #  ActiveModel::Name.new(self, nil, "Student")
-  #end
+  # TODO: figure out #to_key issues.
 
   def initialize(mapper, comp) # model: new or existing?
     @mapper = mapper  # DISCUSS: not needed?
@@ -38,12 +33,6 @@ class Form  < SimpleDelegator
 
   def save
     # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
-
-    #return yield self, @mapper.to_nested_hash if block_given?
-    #puts map.new(self).to_hash.inspect  # Fields could simply know which fields it has.
-
-
-
     return yield self, @comp.nested_hash_for(@mapper.new(self).to_hash) if block_given?
 
     @mapper.save(self)
@@ -57,29 +46,30 @@ class Form  < SimpleDelegator
   # we need this intermediate object to display both "original values" and new input from the form after submitting.
   class Fields < OpenStruct
   end
-
-
-
 end
 
 module Reform
+  # Keeps composition of models and knows how to transform a plain hash into a nested hash.
   class Composition
     class << self
-      # DISCUSS: we need the map here! decouple from representable!!!
-      def map(attrs)
-        @map = attrs
-        attrs.each do |cfg|
-          delegate cfg.name, "#{cfg.name}=", to: "@#{cfg.options[:on]}"
+      def map(options)
+        @options = options  # {song: [:title, :track], artist: [:name]}
+
+        options.each do |mdl, meths|
+          accessors = meths.collect { |m| [m, "#{m}="] }.flatten
+          delegate *accessors, to: "@#{mdl}"
         end
       end
 
       def model_for_property(name)
         # FIXME: to be removed pretty soon.
-        @map.each do |cfg|
-          return cfg.options[:on] if cfg.name == name
+        @options.each do |mdl, meths|
+          return mdl if meths.include?(name.to_sym)
         end
+        raise "property `#{name}` not mapped!"
       end
     end
+
 
     def nested_hash_for(attrs)
       {}.tap do |hsh|
@@ -90,7 +80,6 @@ module Reform
         end
       end
     end
-
 
     def initialize(models)
       models.each do |name, obj|

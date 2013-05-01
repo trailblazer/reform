@@ -29,7 +29,7 @@ class ReformTest < MiniTest::Spec
 
   describe "Composition" do
     class SongAndArtist < Reform::Composition
-      map SongAndArtistMap.representable_attrs
+      map({:artist => [:name], :song => [:title]}) #SongAndArtistMap.representable_attrs
     end
 
     let (:comp) { SongAndArtist.new(:artist => OpenStruct.new, :song => rio) }
@@ -43,6 +43,10 @@ class ReformTest < MiniTest::Spec
       assert_raises NoMethodError do
         comp.raise_an_exception
       end
+    end
+
+    describe "::map_from" do
+
     end
   end
 
