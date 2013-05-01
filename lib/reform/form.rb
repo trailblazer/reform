@@ -98,4 +98,9 @@ module Reform
       end
     end
   end
+
+  require 'representable/hash'
+  class Map < Representable::Decorator
+    include Representable::Hash
+  end
 end
