@@ -58,6 +58,7 @@ module Reform
         options.each do |mdl, meths|
           accessors = meths.collect { |m| [m, "#{m}="] }.flatten
           delegate *accessors, to: "@#{mdl}"
+          attr_reader mdl # FIXME: unless already defined!!
         end
       end
 

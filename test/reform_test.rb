@@ -45,6 +45,11 @@ class ReformTest < MiniTest::Spec
       end
     end
 
+    it "creates readers to models" do
+      comp.song.title.must_equal "Rio"
+      comp.artist.name.must_equal nil
+    end
+
     describe "::map_from" do
       it "creates the same mapping" do
         comp =
