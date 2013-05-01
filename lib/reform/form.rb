@@ -43,10 +43,8 @@ class Form  < SimpleDelegator
     @model.save(self)
   end
 
-  # FIXME: make AM optional. fix AM requires.
-  require 'active_model/naming'
-  require 'active_model/translation'
-  require 'active_model/validations'
+  # FIXME: make AM optional.
+  require 'active_model'
   include ActiveModel::Validations
 
   # Keeps values of the form fields. What's in here is to be displayed in the browser!
