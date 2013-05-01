@@ -3,22 +3,22 @@ require 'delegate'
 class Form  < SimpleDelegator
   # reasons for delegation:
   # presentation: this object is used in the presentation layer by #form_for.
-    # problem: #form_for uses respond_to?(:email_before_type_cast) which goes to an internal hash in the actual record.
+  # problem: #form_for uses respond_to?(:email_before_type_cast) which goes to an internal hash in the actual record.
   # validation: this object also contains the validation rules itself, should be separated.
   def to_key
-    @model.to_key
+    @mapper.to_key
   end
 
   #def self.model_name
   #  ActiveModel::Name.new(self, nil, "Student")
   #end
 
-  def initialize(model) # model: new or existing?
-    @model = model  # DISCUSS: not needed?
+  def initialize(mapper) # model: new or existing?
+    @mapper = mapper  # DISCUSS: not needed?
     # here the mapping between model(s) and form should happen.
 
     # this used to be our composition object with "magic" accessors:
-    super Fields.new(model.attributes)
+    super Fields.new(mapper.attributes)
   end
 
   # workflow methods:
@@ -32,15 +32,8 @@ class Form  < SimpleDelegator
   end
 
   def save
-    # FIXME: move to Mapper.
-    map = {}
-    @model.class.form_attributes.each do |cfg|
-      map[cfg.last[:on]] ||= {}
-      map[cfg.last[:on]][cfg.first] = send(cfg.first)
-    end
-
-    return yield self, map if block_given?
-    @model.save(self)
+    return yield self, @mapper.to_hash if block_given?
+    @mapper.save(self)
   end
 
   # FIXME: make AM optional. fix AM requires.
@@ -86,7 +79,7 @@ class Form  < SimpleDelegator
     # contains all knowledge to present the "nested" setup to the form, which doesn't know internals of this.
     # DISCUSS: do we also map back here for saving? yes!
     # this returns a hash to fill the Form::Fields object
-    #{email: email, grade: grade}
+    # {email: email, grade: grade}
     def attributes
       hash = {}
 
@@ -101,6 +94,15 @@ class Form  < SimpleDelegator
       self.class.form_attributes.each do |cfg|
         send("#{name}=", attributes.send(cfg.first))
       end
+    end
+
+    def to_hash
+      map = {}
+      self.class.form_attributes.each do |cfg|
+        map[cfg.last[:on]] ||= {}
+        map[cfg.last[:on]][cfg.first] = send(cfg.first)
+      end
+      map
     end
 
   end
