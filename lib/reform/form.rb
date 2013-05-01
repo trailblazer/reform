@@ -19,7 +19,7 @@ class Form  < SimpleDelegator
     # here the mapping between model(s) and form should happen.
 
     # this used to be our composition object with "magic" accessors:
-    super(  Fields.new(model.attributes))
+    super(Fields.new(model.attributes))
     #super(model)
   end
 
@@ -90,15 +90,14 @@ class Form  < SimpleDelegator
     # contains all knowledge to present the "nested" setup to the form, which doesn't know internals of this.
     # DISCUSS: do we also map back here for saving? yes!
 
+    # this returns a hash to fill the Form::Fields object
+    #{email: email, grade: grade}
     def attributes
       hash = {}
       self.class.form_attributes.each do |cfg|
         hash[cfg.first] = send(cfg.first)
       end
       hash
-
-      # this returns a hash to fill the Form::Fields object
-      #{email: email, grade: grade}
     end
 
     # TODO: remove this to an optional layer since we don't want this everywhere (e.g. when using services).

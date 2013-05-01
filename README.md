@@ -4,26 +4,12 @@ Decouples your models from form objects, workflows and validations.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your Gemfile:
 
     gem 'reform'
 
-And then execute:
 
-    $ bundle
+## Features
 
-Or install it yourself as:
-
-    $ gem install reform
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+* validations per form, not per model
+* restricting input per form - no strong_parameters/attr_accessible or whatever.
