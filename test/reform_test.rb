@@ -46,7 +46,16 @@ class ReformTest < MiniTest::Spec
     end
 
     describe "::map_from" do
+      it "creates the same mapping" do
+        comp =
+        Class.new(Reform::Composition) do
+          map_from SongAndArtistMap
+        end.
+        new(:artist => duran, :song => rio)
 
+        comp.name.must_equal "Duran Duran"
+        comp.title.must_equal "Rio"
+      end
     end
   end
 

@@ -61,6 +61,17 @@ module Reform
         end
       end
 
+      # Specific to representable.
+      def map_from(representer)
+        options = {}
+        representer.representable_attrs.each do |cfg|
+          options[cfg.options[:on]] ||= []
+          options[cfg.options[:on]] << cfg.name
+        end
+
+        map options
+      end
+
       def model_for_property(name)
         # FIXME: to be removed pretty soon.
         @options.each do |mdl, meths|
