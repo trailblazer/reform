@@ -3,14 +3,12 @@ require 'test_helper'
 class ReformTest < MiniTest::Spec
   describe "what" do
     class SongAndArtistComposition < Form::Mapper
-        attribute :name, on: :artist
-        attribute :track, on: :song
-        #attribute :grade, on: :profile
-      end
+      attribute :name, on: :artist
+      attribute :track, on: :song
+    end
 
-      class SongForm < Form
-
-      end
+    class SongForm < Form
+    end
 
     let (:form) { SongForm.new(SongAndArtistComposition.new(:artist => OpenStruct.new, :song => OpenStruct.new)) }
 
@@ -19,7 +17,6 @@ class ReformTest < MiniTest::Spec
 
       artist = OpenStruct.new
       song_hash = {}
-
 
       form.save do |data, map|
         artist.name = data.name

@@ -13,14 +13,12 @@ class Form  < SimpleDelegator
   #  ActiveModel::Name.new(self, nil, "Student")
   #end
 
-
   def initialize(model) # model: new or existing?
     @model = model  # DISCUSS: not needed?
     # here the mapping between model(s) and form should happen.
 
     # this used to be our composition object with "magic" accessors:
-    super(Fields.new(model.attributes))
-    #super(model)
+    super Fields.new(model.attributes)
   end
 
   # workflow methods:
@@ -32,6 +30,7 @@ class Form  < SimpleDelegator
 
     valid?
   end
+
   def save
     # FIXME: move to Mapper.
     map = {}
@@ -41,10 +40,7 @@ class Form  < SimpleDelegator
     end
 
     return yield self, map if block_given?
-
     @model.save(self)
-
-
   end
 
   # FIXME: make AM optional. fix AM requires.
@@ -94,6 +90,7 @@ class Form  < SimpleDelegator
     #{email: email, grade: grade}
     def attributes
       hash = {}
+
       self.class.form_attributes.each do |cfg|
         hash[cfg.first] = send(cfg.first)
       end
@@ -106,5 +103,6 @@ class Form  < SimpleDelegator
         send("#{name}=", attributes.send(cfg.first))
       end
     end
+
   end
 end
