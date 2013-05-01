@@ -15,6 +15,12 @@ class Reform::ModelMapper
       delegate name, "#{name}=", to: "@#{options[:on]}"
       super
     end
+
+    def properties(names, *args)
+      names.each do |name|
+        property(name, *args)
+      end
+    end
   end
   extend Property
 
