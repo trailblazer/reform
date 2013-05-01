@@ -12,7 +12,7 @@ class MapperTest < MiniTest::Spec
 
     it "converts form attributes into an easy to use hash" do
       valid_hash = {:artist => {:name => "Killers"}, :song => {:track => "Mr Brightside"}}
-      form_mapper.to_hash.must_equal valid_hash
+      form_mapper.to_nested_hash.must_equal valid_hash
     end
   end
 

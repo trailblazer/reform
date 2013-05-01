@@ -32,8 +32,8 @@ class Form  < SimpleDelegator
   end
 
   def save
-    return yield self, @mapper.to_hash if block_given?
     @mapper.save(self)
+    yield self, @mapper.to_nested_hash if block_given?
   end
 
   # FIXME: make AM optional. fix AM requires.
@@ -92,11 +92,11 @@ class Form  < SimpleDelegator
     # TODO: remove this to an optional layer since we don't want this everywhere (e.g. when using services).
     def save(attributes)
       self.class.form_attributes.each do |cfg|
-        send("#{name}=", attributes.send(cfg.first))
+        send("#{cfg.first}=", attributes.send(cfg.first))
       end
     end
 
-    def to_hash
+    def to_nested_hash
       map = {}
       self.class.form_attributes.each do |cfg|
         map[cfg.last[:on]] ||= {}
