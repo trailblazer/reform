@@ -63,12 +63,13 @@ module Reform
   class Composition
     class << self
       def map(options)
-        @options = options  # {song: [:title, :track], artist: [:name]}
+        @attr2obj = {}  # {song: [:title, :track], artist: [:name]}
 
         options.each do |mdl, meths|
-          accessors = meths.collect { |m| [m, "#{m}="] }.flatten
-          delegate *accessors, to: "@#{mdl}"
+          create_accessors(mdl, meths)
           attr_reader mdl # FIXME: unless already defined!!
+
+          meths.each { |m| @attr2obj[m.to_s] = mdl }
         end
       end
 
@@ -84,15 +85,18 @@ module Reform
       end
 
       def model_for_property(name)
-        # FIXME: to be removed pretty soon.
-        @options.each do |mdl, meths|
-          return mdl if meths.include?(name.to_sym)
-        end
-        raise "property `#{name}` not mapped!"
+        @attr2obj.fetch(name.to_s)
+      end
+
+    private
+      def create_accessors(model, methods)
+        accessors = methods.collect { |m| [m, "#{m}="] }.flatten
+        delegate *accessors, to: "@#{model}"
       end
     end
 
 
+    # TODO: make class method?
     def nested_hash_for(attrs)
       {}.tap do |hsh|
         attrs.each do |name, val|

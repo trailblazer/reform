@@ -92,6 +92,22 @@ class ReformTest < MiniTest::Spec
         comp.title.must_equal "Rio"
       end
     end
+
+    describe "#nested_hash_for" do
+      it "returns nested hash" do
+        comp.nested_hash_for(:name => "Jimi Hendrix", :title => "Fire").must_equal({:artist=>{:name=>"Jimi Hendrix"}, :song=>{:title=>"Fire"}})
+      end
+
+      it "works with strings" do
+        comp.nested_hash_for("name" => "Jimi Hendrix", "title" => "Fire").must_equal({:artist=>{"name"=>"Jimi Hendrix"}, :song=>{"title"=>"Fire"}})
+      end
+
+      it "works with strings in map" do
+        Class.new(Reform::Composition) do
+          map(:artist => ["name"])
+        end.new([nil]).nested_hash_for(:name => "Jimi Hendrix").must_equal({:artist=>{:name=>"Jimi Hendrix"}})
+      end
+    end
   end
 
   describe "(new) form with empty models" do
