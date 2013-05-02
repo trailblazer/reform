@@ -1,52 +1,52 @@
 require 'delegate'
 
-class Form  < SimpleDelegator
-  # reasons for delegation:
-  # presentation: this object is used in the presentation layer by #form_for.
-  # problem: #form_for uses respond_to?(:email_before_type_cast) which goes to an internal hash in the actual record.
-  # validation: this object also contains the validation rules itself, should be separated.
+module Reform
+  class Form  < SimpleDelegator
+    # reasons for delegation:
+    # presentation: this object is used in the presentation layer by #form_for.
+    # problem: #form_for uses respond_to?(:email_before_type_cast) which goes to an internal hash in the actual record.
+    # validation: this object also contains the validation rules itself, should be separated.
+    # TODO: figure out #to_key issues.
 
-  # TODO: figure out #to_key issues.
+    def initialize(mapper, comp) # model: new or existing?
+      @mapper = mapper  # DISCUSS: not needed?
+      @comp = comp
+      representer = @mapper.new(comp)
 
-  def initialize(mapper, comp) # model: new or existing?
-    @mapper = mapper  # DISCUSS: not needed?
-    @comp = comp
-
-    representer = @mapper.new(comp)
-
-    super Fields.new(representer.fields, representer.to_hash)  # decorate composition and transform to hash.
-  end
-
-  # workflow methods:
-  def validate(params)
-    # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
-    params.each do |k,v|
-      send("#{k}=", v)  # this writes to <Fields>.
+      super Fields.new(representer.fields, representer.to_hash)  # decorate composition and transform to hash.
     end
 
-    valid?  # this validates on <Fields>.
+    # workflow methods:
+    def validate(params)
+      # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
+      params.each do |k,v|
+        send("#{k}=", v)  # this writes to <Fields>.
+      end
+
+      valid?  # this validates on <Fields>.
+    end
+
+    def save
+      # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
+      return yield self, to_nested_hash if block_given?
+
+      @mapper.save(self)
+    end
+
+  private
+    # Use representer to return current key-value form hash.
+    def to_hash
+      @mapper.new(self).to_hash
+    end
+
+    def to_nested_hash
+      @comp.nested_hash_for(to_hash)  # use composition to compute nested hash.
+    end
+
+    # FIXME: make AM optional.
+    require 'active_model'
+    include ActiveModel::Validations
   end
-
-  def save
-    # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
-    return yield self, to_nested_hash if block_given?
-
-    @mapper.save(self)
-  end
-
-private
-  # Use representer to return current key-value form hash.
-  def to_hash
-    @mapper.new(self).to_hash
-  end
-
-  def to_nested_hash
-    @comp.nested_hash_for(to_hash)  # use composition to compute nested hash.
-  end
-
-  # FIXME: make AM optional.
-  require 'active_model'
-  include ActiveModel::Validations
 
   # Keeps values of the form fields. What's in here is to be displayed in the browser!
   # we need this intermediate object to display both "original values" and new input from the form after submitting.
@@ -56,9 +56,7 @@ private
       super(fields.merge!(values))  # TODO: stringify value keys!
     end
   end
-end
 
-module Reform
   # Keeps composition of models and knows how to transform a plain hash into a nested hash.
   class Composition
     class << self
@@ -91,7 +89,6 @@ module Reform
         raise "property `#{name}` not mapped!"
       end
     end
-
 
     def nested_hash_for(attrs)
       {}.tap do |hsh|
