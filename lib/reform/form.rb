@@ -61,7 +61,7 @@ module Reform
   class Composition
     class << self
       def map(options)
-        @attr2obj = {}  # {song: [:title, :track], artist: [:name]}
+        @attr2obj = {}  # {song: ["title", "track"], artist: ["name"]}
 
         options.each do |mdl, meths|
           create_accessors(mdl, meths)
