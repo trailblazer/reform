@@ -33,9 +33,19 @@ class Form  < SimpleDelegator
 
   def save
     # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
-    return yield self, @comp.nested_hash_for(@mapper.new(self).to_hash) if block_given?
+    return yield self, to_nested_hash if block_given?
 
     @mapper.save(self)
+  end
+
+private
+  # Use representer to return current key-value form hash.
+  def to_hash
+    @mapper.new(self).to_hash
+  end
+
+  def to_nested_hash
+    @comp.nested_hash_for(to_hash)  # use composition to compute nested hash.
   end
 
   # FIXME: make AM optional.
