@@ -1,14 +1,44 @@
 require 'test_helper'
 
 class RepresenterTest < MiniTest::Spec
-  describe "::properties" do
-    class SongRepresenter < Reform::Representer
-      properties [:title, :year]
-    end
-    let (:rpr) { SongRepresenter.new(OpenStruct.new(:title => "Disconnect, Disconnect", :year => 1990)) }
+  class SongRepresenter < Reform::Representer
+    properties [:title, :year]
+  end
 
+  let (:rpr) { SongRepresenter.new(OpenStruct.new(:title => "Disconnect, Disconnect", :year => 1990)) }
+
+  # TODO: introduce representer_for helper.
+  describe "::properties" do
     it "accepts array of property names" do
       rpr.to_hash.must_equal({"title"=>"Disconnect, Disconnect", "year" => 1990} )
+    end
+  end
+
+  describe "#fields" do
+    it "returns all properties as strings" do
+      rpr.fields.must_equal(["title", "year"])
+    end
+  end
+end
+
+class FieldsTest < MiniTest::Spec
+  describe "#new" do
+    it "accepts list of properties" do
+      fields = Form::Fields.new([:name, :title])
+      fields.name.must_equal  nil
+      fields.title.must_equal nil
+    end
+
+    it "accepts list of properties and values" do
+      fields = Form::Fields.new(["name", "title"], "title" => "The Body")
+      fields.name.must_equal  nil
+      fields.title.must_equal "The Body"
+    end
+
+    it "processes value syms" do
+      fields = Form::Fields.new(["name", "title"], :title => "The Body")
+      fields.name.must_equal  nil
+      fields.title.must_equal "The Body"
     end
   end
 end

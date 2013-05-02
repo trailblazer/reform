@@ -11,14 +11,10 @@ class Form  < SimpleDelegator
   def initialize(mapper, comp) # model: new or existing?
     @mapper = mapper  # DISCUSS: not needed?
     @comp = comp
-    # here the mapping between model(s) and form should happen.
 
-    # this used to be our composition object with "magic" accessors:
-    all_attributes_hash = {}; mapper.representable_attrs.each do |cfg|
-      all_attributes_hash[cfg.name] = nil
-    end
-# FIXME: make this more obvious and beautiful!
-    super Fields.new(all_attributes_hash.merge!(mapper.new(comp).to_hash))  # decorate composition and transform to hash.
+    representer = @mapper.new(comp)
+
+    super Fields.new(representer.fields, representer.to_hash)  # decorate composition and transform to hash.
   end
 
   # workflow methods:
@@ -55,6 +51,10 @@ private
   # Keeps values of the form fields. What's in here is to be displayed in the browser!
   # we need this intermediate object to display both "original values" and new input from the form after submitting.
   class Fields < OpenStruct
+    def initialize(properties, values={})
+      fields = properties.inject({}) { |hsh, attr| hsh.merge!(attr => nil) }
+      super(fields.merge!(values))  # TODO: stringify value keys!
+    end
   end
 end
 
@@ -118,6 +118,11 @@ module Reform
       names.each do |name|
         property(name, *args)
       end
+    end
+
+    # Returns hash of all property names.
+    def fields
+      representable_attrs.collect { |cfg| cfg.name }
     end
   end
 end
