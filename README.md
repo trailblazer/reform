@@ -90,7 +90,6 @@ We provide a bullet-proof way to save your form data: by letting _you_ do it!
 	    SongRequest.new(nested[:song][:title])
 	  end
 ```
-# nice to have: artist.update_attributes(map.artist)
 
 While `data` gives you an object exposing the form property readers, `nested` already reflects the nesting you defined in your form earlier.
 
