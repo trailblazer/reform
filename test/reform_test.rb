@@ -99,7 +99,7 @@ class ReformTest < MiniTest::Spec
       end
 
       it "works with strings" do
-        comp.nested_hash_for("name" => "Jimi Hendrix", "title" => "Fire").must_equal({:artist=>{"name"=>"Jimi Hendrix"}, :song=>{"title"=>"Fire"}})
+        comp.nested_hash_for("name" => "Jimi Hendrix", "title" => "Fire").must_equal({:artist=>{:name=>"Jimi Hendrix"}, :song=>{:title=>"Fire"}})
       end
 
       it "works with strings in map" do
@@ -161,40 +161,41 @@ class ReformTest < MiniTest::Spec
     end
   end
 
-  describe "what" do
-    let (:comp) { SongAndArtist.new(:artist => OpenStruct.new, :song => OpenStruct.new) }
-    let (:form) { SongForm.new(SongAndArtistMap, comp) }
-
-    it "passes processed form data as block argument" do
-      form.validate("name" => "Diesel Boy")
-
-      artist = OpenStruct.new
-      map_from_block = {}
-
-      form.save do |data, map|
-        artist.name = data.name
-        # nice to have: artist.update_attributes(map.artist)
-        map_from_block = map  # we want a hash here for now!
-      end
-
-      artist.name.must_equal "Diesel Boy"
-      map_from_block.must_equal({:artist=>{"name"=>"Diesel Boy"}#, :song=>{"title"=>nil}
-        })
-    end
-  end
 
   describe "#save" do
     let (:comp) { SongAndArtist.new(:artist => OpenStruct.new, :song => OpenStruct.new) }
     let (:form) { SongForm.new(SongAndArtistMap, comp) }
 
-
+    before { form.validate("name" => "Diesel Boy") }
 
     it "pushes data to models" do
-      form.validate("name" => "Diesel Boy")
       form.save
 
       comp.artist.name.must_equal "Diesel Boy"
       comp.song.title.must_equal nil
+    end
+
+    describe "#save with block" do
+      it "provides data block argument" do
+        hash = {}
+
+        form.save do |data, map|
+          hash[:name]   = data.name
+          hash[:title]  = data.title
+        end
+
+        hash.must_equal({:name=>"Diesel Boy", :title=>nil})
+      end
+
+      it "provides nested symbolized hash as second block argument" do
+        hash = {}
+
+        form.save do |data, map|
+          hash = map
+        end
+
+        hash.must_equal({:artist=>{:name=>"Diesel Boy"}})
+      end
     end
   end
 end

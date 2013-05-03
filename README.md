@@ -66,6 +66,8 @@ After a form submission, you wanna validate the input.
 def create
 	@form = SongRequestForm.new(song: Song.new, artist: Artist.new)
 
+	#=> params: {song_request: {title: "Rio", name: "Duran Duran"}}
+
 	if @form.validate(params[:song_request])
 ```
 
@@ -80,7 +82,7 @@ We provide a bullet-proof way to save your form data: by letting _you_ do it!
 	if @form.validate(params[:song_request])
 
 	  @form.save do |data, nested|
-	  	#=> data:   {title: "Rio", name: "Duran Duran"}
+	  	#=> data:   <title: "Rio", name: "Duran Duran">
 	  	#
 	  	#   nested: {song:   {title: "Rio"},
 	  	#            artist: {name: "Duran Duran"}}
@@ -88,13 +90,15 @@ We provide a bullet-proof way to save your form data: by letting _you_ do it!
 	    SongRequest.new(nested[:song][:title])
 	  end
 ```
+# nice to have: artist.update_attributes(map.artist)
 
-While `data` gives you a plain key-value list of the form input, `nested` already reflects the nesting you defined in your form earlier.
+While `data` gives you an object exposing the form property readers, `nested` already reflects the nesting you defined in your form earlier.
 
 To push the incoming data to the models directly, call `#save` without the block.
 
 ```ruby
-    @form.save 	#=> populates song and artist with incoming data by calling @form.song.name= and @form.artist.title=.
+    @form.save 	#=> populates song and artist with incoming data
+                #   by calling @form.song.name= and @form.artist.title=.
 ```
 
 ## Security

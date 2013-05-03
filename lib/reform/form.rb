@@ -102,7 +102,7 @@ module Reform
         attrs.each do |name, val|
           obj = self.class.model_for_property(name)
           hsh[obj] ||= {}
-          hsh[obj][name] = val
+          hsh[obj][name.to_sym] = val
         end
       end
     end
