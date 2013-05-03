@@ -27,6 +27,7 @@ end
 
 The `::property` method allows defining the fields of the form. Using `:on` delegates this field to a nested object in your form.
 
+__Note__: There is a convenience method `::properities` that allows you to pass an array of fields at one time.
 
 ## Using Forms
 
