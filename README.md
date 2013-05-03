@@ -85,6 +85,7 @@ We provide a bullet-proof way to save your form data: by letting _you_ do it!
 	  	#            artist: {name: "Duran Duran"}}
 
 	    SongRequest.new(nested[:song][:title])
+	  end
 ```
 
 While `data` gives you a plain key-value list of the form input, `nested` already reflects the nesting you defined in your form earlier.
