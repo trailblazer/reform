@@ -106,3 +106,4 @@ By explicitely defining the form layout using `::property` there is no more need
 
 * validations per form, not per model
 * restricting input per form - no strong_parameters/attr_accessible or whatever.
+
