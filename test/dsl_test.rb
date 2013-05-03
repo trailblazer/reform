@@ -4,8 +4,8 @@ class DslTest < MiniTest::Spec
   class SongForm < Reform::Form
     include DSL
 
-    property :title,  on: :song
-    property :name,   on: :artist
+    property :title,  :on => :song
+    property :name,   :on => :artist
 
     validates :name, :title, presence: true
   end
