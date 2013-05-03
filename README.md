@@ -96,6 +96,11 @@ To push the incoming data to the models directly, call `#save` without the block
     @form.save 	#=> populates song and artist with incoming data by calling @form.song.name= and @form.artist.title=.
 ```
 
+## Security
+
+By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
+
+
 ## Features
 
 * validations per form, not per model
