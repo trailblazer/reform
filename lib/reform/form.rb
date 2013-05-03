@@ -19,9 +19,7 @@ module Reform
     # workflow methods:
     def validate(params)
       # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
-      params.each do |k,v|
-        send("#{k}=", v)  # this writes to <Fields>.
-      end
+      update_with(params)
 
       valid?  # this validates on <Fields>.
     end
@@ -34,6 +32,10 @@ module Reform
     end
 
   private
+    def update_with(params)
+      @mapper.new(self).from_hash(params) # sets form properties found in params on self.
+    end
+
     # Use representer to return current key-value form hash.
     def to_hash
       @mapper.new(self).to_hash

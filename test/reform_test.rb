@@ -120,7 +120,7 @@ class ReformTest < MiniTest::Spec
 
     describe "and submitted values" do
       it "returns filled-out fields" do
-        form.validate(:name => "Duran Duran")
+        form.validate("name" => "Duran Duran")
 
         form.title.must_equal nil
         form.name.must_equal  "Duran Duran"
@@ -137,12 +137,23 @@ class ReformTest < MiniTest::Spec
     end
   end
 
+  describe "#validate" do
+    let (:comp) { SongAndArtist.new(:artist => OpenStruct.new, :song => OpenStruct.new) }
+
+    it "ignores unmapped fields in input" do
+      form.validate("name" => "Duran Duran", :genre => "80s")
+      assert_raises NoMethodError do
+        form.genre
+      end
+    end
+  end
+
   describe "what" do
     let (:comp) { SongAndArtist.new(:artist => OpenStruct.new, :song => OpenStruct.new) }
     let (:form) { SongForm.new(SongAndArtistMap, comp) }
 
     it "passes processed form data as block argument" do
-      form.validate(:name => "Diesel Boy")
+      form.validate("name" => "Diesel Boy")
 
       artist = OpenStruct.new
       map_from_block = {}
