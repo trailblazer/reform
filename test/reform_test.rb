@@ -146,6 +146,19 @@ class ReformTest < MiniTest::Spec
         form.genre
       end
     end
+
+    it "returns true when valid" do
+      form.validate("name" => "Duran Duran").must_equal true
+    end
+
+    # TODO: test errors. test valid.
+    it "returns false when invalid" do
+      class ValidatingForm < Reform::Form
+        validates :name, :presence => true
+      end
+
+      ValidatingForm.new(SongAndArtistMap, comp).validate({}).must_equal false
+    end
   end
 
   describe "what" do

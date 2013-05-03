@@ -16,12 +16,11 @@ module Reform
       super Fields.new(representer.fields, representer.to_hash)  # decorate composition and transform to hash.
     end
 
-    # workflow methods:
     def validate(params)
       # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
       update_with(params)
 
-      valid?  # this validates on <Fields>.
+      valid?  # this validates on <Fields> using AM::Validations, currently.
     end
 
     def save
