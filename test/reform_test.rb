@@ -182,6 +182,21 @@ class ReformTest < MiniTest::Spec
         })
     end
   end
+
+  describe "#save" do
+    let (:comp) { SongAndArtist.new(:artist => OpenStruct.new, :song => OpenStruct.new) }
+    let (:form) { SongForm.new(SongAndArtistMap, comp) }
+
+
+
+    it "pushes data to models" do
+      form.validate("name" => "Diesel Boy")
+      form.save
+
+      comp.artist.name.must_equal "Diesel Boy"
+      comp.song.title.must_equal nil
+    end
+  end
 end
 
 # TODO: test errors
