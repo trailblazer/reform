@@ -6,9 +6,19 @@ module Reform::Form::ActiveModel
   end
 
   module ClassMethods
+    def model(*args)
+      @model_options = args  # FIXME: make inheritable!
+
+      delegate "persisted?", :to_key, :to_param, :to => args.last[:on]
+    end
+
     def property(name, options={})
       delegate options[:on], :to => :model
       super
+    end
+
+    def model_name
+      ActiveModel::Name.new(self, nil, @model_options.first.to_s.camelize)
     end
   end
 end
