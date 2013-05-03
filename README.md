@@ -79,7 +79,12 @@ We provide a bullet-proof way to save your form data: by letting _you_ do it!
 	if @form.validate(params[:song_request])
 
 	  @form.save do |data, nested|
-	    SongRequest.new(nested[:song][:name])
+	  	#=> data:   {title: "Rio", name: "Duran Duran"}
+	  	#
+	  	#   nested: {song:   {title: "Rio"},
+	  	#            artist: {name: "Duran Duran"}}
+
+	    SongRequest.new(nested[:song][:title])
 ```
 
 While `data` gives you a plain key-value list of the form input, `nested` already reflects the nesting you defined in your form earlier.
@@ -87,7 +92,7 @@ While `data` gives you a plain key-value list of the form input, `nested` alread
 To push the incoming data to the models directly, call `#save` without the block.
 
 ```ruby
-    @form.save #=> populates song and artist with incoming data.
+    @form.save 	#=> populates song and artist with incoming data by calling @form.song.name= and @form.artist.title=.
 ```
 
 ## Features
