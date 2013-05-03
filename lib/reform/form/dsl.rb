@@ -7,8 +7,14 @@ class Reform::Form
     end
 
     module ClassMethods
-      def property(*args)
-        representer_class.property(*args)
+      def property(name, *args)
+        representer_class.property(name, *args)
+      end
+
+      def properties(names, *args)
+        names.each do |name|
+          property(name, *args)
+        end
       end
 
     #private
