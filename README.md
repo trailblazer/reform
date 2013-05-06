@@ -64,11 +64,11 @@ After a form submission, you wanna validate the input.
 
 ```ruby
 def create
-	@form = SongRequestForm.new(song: Song.new, artist: Artist.new)
+  @form = SongRequestForm.new(song: Song.new, artist: Artist.new)
 
-	#=> params: {song_request: {title: "Rio", name: "Duran Duran"}}
+  #=> params: {song_request: {title: "Rio", name: "Duran Duran"}}
 
-	if @form.validate(params[:song_request])
+  if @form.validate(params[:song_request])
 ```
 
 `Reform` uses the validations you provided in the form - and nothing else.
@@ -79,16 +79,16 @@ def create
 We provide a bullet-proof way to save your form data: by letting _you_ do it!
 
 ```ruby
-	if @form.validate(params[:song_request])
+  if @form.validate(params[:song_request])
 
-	  @form.save do |data, nested|
-	  	#=> data:   <title: "Rio", name: "Duran Duran">
-	  	#
-	  	#   nested: {song:   {title: "Rio"},
-	  	#            artist: {name: "Duran Duran"}}
+    @form.save do |data, nested|
+      #=> data:   <title: "Rio", name: "Duran Duran">
+      #
+      #   nested: {song:   {title: "Rio"},
+      #            artist: {name: "Duran Duran"}}
 
-	    SongRequest.new(nested[:song][:title])
-	  end
+      SongRequest.new(nested[:song][:title])
+    end
 ```
 
 While `data` gives you an object exposing the form property readers, `nested` already reflects the nesting you defined in your form earlier.
@@ -96,17 +96,75 @@ While `data` gives you an object exposing the form property readers, `nested` al
 To push the incoming data to the models directly, call `#save` without the block.
 
 ```ruby
-    @form.save 	#=> populates song and artist with incoming data
+    @form.save  #=> populates song and artist with incoming data
                 #   by calling @form.song.name= and @form.artist.title=.
 ```
+
+## ActiveModel - Rails Integration
+
+Reform offers ActiveModel support to easily make this accessiable in rails based projects.  You simply include `Reform::Form::ActiveModel` in your form object and the rails specific code will be handled for you.
+
+### Simple Integration
+#### Form Class
+
+You have to include a call to `model` to specifiy which is the main object of the form.
+
+```ruby
+class UserProfileForm < Reform::Form
+  include Reform::Form::ActiveModel
+  include DSL
+
+  model :user, on: :user
+
+  property :email,        on: :user
+  properties [:gender, :age],   on: :profile
+
+  validates :email, :gender, presence: true
+  validates :age, numericality: true
+end
+```
+
+#### View Form
+
+The form becomes __very__ dumb as it knows nothing about the backend assocations or data binding to the database layer.  This simply takes input and passes it along to the controller as it should.
+
+```ruby
+<%= form_for @form do |f| %>
+  <%= f.email_field :email %>
+  <%= f.input :gender %>
+  <%= f.number_field :age %>
+  <%= f.submit %>
+<% end %>
+```
+
+#### Controller
+
+In the controller you can easily create helpers to build these form objects for you.  In the create and update actions Reform allows you total control of what to do with the data being passed via the form. How you interact with the data is entirely up to you.
+
+```ruby
+class UsersController < ApplicationController
+
+  def create
+    @form = create_new_form
+    if @form.validate(params[:user])
+      @form.save do |data, map|
+        new_user = User.new(map[:user])
+        new_user.build_user_profile(map[:profile])
+        new_user.save!
+      end
+    end
+  end
+
+
+  private
+  def create_new_form
+    UserProfileForm.new(user: User.new, profile: UserProfile.new)
+  end
+end
+```
+
+__Note__: this can also be used for the update action as well.
 
 ## Security
 
 By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
-
-
-## Features
-
-* validations per form, not per model
-* restricting input per form - no strong_parameters/attr_accessible or whatever.
-
