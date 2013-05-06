@@ -128,7 +128,7 @@ end
 
 The form becomes __very__ dumb as it knows nothing about the backend assocations or data binding to the database layer.  This simply takes input and passes it along to the controller as it should.
 
-```ruby
+```erb
 <%= form_for @form do |f| %>
   <%= f.email_field :email %>
   <%= f.input :gender %>
