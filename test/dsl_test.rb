@@ -56,4 +56,17 @@ class ActiveModelTest < MiniTest::Spec
   it "provides #to_param" do
     HitForm.new(:song => OpenStruct.new.instance_eval { def to_param; "yo!"; end; self }, :artist => OpenStruct.new).to_param.must_equal "yo!"
   end
+
+  it "works with any order of ::model and ::property" do
+    class AnotherForm < Reform::Form
+      include DSL
+      include Reform::Form::ActiveModel
+
+      model :song, :on => :song
+      property  :title,  :on => :song
+    end
+
+
+    AnotherForm.new(:song => rio).song.must_equal rio
+  end
 end

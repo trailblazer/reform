@@ -7,10 +7,13 @@ module Reform::Form::ActiveModel
 
   module ClassMethods
     def model(*args)
-      @model_options = args  # FIXME: make inheritable!
+      @model_options  = args  # FIXME: make inheritable!
+      main_model      = args.last[:on]
 
-      delegate "persisted?", :to_key, :to_param, :to => args.last[:on]
-      alias_method args.first, args.last[:on] # delegate #hit to #song to #model.
+      delegate main_model, :to => :model  # #song => model.song
+      delegate "persisted?", :to_key, :to_param, :to => main_model  # #to_key => song.to_key
+
+      alias_method args.first, main_model # #hit => model.song.
     end
 
     def property(name, options={})
