@@ -111,13 +111,13 @@ You have to include a call to `model` to specifiy which is the main object of th
 
 ```ruby
 class UserProfileForm < Reform::Form
-  include Reform::Form::ActiveModel
   include DSL
-
-  model :user, on: :user
+  include Reform::Form::ActiveModel
 
   property :email,        on: :user
   properties [:gender, :age],   on: :profile
+
+  model :user, on: :user
 
   validates :email, :gender, presence: true
   validates :age, numericality: true
