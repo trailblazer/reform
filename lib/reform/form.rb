@@ -1,6 +1,7 @@
 require 'delegate'
 require 'reform/fields'
 require 'reform/composition'
+require 'reform/representer'
 
 module Reform
   class Form  < SimpleDelegator
@@ -51,21 +52,5 @@ module Reform
     # FIXME: make AM optional.
     require 'active_model'
     include ActiveModel::Validations
-  end
-
-  require 'representable/hash'
-  class Representer < Representable::Decorator
-    include Representable::Hash
-
-    def self.properties(names, *args)
-      names.each do |name|
-        property(name, *args)
-      end
-    end
-
-    # Returns hash of all property names.
-    def fields
-      representable_attrs.collect { |cfg| cfg.name }
-    end
   end
 end
