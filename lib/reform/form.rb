@@ -1,4 +1,5 @@
 require 'delegate'
+require 'reform/fields'
 
 module Reform
   class Form  < SimpleDelegator
@@ -49,15 +50,6 @@ module Reform
     # FIXME: make AM optional.
     require 'active_model'
     include ActiveModel::Validations
-  end
-
-  # Keeps values of the form fields. What's in here is to be displayed in the browser!
-  # we need this intermediate object to display both "original values" and new input from the form after submitting.
-  class Fields < OpenStruct
-    def initialize(properties, values={})
-      fields = properties.inject({}) { |hsh, attr| hsh.merge!(attr => nil) }
-      super(fields.merge!(values))  # TODO: stringify value keys!
-    end
   end
 
   # Keeps composition of models and knows how to transform a plain hash into a nested hash.
