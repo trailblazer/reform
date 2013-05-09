@@ -11,7 +11,7 @@ module Reform::Form::ActiveModel
       main_model      = args.last[:on]
 
       delegate main_model, :to => :model  # #song => model.song
-      delegate "persisted?", :to_key, :to_param, :to => main_model  # #to_key => song.to_key
+      delegate :persisted?, :to_key, :to_param, :to => main_model  # #to_key => song.to_key
 
       alias_method args.first, main_model # #hit => model.song.
     end
