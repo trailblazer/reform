@@ -1,3 +1,5 @@
+require 'reform/form'
+
 module Reform::Form::ActiveModel
   def self.included(base)
     base.class_eval do
@@ -22,7 +24,7 @@ module Reform::Form::ActiveModel
     end
 
     def model_name
-      ActiveModel::Name.new(self, nil, @model_options.first.to_s.camelize)
+      ::ActiveModel::Name.new(self, nil, @model_options.first.to_s.camelize)
     end
   end
 end
