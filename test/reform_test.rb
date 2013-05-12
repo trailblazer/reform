@@ -178,6 +178,21 @@ class ReformTest < MiniTest::Spec
       end
     end
 
+    describe "method validations" do
+      it "allows accessing models" do
+        form = Class.new(Reform::Form) do
+          validate "name_correct?"
+
+          def name_correct?
+            errors.add :name, "Please give me a name" if model.artist.name.nil?
+          end
+        end.new(SongAndArtistMap, comp)
+
+        form.validate({}).must_equal false
+        form.errors.messages.must_equal({:name=>["Please give me a name"]})
+      end
+    end
+
     describe "UniquenessValidator" do
       # ActiveRecord::Schema.define do
       #   create_table :artists do |table|
