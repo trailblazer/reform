@@ -104,7 +104,7 @@ To push the incoming data to the models directly, call `#save` without the block
 
 [A sample Rails app using Reform.](https://github.com/gogogarrett/reform_example)
 
-Reform offers ActiveModel support to easily make this accessible in Rails based projects.  You simply `include Reform::Form::ActiveModel` in your form object and the Rails specific code will be handled for you.
+Reform offers ActiveModel support to easily make this accessible in Rails based projects.  You simply `include Reform::Form::ActiveRecord` in your form object and the Rails specific code will be handled for you.
 
 ### Simple Integration
 #### Form Class
