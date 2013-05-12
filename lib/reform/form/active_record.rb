@@ -1,6 +1,7 @@
+require 'reform/form'
+
 class Reform::Form
   module ActiveRecord
-
     def self.included(base)
       base.class_eval do
         include ActiveModel
@@ -27,7 +28,7 @@ class Reform::Form
         record.send("#{property}=", form.send(property))
         @klass = record.class # this is usually done in the super-sucky #setup method.
         super(record).tap do |res|
-          form.errors.add(property, record.errors.first.last) unless record.errors.blank?
+          form.errors.add(property, record.errors.first.last) if record.errors.present?
         end
       end
     end
