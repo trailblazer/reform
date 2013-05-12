@@ -1,5 +1,14 @@
 require 'test_helper'
 
+require 'active_record'
+class Artist < ActiveRecord::Base
+end
+ActiveRecord::Base.establish_connection(
+  :adapter => "sqlite3",
+  :database => "#{Dir.pwd}/database.sqlite3"
+)
+
+
 class RepresenterTest < MiniTest::Spec
   class SongRepresenter < Reform::Representer
     properties [:title, :year]
@@ -152,12 +161,53 @@ class ReformTest < MiniTest::Spec
     end
 
     # TODO: test errors. test valid.
-    it "returns false when invalid" do
+    describe "invalid input" do
       class ValidatingForm < Reform::Form
-        validates :name, :presence => true
+        validates :name,  :presence => true
+        validates :title, :presence => true
+      end
+      let (:form) { ValidatingForm.new(SongAndArtistMap, comp) }
+
+      it "returns false when invalid" do
+        form.validate({}).must_equal false
       end
 
-      ValidatingForm.new(SongAndArtistMap, comp).validate({}).must_equal false
+      it "populates errors" do
+        form.validate({})
+        form.errors.messages.must_equal({:name=>["can't be blank"], :title=>["can't be blank"]})
+      end
+    end
+
+    describe "UniquenessValidator" do
+      # ActiveRecord::Schema.define do
+      #   create_table :artists do |table|
+      #     table.column :name, :string
+      #   end
+      # end
+      #Artist.new(:name => "Racer X").save
+      let (:comp) { SongAndArtist.new(:artist => Artist.new, :song => OpenStruct.new) }
+
+      it "allows accessing the database" do
+      end
+
+      it "is valid when name is unique" do
+        ActiveRecordForm.new(SongAndArtistMap, comp).validate({"name" => "Paul Gilbert", "title" => "Godzilla"}).must_equal true
+      end
+
+      it "is invalid and shows error when taken" do
+        form = ActiveRecordForm.new(SongAndArtistMap, comp)
+        form.validate({"name" => "Racer X"}).must_equal false
+        form.errors.messages.must_equal({:name=>["has already been taken"], :title => ["can't be blank"]})
+      end
+
+      require 'reform/rails'
+      class ActiveRecordForm < Reform::Form
+        include Reform::Form::ActiveRecord
+        model :artist, :on => :artist # FIXME: i want form.artist, so move this out of ActiveModel into ModelDelegations.
+
+        validates_uniqueness_of :name
+        validates :title, :presence => true # have another property to test if we mix up.
+      end
     end
   end
 
