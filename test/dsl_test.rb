@@ -7,7 +7,7 @@ class DslTest < MiniTest::Spec
     property  :title,  :on => :song
     properties [:name, :genre],   :on => :artist
 
-    validates :name, :title, :genre, presence: true
+    validates :name, :title, :genre, :presence => true
   end
 
   let (:form) { SongForm.new(:song => OpenStruct.new(:title => "Rio"), :artist => OpenStruct.new()) }

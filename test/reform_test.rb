@@ -59,8 +59,8 @@ class ReformTest < MiniTest::Spec
   let (:form) { SongForm.new(SongAndArtistMap, comp) }
 
   class SongAndArtistMap < Reform::Representer
-    property :name, on: :artist
-    property :title, on: :song
+    property :name, :on => :artist
+    property :title, :on => :song
   end
 
   class SongForm < Reform::Form
