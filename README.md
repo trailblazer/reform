@@ -112,9 +112,11 @@ Reform offers ActiveModel support to easily make this accessible in Rails based 
 You have to include a call to `model` to specifiy which is the main object of the form.
 
 ```ruby
+require 'reform/rails'
+
 class UserProfileForm < Reform::Form
   include DSL
-  include Reform::Form::ActiveModel
+  include Reform::Form::ActiveRecord
 
   property :email,        on: :user
   properties [:gender, :age],   on: :profile
@@ -123,8 +125,10 @@ class UserProfileForm < Reform::Form
 
   validates :email, :gender, presence: true
   validates :age, numericality: true
+  validates_uniqueness_of :email
 end
 ```
+
 
 #### View Form
 
