@@ -171,6 +171,22 @@ end
 
 __Note__: this can also be used for the update action as well.
 
+## Using Your Models In Validations
+
+Sometimes you want to access your database in a validation. You can access the models using the `#model` accessor in the form.
+
+```ruby
+class ArtistForm < Reform::Form
+  property :name
+
+  validate "name_correct?"
+
+  def name_correct?
+    errors.add :name, "#{name} is stupid!" if model.artist.stupid_name?(name)
+  end
+end
+```
+
 ## Security
 
 By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
