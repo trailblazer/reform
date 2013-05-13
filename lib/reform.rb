@@ -1,3 +1,4 @@
+require 'ostruct'
 require 'reform/version'
 require 'reform/form'
 require 'reform/form/dsl'
