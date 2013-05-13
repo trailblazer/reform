@@ -1,3 +1,5 @@
+require 'reform/form'
+
 module Reform::Form::ActiveModel
   def self.included(base)
     base.class_eval do

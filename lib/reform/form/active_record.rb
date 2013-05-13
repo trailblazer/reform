@@ -1,3 +1,5 @@
+require 'reform/form'
+
 class Reform::Form
   module ActiveRecord
     def self.included(base)
