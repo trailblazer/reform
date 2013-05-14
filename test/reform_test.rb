@@ -53,6 +53,12 @@ class FieldsTest < MiniTest::Spec
 end
 
 class ReformTest < MiniTest::Spec
+  def errors_for(form)
+    errors = form.errors
+    errors = errors.messages unless ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
+    errors
+  end
+
   let (:duran)  { OpenStruct.new(:name => "Duran Duran") }
   let (:rio)    { OpenStruct.new(:title => "Rio") }
 
@@ -174,7 +180,7 @@ class ReformTest < MiniTest::Spec
 
       it "populates errors" do
         form.validate({})
-        form.errors.messages.must_equal({:name=>["can't be blank"], :title=>["can't be blank"]})
+        errors_for(form).must_equal({:name=>["can't be blank"], :title=>["can't be blank"]})
       end
     end
 
@@ -189,7 +195,7 @@ class ReformTest < MiniTest::Spec
         end.new(SongAndArtistMap, comp)
 
         form.validate({}).must_equal false
-        form.errors.messages.must_equal({:name=>["Please give me a name"]})
+        errors_for(form).must_equal({:name=>["Please give me a name"]})
       end
     end
 
@@ -212,7 +218,7 @@ class ReformTest < MiniTest::Spec
       it "is invalid and shows error when taken" do
         form = ActiveRecordForm.new(SongAndArtistMap, comp)
         form.validate({"name" => "Racer X"}).must_equal false
-        form.errors.messages.must_equal({:name=>["has already been taken"], :title => ["can't be blank"]})
+        errors_for(form).must_equal({:name=>["has already been taken"], :title => ["can't be blank"]})
       end
 
       require 'reform/rails'

@@ -22,7 +22,10 @@ module Reform::Form::ActiveModel
     end
 
     def model_name
-      ::ActiveModel::Name.new(self, nil, @model_options.first.to_s.camelize)
+      name = @model_options.first.to_s.camelize
+
+      return ::ActiveModel::Name.new(OpenStruct.new(:name => name)) if ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
+      ::ActiveModel::Name.new(self, nil, name)
     end
   end
 end
