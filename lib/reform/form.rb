@@ -1,4 +1,5 @@
 require 'delegate'
+require 'ostruct'
 
 module Reform
   class Form  < SimpleDelegator
