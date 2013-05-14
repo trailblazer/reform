@@ -4,4 +4,4 @@ source "http://rubygems.org"
 gemspec :path => '../'
 
 gem 'railties', '~> 3.0.11'
-gem 'active_record', '~> 3.0.11'
+gem 'activerecord', '~> 3.0.11'
