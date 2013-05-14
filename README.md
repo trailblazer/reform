@@ -121,12 +121,18 @@ class UserProfileForm < Reform::Form
   property :email,        on: :user
   properties [:gender, :age],   on: :profile
 
-  model :user, on: :user
+  model :user
 
   validates :email, :gender, presence: true
   validates :age, numericality: true
   validates_uniqueness_of :email
 end
+```
+
+Basically, `model :user` tells Reform to use the `:user` object in the composition as the form main object while using `"user"` as the form name (needed for URL computation). If you want to change the form name let Reform know.
+
+```ruby
+  model :singer, :on => :user # form name is "singer" whereas main object is `:user` in composition.
 ```
 
 

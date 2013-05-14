@@ -15,9 +15,23 @@ class ActiveModelTest < MiniTest::Spec
   let (:duran) { OpenStruct.new }
   let (:form) { HitForm.new(:song => rio, :artist => duran) }
 
-  it "creates model readers" do
-    form.hit.must_equal rio
+  describe "main form reader #hit" do
+    it "delegates to :on model" do
+      form.hit.must_equal rio
+    end
+
+    it "doesn't delegate when :on missing" do
+      class HitForm < Reform::Form
+        include DSL
+        include Reform::Form::ActiveModel
+
+        property  :title,  :on => :song
+
+        model :song
+      end.new(:song => rio, :artist => duran).song.must_equal rio
+    end
   end
+
 
   it "creates composition readers" do
     form.song.must_equal rio
