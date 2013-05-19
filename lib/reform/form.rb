@@ -1,4 +1,5 @@
 require 'delegate'
+require 'ostruct'
 
 module Reform
   class Form  < SimpleDelegator
@@ -92,7 +93,7 @@ module Reform
     private
       def create_accessors(model, methods)
         accessors = methods.collect { |m| [m, "#{m}="] }.flatten
-        delegate *accessors, to: "@#{model}"
+        delegate *accessors << {:to => :"#{model}"}
       end
     end
 

@@ -100,29 +100,41 @@ To push the incoming data to the models directly, call `#save` without the block
                 #   by calling @form.song.name= and @form.artist.title=.
 ```
 
-## ActiveModel - Rails Integration
+## Rails Integration
 
-Reform offers ActiveModel support to easily make this accessible in Rails based projects.  You simply `include Reform::Form::ActiveModel` in your form object and the Rails specific code will be handled for you.
+[A sample Rails app using Reform.](https://github.com/gogogarrett/reform_example)
+
+Reform offers ActiveRecord support to easily make this accessible in Rails based projects. You simply `include Reform::Form::ActiveRecord` in your form object and the Rails specific code will be handled for you. This happens by adding behaviour to make the form ActiveModel-compliant. Note that this module will also work with other ORMs like Datamapper.
 
 ### Simple Integration
 #### Form Class
 
-You have to include a call to `model` to specifiy which is the main object of the form.
+You have to include a call to `model` to specify which is the main object of the form.
 
 ```ruby
-class UserProfileForm < Reform::Form
-  include Reform::Form::ActiveModel
-  include DSL
+require 'reform/rails'
 
-  model :user, on: :user
+class UserProfileForm < Reform::Form
+  include DSL
+  include Reform::Form::ActiveRecord
 
   property :email,        on: :user
   properties [:gender, :age],   on: :profile
 
+  model :user
+
   validates :email, :gender, presence: true
   validates :age, numericality: true
+  validates_uniqueness_of :email
 end
 ```
+
+Basically, `model :user` tells Reform to use the `:user` object in the composition as the form main object while using `"user"` as the form name (needed for URL computation). If you want to change the form name let Reform know.
+
+```ruby
+  model :singer, :on => :user # form name is "singer" whereas main object is `:user` in composition.
+```
+
 
 #### View Form
 
@@ -164,6 +176,22 @@ end
 ```
 
 __Note__: this can also be used for the update action as well.
+
+## Using Your Models In Validations
+
+Sometimes you want to access your database in a validation. You can access the models using the `#model` accessor in the form.
+
+```ruby
+class ArtistForm < Reform::Form
+  property :name
+
+  validate "name_correct?"
+
+  def name_correct?
+    errors.add :name, "#{name} is stupid!" if model.artist.stupid_name?(name)
+  end
+end
+```
 
 ## Security
 
