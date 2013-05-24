@@ -9,12 +9,11 @@ module Reform
     # validation: this object also contains the validation rules itself, should be separated.
     # TODO: figure out #to_key issues.
 
-    def initialize(mapper, composition)
-      @mapper     = mapper
+    def initialize(mapper_class, composition)
+      @mapper     = mapper_class
       @model      = composition
-      representer = @mapper.new(composition)
 
-      super Fields.new(representer.fields, representer.to_hash)  # decorate composition and transform to hash.
+      super(setup_fields(mapper_class, composition))  # delegate all methods to Fields instance.
     end
 
     def validate(params)
@@ -31,13 +30,6 @@ module Reform
       @mapper.new(model).from_hash(to_hash) # DISCUSS: move to Composition?
     end
 
-  private
-    attr_accessor :mapper, :model
-
-    def update_with(params)
-      mapper.new(self).from_hash(params) # sets form properties found in params on self.
-    end
-
     # Use representer to return current key-value form hash.
     def to_hash
       mapper.new(self).to_hash
@@ -45,6 +37,24 @@ module Reform
 
     def to_nested_hash
       model.nested_hash_for(to_hash)  # use composition to compute nested hash.
+    end
+
+  private
+    attr_accessor :mapper, :model
+
+    def setup_fields(mapper_class, composition)
+      # decorate composition and transform to hash.
+      representer = mapper_class.new(composition)
+
+      create_fields(representer.fields, representer.to_hash)
+    end
+
+    def create_fields(field_names, fields)
+      Fields.new(field_names, fields)
+    end
+
+    def update_with(params)
+      mapper.new(self).from_hash(params) # sets form properties found in params on self.
     end
 
     # FIXME: make AM optional.
