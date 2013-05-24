@@ -197,19 +197,12 @@ end
 
 By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
 
-## Additional information
-
-#### Contributors
-
-We have a list valued contributors. Check them all at:
-
-[https://github.com/apotonick/reform/contributors](https://github.com/apotonick/reform/contributors)
-
-#### Maintainers
+## Maintainers
 
 [Nick Sutterer](https://github.com/apotonick)
 
 [Garrett Heinlen](https://github.com/gogogarrett)
 
-### Attributions
+### Attributions!!!
+
 Great thanks to [Blake Education](https://github.com/blake-education) for giving us the freedom and time to develop this project while working on their project.
