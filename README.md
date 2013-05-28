@@ -100,6 +100,25 @@ To push the incoming data to the models directly, call `#save` without the block
                 #   by calling @form.song.name= and @form.artist.title=.
 ```
 
+## Coercion
+
+Often you want incoming form data to be converted to a type, like timestamps. Reform uses [virtus](https://github.com/solnic/virtus) for coercion, the DSL is seamlessly integrated into Reform with the `:type` option.
+
+Be sure to add `virtus` to your Gemfile.
+
+```ruby
+require 'reform/coercion'
+
+class SongRequestForm < Reform::Form
+  include DSL
+
+  property :written_at,  on: :song, type: DateTime
+end
+
+@form.save do |data, nested|
+  data.written_at #=> <DateTime XXX>
+```
+
 ## Rails Integration
 
 [A sample Rails app using Reform.](https://github.com/gogogarrett/reform_example)
