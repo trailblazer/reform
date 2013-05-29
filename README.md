@@ -107,10 +107,11 @@ Often you want incoming form data to be converted to a type, like timestamps. Re
 Be sure to add `virtus` to your Gemfile.
 
 ```ruby
-require 'reform/coercion'
+require 'reform/form/coercion'
 
 class SongRequestForm < Reform::Form
   include DSL
+  include Reform::Form::Coercion
 
   property :written_at,  on: :song, type: DateTime
 end
