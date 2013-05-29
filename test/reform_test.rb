@@ -45,6 +45,7 @@ class FieldsTest < MiniTest::Spec
     end
 
     it "processes value syms" do
+      skip "we don't need to test this as representer.to_hash always returns strings"
       fields = Reform::Fields.new(["name", "title"], :title => "The Body")
       fields.name.must_equal  nil
       fields.title.must_equal "The Body"
@@ -270,5 +271,3 @@ class ReformTest < MiniTest::Spec
     end
   end
 end
-
-# TODO: test errors
