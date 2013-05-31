@@ -24,6 +24,7 @@ class Reform::Form
         # the class for the finder could either be infered from the record or set in the validator instance itself in the call to ::validates.
         record = form.send(model_name)
         record.send("#{property}=", form.send(property))
+        record.valid?
         @klass = record.class # this is usually done in the super-sucky #setup method.
         super(record).tap do |res|
           form.errors.add(property, record.errors.first.last) if record.errors.present?
