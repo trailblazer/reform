@@ -8,8 +8,8 @@ class Reform::Form
     end
 
     module ClassMethods
-      def validates_uniqueness_of(attribute)
-        validates_with UniquenessValidator, :attributes => [attribute]
+      def validates_uniqueness_of(*attr_names)
+        validates_with UniquenessValidator, _merge_attributes(attr_names)
       end
     end
 
