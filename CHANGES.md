@@ -1,3 +1,7 @@
+h3. 0.1.2
+
+* Altered `reform/rails` to conditionally load `ActiveRecord` code and created `reform/active_record`
+
 h3. 0.1.1
 
 * Added `reform/rails` that requires everything you need (even in other frameworks :).
