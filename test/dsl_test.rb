@@ -28,4 +28,16 @@ class DslTest < MiniTest::Spec
     form.written_at.must_be_kind_of DateTime
     form.written_at.must_equal DateTime.parse("Tue, 31 Mar 1981 00:00:00 +0000")
   end
+
+  it "allows coercion in validate" do
+    form = Class.new(Reform::Form) do
+      include Reform::Form::DSL
+      include Reform::Form::Coercion
+
+      property :id, :type => Integer, :on => :song
+    end.new(:song => OpenStruct.new())
+
+    form.validate("id" => "1")
+    form.to_hash.must_equal("id" => 1)
+  end
 end

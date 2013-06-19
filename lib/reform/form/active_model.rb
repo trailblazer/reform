@@ -11,7 +11,7 @@ module Reform::Form::ActiveModel
       composition_model = options[:on] || main_model
 
       delegate composition_model, :to => :model  # #song => model.song
-      delegate :persisted?, :to_key, :to_param, :to => composition_model  # #to_key => song.to_key
+      delegate :persisted?, :to_key, :to_param, :to_model, :to => composition_model  # #to_key => song.to_key
 
       alias_method main_model, composition_model # #hit => model.song.
     end

@@ -1,2 +1,4 @@
 require 'reform/form/active_model'
-require 'reform/form/active_record'
+if defined?(ActiveRecord)
+  require 'reform/form/active_record'
+end
