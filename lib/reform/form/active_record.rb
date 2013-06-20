@@ -8,8 +8,8 @@ class Reform::Form
     end
 
     module ClassMethods
-      def validates_uniqueness_of(attribute)
-        validates_with UniquenessValidator, :attributes => [attribute]
+      def validates_uniqueness_of(*attr_names)
+        validates_with UniquenessValidator, _merge_attributes(attr_names)
       end
     end
 
@@ -23,7 +23,12 @@ class Reform::Form
         # the class? it would be way easier to pass #validate a hash of attributes and get back an errors hash.
         # the class for the finder could either be infered from the record or set in the validator instance itself in the call to ::validates.
         record = form.send(model_name)
-        record.send("#{property}=", form.send(property))
+        form.to_h.each do |k,v|
+          if record.respond_to?("#{k}=")
+            record.send("#{k}=", v)
+          end
+        end
+
         @klass = record.class # this is usually done in the super-sucky #setup method.
         super(record).tap do |res|
           form.errors.add(property, record.errors.first.last) if record.errors.present?
