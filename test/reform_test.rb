@@ -3,6 +3,8 @@ require 'test_helper'
 require 'active_record'
 class Artist < ActiveRecord::Base
 end
+class Song < ActiveRecord::Base
+end
 ActiveRecord::Base.establish_connection(
   :adapter => "sqlite3",
   :database => "#{Dir.pwd}/database.sqlite3"
@@ -229,6 +231,48 @@ class ReformTest < MiniTest::Spec
 
         validates_uniqueness_of :name
         validates :title, :presence => true # have another property to test if we mix up.
+      end
+    end
+
+    describe "UniquenessValidator with scope" do
+      before do
+        Song.destroy_all
+      end
+
+      # ActiveRecord::Schema.define do
+      #   create_table :songs do |table|
+      #     table.column :artist_id, :integer
+      #     table.column :name, :string
+      #   end
+      # end
+      # Song.new(:name => "The Boys Are Leaving Town").save
+
+      it "is valid when name is unique" do
+        ActiveRecordFormWithScope.new(song: Song.new).validate({"artist_id" => 1, "name" => "The Boys Are Leaving Town" }).must_equal true
+      end
+
+      it "is invalid and shows error when taken" do
+        song = Song.new
+        song.artist_id = 1
+        song.name = 'The Boys Are Leaving Town'
+        song.save!
+
+        form = ActiveRecordFormWithScope.new(song: Song.new)
+        form.validate({"artist_id" => 1, "name" => "the boys are leaving town"}).must_equal false
+        errors_for(form).must_equal({name:["has already been taken"]})
+      end
+
+      require 'reform/rails'
+      class ActiveRecordFormWithScope < Reform::Form
+        include DSL
+        include Reform::Form::ActiveRecord
+
+        model :song
+
+        property :name, on: :song
+        property :artist_id, on: :song
+
+        validates_uniqueness_of :name, scope: :artist_id, case_sensitive: false
       end
     end
   end
