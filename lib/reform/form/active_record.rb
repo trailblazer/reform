@@ -2,7 +2,7 @@ class Reform::Form
   module ActiveRecord
     def self.included(base)
       base.class_eval do
-        include ActiveModel
+        include Reform::Form::ActiveModel
         extend ClassMethods
       end
     end
