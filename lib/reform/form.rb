@@ -1,8 +1,9 @@
-require 'delegate'
+require 'forwardable'
 require 'ostruct'
 
 module Reform
-  class Form  < SimpleDelegator
+  class Form
+    extend Forwardable
     # reasons for delegation:
     # presentation: this object is used in the presentation layer by #form_for.
     # problem: #form_for uses respond_to?(:email_before_type_cast) which goes to an internal hash in the actual record.
@@ -13,7 +14,7 @@ module Reform
       @mapper     = mapper_class
       @model      = composition
 
-      super(setup_fields(mapper_class, composition))  # delegate all methods to Fields instance.
+      setup_fields(mapper_class, composition)  # delegate all methods to Fields instance.
     end
 
     def validate(params)
@@ -46,11 +47,18 @@ module Reform
       # decorate composition and transform to hash.
       representer = mapper_class.new(composition)
 
+      create_accessors(representer.fields)
+
       create_fields(representer.fields, representer.to_hash)
     end
 
     def create_fields(field_names, fields)
       Fields.new(field_names, fields)
+    end
+
+    def create_accessors(fields) # TODO: make this on class level!
+      writers = fields.collect { |fld| "#{fld}=" }
+      self.class.delegate fields+writers => :@model
     end
 
     def update_with(params)

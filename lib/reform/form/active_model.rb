@@ -10,14 +10,14 @@ module Reform::Form::ActiveModel
       @model_options    = [main_model, options]  # FIXME: make inheritable!
       composition_model = options[:on] || main_model
 
-      delegate composition_model, :to => :model  # #song => model.song
-      delegate :persisted?, :to_key, :to_param, :to_model, :to => composition_model  # #to_key => song.to_key
+      delegate composition_model => :model # #song => model.song
+      delegate [:persisted?, :to_key, :to_param, :to_model] => composition_model  # #to_key => song.to_key
 
       alias_method main_model, composition_model # #hit => model.song.
     end
 
     def property(name, options={})
-      delegate options[:on], :to => :model
+      delegate options[:on] => :model
       super
     end
 
