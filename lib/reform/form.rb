@@ -34,7 +34,7 @@ module Reform
 
     def validate(params)
       # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
-      update_with(params)
+      from_hash(params)
 
       valid?  # this validates on <Fields> using AM::Validations, currently.
     end
@@ -47,7 +47,7 @@ module Reform
     end
 
     # Use representer to return current key-value form hash.
-    def to_hash
+    def to_hash(*)
       mapper.new(self).to_hash
     end
 
@@ -80,7 +80,7 @@ module Reform
       self.class.delegate fields+writers => :@model
     end
 
-    def update_with(params)
+    def from_hash(params, *args)
       mapper.new(self).from_hash(params) # sets form properties found in params on self.
     end
 
