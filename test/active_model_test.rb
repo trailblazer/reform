@@ -6,7 +6,7 @@ class ActiveModelTest < MiniTest::Spec
     include Reform::Form::ActiveModel
 
     property  :title,  :on => :song
-    properties [:name, :genre],   :on => :artist
+    properties [:name, :genre],   :on => :artist # we need to check both ::property and ::properties here!
 
     model :hit, :on => :song
   end
@@ -21,11 +21,11 @@ class ActiveModelTest < MiniTest::Spec
     end
 
     it "doesn't delegate when :on missing" do
-      class HitForm < Reform::Form
+      class SongOnlyForm < Reform::Form
         include DSL
         include Reform::Form::ActiveModel
 
-        property  :title,  :on => :song
+        property :title,  :on => :song
 
         model :song
       end.new(:song => rio, :artist => duran).song.must_equal rio

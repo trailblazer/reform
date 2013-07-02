@@ -17,6 +17,7 @@ module Reform::Form::ActiveModel
     end
 
     def property(name, options={})
+puts "delegate: #{options[:on]}"
       delegate options[:on] => :model
       super
     end

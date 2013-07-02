@@ -10,11 +10,26 @@ module Reform
     # validation: this object also contains the validation rules itself, should be separated.
     # TODO: figure out #to_key issues.
 
-    def initialize(mapper_class, composition)
-      @mapper     = mapper_class
-      @model      = composition
+    module PropertyMethods
+      extend Forwardable
+      delegate [:property] => :representer_class
 
-      setup_fields(mapper_class, composition)  # delegate all methods to Fields instance.
+      def properties(names, *args)
+        names.each { |name| property(name, *args) }
+      end
+
+    #private
+      def representer_class
+        @representer_class ||= Class.new(Reform::Representer)
+      end
+    end
+    extend PropertyMethods
+
+
+    def initialize(composition)
+      @model = composition
+
+      setup_fields(self.class.representer_class, composition)  # delegate all methods to Fields instance.
     end
 
     def validate(params)
@@ -28,7 +43,7 @@ module Reform
       # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
       return yield self, to_nested_hash if block_given?
 
-      @mapper.new(model).from_hash(to_hash) # DISCUSS: move to Composition?
+      mapper.new(model).from_hash(to_hash) # DISCUSS: move to Composition?
     end
 
     # Use representer to return current key-value form hash.
@@ -41,7 +56,11 @@ module Reform
     end
 
   private
-    attr_accessor :mapper, :model
+    attr_accessor :model
+
+    def mapper # FIXME.
+      self.class.representer_class
+    end
 
     def setup_fields(mapper_class, composition)
       # decorate composition and transform to hash.
@@ -137,11 +156,7 @@ module Reform
   class Representer < Representable::Decorator
     include Representable::Hash
 
-    def self.properties(names, *args)
-      names.each do |name|
-        property(name, *args)
-      end
-    end
+
 
     # Returns hash of all property names.
     def fields

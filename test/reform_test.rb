@@ -11,17 +11,19 @@ ActiveRecord::Base.establish_connection(
 
 class RepresenterTest < MiniTest::Spec
   class SongRepresenter < Reform::Representer
-    properties [:title, :year]
+    #properties [:title, :year]
+    property :title
+    property :year
   end
 
   let (:rpr) { SongRepresenter.new(OpenStruct.new(:title => "Disconnect, Disconnect", :year => 1990)) }
 
   # TODO: introduce representer_for helper.
-  describe "::properties" do
-    it "accepts array of property names" do
-      rpr.to_hash.must_equal({"title"=>"Disconnect, Disconnect", "year" => 1990} )
-    end
-  end
+  # describe "::properties" do
+  #   it "accepts array of property names" do
+  #     rpr.to_hash.must_equal({"title"=>"Disconnect, Disconnect", "year" => 1990} )
+  #   end
+  # end
 
   describe "#fields" do
     it "returns all properties as strings" do
@@ -63,7 +65,7 @@ class ReformTest < MiniTest::Spec
   let (:duran)  { OpenStruct.new(:name => "Duran Duran") }
   let (:rio)    { OpenStruct.new(:title => "Rio") }
 
-  let (:form) { SongForm.new(SongAndArtistMap, comp) }
+  let (:form) { SongForm.new(comp) }
 
   class SongAndArtistMap < Reform::Representer
     property :name, :on => :artist
@@ -71,6 +73,8 @@ class ReformTest < MiniTest::Spec
   end
 
   class SongForm < Reform::Form
+    property :name
+    property :title
   end
 
   describe "Composition" do
@@ -170,10 +174,13 @@ class ReformTest < MiniTest::Spec
     # TODO: test errors. test valid.
     describe "invalid input" do
       class ValidatingForm < Reform::Form
+        property :name
+        property :title
+
         validates :name,  :presence => true
         validates :title, :presence => true
       end
-      let (:form) { ValidatingForm.new(SongAndArtistMap, comp) }
+      let (:form) { ValidatingForm.new(comp) }
 
       it "returns false when invalid" do
         form.validate({}).must_equal false
@@ -188,12 +195,13 @@ class ReformTest < MiniTest::Spec
     describe "method validations" do
       it "allows accessing models" do
         form = Class.new(Reform::Form) do
+          property :name
           validate "name_correct?"
 
           def name_correct?
             errors.add :name, "Please give me a name" if model.artist.name.nil?
           end
-        end.new(SongAndArtistMap, comp)
+        end.new(comp)
 
         form.validate({}).must_equal false
         errors_for(form).must_equal({:name=>["Please give me a name"]})
@@ -213,11 +221,11 @@ class ReformTest < MiniTest::Spec
       end
 
       it "is valid when name is unique" do
-        ActiveRecordForm.new(SongAndArtistMap, comp).validate({"name" => "Paul Gilbert", "title" => "Godzilla"}).must_equal true
+        ActiveRecordForm.new(comp).validate({"name" => "Paul Gilbert", "title" => "Godzilla"}).must_equal true
       end
 
       it "is invalid and shows error when taken" do
-        form = ActiveRecordForm.new(SongAndArtistMap, comp)
+        form = ActiveRecordForm.new(comp)
         form.validate({"name" => "Racer X"}).must_equal false
         errors_for(form).must_equal({:name=>["has already been taken"], :title => ["can't be blank"]})
       end
@@ -226,6 +234,9 @@ class ReformTest < MiniTest::Spec
       class ActiveRecordForm < Reform::Form
         include Reform::Form::ActiveRecord
         model :artist, :on => :artist # FIXME: i want form.artist, so move this out of ActiveModel into ModelDelegations.
+
+        property :name, :on => :artist
+        property :title, :on => :title
 
         validates_uniqueness_of :name
         validates :title, :presence => true # have another property to test if we mix up.
@@ -236,7 +247,7 @@ class ReformTest < MiniTest::Spec
 
   describe "#save" do
     let (:comp) { SongAndArtist.new(:artist => OpenStruct.new, :song => OpenStruct.new) }
-    let (:form) { SongForm.new(SongAndArtistMap, comp) }
+    let (:form) { SongForm.new(comp) }
 
     before { form.validate("name" => "Diesel Boy") }
 
