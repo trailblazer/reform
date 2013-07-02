@@ -1,4 +1,5 @@
 class Reform::Form
+  # Automatically creates a Composition object for you when initializing the form.
   module DSL
     def self.included(base)
       base.class_eval do

@@ -8,7 +8,6 @@ module Reform
     # presentation: this object is used in the presentation layer by #form_for.
     # problem: #form_for uses respond_to?(:email_before_type_cast) which goes to an internal hash in the actual record.
     # validation: this object also contains the validation rules itself, should be separated.
-    # TODO: figure out #to_key issues.
 
     module PropertyMethods
       extend Forwardable
@@ -36,7 +35,16 @@ module Reform
       # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
       from_hash(params)
 
-      valid?  # this validates on <Fields> using AM::Validations, currently.
+      res = valid?  # this validates on <Fields> using AM::Validations, currently.
+
+      nested_forms.each do |form|
+        unless form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
+          res = false # res &= form.valid?
+          errors.add(form.name, form.errors.messages)
+        end
+      end
+
+      res
     end
 
     def save
@@ -82,6 +90,12 @@ module Reform
 
     def from_hash(params, *args)
       mapper.new(self).from_hash(params) # sets form properties found in params on self.
+    end
+
+    def nested_forms
+      mapper.representable_attrs.
+        find_all { |attr| attr.typed? }.
+        collect  { |attr| send(attr.getter) } # DISCUSS: is there another way of getting the forms?
     end
 
     # FIXME: make AM optional.
@@ -156,11 +170,9 @@ module Reform
   class Representer < Representable::Decorator
     include Representable::Hash
 
-
-
     # Returns hash of all property names.
     def fields
-      representable_attrs.collect { |cfg| cfg.name }
+      representable_attrs.map(&:name)
     end
   end
 end
