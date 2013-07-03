@@ -101,6 +101,20 @@ module Reform
     # FIXME: make AM optional.
     require 'active_model'
     include ActiveModel::Validations
+
+    module Errors
+      module MessagesMethod
+        def messages
+          self
+        end
+      end
+
+      def errors
+        return super unless ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
+        super.extend(MessagesMethod) # Rails 3.0 fix. move to VersionStrategy when we have more of these.
+      end
+    end
+    include Errors
   end
 
   # Keeps values of the form fields. What's in here is to be displayed in the browser!

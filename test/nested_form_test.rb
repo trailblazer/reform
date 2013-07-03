@@ -20,7 +20,10 @@ class NestedFormTest < MiniTest::Spec
 
   # AlbumForm::collection :songs, :form => SongForm
   # should be: AlbumForm.new(songs: [Song, Song])
-  let (:form) { AlbumForm.new(OpenStruct.new(:title => "Blackhawks Over Los Angeles", :hit => AlbumForm::SongForm.new(song))) }
+  let (:form) { AlbumForm.new(OpenStruct.new(
+    :title  => "Blackhawks Over Los Angeles",
+    :hit    => AlbumForm::SongForm.new(song)
+  )) }
   let (:song) { OpenStruct.new(:title => "Downtown") }
 
   describe "incorrect #validate" do

@@ -56,14 +56,10 @@ class FieldsTest < MiniTest::Spec
 end
 
 class ReformTest < MiniTest::Spec
-  def errors_for(form)
-    errors = form.errors
-    errors = errors.messages unless ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
-    errors
-  end
-
   let (:duran)  { OpenStruct.new(:name => "Duran Duran") }
   let (:rio)    { OpenStruct.new(:title => "Rio") }
+
+  let (:comp) { OpenStruct.new(:name => "Duran Duran", :title => "Rio") }
 
   let (:form) { SongForm.new(comp) }
 
@@ -75,6 +71,8 @@ class ReformTest < MiniTest::Spec
   class SongForm < Reform::Form
     property :name
     property :title
+
+    validates :name, :presence => true
   end
 
   describe "Composition" do
@@ -188,7 +186,7 @@ class ReformTest < MiniTest::Spec
 
       it "populates errors" do
         form.validate({})
-        errors_for(form).must_equal({:name=>["can't be blank"], :title=>["can't be blank"]})
+        form.errors.messages.must_equal({:name=>["can't be blank"], :title=>["can't be blank"]})
       end
     end
 
@@ -204,7 +202,7 @@ class ReformTest < MiniTest::Spec
         end.new(comp)
 
         form.validate({}).must_equal false
-        errors_for(form).must_equal({:name=>["Please give me a name"]})
+        form.errors.messages.must_equal({:name=>["Please give me a name"]})
       end
     end
 
@@ -227,7 +225,7 @@ class ReformTest < MiniTest::Spec
       it "is invalid and shows error when taken" do
         form = ActiveRecordForm.new(comp)
         form.validate({"name" => "Racer X"}).must_equal false
-        errors_for(form).must_equal({:name=>["has already been taken"], :title => ["can't be blank"]})
+        form.errors.messages.must_equal({:name=>["has already been taken"], :title => ["can't be blank"]})
       end
 
       require 'reform/rails'
@@ -241,6 +239,15 @@ class ReformTest < MiniTest::Spec
         validates_uniqueness_of :name
         validates :title, :presence => true # have another property to test if we mix up.
       end
+    end
+  end
+
+  describe "#errors" do
+    it { form.errors.messages.must_equal({}) }
+
+    it do
+      form.validate({"name"=>""})
+      form.errors.messages.must_equal({:name=>["can't be blank"]})
     end
   end
 
