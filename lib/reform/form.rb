@@ -14,7 +14,11 @@ module Reform
     # Allows using property and friends in the Form itself. Forwarded to the internal representer_class.
     module PropertyMethods
       extend Forwardable
-      delegate [:property] => :representer_class
+
+      def property(name, *args)
+        representer_class.property(name, *args)
+        create_accessor(name)
+      end
 
       def properties(names, *args)
         names.each { |name| property(name, *args) }
@@ -23,6 +27,10 @@ module Reform
     #private
       def representer_class
         @representer_class ||= Class.new(Reform::Representer)
+      end
+
+      def create_accessor(name)
+        delegate [name, "#{name}="] => :model
       end
     end
     extend PropertyMethods
@@ -74,21 +82,13 @@ module Reform
     end
 
     def setup_fields(model)
-      # decorate composition and transform to hash.
       representer = mapper.new(model)
-
-      create_accessors(representer.fields)
 
       create_fields(representer.fields, representer.to_hash)
     end
 
     def create_fields(field_names, fields)
       Fields.new(field_names, fields)
-    end
-
-    def create_accessors(fields) # TODO: make this on class level!
-      writers = fields.collect { |fld| "#{fld}=" }
-      self.class.delegate fields+writers => :@model
     end
 
     def from_hash(params, *args)
