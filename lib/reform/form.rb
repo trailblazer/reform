@@ -1,6 +1,8 @@
 require 'forwardable'
 require 'ostruct'
 
+require 'reform/composition'
+
 module Reform
   class Form
     extend Forwardable
@@ -9,6 +11,7 @@ module Reform
     # problem: #form_for uses respond_to?(:email_before_type_cast) which goes to an internal hash in the actual record.
     # validation: this object also contains the validation rules itself, should be separated.
 
+    # Allows using property and friends in the Form itself. Forwarded to the internal representer_class.
     module PropertyMethods
       extend Forwardable
       delegate [:property] => :representer_class
@@ -25,10 +28,10 @@ module Reform
     extend PropertyMethods
 
 
-    def initialize(composition)
-      @model = composition
+    def initialize(model)
+      @model = model
 
-      setup_fields(self.class.representer_class, composition)  # delegate all methods to Fields instance.
+      setup_fields(model)  # delegate all methods to Fields instance.
     end
 
     def validate(params)
@@ -66,13 +69,13 @@ module Reform
   private
     attr_accessor :model
 
-    def mapper # FIXME.
+    def mapper
       self.class.representer_class
     end
 
-    def setup_fields(mapper_class, composition)
+    def setup_fields(model)
       # decorate composition and transform to hash.
-      representer = mapper_class.new(composition)
+      representer = mapper.new(model)
 
       create_accessors(representer.fields)
 
@@ -126,59 +129,6 @@ module Reform
     end
   end
 
-  # Keeps composition of models and knows how to transform a plain hash into a nested hash.
-  class Composition
-    class << self
-      def map(options)
-        @attr2obj = {}  # {song: ["title", "track"], artist: ["name"]}
-
-        options.each do |mdl, meths|
-          create_accessors(mdl, meths)
-          attr_reader mdl # FIXME: unless already defined!!
-
-          meths.each { |m| @attr2obj[m.to_s] = mdl }
-        end
-      end
-
-      # Specific to representable.
-      def map_from(representer)
-        options = {}
-        representer.representable_attrs.each do |cfg|
-          options[cfg.options[:on]] ||= []
-          options[cfg.options[:on]] << cfg.name
-        end
-
-        map options
-      end
-
-      def model_for_property(name)
-        @attr2obj.fetch(name.to_s)
-      end
-
-    private
-      def create_accessors(model, methods)
-        accessors = methods.collect { |m| [m, "#{m}="] }.flatten
-        delegate *accessors << {:to => :"#{model}"}
-      end
-    end
-
-    # TODO: make class method?
-    def nested_hash_for(attrs)
-      {}.tap do |hsh|
-        attrs.each do |name, val|
-          obj = self.class.model_for_property(name)
-          hsh[obj] ||= {}
-          hsh[obj][name.to_sym] = val
-        end
-      end
-    end
-
-    def initialize(models)
-      models.each do |name, obj|
-        instance_variable_set(:"@#{name}", obj)
-      end
-    end
-  end
 
   require 'representable/hash'
   class Representer < Representable::Decorator
