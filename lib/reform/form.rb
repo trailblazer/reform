@@ -71,11 +71,15 @@ module Reform
     end
 
     def to_nested_hash
-      model.nested_hash_for(to_hash)  # use composition to compute nested hash.
+      symbolize_keys(to_hash)
     end
 
   private
     attr_accessor :model
+
+    def symbolize_keys(hash)
+      hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+    end
 
     def mapper
       self.class.representer_class

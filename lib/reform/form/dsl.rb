@@ -20,5 +20,9 @@ class Reform::Form
       composition = self.class.model_class.new(models)
       super(composition)
     end
+
+    def to_nested_hash
+      model.nested_hash_for(to_hash)  # use composition to compute nested hash.
+    end
   end
 end

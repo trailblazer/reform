@@ -4,17 +4,50 @@ class DslTest < MiniTest::Spec
   class SongForm < Reform::Form
     include DSL
 
-    property  :title,  :on => :song
-    properties [:name, :genre],   :on => :artist
+    property  :title,           :on => :song
+    properties [:name, :genre], :on => :artist
 
     validates :name, :title, :genre, :presence => true
   end
 
-  let (:form) { SongForm.new(:song => OpenStruct.new(:title => "Rio"), :artist => OpenStruct.new()) }
+  let (:form)   { SongForm.new(:song => song, :artist => artist) }
+  let (:song)   { OpenStruct.new(:title => "Rio") }
+  let (:artist) { OpenStruct.new(:name => "Duran Duran") }
 
-  it "works by creating Representer and Composition for you" do
+
+  # delegation form -> composition works
+  it { form.title.must_equal  "Rio" }
+  it { form.name.must_equal   "Duran Duran" }
+
+
+  it "creates Composition for you" do
     form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb").must_equal false
   end
+
+  describe "#save" do
+    it "provides data block argument" do
+      hash = {}
+
+      form.save do |data, map|
+        hash[:name]   = data.name
+        hash[:title]  = data.title
+      end
+
+      hash.must_equal({:name=>"Duran Duran", :title=>"Rio"})
+    end
+
+    it "provides nested symbolized hash as second block argument" do
+      hash = {}
+
+      form.save do |data, map|
+        hash = map
+      end
+
+      hash.must_equal({:song=>{:title=>"Rio"}, :artist=>{:name=>"Duran Duran"}})
+    end
+  end
+
+
 
   require 'reform/form/coercion'
   it "allows coercion" do

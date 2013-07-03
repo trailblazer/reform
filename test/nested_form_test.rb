@@ -63,4 +63,18 @@ class NestedFormTest < MiniTest::Spec
     it { form.title.must_equal "Blackhawks Over Los Angeles" }
     it { form.hit.title.must_equal "Downtown" }
   end
+
+  describe "#save" do
+    before { @result = form.validate("hit"=>{"title" => "Sacrifice"}, "title"=>"Second Heat") }
+
+    it "returns nested hash with symbol keys" do
+      nested = nil
+
+      form.save do |hash, nested_hash|
+        nested = nested_hash
+      end
+
+      nested.must_equal({:title=>"Second Heat", :hit=>{"title"=>"Sacrifice"}})
+    end
+  end
 end

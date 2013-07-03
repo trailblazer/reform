@@ -11,23 +11,15 @@ ActiveRecord::Base.establish_connection(
 
 class RepresenterTest < MiniTest::Spec
   class SongRepresenter < Reform::Representer
-    #properties [:title, :year]
     property :title
-    property :year
+    property :name
   end
 
-  let (:rpr) { SongRepresenter.new(OpenStruct.new(:title => "Disconnect, Disconnect", :year => 1990)) }
-
-  # TODO: introduce representer_for helper.
-  # describe "::properties" do
-  #   it "accepts array of property names" do
-  #     rpr.to_hash.must_equal({"title"=>"Disconnect, Disconnect", "year" => 1990} )
-  #   end
-  # end
+  let (:rpr) { SongRepresenter.new(Object.new) }
 
   describe "#fields" do
     it "returns all properties as strings" do
-      rpr.fields.must_equal(["title", "year"])
+      rpr.fields.must_equal(["title", "name"])
     end
   end
 end
@@ -63,9 +55,13 @@ class ReformTest < MiniTest::Spec
 
   let (:form) { SongForm.new(comp) }
 
-  class SongAndArtistMap < Reform::Representer
-    property :name, :on => :artist
-    property :title, :on => :song
+
+  describe "::properties" do
+    it do
+      Class.new(Reform::Form) do
+        properties [:name, :title]
+      end.new(comp).to_hash.must_equal({"name"=>"Duran Duran", "title"=>"Rio"})
+    end
   end
 
   class SongForm < Reform::Form
@@ -102,7 +98,12 @@ class ReformTest < MiniTest::Spec
       it "creates the same mapping" do
         comp =
         Class.new(Reform::Composition) do
-          map_from SongAndArtistMap
+          map_from(
+            Class.new(Reform::Representer) do
+              property :name,  :on => :artist
+              property :title, :on => :song
+            end
+          )
         end.
         new(:artist => duran, :song => rio)
 
@@ -284,7 +285,7 @@ class ReformTest < MiniTest::Spec
           hash = map
         end
 
-        hash.must_equal({:artist=>{:name=>"Diesel Boy"}})
+        hash.must_equal({:name=>"Diesel Boy"})
       end
     end
   end
