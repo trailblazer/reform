@@ -30,16 +30,15 @@ module Reform
       end
 
       def create_accessor(name)
-        delegate [name, "#{name}="] => :model
+        delegate [name, "#{name}="] => :fields
       end
     end
     extend PropertyMethods
 
 
     def initialize(model)
-      @model = model
-
-      setup_fields(model)  # delegate all methods to Fields instance.
+      @model  = model # we need this for #save.
+      @fields = setup_fields(model)  # delegate all methods to Fields instance.
     end
 
     def validate(params)
@@ -75,7 +74,7 @@ module Reform
     end
 
   private
-    attr_accessor :model
+    attr_accessor :model, :fields
 
     def symbolize_keys(hash)
       hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}

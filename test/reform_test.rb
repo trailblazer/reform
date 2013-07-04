@@ -170,6 +170,16 @@ class ReformTest < MiniTest::Spec
       form.validate("name" => "Duran Duran").must_equal true
     end
 
+    it "exposes input via property accessors" do
+      comp.artist.name.must_equal nil
+      form.name.must_equal nil
+
+      form.validate("name" => "Duran Duran")
+
+      form.name.must_equal "Duran Duran"
+      comp.artist.name.must_equal nil # don't touch model, yet.
+    end
+
     # TODO: test errors. test valid.
     describe "invalid input" do
       class ValidatingForm < Reform::Form
