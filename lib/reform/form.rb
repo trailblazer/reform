@@ -85,7 +85,19 @@ module Reform
     end
 
     def setup_fields(model)
-      representer = mapper.new(model)
+      representer = Class.new(mapper).new(model)
+
+      if representer.send(:representable_attrs).last.name == "hit"
+        attrs = representer.send(:representable_attrs)
+        attr = attrs.last
+
+        attr.options.merge!(
+          :getter   => lambda { |*| NestedFormTest::AlbumForm::SongForm.new(hit) },
+          :instance => false
+          )
+
+        representer.instance_variable_set(:@representable_attrs, attrs)
+      end
 
       create_fields(representer.fields, representer.to_hash)
     end
@@ -134,6 +146,7 @@ module Reform
 
 
   require 'representable/hash'
+  require 'representable/decorator'
   class Representer < Representable::Decorator
     include Representable::Hash
 

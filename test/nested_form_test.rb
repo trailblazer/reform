@@ -13,7 +13,8 @@ class NestedFormTest < MiniTest::Spec
       end
     end
 
-    property  :hit, :instance => lambda { |*args| hit }
+    property  :hit, :instance => lambda { |*args| hit } # we need the typed? flag here for to_hash.
+      # also, we prevent from_hash from creating another Form (in validate).
 
     validates :title, :presence => true
   end
@@ -22,7 +23,8 @@ class NestedFormTest < MiniTest::Spec
   # should be: AlbumForm.new(songs: [Song, Song])
   let (:form) { AlbumForm.new(OpenStruct.new(
     :title  => "Blackhawks Over Los Angeles",
-    :hit    => AlbumForm::SongForm.new(song)
+    #:hit    => AlbumForm::SongForm.new(song)
+    :hit    => song
   )) }
   let (:song) { OpenStruct.new(:title => "Downtown") }
 
