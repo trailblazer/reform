@@ -24,6 +24,11 @@ module Reform
         names.each { |name| property(name, *args) }
       end
 
+      def form(name, klass)
+        property(name, :instance => lambda { |*| send(name) }, :form => klass) # we need the typed? flag here for to_hash.
+        # also, we prevent from_hash from creating another Form (in validate).
+      end
+
     #private
       def representer_class
         @representer_class ||= Class.new(Reform::Representer)
@@ -111,7 +116,7 @@ module Reform
 
     def nested_forms
       mapper.representable_attrs.
-        find_all { |attr| attr.typed? }.
+        find_all { |attr| attr.options[:form] }.
         collect  { |attr| [attr, send(attr.getter)] } # DISCUSS: is there another way of getting the forms?
     end
 
@@ -156,7 +161,7 @@ module Reform
 
     def nested_forms # TODO: test me.
       representable_attrs.
-        find_all { |attr| attr.typed? }.
+        find_all { |attr| attr.options[:form] }.
         collect  { |attr| [attr, represented.send(attr.getter)] } # DISCUSS: can't we do this with the Binding itself?
     end
   end
