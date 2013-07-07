@@ -47,7 +47,7 @@ module Reform
 
       res = valid?  # this validates on <Fields> using AM::Validations, currently.
 
-      nested_forms.each do |form|
+      nested_forms.each do |attr, form|
         unless form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
           res = false # res &= form.valid?
           errors.add(form.name, form.errors.messages)
@@ -87,16 +87,15 @@ module Reform
     def setup_fields(model)
       representer = Class.new(mapper).new(model)
 
-      if representer.send(:representable_attrs).last.name == "hit"
-        attrs = representer.send(:representable_attrs)
-        attr = attrs.last
-
+      representer.nested_forms.each do |attr, model|
         attr.options.merge!(
-          :getter   => lambda { |*| NestedFormTest::AlbumForm::SongForm.new(hit) },
-          :instance => false
+          :getter   => lambda do |*|
+            nested_model  = decorated.send(attr.getter) # decorated.hit
+            attr.options[:form].new(nested_model)
+          end,
+          :instance => false,
+          :decorator_scope => true
           )
-
-        representer.instance_variable_set(:@representable_attrs, attrs)
       end
 
       create_fields(representer.fields, representer.to_hash)
@@ -113,7 +112,7 @@ module Reform
     def nested_forms
       mapper.representable_attrs.
         find_all { |attr| attr.typed? }.
-        collect  { |attr| send(attr.getter) } # DISCUSS: is there another way of getting the forms?
+        collect  { |attr| [attr, send(attr.getter)] } # DISCUSS: is there another way of getting the forms?
     end
 
     # FIXME: make AM optional.
@@ -153,6 +152,12 @@ module Reform
     # Returns hash of all property names.
     def fields
       representable_attrs.map(&:name)
+    end
+
+    def nested_forms # TODO: test me.
+      representable_attrs.
+        find_all { |attr| attr.typed? }.
+        collect  { |attr| [attr, represented.send(attr.getter)] } # DISCUSS: can't we do this with the Binding itself?
     end
   end
 end
