@@ -7,10 +7,6 @@ class NestedFormTest < MiniTest::Spec
     class SongForm < Reform::Form
       property :title
       validates :title, :presence => true
-
-      def name
-        :hit
-      end
     end
 
     form :hit, SongForm

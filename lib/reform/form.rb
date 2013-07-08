@@ -55,7 +55,8 @@ module Reform
       nested_forms.each do |attr, form|
         unless form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
           res = false # res &= form.valid?
-          errors.add(form.name, form.errors.messages)
+
+          errors.add(attr.from, form.errors.messages)
         end
       end
 
