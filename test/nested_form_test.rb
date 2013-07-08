@@ -9,7 +9,7 @@ class NestedFormTest < MiniTest::Spec
       validates :title, :presence => true
     end
 
-    form :hit, SongForm
+    form :hit, :class => SongForm
     #form :hit do property ... end
     #property  name = :hit, :instance => lambda { |*| send(name) }, :form => SongForm # we need the typed? flag here for to_hash.
       # also, we prevent from_hash from creating another Form (in validate).
@@ -21,7 +21,6 @@ class NestedFormTest < MiniTest::Spec
   # should be: AlbumForm.new(songs: [Song, Song])
   let (:form) { AlbumForm.new(OpenStruct.new(
     :title  => "Blackhawks Over Los Angeles",
-    #:hit    => AlbumForm::SongForm.new(song)
     :hit    => song
   )) }
   let (:song) { OpenStruct.new(:title => "Downtown") }
@@ -77,4 +76,17 @@ class NestedFormTest < MiniTest::Spec
       nested.must_equal({:title=>"Second Heat", :hit=>{"title"=>"Sacrifice"}})
     end
   end
+
+  # describe "with aliased nested form name" do
+  #   let (:form) do
+  #     Class.new(Reform::Form) do
+  #       form :hit, :class => AlbumForm::SongForm, :as => :song
+  #     end.new(OpenStruct.new(:hit => OpenStruct.new(:title => "")))
+  #   end
+
+  #   it "uses alias in errors" do
+  #     form.validate({})
+  #     form.errors.messages.must_equal({})
+  #   end
+  # end
 end
