@@ -24,8 +24,8 @@ module Reform
         names.each { |name| property(name, *args) }
       end
 
-      def form(name, klass)
-        property(name, :instance => lambda { |*| send(name) }, :form => klass) # we need the typed? flag here for to_hash.
+      def form(name, options)
+        property(name, :instance => lambda { |*| send(name) }, :form => options[:class]) # we need the typed? flag here for to_hash.
         # also, we prevent from_hash from creating another Form (in validate).
       end
 
@@ -52,7 +52,7 @@ module Reform
 
       res = valid?  # this validates on <Fields> using AM::Validations, currently.
 
-      nested_forms.each do |attr, form|
+      mapper.new(@fields).nested_forms do |attr, form|
         unless form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
           res = false # res &= form.valid?
 
@@ -93,7 +93,7 @@ module Reform
     def setup_fields(model)
       representer = Class.new(mapper).new(model)
 
-      representer.nested_forms.each do |attr, model|
+      representer.nested_forms do |attr, model|
         attr.options.merge!(
           :getter   => lambda do |*|
             nested_model  = decorated.send(attr.getter) # decorated.hit
@@ -113,12 +113,6 @@ module Reform
 
     def from_hash(params, *args)
       mapper.new(self).from_hash(params) # sets form properties found in params on self.
-    end
-
-    def nested_forms
-      mapper.representable_attrs.
-        find_all { |attr| attr.options[:form] }.
-        collect  { |attr| [attr, send(attr.getter)] } # DISCUSS: is there another way of getting the forms?
     end
 
     # FIXME: make AM optional.
@@ -160,10 +154,11 @@ module Reform
       representable_attrs.map(&:name)
     end
 
-    def nested_forms # TODO: test me.
+    def nested_forms(&block) # TODO: test me.
       representable_attrs.
         find_all { |attr| attr.options[:form] }.
-        collect  { |attr| [attr, represented.send(attr.getter)] } # DISCUSS: can't we do this with the Binding itself?
+        collect  { |attr| [attr, represented.send(attr.getter)] }. # DISCUSS: can't we do this with the Binding itself?
+        each(&block)
     end
   end
 end
