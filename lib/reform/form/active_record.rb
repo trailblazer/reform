@@ -17,12 +17,12 @@ class Reform::Form
       # when calling validates it should create the Vali instance already and set @klass there! # TODO: fix this in AM.
       def validate(form)
         property = attributes.first
-        model_name = form.send(:model).class.model_for_property(property)
+        #model_name = form.send(:model).class.model_for_property(property)
 
         # here is the thing: why does AM::UniquenessValidator require a filled-out record to work properly? also, why do we need to set
         # the class? it would be way easier to pass #validate a hash of attributes and get back an errors hash.
         # the class for the finder could either be infered from the record or set in the validator instance itself in the call to ::validates.
-        record = form.send(model_name)
+        record = form.send(:model)
         record.send("#{property}=", form.send(property))
         @klass = record.class # this is usually done in the super-sucky #setup method.
         super(record).tap do |res|
