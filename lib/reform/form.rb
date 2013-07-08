@@ -53,11 +53,10 @@ module Reform
       res = valid?  # this validates on <Fields> using AM::Validations, currently.
 
       mapper.new(@fields).nested_forms do |attr, form|
-        unless form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
-          res = false # res &= form.valid?
+        next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
 
-          errors.add(attr.from, form.errors.messages)
-        end
+        res = false # res &= form.valid?
+        errors.add(attr.from, form.errors.messages)
       end
 
       res
