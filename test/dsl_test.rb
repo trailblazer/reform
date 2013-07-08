@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class DslTest < MiniTest::Spec
+  require 'reform/form/dsl'
   class SongForm < Reform::Form
     include DSL
 
@@ -44,6 +45,14 @@ class DslTest < MiniTest::Spec
       end
 
       hash.must_equal({:song=>{:title=>"Rio"}, :artist=>{:name=>"Duran Duran"}})
+    end
+
+    it "pushes data to models when no block passed" do
+      form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb")
+      form.save
+
+      artist.name.must_equal "Frenzal Rhomb"
+      song.title.must_equal "Greyhound"
     end
   end
 
