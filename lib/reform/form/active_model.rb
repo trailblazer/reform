@@ -16,11 +16,6 @@ module Reform::Form::ActiveModel
       alias_method main_model, composition_model # #hit => model.song.
     end
 
-    def property(name, options={})
-      delegate options[:on] => :model
-      super
-    end
-
     def model_name
       name = @model_options.first.to_s.camelize
 

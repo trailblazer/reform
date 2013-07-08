@@ -34,6 +34,7 @@ class ActiveModelTest < MiniTest::Spec
 
 
   it "creates composition readers" do
+    skip "we don't want those anymore since they don't represent the form internal state!"
     form.song.must_equal rio
     form.artist.must_equal duran
   end
