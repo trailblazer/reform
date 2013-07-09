@@ -66,7 +66,7 @@ module Reform
       # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
       return yield self, to_nested_hash if block_given?
 
-      mapper.new(model).from_hash(to_hash) # DISCUSS: move to Composition?
+      save_to_models
     end
 
     # Use representer to return current key-value form hash.
@@ -92,6 +92,12 @@ module Reform
     def setup_fields(model)
       representer = Class.new(mapper).new(model)
 
+      setup_nested_forms(representer)
+
+      create_fields(representer.fields, representer.to_hash)
+    end
+
+    def setup_nested_forms(representer)
       representer.nested_forms do |attr, model|
         attr.options.merge!(
           :getter   => lambda do |*|
@@ -100,14 +106,24 @@ module Reform
           end,
           :instance => false,
           :decorator_scope => true
-          )
+        )
       end
-
-      create_fields(representer.fields, representer.to_hash)
     end
 
     def create_fields(field_names, fields)
       Fields.new(field_names, fields)
+    end
+
+    def save_to_models
+      representer = mapper.new(model)
+
+      representer.nested_forms do |attr, model|
+        attr.options.merge!(
+          :decorator => attr.options[:form].representer_class
+        )
+      end
+
+      representer.from_hash(to_hash)
     end
 
     def from_hash(params, *args)
@@ -154,6 +170,7 @@ module Reform
     end
 
     def nested_forms(&block) # TODO: test me.
+      @representable_attrs = representable_attrs.clone # since in every use case we modify Config we clone.
       representable_attrs.
         find_all { |attr| attr.options[:form] }.
         collect  { |attr| [attr, represented.send(attr.getter)] }. # DISCUSS: can't we do this with the Binding itself?

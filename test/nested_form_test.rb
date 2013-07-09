@@ -19,11 +19,16 @@ class NestedFormTest < MiniTest::Spec
 
   # AlbumForm::collection :songs, :form => SongForm
   # should be: AlbumForm.new(songs: [Song, Song])
-  let (:form) { AlbumForm.new(OpenStruct.new(
-    :title  => "Blackhawks Over Los Angeles",
-    :hit    => song
-  )) }
+
+  let (:album) do
+    OpenStruct.new(
+      :title  => "Blackhawks Over Los Angeles",
+      :hit    => song
+    )
+  end
   let (:song) { OpenStruct.new(:title => "Downtown") }
+  let (:form) { AlbumForm.new(album) }
+
 
   describe "incorrect #validate" do
     before { @result = form.validate("hit"=>{"title" => ""}, "title"=>"") }
@@ -74,6 +79,14 @@ class NestedFormTest < MiniTest::Spec
       end
 
       nested.must_equal({:title=>"Second Heat", :hit=>{"title"=>"Sacrifice"}})
+    end
+
+    it "pushes data to models" do
+      puts "album: #{album.inspect}"
+      form.save
+
+      album.title.must_equal "Second Heat"
+      album.hit.title.must_equal "Sacrifice"
     end
   end
 
