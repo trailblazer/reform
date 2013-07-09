@@ -169,12 +169,19 @@ module Reform
       representable_attrs.map(&:name)
     end
 
-    def nested_forms(&block) # TODO: test me.
-      @representable_attrs = representable_attrs.clone # since in every use case we modify Config we clone.
-      representable_attrs.
+    def nested_forms(&block)
+      clone_config!.
         find_all { |attr| attr.options[:form] }.
         collect  { |attr| [attr, represented.send(attr.getter)] }. # DISCUSS: can't we do this with the Binding itself?
         each(&block)
+    end
+
+  private
+    def clone_config!
+      # TODO: representable_attrs.clone! which does exactly what's done below.
+      attrs = Representable::Config.new
+      attrs.inherit(representable_attrs) # since in every use case we modify Config we clone.
+      @representable_attrs = attrs
     end
   end
 end

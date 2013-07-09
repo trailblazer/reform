@@ -82,11 +82,10 @@ class NestedFormTest < MiniTest::Spec
     end
 
     it "pushes data to models" do
-      puts "album: #{album.inspect}"
       form.save
 
       album.title.must_equal "Second Heat"
-      album.hit.title.must_equal "Sacrifice"
+      song.title.must_equal "Sacrifice"
     end
   end
 
