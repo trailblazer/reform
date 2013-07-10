@@ -15,8 +15,9 @@ module Reform
     module PropertyMethods
       extend Forwardable
 
-      def property(name, *args)
-        representer_class.property(name, *args)
+      def property(name, options={}, &block)
+        definition = representer_class.property(name, options, &block)
+        setup_form_definition(definition) if block_given?
         create_accessor(name)
       end
 
@@ -24,16 +25,20 @@ module Reform
         names.each { |name| property(name, *args) }
       end
 
-      def form(name, options)
-        property(name, :instance => lambda { |*| send(name) }, :form => options[:class]) # we need the typed? flag here for to_hash.
+      def setup_form_definition(definition)
+        definition.options[:form] = definition.options.delete(:extend)
+        definition.options[:instance] = lambda { |*| send(definition.getter) }
+
+
+        #property(name, {:instance => lambda { |*| send(name) }}.merge(options)) # we need the typed? flag here for to_hash.
         # also, we prevent from_hash from creating another Form (in validate).
       end
 
-    #private
       def representer_class
         @representer_class ||= Class.new(Reform::Representer)
       end
 
+    private
       def create_accessor(name)
         delegate [name, "#{name}="] => :fields
       end
@@ -182,6 +187,16 @@ module Reform
       attrs = Representable::Config.new
       attrs.inherit(representable_attrs) # since in every use case we modify Config we clone.
       @representable_attrs = attrs
+    end
+
+    def self.inline_representer(base_module, &block) # DISCUSS: separate module?
+      Class.new(Form) do
+        instance_exec &block
+
+        def self.name # FIXME: needed by ActiveModel::Validation - why?
+          "AnonInlineForm"
+        end
+      end
     end
   end
 end

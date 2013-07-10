@@ -4,15 +4,16 @@ class NestedFormTest < MiniTest::Spec
   class AlbumForm < Reform::Form
     property :title
 
-    class SongForm < Reform::Form
+    # class SongForm < Reform::Form
+    #   property :title
+    #   validates :title, :presence => true
+    # end
+
+    #form :hit, :class => SongForm
+    property :hit do
       property :title
       validates :title, :presence => true
     end
-
-    form :hit, :class => SongForm
-    #form :hit do property ... end
-    #property  name = :hit, :instance => lambda { |*| send(name) }, :form => SongForm # we need the typed? flag here for to_hash.
-      # also, we prevent from_hash from creating another Form (in validate).
 
     validates :title, :presence => true
   end
