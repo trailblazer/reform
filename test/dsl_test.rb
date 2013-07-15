@@ -19,6 +19,9 @@ class DslTest < MiniTest::Spec
   # delegation form -> composition works
   it { form.title.must_equal  "Rio" }
   it { form.name.must_equal   "Duran Duran" }
+  # delegation form -> composed models (e.g. when saving this can be handy)
+  it { form.song.must_equal   song }
+  it { form.artist.must_equal artist }
 
 
   it "creates Composition for you" do

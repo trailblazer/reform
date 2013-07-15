@@ -8,11 +8,16 @@ class Reform::Form
     end
 
     module ClassMethods
-      def model_class
+      def model_class # DISCUSS: needed?
         rpr = representer_class
         @model_class ||= Class.new(Reform::Composition) do
           map_from rpr
         end
+      end
+
+      def property(name, options={})
+        super
+        delegate options[:on] => :@model
       end
     end
 
