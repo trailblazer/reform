@@ -15,6 +15,10 @@ class NestedFormTest < MiniTest::Spec
       validates :title, :presence => true
     end
 
+    collection :songs do
+      property :title
+    end
+
     validates :title, :presence => true
   end
 
@@ -24,7 +28,8 @@ class NestedFormTest < MiniTest::Spec
   let (:album) do
     OpenStruct.new(
       :title  => "Blackhawks Over Los Angeles",
-      :hit    => song
+      :hit    => song,
+      :songs  => [OpenStruct.new(:title => "Calling")] # TODO: document this requirement
     )
   end
   let (:song) { OpenStruct.new(:title => "Downtown") }
@@ -61,16 +66,35 @@ class NestedFormTest < MiniTest::Spec
   end
 
   it "responds to #to_hash" do
-    form.to_hash.must_equal({"hit"=>{"title"=>"Downtown"}, "title" => "Blackhawks Over Los Angeles"})
+    form.to_hash.must_equal({"hit"=>{"title"=>"Downtown"}, "title" => "Blackhawks Over Los Angeles", "songs"=>[{"title"=>"Calling"}]})
+  end
+
+  it "creates nested forms" do
+    form.hit.must_be_kind_of Reform::Form
+    form.songs.must_be_kind_of Reform::Form::Forms
   end
 
   describe "rendering" do
     it { form.title.must_equal "Blackhawks Over Los Angeles" }
     it { form.hit.title.must_equal "Downtown" }
+    it { form.songs[0].title.must_equal "Calling" }
   end
 
   describe "#save" do
-    before { @result = form.validate("hit"=>{"title" => "Sacrifice"}, "title"=>"Second Heat") }
+    before { @result = form.validate("hit"=>{"title" => "Sacrifice"}, "title"=>"Second Heat",
+      "songs" => [{"title" => "Scarified"}]) } # TODO: test empty/non-present songs
+
+    it "updates internal Fields" do
+      data = {}
+
+      form.save do |f, nested_hash|
+        data[:title]        = f.title
+        data[:hit_title]    = f.hit.title
+        data[:first_title]  = f.songs.first.title
+      end
+
+      data.must_equal(:title=>"Second Heat", :hit_title => "Sacrifice", :first_title => "Scarified")
+    end
 
     it "returns nested hash with symbol keys" do
       nested = nil
@@ -79,7 +103,7 @@ class NestedFormTest < MiniTest::Spec
         nested = nested_hash
       end
 
-      nested.must_equal({:title=>"Second Heat", :hit=>{"title"=>"Sacrifice"}})
+      nested.must_equal(:title=>"Second Heat", :hit=>{"title"=>"Sacrifice"}, :songs=>[{"title"=>"Scarified"}])
     end
 
     it "pushes data to models" do

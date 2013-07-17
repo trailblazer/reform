@@ -7,7 +7,7 @@ module Reform
 
         options.each do |mdl, meths|
           create_accessors(mdl, meths)
-          attr_reader mdl # FIXME: unless already defined!!
+          attr_reader mdl
 
           meths.each { |m| @attr2obj[m.to_s] = mdl }
         end

@@ -22,16 +22,19 @@ module Reform
         create_accessor(name)
       end
 
+      def collection(name, options={}, &block)
+        #options[:collection] = true # FIXME: this is internal API!
+        options[:__collection] = true
+        property(name, options, &block)
+      end
+
       def properties(names, *args)
         names.each { |name| property(name, *args) }
       end
 
       def setup_form_definition(definition)
         definition.options[:form] = definition.options.delete(:extend)
-        definition.options[:instance] = lambda { |*| send(definition.getter) }
-
-
-        #property(name, {:instance => lambda { |*| send(name) }}.merge(options)) # we need the typed? flag here for to_hash.
+        definition.options[:instance] = lambda { |*| nil } # we need the typed? flag here for to_hash.
         # also, we prevent from_hash from creating another Form (in validate).
       end
 
@@ -84,6 +87,10 @@ module Reform
       symbolize_keys(to_hash)
     end
 
+    def from_hash(params, *args)
+      mapper.new(self).from_hash(params) # sets form properties found in params on self.
+    end
+
   private
     attr_accessor :model, :fields
 
@@ -104,15 +111,39 @@ module Reform
     end
 
     def setup_nested_forms(representer)
+      # TODO: what we do here is basically identical to what happens in Binding - we should have a better API in representable.
       representer.nested_forms do |attr, model|
         attr.options.merge!(
-          :getter   => lambda do |*|
-            nested_model  = decorated.send(attr.getter) # decorated.hit
-            attr.options[:form].new(nested_model)
-          end,
-          :instance => false,
-          :decorator_scope => true
+            :getter   => lambda do |*|
+              nested_model  = send(attr.getter) # decorated.hit
+              # here, we should get an array and then iterate. # TODO: album.songs must provide []
+              #if attr.array? # that is Binding::Hash::CollectionBinding#serialize_for.
+              if attr.options[:__collection]
+                # set default here.
+                Forms.new (nested_model.collect { |mdl| attr.options[:form].new(mdl)})
+              else
+                attr.options[:form].new(nested_model) # that is Binding::Object#prepare
+              end
+            end,
+          :instance => false, # that's how we make it non-typed?.
+          #:decorator => attr.options[:form] # TODO: this doesn't work since #to_hash is called
         )
+      end
+    end
+
+    class Forms < Array
+      def valid?
+        each { |frm| frm.valid? }
+      end
+
+      def from_hash(items, *args)
+        items.each_with_index do |data, i|
+          self[i].from_hash(data) # TODO: this could be helpful for REST APIs etc, blog about it and make it easier in representable.
+        end
+      end
+
+      def to_hash(*)
+        collect { |f| f.to_hash } # TODO: use lonely array.
       end
     end
 
@@ -124,16 +155,21 @@ module Reform
       representer = mapper.new(model)
 
       representer.nested_forms do |attr, model|
+        #if attr.options[:__collection]
+        #  attr.options[:collection] = true
+        #  attr.options.delete(:instance)
+        #end
+
         attr.options.merge!(
           :decorator => attr.options[:form].representer_class
         )
+
+        puts attr.inspect
       end
 
-      representer.from_hash(to_hash)
-    end
+      puts "saving: #{to_hash.inspect}"
 
-    def from_hash(params, *args)
-      mapper.new(self).from_hash(params) # sets form properties found in params on self.
+      representer.from_hash(to_hash)
     end
 
     # FIXME: make AM optional.
