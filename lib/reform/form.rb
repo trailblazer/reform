@@ -160,9 +160,20 @@ module Reform
         #  attr.options.delete(:instance)
         #end
 
-        attr.options.merge!(
-          :decorator => attr.options[:form].representer_class
-        )
+        if ! attr.options[:__collection]
+          attr.options.merge!(
+            :decorator => attr.options[:form].representer_class
+          )
+        else
+          attr.options.merge!(
+            :decorator => Class.new(attr.options[:form].representer_class) do
+              def from_hash(arr, *args)
+                arr.each_with_index { |hsh, i| self.class.superclass.new(decorated[i]).from_hash(hsh)  }
+              end
+            end
+          )
+        end
+
 
         puts attr.inspect
       end
