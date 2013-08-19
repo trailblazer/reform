@@ -2,4 +2,4 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'representable', path: "../representable"
+gem 'representable', github: 'apotonick/representable', branch: 'master'
