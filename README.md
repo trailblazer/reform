@@ -217,6 +217,10 @@ end
 
 By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
 
+## Support
+
+If you run into any trouble chat with us on irc.freenode.org#trailblazer.
+
 ## Maintainers
 
 [Nick Sutterer](https://github.com/apotonick)
