@@ -34,8 +34,7 @@ module Reform
 
       def setup_form_definition(definition)
         definition.options[:form] = definition.options.delete(:extend)
-        #definition.options[:instance] = lambda { |*| nil } # we need the typed? flag here for to_hash.
-        # also, we prevent from_hash from creating another Form (in validate).
+
         definition.options[:parse_strategy] = :sync
         definition.options[:instance] = true # just to make typed? work
       end
@@ -116,24 +115,24 @@ module Reform
       # TODO: we should simply give a FormBuilder instance to representer.to_hash that does this kind of mapping:
       # after this, Fields contains scalars and Form instances and Forms with form instances.
       representer.nested_forms do |attr, model|
+        form_class = attr.options[:form]
+
         attr.options.merge!(
             :getter   => lambda do |*|
               nested_model  = send(attr.getter) # decorated.hit
-              # here, we should get an array and then iterate. # TODO: album.songs must provide []
-              #if attr.array? # that is Binding::Hash::CollectionBinding#serialize_for.
+
               if attr.options[:__collection]
-                # set default here.
-                Forms.new (nested_model.collect { |mdl| attr.options[:form].new(mdl)})
+                Forms.new(nested_model.collect { |mdl| form_class.new(mdl)})
               else
-                attr.options[:form].new(nested_model) # that is Binding::Object#prepare
+                form_class.new(nested_model)
               end
             end,
           :instance => false, # that's how we make it non-typed?.
-          #:decorator => attr.options[:form] # TODO: this doesn't work since #to_hash is called
         )
       end
 
-
+      # DISCUSS: this would be cool in representable:
+      # to_hash(hit: lambda { |value| form_class.new(..) })
     end
 
 
@@ -145,7 +144,7 @@ module Reform
       end
 
       include Representable::Hash::Collection
-      items :parse_strategy => :sync, :instance => true
+      items :parse_strategy => :sync, :instance => true # just call to_hash and from_hash on the Form instances.
     end
 
 
@@ -157,18 +156,13 @@ module Reform
       representer = mapper.new(model)
 
       representer.nested_forms do |attr, model|
-        if ! attr.options[:__collection]
+        attr.options.merge!(
+          :decorator => attr.options[:form].representer_class
+        )
+
+        if attr.options[:__collection]
           attr.options.merge!(
-            :decorator => attr.options[:form].representer_class
-          )
-        else
-          # TODO: use the Strategy::Sync when representable-1.7 is out.
-          attr.options.merge!(
-            :decorator => Class.new(attr.options[:form].representer_class) do
-              def from_hash(arr, *args)
-                arr.each_with_index { |hsh, i| self.class.superclass.new(decorated[i]).from_hash(hsh)  }
-              end
-            end
+            :collection => true
           )
         end
       end
