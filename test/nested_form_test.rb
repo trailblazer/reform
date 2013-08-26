@@ -29,11 +29,12 @@ class NestedFormTest < MiniTest::Spec
     OpenStruct.new(
       :title  => "Blackhawks Over Los Angeles",
       :hit    => song,
-      :songs  => [OpenStruct.new(:title => "Calling")] # TODO: document this requirement
+      :songs  => songs # TODO: document this requirement
     )
   end
-  let (:song) { OpenStruct.new(:title => "Downtown") }
-  let (:form) { AlbumForm.new(album) }
+  let (:song)  { OpenStruct.new(:title => "Downtown") }
+  let (:songs) { [OpenStruct.new(:title => "Calling")] }
+  let (:form)  { AlbumForm.new(album) }
 
 
   describe "incorrect #validate" do
@@ -81,8 +82,11 @@ class NestedFormTest < MiniTest::Spec
   end
 
   describe "#save" do
-    before { @result = form.validate("hit"=>{"title" => "Sacrifice"}, "title"=>"Second Heat",
-      "songs" => [{"title" => "Scarified"}]) } # TODO: test empty/non-present songs
+    before { @result = form.validate(
+      "hit"   =>{"title" => "Sacrifice"},
+      "title" =>"Second Heat",
+      "songs" => [{"title" => "Scarified"}])
+    } # TODO: test empty/non-present songs
 
     it "updates internal Fields" do
       data = {}
@@ -122,6 +126,7 @@ class NestedFormTest < MiniTest::Spec
 
       album.title.must_equal "Second Heat"
       song.title.must_equal "Sacrifice"
+      songs.first.title.must_equal "Scarified"
     end
   end
 
