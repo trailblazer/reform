@@ -34,8 +34,10 @@ module Reform
 
       def setup_form_definition(definition)
         definition.options[:form] = definition.options.delete(:extend)
-        definition.options[:instance] = lambda { |*| nil } # we need the typed? flag here for to_hash.
+        #definition.options[:instance] = lambda { |*| nil } # we need the typed? flag here for to_hash.
         # also, we prevent from_hash from creating another Form (in validate).
+        definition.options[:parse_strategy] = :sync
+        definition.options[:instance] = true # just to make typed? work
       end
 
       def representer_class
@@ -111,7 +113,8 @@ module Reform
     end
 
     def setup_nested_forms(representer)
-      # TODO: what we do here is basically identical to what happens in Binding - we should have a better API in representable.
+      # TODO: we should simply give a FormBuilder instance to representer.to_hash that does this kind of mapping:
+      # after this, Fields contains scalars and Form instances and Forms with form instances.
       representer.nested_forms do |attr, model|
         attr.options.merge!(
             :getter   => lambda do |*|
@@ -129,23 +132,22 @@ module Reform
           #:decorator => attr.options[:form] # TODO: this doesn't work since #to_hash is called
         )
       end
+
+
     end
+
+
+    require "representable/hash/collection"
 
     class Forms < Array
       def valid?
         each { |frm| frm.valid? }
       end
 
-      def from_hash(items, *args)
-        items.each_with_index do |data, i|
-          self[i].from_hash(data) # TODO: this could be helpful for REST APIs etc, blog about it and make it easier in representable.
-        end
-      end
-
-      def to_hash(*)
-        collect { |f| f.to_hash } # TODO: use lonely array.
-      end
+      include Representable::Hash::Collection
+      items :parse_strategy => :sync, :instance => true
     end
+
 
     def create_fields(field_names, fields)
       Fields.new(field_names, fields)
@@ -155,16 +157,12 @@ module Reform
       representer = mapper.new(model)
 
       representer.nested_forms do |attr, model|
-        #if attr.options[:__collection]
-        #  attr.options[:collection] = true
-        #  attr.options.delete(:instance)
-        #end
-
         if ! attr.options[:__collection]
           attr.options.merge!(
             :decorator => attr.options[:form].representer_class
           )
         else
+          # TODO: use the Strategy::Sync when representable-1.7 is out.
           attr.options.merge!(
             :decorator => Class.new(attr.options[:form].representer_class) do
               def from_hash(arr, *args)
@@ -173,12 +171,7 @@ module Reform
             end
           )
         end
-
-
-        puts attr.inspect
       end
-
-      puts "saving: #{to_hash.inspect}"
 
       representer.from_hash(to_hash)
     end
