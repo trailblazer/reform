@@ -23,8 +23,8 @@ module Reform
       end
 
       def collection(name, options={}, &block)
-        #options[:collection] = true # FIXME: this is internal API!
-        options[:__collection] = true
+        options[:collection] = true # FIXME: this is internal API!
+        #options[:__collection] = true
         property(name, options, &block)
       end
 
@@ -62,7 +62,9 @@ module Reform
 
       res = valid?  # this validates on <Fields> using AM::Validations, currently.
 
+      puts @fields.songs.class.inspect
       mapper.new(@fields).nested_forms do |attr, form|
+        next if form.is_a?(Array) # FIXME!
         next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
 
         res = false # res &= form.valid?
@@ -118,15 +120,17 @@ module Reform
         form_class = attr.options[:form]
 
         attr.options.merge!(
-            :getter   => lambda do |*|
-              nested_model  = send(attr.getter) # decorated.hit
+          :getter   => lambda do |*|
+            nested_model  = send(attr.getter) # decorated.hit
 
-              if attr.options[:__collection]
-                Forms.new(nested_model.collect { |mdl| form_class.new(mdl)})
-              else
-                form_class.new(nested_model)
-              end
-            end,
+            if attr.options[:collection]
+              puts "building form for #{attr.inspect} #{nested_model}"
+              #Forms.new
+              (nested_model.collect { |mdl| form_class.new(mdl)})
+            else
+              form_class.new(nested_model)
+            end
+          end,
           :instance => false, # that's how we make it non-typed?.
         )
       end
@@ -136,15 +140,10 @@ module Reform
     end
 
 
-    require "representable/hash/collection"
-
     class Forms < Array
       def valid?
         each { |frm| frm.valid? }
       end
-
-      include Representable::Hash::Collection
-      items :parse_strategy => :sync, :instance => true # just call to_hash and from_hash on the Form instances.
     end
 
 
@@ -160,7 +159,7 @@ module Reform
           :decorator => attr.options[:form].representer_class
         )
 
-        if attr.options[:__collection]
+        if attr.options[:collection]
           attr.options.merge!(
             :collection => true
           )
