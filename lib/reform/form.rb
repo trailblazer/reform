@@ -23,8 +23,8 @@ module Reform
       end
 
       def collection(name, options={}, &block)
-        options[:collection] = true # FIXME: this is internal API!
-        #options[:__collection] = true
+        options[:form_collection] = true
+
         property(name, options, &block)
       end
 
@@ -62,7 +62,6 @@ module Reform
 
       res = valid?  # this validates on <Fields> using AM::Validations, currently.
 
-      puts @fields.songs.class.inspect
       mapper.new(@fields).nested_forms do |attr, form|
         next if form.is_a?(Array) # FIXME!
         next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
@@ -121,12 +120,10 @@ module Reform
 
         attr.options.merge!(
           :getter   => lambda do |*|
-            nested_model  = send(attr.getter) # decorated.hit
+            nested_model  = send(attr.getter) # decorated.hit # TODO: use bin.get
 
-            if attr.options[:collection]
-              puts "building form for #{attr.inspect} #{nested_model}"
-              #Forms.new
-              (nested_model.collect { |mdl| form_class.new(mdl)})
+            if attr.options[:form_collection]
+              Forms.new(nested_model.collect { |mdl| form_class.new(mdl)})
             else
               form_class.new(nested_model)
             end
@@ -137,13 +134,23 @@ module Reform
 
       # DISCUSS: this would be cool in representable:
       # to_hash(hit: lambda { |value| form_class.new(..) })
+
+      # steps:
+      # - bin.get
+      # - map that: Forms.new( orig ) <-- override only this in representable (how?)
+      # - mapped.to_hash
     end
 
 
+    require "representable/hash/collection"
     class Forms < Array
       def valid?
         each { |frm| frm.valid? }
       end
+
+      # this gives us each { to_hash }
+      include Representable::Hash::Collection
+      items :parse_strategy => :sync, :instance => true
     end
 
 
@@ -159,7 +166,7 @@ module Reform
           :decorator => attr.options[:form].representer_class
         )
 
-        if attr.options[:collection]
+        if attr.options[:form_collection]
           attr.options.merge!(
             :collection => true
           )

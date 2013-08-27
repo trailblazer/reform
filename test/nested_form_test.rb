@@ -142,4 +142,10 @@ class NestedFormTest < MiniTest::Spec
   #     form.errors.messages.must_equal({})
   #   end
   # end
+
+  class UnitTest < self
+    it "keeps Forms for form collection" do
+      form.send(:fields).songs.must_be_kind_of Reform::Form::Forms
+    end
+  end
 end
