@@ -1,5 +1,5 @@
 class MusicianController < ActionController::Base
   def index
-    render :text => 'abc'
+    render :text => Artist.find(:all)
   end
 end

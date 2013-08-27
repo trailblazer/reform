@@ -1,14 +1,5 @@
 require 'test_helper'
 
-require 'active_record'
-class Artist < ActiveRecord::Base
-end
-ActiveRecord::Base.establish_connection(
-  :adapter => "sqlite3",
-  :database => "#{Dir.pwd}/database.sqlite3"
-)
-
-
 class RepresenterTest < MiniTest::Spec
   class SongRepresenter < Reform::Representer
     property :title
