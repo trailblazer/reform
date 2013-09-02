@@ -8,7 +8,7 @@ Rake::TestTask.new(:test) do |test|
   test.verbose = true
 end
 
-Rake::TestTask.new(:rails_test) do |test|
+Rake::TestTask.new(:test_rails) do |test|
   test.libs << 'test'
   test.test_files = FileList['test/rails/*_test.rb']
   test.verbose = true
