@@ -229,4 +229,9 @@ class ReformTest < ReformSpec
       end
     end
   end
+
+
+  describe "#model" do
+    it { form.send(:model).must_equal comp }
+  end
 end
