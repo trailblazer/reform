@@ -1,5 +1,36 @@
 require 'test_helper'
 
+class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
+  class SongForm < Reform::Form
+    include Reform::Form::ActiveModel::FormBuilderMethods
+
+    property :name
+  end
+
+  let (:artist) { Artist.create(:name => "Frank Zappa") }
+  let (:form) { SongForm.new(artist) }
+
+  it { form.persisted?.must_equal true }
+  it { form.to_key.must_equal [artist.id] }
+  it { form.to_param.must_equal "#{artist.id}" }
+  it { form.to_model.must_equal form }
+
+  describe "::model_name" do
+    it { form.class.model_name.must_be_kind_of ActiveModel::Name }
+    it { form.class.model_name.to_s.must_equal "NewActiveModelTest::Song" }
+
+    let (:class_with_model) {
+      Class.new(Reform::Form) do
+        include Reform::Form::ActiveModel::FormBuilderMethods
+        model :album
+      end
+    }
+
+    it { class_with_model.model_name.must_be_kind_of ActiveModel::Name }
+    it { class_with_model.model_name.to_s.must_equal "Album" }
+  end
+end
+
 class ActiveModelTest < MiniTest::Spec
    class HitForm < Reform::Form
     include DSL
