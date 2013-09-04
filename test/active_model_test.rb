@@ -14,6 +14,7 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
   it { form.to_key.must_equal [artist.id] }
   it { form.to_param.must_equal "#{artist.id}" }
   it { form.to_model.must_equal form }
+  it { form.id.must_equal artist.id }
 
   describe "::model_name" do
     it { form.class.model_name.must_be_kind_of ActiveModel::Name }

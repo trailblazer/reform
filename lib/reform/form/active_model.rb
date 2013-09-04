@@ -2,7 +2,8 @@ module Reform::Form::ActiveModel
   module FormBuilderMethods
     def self.included(base)
       base.class_eval do
-        delegate [:persisted?, :to_key, :to_param] => :model
+        # delegating id is required from FB when rendering a nested persisted object.
+        delegate [:persisted?, :to_key, :to_param, :id] => :model
         extend ClassMethods # ::model_name
 
         def to_model # this is called somewhere in FormBuilder.
