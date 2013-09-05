@@ -36,17 +36,26 @@ class FormBuilderCompatTest < MiniTest::Spec
   let (:form_class) {
     Class.new(Reform::Form) do
       include Reform::Form::ActiveModel::FormBuilderMethods
+
       property :artist do
         property :name
       end
+
+      collection :songs do
+        property :title
+      end
     end
   }
+# TODO: test when keys are missing!
 
   it "respects _attributes params hash" do
-    form = form_class.new(song = OpenStruct.new(:artist => Artist.new))
+    form = form_class.new(OpenStruct.new(:artist => Artist.new, :songs => [OpenStruct.new]))
 
-    form.validate("artist_attributes" => {"name" => "Blink 182"})
+    form.validate("artist_attributes" => {"name" => "Blink 182"},
+      "songs_attributes" => {"0" => {"title" => "Damnit"}})
+
     form.artist.name.must_equal "Blink 182"
+    form.songs.first.title.must_equal "Damnit"
   end
 end
 

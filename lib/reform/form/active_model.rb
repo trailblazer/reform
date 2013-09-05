@@ -42,7 +42,11 @@ module Reform::Form::ActiveModel
     # Massage the incoming Rails params hash to be representable compliant.
     def validate(params)
       mapper.new(self).nested_forms do |attr, model| # FIXME: make this simpler.
-        params[attr.name] = params["#{attr.name}_attributes"] # DISCUSS: delete old key? override existing?
+        if attr.options[:form_collection] # FIXME: why no array?
+          params[attr.name] = params["#{attr.name}_attributes"].values
+        else
+          params[attr.name] = params["#{attr.name}_attributes"]# DISCUSS: delete old key? override existing?
+        end
       end
 
       super
