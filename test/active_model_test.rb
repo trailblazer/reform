@@ -46,16 +46,20 @@ class FormBuilderCompatTest < MiniTest::Spec
       end
     end
   }
+  let (:form) { form_class.new(OpenStruct.new(:artist => Artist.new, :songs => [OpenStruct.new])) }
 # TODO: test when keys are missing!
 
   it "respects _attributes params hash" do
-    form = form_class.new(OpenStruct.new(:artist => Artist.new, :songs => [OpenStruct.new]))
-
     form.validate("artist_attributes" => {"name" => "Blink 182"},
       "songs_attributes" => {"0" => {"title" => "Damnit"}})
 
     form.artist.name.must_equal "Blink 182"
     form.songs.first.title.must_equal "Damnit"
+  end
+
+  it "defines _attributes= setter so Rails' FB works properly" do
+    form.must_respond_to("artist_attributes=")
+    form.must_respond_to("songs_attributes=")
   end
 end
 

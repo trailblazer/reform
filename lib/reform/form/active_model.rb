@@ -17,6 +17,11 @@ module Reform::Form::ActiveModel
         @model_options = [main_model, options]  # FIXME: make inheritable!
       end
 
+      def property(name, options={})
+        add_nested_attribute_compat(name) if block_given? # TODO: fix that in Rails FB#1832 work.
+        super
+      end
+
       def model_name # TODO: clean up.
         if @model_options
           form_name = @model_options.first.to_s.camelize
@@ -36,6 +41,11 @@ module Reform::Form::ActiveModel
 
       def rails_3_0?
         ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
+      end
+
+      # The Rails FormBuilder "detects" nested attributes (which is what we want) by checking existance of a setter method.
+      def add_nested_attribute_compat(name)
+        define_method("#{name}_attributes=") {} # this is why i hate respond_to? in Rails.
       end
     end
 
