@@ -56,22 +56,25 @@ module Reform
       @fields = setup_fields(model)  # delegate all methods to Fields instance.
     end
 
-    def validate(params)
-      # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
-      from_hash(params)
+    module ValidateMethod # TODO: introduce Base module.
+      def validate(params)
+        # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
+        from_hash(params)
 
-      res = valid?  # this validates on <Fields> using AM::Validations, currently.
+        res = valid?  # this validates on <Fields> using AM::Validations, currently.
 
-      mapper.new(@fields).nested_forms do |attr, form|
-        next if form.is_a?(Array) # FIXME!
-        next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
+        mapper.new(@fields).nested_forms do |attr, form|
+          next if form.is_a?(Array) # FIXME!
+          next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
 
-        res = false # res &= form.valid?
-        errors.add(attr.from, form.errors.messages)
+          res = false # res &= form.valid?
+          errors.add(attr.from, form.errors.messages)
+        end
+
+        res
       end
-
-      res
     end
+    include ValidateMethod
 
     def save
       # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
