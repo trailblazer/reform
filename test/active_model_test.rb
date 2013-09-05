@@ -32,6 +32,24 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
   end
 end
 
+class FormBuilderCompatTest < MiniTest::Spec
+  let (:form_class) {
+    Class.new(Reform::Form) do
+      include Reform::Form::ActiveModel::FormBuilderMethods
+      property :artist do
+        property :name
+      end
+    end
+  }
+
+  it "respects _attributes params hash" do
+    form = form_class.new(song = OpenStruct.new(:artist => Artist.new))
+
+    form.validate("artist_attributes" => {"name" => "Blink 182"})
+    form.artist.name.must_equal "Blink 182"
+  end
+end
+
 class ActiveModelTest < MiniTest::Spec
    class HitForm < Reform::Form
     include DSL

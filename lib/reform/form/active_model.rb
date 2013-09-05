@@ -1,5 +1,5 @@
 module Reform::Form::ActiveModel
-  module FormBuilderMethods
+  module FormBuilderMethods # TODO: rename to FormBuilderCompat.
     def self.included(base)
       base.class_eval do
         # delegating id is required from FB when rendering a nested persisted object.
@@ -37,6 +37,15 @@ module Reform::Form::ActiveModel
       def rails_3_0?
         ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
       end
+    end
+
+    # Massage the incoming Rails params hash to be representable compliant.
+    def validate(params)
+      mapper.new(self).nested_forms do |attr, model| # FIXME: make this simpler.
+        params[attr.name] = params["#{attr.name}_attributes"] # DISCUSS: delete old key? override existing?
+      end
+
+      super
     end
   end
 
