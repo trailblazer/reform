@@ -64,7 +64,6 @@ module Reform
         res = valid?  # this validates on <Fields> using AM::Validations, currently.
 
         mapper.new(@fields).nested_forms do |attr, form|
-          next if form.is_a?(Array) # FIXME!
           next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
 
           res = false # res &= form.valid?
@@ -134,6 +133,8 @@ module Reform
           :instance => false, # that's how we make it non-typed?.
         )
       end
+
+      #representer.to_hash override: { write: lambda { |doc, value|  } }
 
       # DISCUSS: this would be cool in representable:
       # to_hash(hit: lambda { |value| form_class.new(..) })
