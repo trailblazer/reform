@@ -145,31 +145,6 @@ module Reform
       # - mapped.to_hash
     end
 
-
-    require "representable/hash/collection"
-    require 'active_model'
-    class Forms < Array
-      def valid?
-        res = true
-
-        # TODO: merge with #validate.
-        each_with_index do |form, i|
-          next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
-
-          res = false # res &= form.valid?
-          errors.add("bla_#{i}", form.errors.messages)
-        end
-
-        res
-      end
-      include ActiveModel::Validations # FIXME: this gives us #errors.
-
-      # this gives us each { to_hash }
-      include Representable::Hash::Collection
-      items :parse_strategy => :sync, :instance => true
-    end
-
-
     def create_fields(field_names, fields)
       Fields.new(field_names, fields)
     end
@@ -209,7 +184,32 @@ module Reform
       end
     end
     include Errors
+
+    require "representable/hash/collection"
+    require 'active_model'
+    class Forms < Array # DISCUSS: this should be a Form subclass.
+      def valid?
+        res = true
+
+        # TODO: merge with #validate.
+        each_with_index do |form, i|
+          next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
+
+          res = false # res &= form.valid?
+          errors.add("bla_#{i}", form.errors.messages)
+        end
+
+        res
+      end
+      include ActiveModel::Validations # FIXME: this gives us #errors.
+      include Form::Errors
+
+      # this gives us each { to_hash }
+      include Representable::Hash::Collection
+      items :parse_strategy => :sync, :instance => true
+    end
   end
+
 
   # Keeps values of the form fields. What's in here is to be displayed in the browser!
   # we need this intermediate object to display both "original values" and new input from the form after submitting.
