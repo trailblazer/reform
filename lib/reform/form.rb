@@ -147,10 +147,22 @@ module Reform
 
 
     require "representable/hash/collection"
+    require 'active_model'
     class Forms < Array
       def valid?
-        each { |frm| frm.valid? }
+        res = true
+
+        # TODO: merge with #validate.
+        each_with_index do |form, i|
+          next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
+
+          res = false # res &= form.valid?
+          errors.add("bla_#{i}", form.errors.messages)
+        end
+
+        res
       end
+      include ActiveModel::Validations # FIXME: this gives us #errors.
 
       # this gives us each { to_hash }
       include Representable::Hash::Collection

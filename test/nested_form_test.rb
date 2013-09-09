@@ -17,6 +17,7 @@ class NestedFormTest < MiniTest::Spec
 
     collection :songs do
       property :title
+      validates :title, :presence => true
     end
 
     validates :title, :presence => true
@@ -38,10 +39,13 @@ class NestedFormTest < MiniTest::Spec
 
 
   describe "incorrect #validate" do
-    before { @result = form.validate("hit"=>{"title" => ""}, "title"=>"") }
+    before { @result = form.validate(
+      "hit"   =>{"title" => ""},
+      "title" => "",
+      "songs" => [{"title" => ""}]) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:title=>["can't be blank"], :hit=>[{:title=>["can't be blank"]}]}) }
+    it { form.errors.messages.must_equal({:title=>["can't be blank"], :hit=>[{:title=>["can't be blank"]}], :songs=>[{:bla_0=>[{:title=>["can't be blank"]}]}]}) }
   end
 
   describe "#validate with main form invalid" do
@@ -59,11 +63,16 @@ class NestedFormTest < MiniTest::Spec
   end
 
   describe "correct #validate" do
-    before { @result = form.validate("hit"=>{"title" => "Sacrifice"}, "title"=>"Second Heat") }
+    before { @result = form.validate(
+      "hit"   => {"title" => "Sacrifice"},
+      "title" => "Second Heat",
+      "songs" => [{"title"=>"Heart Of A Lion"}]
+      ) }
 
     it { @result.must_equal true }
     it { form.hit.title.must_equal "Sacrifice" }
     it { form.title.must_equal "Second Heat" }
+    it { form.songs.first.title.must_equal "Heart Of A Lion" }
   end
 
   it "responds to #to_hash" do
@@ -146,6 +155,13 @@ class NestedFormTest < MiniTest::Spec
   class UnitTest < self
     it "keeps Forms for form collection" do
       form.send(:fields).songs.must_be_kind_of Reform::Form::Forms
+    end
+
+    describe "#validate" do
+      it "keeps Form instances" do
+        form.validate("songs"=>[{"title" => "Atwa"}])
+        form.songs.first.must_be_kind_of Reform::Form
+      end
     end
   end
 end
