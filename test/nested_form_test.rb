@@ -45,7 +45,10 @@ class NestedFormTest < MiniTest::Spec
       "songs" => [{"title" => ""}]) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:title=>["can't be blank"], :hit=>[{:title=>["can't be blank"]}], :songs=>[{:bla_0=>[{:title=>["can't be blank"]}]}]}) }
+    it { form.errors.messages.must_equal({
+      :title  => ["can't be blank"],
+      :hit    => [{:title=>["can't be blank"]}],
+      :songs  => [{:bla_0=>[{:title=>["can't be blank"]}]}]}) }
   end
 
   describe "#validate with main form invalid" do

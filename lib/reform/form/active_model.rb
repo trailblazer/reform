@@ -59,7 +59,46 @@ module Reform::Form::ActiveModel
         end
       end
 
-      super
+      res = super
+
+      flatten_error_messages
+
+      res
+    end
+
+  private
+    def flatten_error_messages
+      # FIXME: this is ugly on purpose, we will change the Errors API soon.
+      nested_forms = mapper.new(self).nested_forms.each.to_a.map(&:first).map(&:name)
+      collections =  mapper.new(self).nested_forms.find_all do |attr, f|
+        attr.options[:form_collection]
+      end.map(&:first).map(&:name)
+
+      old_msgs = errors.messages
+
+      flat_errors = {}
+       old_msgs.each do |name, errs|
+         next unless nested_forms.include?(name.to_s)
+
+         # DISCUSS: this is horrible, but Rails wants this.
+         errors.delete(name)
+
+         errs.each do |err|
+          #flat_errors["#{name}.#{err.keys.first}"] = err.values.first
+
+          #self.errors.add("#{name}.#{err.keys.first}", err.values.first)
+
+          # FIXME: haha!!!!
+
+          flat_errors["#{name}.#{err.keys.first}"] = err.values.first and next unless collections.include?(name.to_s)
+
+          flat_errors["#{name}.#{err.values.first.first.keys.first}"] = err.values.first.first.values.first
+         end
+       end
+
+       flat_errors.each do |k,v|
+         errors.add(k, *v)
+       end
     end
   end
 

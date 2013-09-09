@@ -39,10 +39,12 @@ class FormBuilderCompatTest < MiniTest::Spec
 
       property :artist do
         property :name
+        validates :name, :presence => true
       end
 
       collection :songs do
         property :title
+        validates :title, :presence => true
       end
     end
   }
@@ -60,6 +62,12 @@ class FormBuilderCompatTest < MiniTest::Spec
   it "defines _attributes= setter so Rails' FB works properly" do
     form.must_respond_to("artist_attributes=")
     form.must_respond_to("songs_attributes=")
+  end
+
+  it "returns flat errors hash" do
+    form.validate("artist_attributes" => {"name" => ""},
+      "songs_attributes" => {"0" => {"title" => ""}})
+    form.errors.messages.must_equal(:"artist.name" => ["can't be blank"], :"songs.title" => ["can't be blank"])
   end
 end
 
