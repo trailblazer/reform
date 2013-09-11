@@ -37,47 +37,6 @@ class NestedFormTest < MiniTest::Spec
   let (:songs) { [OpenStruct.new(:title => "Calling")] }
   let (:form)  { AlbumForm.new(album) }
 
-
-  describe "incorrect #validate" do
-    before { @result = form.validate(
-      "hit"   =>{"title" => ""},
-      "title" => "",
-      "songs" => [{"title" => ""}]) }
-
-    it { @result.must_equal false }
-    it { form.errors.messages.must_equal({
-      :title  => ["can't be blank"],
-      :hit    => [{:title=>["can't be blank"]}],
-      :songs  => [{:bla_0=>[{:title=>["can't be blank"]}]}]}) }
-  end
-
-  describe "#validate with main form invalid" do
-    before { @result = form.validate("title"=>"") }
-
-    it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:title=>["can't be blank"]}) }
-  end
-
-  describe "#validate with nested form invalid" do
-    before { @result = form.validate("hit"=>{"title" => ""}) }
-
-    it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:hit=>[{:title=>["can't be blank"]}]}) }
-  end
-
-  describe "correct #validate" do
-    before { @result = form.validate(
-      "hit"   => {"title" => "Sacrifice"},
-      "title" => "Second Heat",
-      "songs" => [{"title"=>"Heart Of A Lion"}]
-      ) }
-
-    it { @result.must_equal true }
-    it { form.hit.title.must_equal "Sacrifice" }
-    it { form.title.must_equal "Second Heat" }
-    it { form.songs.first.title.must_equal "Heart Of A Lion" }
-  end
-
   it "responds to #to_hash" do
     form.to_hash.must_equal({"hit"=>{"title"=>"Downtown"}, "title" => "Blackhawks Over Los Angeles", "songs"=>[{"title"=>"Calling"}]})
   end

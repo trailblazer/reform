@@ -67,7 +67,10 @@ module Reform
           next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
 
           res = false # res &= form.valid?
-          errors.add(attr.from, form.errors.messages)
+
+          form.errors.messages.each do |k, msgs|
+            errors.add("#{attr.from}.#{k}", *msgs)
+          end
         end
 
         res
@@ -93,6 +96,10 @@ module Reform
 
     def from_hash(params, *args)
       mapper.new(self).from_hash(params) # sets form properties found in params on self.
+    end
+
+    def errors
+      @errors ||= Errors.new(self)
     end
 
   private
@@ -171,19 +178,13 @@ module Reform
     require 'active_model'
     include ActiveModel::Validations
 
-    module Errors
-      module MessagesMethod
-        def messages
-          self
-        end
-      end
-
-      def errors
+    # The Errors class is planned to replace AM::Errors. It provides proper nested error messages.
+    class Errors < ActiveModel::Errors
+      def messages
         return super unless ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
-        super.extend(MessagesMethod) # Rails 3.0 fix. move to VersionStrategy when we have more of these.
+        self
       end
     end
-    include Errors
 
     require "representable/hash/collection"
     require 'active_model'
@@ -192,17 +193,19 @@ module Reform
         res = true
 
         # TODO: merge with #validate.
-        each_with_index do |form, i|
+        each do |form|
           next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
 
           res = false # res &= form.valid?
-          errors.add("bla_#{i}", form.errors.messages)
+
+          form.errors.messages.each do |k, msgs|
+            errors.add(k, *msgs) # Forms now contains a plain errors hash. the errors for each item are still available in item.errors.
+          end
         end
 
         res
       end
       include ActiveModel::Validations # FIXME: this gives us #errors.
-      include Form::Errors
 
       # this gives us each { to_hash }
       include Representable::Hash::Collection
