@@ -56,27 +56,34 @@ module Reform
       @fields = setup_fields(model)  # delegate all methods to Fields instance.
     end
 
-    module ValidateMethod # TODO: introduce Base module.
+    module ValidateMethods # TODO: introduce Base module.
       def validate(params)
         # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
         from_hash(params)
 
         res = valid?  # this validates on <Fields> using AM::Validations, currently.
 
-        mapper.new(@fields).nested_forms do |attr, form|
+        nested = {}
+        mapper.new(@fields).nested_forms.collect { |attr, form| nested[attr.from] = form }
+
+
+        validate_nested(nested, res)
+      end
+
+    private
+      def validate_nested(nested, res)
+        nested.each do |name, form|
           next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
 
           res = false # res &= form.valid?
 
-          form.errors.messages.each do |k, msgs|
-            errors.add("#{attr.from}.#{k}", *msgs)
-          end
+          errors.merge!(form.errors, name)
         end
 
         res
       end
     end
-    include ValidateMethod
+    include ValidateMethods
 
     def save
       # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
@@ -184,6 +191,14 @@ module Reform
         return super unless ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
         self
       end
+
+      def merge!(errors, prefix=nil)
+        errors.messages.each do |field, msgs|
+          field = "#{prefix}.#{field}" if prefix
+
+          add(field, *msgs) # Forms now contains a plain errors hash. the errors for each item are still available in item.errors.
+        end
+      end
     end
 
     require "representable/hash/collection"
@@ -198,14 +213,15 @@ module Reform
 
           res = false # res &= form.valid?
 
-          form.errors.messages.each do |k, msgs|
-            errors.add(k, *msgs) # Forms now contains a plain errors hash. the errors for each item are still available in item.errors.
-          end
+          errors.merge!(form.errors)
         end
 
         res
       end
       include ActiveModel::Validations # FIXME: this gives us #errors.
+      def errors
+        @errors ||= Form::Errors.new(self)
+      end
 
       # this gives us each { to_hash }
       include Representable::Hash::Collection
