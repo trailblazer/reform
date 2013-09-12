@@ -12,6 +12,255 @@ gem 'reform'
 
 ## Defining Forms
 
+You're working at a famous record label and your job is archiving all the songs, albums and artists. You start with a form to populate your `songs` table.
+
+```ruby
+class SongForm < Reform::Form
+  property :title
+  property :length
+
+  validates :title,  presence: true
+  validates :length, numericality: true
+end
+```
+
+To add fields to the form use the `::property` method. Also, validations no longer go into the model but sit in the form.
+
+
+## Using Forms
+
+In your controller you'd create a form instance and pass in the models you wanna work on.
+
+```ruby
+class SongsController
+  def new
+    @form = SongForm.new(Song.new)
+  end
+```
+
+You can also setup the form for editing existing items.
+
+```ruby
+class SongsController
+  def edit
+    @form = SongForm.new(Song.find(1))
+  end
+```
+
+## Rendering Forms
+
+Your `@form` is now ready to be rendered, either do it yourself or use something like Rails' `#form_for`, `simple_form` or `formtastic`.
+
+```haml
+= form_for @form do |f|
+
+  = f.input :name
+  = f.input :title
+```
+
+## Validating Forms
+
+After a form submission, you wanna validate the input.
+
+```ruby
+class SongsController
+  def create
+    @form = SongForm.new(Song.new)
+
+    #=> params: {song: {title: "Rio", length: "366"}}
+
+    if @form.validate(params[:song])
+```
+
+`Reform` uses the validations you provided in the form - and nothing else.
+
+
+## Saving Forms
+
+We provide a bullet-proof way to save your form data: by letting _you_ do it!
+
+```ruby
+  if @form.validate(params[:song])
+
+    @form.save do |data, nested|
+      data.title  #=> "Rio"
+      data.length #=> "366"
+
+      nested      #=> {title: "Rio"}
+
+      Song.create(nested)
+    end
+```
+
+While `data` gives you an object exposing the form property readers, `nested` is a hash reflecting the nesting structure of your form. Note how you can use arbitrary code to create/update models - in this example, we used `Song::create`.
+
+To push the incoming data to the models directly, call `#save` without the block.
+
+```ruby
+    @form.save  #=> populates song with incoming data
+                #   by calling @form.song.title= and @form.song.length=.
+```
+
+
+## Nesting Forms: 1-1 Relations
+
+Songs have artists to compose them. Let's say your `Song` model would implement that as follows.
+
+```ruby
+class Song < ActiveRecord::Base
+  has_one :artist
+end
+```
+
+The edit form should allow changing data for artist and song.
+
+```ruby
+class SongForm < Reform::Form
+  property :title
+  property :length
+
+  property :artist do
+    property :name
+
+    validates :name, presence: true
+  end
+
+  #validates :title, ...
+end
+```
+
+See how simple nesting forms is? By passing a block to `::property` you can define another form nested into your main form.
+
+
+### 1-1 Setup
+
+This setup's only requirement is having a working `Song#artist` reader.
+
+class SongsController
+  def edit
+    song = Song.find(1)
+    song.artist #=> <0x999#Artist title="Duran Duran">
+
+    @form = SongForm.new(song)
+  end
+```
+
+### 1-1 Rendering
+
+When rendering this form you could use the form's accessors manually.
+
+```haml
+= text_field :title,         @form.title
+= text_field "artist[name]", @form.artist.name
+```
+
+Or use something like `#fields_for` in a Rails environment.
+
+```haml
+= form_for @form |f|
+  = f.text_field :title
+  = f.text_field :length
+
+  = fields_for :artist do |a|
+    = a.text_field :name
+```
+
+### 1-1 Processing
+
+The block form of `#save` would give you the following data.
+
+```ruby
+@form.save do |data, nested|
+  data.title #=> "Hungry Like The Wolf"
+  data.artist.name #=> "Duran Duran"
+
+  nested #=> {title:  "Hungry Like The Wolf",
+         #    artist: {name: "Duran Duran"}}
+end
+```
+
+Supposed you use reform's automatic save without a block, the following assignments would be made.
+
+```ruby
+form.song.title       = "Hungry Like The Wolf"
+form.song.artist.name = "Duran Duran"
+```
+
+## Nesting Forms: 1-n Relations
+
+Reform also gives you nested collections.
+
+Let's have Albums with songs!
+
+```ruby
+class Album < ActiveRecord::Base
+  has_many :songs
+end
+```
+
+The form might look like this.
+
+```ruby
+class AlbumForm < Reform::Form
+  property :title
+
+  collection :songs do
+    property :title
+
+    validates :title, presence: true
+  end
+end
+```
+
+This basically works like a nested `property` that iterates over a collection of songs.
+
+### 1-n Rendering
+
+Reform will expose the collection using the `#songs` method.
+
+```haml
+= text_field :title,         @form.title
+= text_field "songs[0][title]", @form.songs[0].title
+```
+
+However, `#fields_for` works just fine, again.
+
+```haml
+= form_for @form |f|
+  = f.text_field :title
+
+  = fields_for :songs do |s|
+    = s.text_field :title
+```
+
+### 1-n Processing
+
+The block form of `#save` will expose the data structures already discussed.
+
+```ruby
+@form.save do |data, nested|
+  data.title #=> "Rio"
+  data.songs.first.title #=> "Hungry Like The Wolf"
+
+  nested #=> {title: "Rio"
+              songs: [{title: "Hungry Like The Wolf"},
+                     {title: "Last Chance On The Stairways"}]
+end
+```
+
+
+## Agnosticism: Mapping Data
+
+Reform doesn't really know whether it's working with a PORO, an `ActiveRecord` instance or a `Sequel` row. When rendering the form, reform calls readers on the decorated model to retrieve the field data (`song#title`, `song#length`).
+
+When saving, the same happens using writers. Reform simply calls `song#title=(value)`. No knowledge is required about the underlying database layer.
+
+Nesting forms only requires readers for the nested properties.
+
+
+
+## TODO: change this
+
 Say you need a form for song requests on a radio station. Internally, this would imply associating `songs` table and the `artists` table. You don't wanna reflect that in your web form, do you?
 
 ```ruby
@@ -47,58 +296,12 @@ def edit
 end
 ```
 
-## Rendering Forms
-
-Your `@form` is now ready to be rendered, either do it yourself or use something like `simple_form`.
-
-```haml
-= simple_form_for @form do |f|
-
-  = f.input :name
-  = f.input :title
-```
-
-## Validating Forms
-
-After a form submission, you wanna validate the input.
-
-```ruby
-def create
-  @form = SongRequestForm.new(song: Song.new, artist: Artist.new)
-
-  #=> params: {song_request: {title: "Rio", name: "Duran Duran"}}
-
-  if @form.validate(params[:song_request])
-```
-
-`Reform` uses the validations you provided in the form - and nothing else.
 
 
-## Saving Forms
 
-We provide a bullet-proof way to save your form data: by letting _you_ do it!
 
-```ruby
-  if @form.validate(params[:song_request])
 
-    @form.save do |data, nested|
-      #=> data:   <title: "Rio", name: "Duran Duran">
-      #
-      #   nested: {song:   {title: "Rio"},
-      #            artist: {name: "Duran Duran"}}
 
-      SongRequest.new(nested[:song][:title])
-    end
-```
-
-While `data` gives you an object exposing the form property readers, `nested` already reflects the nesting you defined in your form earlier.
-
-To push the incoming data to the models directly, call `#save` without the block.
-
-```ruby
-    @form.save  #=> populates song and artist with incoming data
-                #   by calling @form.song.name= and @form.artist.title=.
-```
 
 ## Coercion
 
