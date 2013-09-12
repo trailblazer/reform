@@ -62,26 +62,22 @@ module Reform
         from_hash(params)
 
         res = valid?  # this validates on <Fields> using AM::Validations, currently.
-
-        nested = {}
-        mapper.new(@fields).nested_forms.collect { |attr, form| nested[attr.from] = form }
-
-
-        validate_nested(nested, res)
-      end
-
-    private
-      def validate_nested(nested, res)
-        nested.each do |name, form|
-          next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
-
-          res = false # res &= form.valid?
-
-          errors.merge!(form.errors, name)
+        #inject(true) do |res, form| # FIXME: replace that!
+        mapper.new(@fields).nested_forms do |attr, form| #.collect { |attr, form| nested[attr.from] = form }
+          res = validate_for(form, res, attr.from)
         end
 
         res
       end
+
+    private
+      def validate_for(form, res, prefix=nil)
+        return res if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
+
+        errors.merge!(form.errors, prefix)
+        false
+      end
+
     end
     include ValidateMethods
 
@@ -204,21 +200,14 @@ module Reform
     require "representable/hash/collection"
     require 'active_model'
     class Forms < Array # DISCUSS: this should be a Form subclass.
+      include Form::ValidateMethods
+
       def valid?
-        res = true
-
-        # TODO: merge with #validate.
-        each do |form|
-          next if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
-
-          res = false # res &= form.valid?
-
-          errors.merge!(form.errors)
+        inject(true) do |res, form|
+          res = validate_for(form, res)
         end
-
-        res
       end
-      include ActiveModel::Validations # FIXME: this gives us #errors.
+
       def errors
         @errors ||= Form::Errors.new(self)
       end
