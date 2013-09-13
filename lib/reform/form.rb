@@ -189,10 +189,14 @@ module Reform
       end
 
       def merge!(errors, prefix=nil)
+        # TODO: merge into AM.
         errors.messages.each do |field, msgs|
           field = "#{prefix}.#{field}" if prefix
 
-          add(field, *msgs) # Forms now contains a plain errors hash. the errors for each item are still available in item.errors.
+          msgs.each do |msg|
+            next if messages[field] and messages[field].include?(msg)
+            add(field, msg)
+          end # Forms now contains a plain errors hash. the errors for each item are still available in item.errors.
         end
       end
     end
