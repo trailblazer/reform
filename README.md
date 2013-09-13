@@ -72,7 +72,7 @@ class SongsController
     if @form.validate(params[:song])
 ```
 
-`Reform` uses the validations you provided in the form - and nothing else.
+Reform uses the validations you provided in the form - and nothing else.
 
 
 ## Saving Forms
@@ -132,10 +132,11 @@ end
 See how simple nesting forms is? By passing a block to `::property` you can define another form nested into your main form.
 
 
-### 1-1 Setup
+### has_one: Setup
 
 This setup's only requirement is having a working `Song#artist` reader.
 
+```ruby
 class SongsController
   def edit
     song = Song.find(1)
@@ -145,7 +146,7 @@ class SongsController
   end
 ```
 
-### 1-1 Rendering
+### has_one: Rendering
 
 When rendering this form you could use the form's accessors manually.
 
@@ -165,7 +166,7 @@ Or use something like `#fields_for` in a Rails environment.
     = a.text_field :name
 ```
 
-### 1-1 Processing
+### has_one: Processing
 
 The block form of `#save` would give you the following data.
 
@@ -214,7 +215,7 @@ end
 
 This basically works like a nested `property` that iterates over a collection of songs.
 
-### 1-n Rendering
+### has_many: Rendering
 
 Reform will expose the collection using the `#songs` method.
 
@@ -233,7 +234,7 @@ However, `#fields_for` works just fine, again.
     = s.text_field :title
 ```
 
-### 1-n Processing
+### has_many: Processing
 
 The block form of `#save` will expose the data structures already discussed.
 
@@ -249,59 +250,62 @@ end
 ```
 
 
-## Agnosticism: Mapping Data
+## Compositions
 
-Reform doesn't really know whether it's working with a PORO, an `ActiveRecord` instance or a `Sequel` row. When rendering the form, reform calls readers on the decorated model to retrieve the field data (`song#title`, `song#length`).
+Sometimes you might want to embrace two (or more) unrelated objects with a single form. While you could write a simple delegating composition yourself, reform comes with it built-in.
 
-When saving, the same happens using writers. Reform simply calls `song#title=(value)`. No knowledge is required about the underlying database layer.
-
-Nesting forms only requires readers for the nested properties.
-
-
-
-## TODO: change this
-
-Say you need a form for song requests on a radio station. Internally, this would imply associating `songs` table and the `artists` table. You don't wanna reflect that in your web form, do you?
+Say we were to edit a song and the label data the record was released from. Internally, this would imply working on the `songs` table and the `labels` table.
 
 ```ruby
-class SongRequestForm < Reform::Form
-  include DSL
+class SongWithLabelForm < Reform::Form
+  include Composition
 
-  property :title,  on: :song
-  property :name,   on: :artist
+  property :title, on: :song
+  property :city,  on: :label
 
-  validates :name, :title, presence: true
+  validates :title, :city, presence: true
 end
 ```
 
-The `::property` method allows defining the fields of the form. Using `:on` delegates this field to a nested object in your form.
+Note that reform needs to know about the owner objects of properties. You can do so by using the `on:` option.
 
-__Note__: There is a convenience method `::properties` that allows you to pass an array of fields at one time.
+### Composition: Setup
 
-## Using Forms
-
-In your controller you'd create a form instance and pass in the models you wanna work on.
+The constructor slightly differs.
 
 ```ruby
-def new
-  @form = SongRequestForm.new(song: Song.new, artist: Artist.new)
-end
+@form = SongWithLabelForm.new(song: Song.new, label: Label.new)
 ```
 
-You can also setup the form for editing existing items.
+### Composition: Rendering
+
+After you configured your composition in the form, reform hides the fact that you're actually showing two different objects.
+
+```haml
+= form_for @form do |f|
+
+  Song:     = f.input :title
+
+  Label in: = f.input :city
+```
+
+### Composition: Processing
+
+When using `#save' without a block reform will use writer methods on the different objects to push validated data to the properties.
+
+Here's how the block parameters look like.
 
 ```ruby
-def edit
-  @form = SongRequestForm.new(song: Song.find(1), artist: Artist.find(2))
+@form.save do |data, nested|
+  data.title #=> "Rio"
+  data.city  #=> "London"
+
+  nested #=> {
+              song:  {title: "Rio"}
+              label: {city: "London"}
+             }
 end
 ```
-
-
-
-
-
-
-
 
 ## Coercion
 
@@ -312,16 +316,27 @@ Be sure to add `virtus` to your Gemfile.
 ```ruby
 require 'reform/form/coercion'
 
-class SongRequestForm < Reform::Form
-  include DSL
-  include Reform::Form::Coercion
+class SongForm < Reform::Form
+  include Coercion
 
-  property :written_at,  on: :song, type: DateTime
+  property :written_at, type: DateTime
 end
 
 @form.save do |data, nested|
   data.written_at #=> <DateTime XXX>
 ```
+
+
+## Agnosticism: Mapping Data
+
+Reform doesn't really know whether it's working with a PORO, an `ActiveRecord` instance or a `Sequel` row.
+
+When rendering the form, reform calls readers on the decorated model to retrieve the field data (`Song#title`, `Song#length`).
+
+When saving a submitted form, the same happens using writers. Reform simply calls `Song#title=(value)`. No knowledge is required about the underlying database layer.
+
+Nesting forms only requires readers for the nested properties as `Album#songs`.
+
 
 ## Rails Integration
 
@@ -415,6 +430,10 @@ class ArtistForm < Reform::Form
   end
 end
 ```
+
+## ActiveModel compliance
+
+
 
 ## Security
 
