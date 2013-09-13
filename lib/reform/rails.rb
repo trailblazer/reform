@@ -3,12 +3,6 @@ if defined?(ActiveRecord)
   require 'reform/form/active_record'
 end
 
-class Reform::Form
-  module Rails
-    extend ActiveSupport::Concern
-
-    included do
-      include ActiveModel::FormBuilderMethods # DISCUSS: name scheme will change soon.
-    end
-  end
+Reform::Form.class_eval do # DISCUSS: i'd prefer having a separate Rails module to be mixed into the Form but this is way more convenient for 99% users.
+  include Reform::Form::ActiveModel::FormBuilderMethods
 end

@@ -155,7 +155,7 @@ class ReformTest < ReformSpec
       # Artist.new(:name => "Racer X").save
 
       let (:form) do
-        require 'reform/rails'
+        require 'reform/active_record'
         Class.new(Reform::Form) do
           include Reform::Form::ActiveRecord
           model :artist
