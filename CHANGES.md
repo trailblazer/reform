@@ -1,3 +1,7 @@
+h3. 0.3.0
+
+* Renamed `Reform::Form::DSL` to `Reform::Form::Composition` and deprecated `DSL`.
+
 h3. 0.2.0
 
 * Composition now totally optional
