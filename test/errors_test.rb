@@ -25,7 +25,7 @@ class ErrorsTest < MiniTest::Spec
     )
   end
   let (:song)  { OpenStruct.new(:title => "Downtown") }
-  let (:songs) { [OpenStruct.new(:title => "Calling")] }
+  let (:songs) { [song=OpenStruct.new(:title => "Calling"), song] }
   let (:form)  { AlbumForm.new(album) }
 
 
@@ -33,7 +33,7 @@ class ErrorsTest < MiniTest::Spec
     before { form.validate(
       "hit"   =>{"title" => ""},
       "title" => "",
-      "songs" => [{"title" => ""}]) }
+      "songs" => [{"title" => ""}, {"title" => ""}]) } # FIXME: what happens if item is missing?
 
     it do
       form.errors.messages.must_equal({

@@ -59,9 +59,7 @@ module Reform::Form::ActiveModel
         end
       end
 
-      res = super
-
-      res
+      super
     end
   end
 
@@ -80,6 +78,8 @@ module Reform::Form::ActiveModel
       composition_model = options[:on] || main_model
 
       delegate composition_model => :model # #song => model.song
+
+      # FIXME: this should just delegate to :model as in FB, and the comp would take care of it internally.
       delegate [:persisted?, :to_key, :to_param, :to_model] => composition_model  # #to_key => song.to_key
 
       alias_method main_model, composition_model # #hit => model.song.
