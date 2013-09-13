@@ -1,6 +1,7 @@
 h3. 0.3.0
 
 * Renamed `Reform::Form::DSL` to `Reform::Form::Composition` and deprecated `DSL`.
+* `require 'reform'` now automatically requires Rails stuff in a Rails environment. Mainly, this is the FormBuilder compatibility layer that is injected into `Form`. If you don't want that, only require 'reform/form'.
 
 h3. 0.2.0
 
