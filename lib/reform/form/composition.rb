@@ -1,6 +1,6 @@
 class Reform::Form
   # Automatically creates a Composition object for you when initializing the form.
-  module DSL
+  module Composition
     def self.included(base)
       base.class_eval do
         extend ClassMethods
@@ -28,6 +28,19 @@ class Reform::Form
 
     def to_nested_hash
       model.nested_hash_for(to_hash)  # use composition to compute nested hash.
+    end
+  end
+
+
+  module DSL
+    include Composition
+
+    def self.included(base)
+      warn "[DEPRECATION] Reform::Form: `DSL` is deprecated.  Please use `Composition` instead."
+
+      base.class_eval do
+        extend Composition::ClassMethods
+      end
     end
   end
 end
