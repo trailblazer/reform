@@ -73,7 +73,7 @@ end
 
 class ActiveModelTest < MiniTest::Spec
    class HitForm < Reform::Form
-    include DSL
+    include Composition
     include Reform::Form::ActiveModel
 
     property  :title,  :on => :song
@@ -93,7 +93,7 @@ class ActiveModelTest < MiniTest::Spec
 
     it "doesn't delegate when :on missing" do
       class SongOnlyForm < Reform::Form
-        include DSL
+        include Composition
         include Reform::Form::ActiveModel
 
         property :title,  :on => :song
@@ -132,7 +132,7 @@ class ActiveModelTest < MiniTest::Spec
 
   it "works with any order of ::model and ::property" do
     class AnotherForm < Reform::Form
-      include DSL
+      include Composition
       include Reform::Form::ActiveModel
 
       model :song, :on => :song

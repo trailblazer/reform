@@ -1,9 +1,9 @@
 require 'test_helper'
 
 class DslTest < MiniTest::Spec
-  require 'reform/form/dsl'
+  require 'reform/form/composition'
   class SongForm < Reform::Form
-    include DSL
+    include Composition
 
     property  :title,           :on => :song
     properties [:name, :genre], :on => :artist
