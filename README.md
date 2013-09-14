@@ -2,6 +2,9 @@
 
 Decouple your models from forms. Reform gives you a form object with validations and nested setup of models. It is completely framework-agnostic and doesn't care about your database.
 
+Although reform can be used in any Ruby framework, it comes with [Rails support](#rails-integration), works with [simple_form and other form gems](#formbuilder-support), allows nesting forms to implement [has_one](#nesting-forms-1-1-relations) and [has_many](#nesting-forms-1-n-relations) relationships, can [compose a form](#compositions) from multiple objects and gives you [coercion](#coercion).
+
+
 ## Installation
 
 Add this line to your Gemfile:
@@ -340,114 +343,67 @@ Nesting forms only requires readers for the nested properties as `Album#songs`.
 
 ## Rails Integration
 
-[A sample Rails app using Reform.](https://github.com/gogogarrett/reform_example)
+Check out [@gogogarret](https://twitter.com/GoGoGarrett/)'s [sample Rails app](https://github.com/gogogarrett/reform_example) using Reform.
 
-Reform offers ActiveRecord support to easily make this accessible in Rails based projects. You simply `include Reform::Form::ActiveRecord` in your form object and the Rails specific code will be handled for you. This happens by adding behaviour to make the form ActiveModel-compliant. Note that this module will also work with other ORMs like Datamapper.
+Rails and Reform work out-of-the-box. If you're using Rails but for some reason wanna use the pure reform, `require reform/form`, only.
 
-### Simple Integration
-#### Form Class
-
-You have to include a call to `model` to specify which is the main object of the form.
-
-```ruby
-require 'reform/rails'
-
-class UserProfileForm < Reform::Form
-  include DSL
-  include Reform::Form::ActiveRecord
-
-  property :email,        on: :user
-  properties [:gender, :age],   on: :profile
-
-  model :user
-
-  validates :email, :gender, presence: true
-  validates :age, numericality: true
-  validates_uniqueness_of :email
-end
-```
-
-Basically, `model :user` tells Reform to use the `:user` object in the composition as the form main object while using `"user"` as the form name (needed for URL computation). If you want to change the form name let Reform know.
-
-```ruby
-  model :singer, :on => :user # form name is "singer" whereas main object is `:user` in composition.
-```
-
-
-#### View Form
-
-The form becomes __very__ dumb as it knows nothing about the backend assocations or data binding to the database layer.  This simply takes input and passes it along to the controller as it should.
-
-```erb
-<%= form_for @form do |f| %>
-  <%= f.email_field :email %>
-  <%= f.input :gender %>
-  <%= f.number_field :age %>
-  <%= f.submit %>
-<% end %>
-```
-
-#### Controller
-
-In the controller you can easily create helpers to build these form objects for you.  In the create and update actions Reform allows you total control of what to do with the data being passed via the form. How you interact with the data is entirely up to you.
-
-```ruby
-class UsersController < ApplicationController
-
-  def create
-    @form = create_new_form
-    if @form.validate(params[:user])
-      @form.save do |data, map|
-        new_user = User.new(map[:user])
-        new_user.build_user_profile(map[:profile])
-        new_user.save!
-      end
-    end
-  end
-
-
-  private
-  def create_new_form
-    UserProfileForm.new(user: User.new, profile: UserProfile.new)
-  end
-end
-```
-
-__Note__: this can also be used for the update action as well.
-
-## Using Your Models In Validations
-
-Sometimes you want to access your database in a validation. You can access the models using the `#model` accessor in the form.
-
-```ruby
-class ArtistForm < Reform::Form
-  property :name
-
-  validate "name_correct?"
-
-  def name_correct?
-    errors.add :name, "#{name} is stupid!" if model.artist.stupid_name?(name)
-  end
-end
-```
 
 ## ActiveModel compliance
 
+Forms in Reform can easily be made ActiveModel-compliant.
+
+Note that this step is _not_ necessary in a Rails environment.
+
+```ruby
+class SongForm < Reform::Form
+  include Reform::Form::ActiveModel
+end
+```
+
+If you're not happy with the `model_name` result, configure it manually.
+
+```ruby
+class CoverSongForm < Reform::Form
+  include Reform::Form::ActiveModel
+
+  model :hit
+end
+```
+
+This is especially helpful when your framework tries to render `cover_song_path` although you wanna go with `song_path`.
+
+
+## FormBuilder Support
+
+To make your forms work with all the form gems like `simple_form` or Rails `form_for` you need to include another module.
+
+Again, this step is implicit in Rails and you don't need to do it manually.
+
+```ruby
+class SongForm < Reform::Form
+  include Reform::Form::ActiveModel
+  include Reform::Form::ActiveModel::FormBuilderMethods
+end
+```
 
 
 ## Security
 
-By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
+By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `
+attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
+
 
 ## Support
 
 If you run into any trouble chat with us on irc.freenode.org#trailblazer.
+
 
 ## Maintainers
 
 [Nick Sutterer](https://github.com/apotonick)
 
 [Garrett Heinlen](https://github.com/gogogarrett)
+
 
 ### Attributions!!!
 

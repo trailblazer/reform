@@ -1,10 +1,8 @@
-h3. 0.3.0
-
-* Renamed `Reform::Form::DSL` to `Reform::Form::Composition` and deprecated `DSL`.
-* `require 'reform'` now automatically requires Rails stuff in a Rails environment. Mainly, this is the FormBuilder compatibility layer that is injected into `Form`. If you don't want that, only require 'reform/form'.
-
 h3. 0.2.0
 
+* Added nested property and collection for `has_one` and `has_many` relationships.
+* Renamed `Reform::Form::DSL` to `Reform::Form::Composition` and deprecated `DSL`.
+* `require 'reform'` now automatically requires Rails stuff in a Rails environment. Mainly, this is the FormBuilder compatibility layer that is injected into `Form`. If you don't want that, only require 'reform/form'.
 * Composition now totally optional
 * `Form.new` now accepts one argument, only: the model/composition. If you want to create your own representer, inject it by overriding `Form#mapper`. Note that this won't create property accessors for you.
 * You can now nest forms. Note that this currently works only 1-level deep.
