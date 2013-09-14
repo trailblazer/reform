@@ -67,12 +67,8 @@ module Reform::Form::ActiveModel
 
   private
     def active_model_name_for(string)
-      return ::ActiveModel::Name.new(OpenStruct.new(:name => string)) if rails_3_0?
+      return ::ActiveModel::Name.new(OpenStruct.new(:name => string)) if Reform.rails3_0?
       ::ActiveModel::Name.new(self, nil, string)
-    end
-
-    def rails_3_0?
-      ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
     end
   end
 end

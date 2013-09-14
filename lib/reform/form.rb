@@ -74,6 +74,7 @@ module Reform
       def validate_for(form, res, prefix=nil)
         return res if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
 
+        puts "merge: #{form} #{form.errors.messages}"
         errors.merge!(form.errors, prefix)
         false
       end
@@ -184,14 +185,22 @@ module Reform
     # The Errors class is planned to replace AM::Errors. It provides proper nested error messages.
     class Errors < ActiveModel::Errors
       def messages
-        return super unless ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
+        return super unless Reform.rails3_0?
         self
       end
+
+      # def each
+      #   messages.each_key do |attribute|
+      #     self[attribute].each { |error| yield attribute, Array.wrap(error) }
+      #   end
+      # end
 
       def merge!(errors, prefix=nil)
         # TODO: merge into AM.
         errors.messages.each do |field, msgs|
           field = "#{prefix}.#{field}" if prefix
+
+          msgs = [msgs] if Reform.rails3_0? # DISCUSS: fix in #each?
 
           msgs.each do |msg|
             next if messages[field] and messages[field].include?(msg)
@@ -230,5 +239,9 @@ module Reform
       fields = properties.inject({}) { |hsh, attr| hsh.merge!(attr => nil) }
       super(fields.merge!(values))  # TODO: stringify value keys!
     end
+  end
+
+  def self.rails3_0?
+    ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
   end
 end
