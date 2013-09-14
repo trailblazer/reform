@@ -2,7 +2,7 @@ require 'test_helper'
 
 class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
   class SongForm < Reform::Form
-    include Reform::Form::ActiveModel::FormBuilderMethods
+    include Reform::Form::ActiveModel
 
     property :name
   end
@@ -22,7 +22,9 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
 
     let (:class_with_model) {
       Class.new(Reform::Form) do
+        include Reform::Form::ActiveModel
         include Reform::Form::ActiveModel::FormBuilderMethods
+
         model :album
       end
     }
@@ -71,10 +73,11 @@ class FormBuilderCompatTest < MiniTest::Spec
   end
 end
 
-class ActiveModelTest < MiniTest::Spec
+class ActiveModelWithCompositionTest < MiniTest::Spec
    class HitForm < Reform::Form
     include Composition
     include Reform::Form::ActiveModel
+    extend Reform::Form::ActiveModel::CompositionClassMethods # FIXME: do that in Composition
 
     property  :title,  :on => :song
     properties [:name, :genre],   :on => :artist # we need to check both ::property and ::properties here!
