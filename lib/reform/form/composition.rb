@@ -1,3 +1,5 @@
+require "reform/form/active_model"
+
 class Reform::Form
   # Automatically creates a Composition object for you when initializing the form.
   module Composition
@@ -8,6 +10,8 @@ class Reform::Form
     end
 
     module ClassMethods
+      include Reform::Form::ActiveModel::ClassMethods # ::model.
+
       def model_class # DISCUSS: needed?
         rpr = representer_class
         @model_class ||= Class.new(Reform::Composition) do
@@ -18,6 +22,24 @@ class Reform::Form
       def property(name, options={})
         super
         delegate options[:on] => :@model
+      end
+
+      # Same as ActiveModel::model but allows you to define the main model in the composition
+      # using +:on+.
+      #
+      # class CoverSongForm < Reform::Form
+      #   model :song, on: :cover_song
+      def model(main_model, options={})
+        super
+
+        composition_model = options[:on] || main_model
+
+        delegate composition_model => :model # #song => model.song
+
+        # FIXME: this should just delegate to :model as in FB, and the comp would take care of it internally.
+        delegate [:persisted?, :to_key, :to_param] => composition_model  # #to_key => song.to_key
+
+        alias_method main_model, composition_model # #hit => model.song.
       end
     end
 
@@ -32,6 +54,7 @@ class Reform::Form
   end
 
 
+  # TODO: remove me in 1.3.
   module DSL
     include Composition
 

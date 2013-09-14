@@ -23,7 +23,6 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
     let (:class_with_model) {
       Class.new(Reform::Form) do
         include Reform::Form::ActiveModel
-        include Reform::Form::ActiveModel::FormBuilderMethods
 
         model :album
       end
@@ -77,10 +76,9 @@ class ActiveModelWithCompositionTest < MiniTest::Spec
    class HitForm < Reform::Form
     include Composition
     include Reform::Form::ActiveModel
-    extend Reform::Form::ActiveModel::CompositionClassMethods # FIXME: do that in Composition
 
-    property  :title,  :on => :song
-    properties [:name, :genre],   :on => :artist # we need to check both ::property and ::properties here!
+    property  :title,           :on => :song
+    properties [:name, :genre], :on => :artist # we need to check both ::property and ::properties here!
 
     model :hit, :on => :song
   end
@@ -130,7 +128,8 @@ class ActiveModelWithCompositionTest < MiniTest::Spec
   end
 
   it "provides #to_model" do
-    HitForm.new(:song => OpenStruct.new.instance_eval { def to_model; "yo!"; end; self }, :artist => OpenStruct.new).to_model.must_equal "yo!"
+    form = HitForm.new(:song => OpenStruct.new, :artist => OpenStruct.new)
+    form.to_model.must_equal form
   end
 
   it "works with any order of ::model and ::property" do

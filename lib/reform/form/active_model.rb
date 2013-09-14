@@ -40,7 +40,7 @@ module Reform::Form::ActiveModel
 
       delegate [:persisted?, :to_key, :to_param, :id] => :model
 
-      def to_model # this is called somewhere in FormBuilder.
+      def to_model # this is called somewhere in FormBuilder and ActionController.
         self
       end
     end
@@ -73,21 +73,6 @@ module Reform::Form::ActiveModel
 
     def rails_3_0?
       ::ActiveModel::VERSION::MAJOR == 3 and ::ActiveModel::VERSION::MINOR == 0
-    end
-  end
-
-  module CompositionClassMethods # TODO: move to composition as this is only for on: code.
-    def model(main_model, options={})
-      super
-
-      composition_model = options[:on] || main_model
-
-      delegate composition_model => :model # #song => model.song
-
-      # FIXME: this should just delegate to :model as in FB, and the comp would take care of it internally.
-      delegate [:persisted?, :to_key, :to_param] => composition_model  # #to_key => song.to_key
-
-      alias_method main_model, composition_model # #hit => model.song.
     end
   end
 end
