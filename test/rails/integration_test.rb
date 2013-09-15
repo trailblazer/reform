@@ -49,4 +49,19 @@ class HasOneAndHasManyTest < ActionController::TestCase
       assert_select "[name=?]", "album[songs_attributes][0][title]"
     end
   end
+
+  test "submitting invalid form" do
+    params = {
+      "album"=>{"title"=>"Rio",
+        "songs_attributes"=>{
+          "0"=>{"name"=>""},
+          "1"=>{"name"=>""}
+      }}, "commit"=>"Create Album"}
+
+    post :create, params
+
+    assert_select "form"
+
+    assert_select "li", "Songs title can&#39;t be blank"
+  end
 end
