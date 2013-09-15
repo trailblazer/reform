@@ -22,18 +22,6 @@ require "rails/test_help" # adds stuff like @routes, etc.
 #   end
 # end
 
-class RailsTest < ActionController::TestCase
-  tests MusicianController
-
-  # test "bla" do
-  #   get :index
-  # end
-
-  # test "rendering 1-n" do
-  #   get :album_new
-  # end
-end
-
 class HasOneAndHasManyTest < ActionController::TestCase
   tests AlbumsController
 
@@ -61,7 +49,6 @@ class HasOneAndHasManyTest < ActionController::TestCase
     post :create, params
 
     assert_select "form"
-
     assert_select "li", "Songs title can&#39;t be blank"
   end
 end
