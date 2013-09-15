@@ -74,7 +74,6 @@ module Reform
       def validate_for(form, res, prefix=nil)
         return res if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
 
-        puts "merge: #{form} #{form.errors.messages}"
         errors.merge!(form.errors, prefix)
         false
       end
