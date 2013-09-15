@@ -3,8 +3,8 @@ require_relative "../test_helper"
 require "dummy/config/environment"
 require "rails/test_help" # adds stuff like @routes, etc.
 
-require "haml"
-require "haml/template" # Thanks, Nathan!
+# require "haml"
+# require "haml/template" # Thanks, Nathan!
 
 #ActiveRecord::Schema.define do
   # create_table :artists do |table|
@@ -39,5 +39,14 @@ class HasOneAndHasManyTest < ActionController::TestCase
 
   test "rendering 1-1 and 1-n" do
     get :new
+    #puts @response.body
+
+    assert_select "form"
+
+    assert_select "form input" do |els|
+      assert_select "[name=?]", "album[title]"
+      assert_select "[name=?]", "album[songs_attributes][1][title]"
+      assert_select "[name=?]", "album[songs_attributes][0][title]"
+    end
   end
 end

@@ -16,3 +16,5 @@ module Dummy
     config.cache_store = :memory_store
   end
 end
+
+require "reform/rails"

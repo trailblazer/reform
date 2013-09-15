@@ -1,0 +1,28 @@
+New Album
+
+<%= form_for @form do |f| %>
+  <% if @form.errors.any? %>
+    <div>
+      <h3><%= pluralize(@form.errors.count, "error") %> prohibited this form from being saved:</h3>
+
+      <ul>
+        <% @form.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= f.label :title, "Album Title" %>
+  <%= f.text_field :title %>
+
+  <%= f.fields_for :songs do |song| %>
+    <div>
+      <%= song.label :title %>
+      <%= song.text_field :title %>
+    </div>
+  <% end %>
+
+  <%= f.submit %>
+<% end %>
+
