@@ -82,14 +82,19 @@ class NestedFormTest < MiniTest::Spec
       frm.songs.first.must_be_kind_of Reform::Form
     end
 
-    it "returns nested hash with symbol keys" do
+    it "returns nested hash with indifferent access" do
       nested = nil
 
       form.save do |hash, nested_hash|
         nested = nested_hash
       end
 
-      nested.must_equal(:title=>"Second Heat", :hit=>{"title"=>"Sacrifice"}, :songs=>[{"title"=>"Scarified"}])
+      nested.must_equal("title"=>"Second Heat", "hit"=>{"title"=>"Sacrifice"}, "songs"=>[{"title"=>"Scarified"}])
+
+      nested[:title].must_equal "Second Heat"
+      nested["title"].must_equal "Second Heat"
+      nested[:hit][:title].must_equal "Sacrifice"
+      nested["hit"]["title"].must_equal "Sacrifice"
     end
 
     it "pushes data to models" do

@@ -93,8 +93,9 @@ module Reform
       mapper.new(self).to_hash
     end
 
+    require "active_support/hash_with_indifferent_access" # DISCUSS: replace?
     def to_nested_hash
-      symbolize_keys(to_hash)
+      ActiveSupport::HashWithIndifferentAccess.new(to_hash)
     end
 
     def from_hash(params, *args)
@@ -107,10 +108,6 @@ module Reform
 
   private
     attr_accessor :model, :fields
-
-    def symbolize_keys(hash)
-      hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
-    end
 
     def mapper
       self.class.representer_class

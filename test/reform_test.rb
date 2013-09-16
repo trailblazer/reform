@@ -227,7 +227,7 @@ class ReformTest < ReformSpec
           hash = map
         end
 
-        hash.must_equal({:name=>"Diesel Boy"})
+        hash.must_equal({"name"=>"Diesel Boy"})
       end
     end
   end
