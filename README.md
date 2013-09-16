@@ -165,7 +165,7 @@ Or use something like `#fields_for` in a Rails environment.
   = f.text_field :title
   = f.text_field :length
 
-  = fields_for :artist do |a|
+  = f.fields_for :artist do |a|
     = a.text_field :name
 ```
 
