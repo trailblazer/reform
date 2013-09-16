@@ -233,7 +233,7 @@ However, `#fields_for` works just fine, again.
 = form_for @form |f|
   = f.text_field :title
 
-  = fields_for :songs do |s|
+  = f.fields_for :songs do |s|
     = s.text_field :title
 ```
 
