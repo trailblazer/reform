@@ -165,7 +165,7 @@ Or use something like `#fields_for` in a Rails environment.
   = f.text_field :title
   = f.text_field :length
 
-  = fields_for :artist do |a|
+  = f.fields_for :artist do |a|
     = a.text_field :name
 ```
 
@@ -233,7 +233,7 @@ However, `#fields_for` works just fine, again.
 = form_for @form |f|
   = f.text_field :title
 
-  = fields_for :songs do |s|
+  = f.fields_for :songs do |s|
     = s.text_field :title
 ```
 
