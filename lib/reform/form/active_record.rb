@@ -1,4 +1,13 @@
 class Reform::Form
+  # delegate column for attribute to the model
+  # this supports simple_form's attribute type
+  # interrogation
+  def column_for_attribute(name)
+    if @model.respond_to?(:column_for_attribute)
+      @model.column_for_attribute(name)
+    end
+  end
+
   module ActiveRecord
     def self.included(base)
       base.class_eval do

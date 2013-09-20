@@ -236,4 +236,28 @@ class ReformTest < ReformSpec
   describe "#model" do
     it { form.send(:model).must_equal comp }
   end
+
+  describe "#column_for_attribute" do
+    let (:model) { Artist.new }
+    let (:klass) do
+      require 'reform/active_record'
+      Class.new(Reform::Form) do
+        include Reform::Form::ActiveRecord
+        model :artist
+
+        property :name
+      end
+    end
+    let (:form) { klass.new(model) }
+
+    it 'should delegate to the model' do
+      Calls = []
+      def model.column_for_attribute(name)
+        Calls << :column_for_attribute
+      end
+
+      form.column_for_attribute(:name)
+      Calls.must_include :column_for_attribute
+    end
+  end
 end
