@@ -177,6 +177,8 @@ class ReformTest < ReformSpec
       end
 
       it "is invalid and shows error when taken" do
+        Artist.create(:name => "Racer X")
+
         form.validate({"name" => "Racer X"}).must_equal false
         form.errors.messages.must_equal({:name=>["has already been taken"], :created_at => ["can't be blank"]})
       end
