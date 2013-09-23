@@ -366,7 +366,7 @@ If you're not happy with the `model_name` result, configure it manually.
 class CoverSongForm < Reform::Form
   include Reform::Form::ActiveModel
 
-  model :hit
+  model :song
 end
 ```
 
