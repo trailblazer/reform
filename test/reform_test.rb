@@ -169,6 +169,8 @@ class ReformTest < ReformSpec
         new(Artist.new)
       end
 
+      it { form.class.i18n_scope.must_equal :activerecord }
+
       it "allows accessing the database" do
       end
 
