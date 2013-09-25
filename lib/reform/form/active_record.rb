@@ -11,6 +11,9 @@ class Reform::Form
       def validates_uniqueness_of(attribute)
         validates_with UniquenessValidator, :attributes => [attribute]
       end
+      def i18n_scope
+        :activerecord
+      end
     end
 
     class UniquenessValidator < ::ActiveRecord::Validations::UniquenessValidator
