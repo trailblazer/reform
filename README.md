@@ -247,8 +247,8 @@ The block form of `#save` will expose the data structures already discussed.
   data.songs.first.title #=> "Hungry Like The Wolf"
 
   nested #=> {title: "Rio"
-              songs: [{title: "Hungry Like The Wolf"},
-                     {title: "Last Chance On The Stairways"}]
+         #   songs: [{title: "Hungry Like The Wolf"},
+         #          {title: "Last Chance On The Stairways"}]
 end
 ```
 
@@ -304,9 +304,9 @@ Here's how the block parameters look like.
   data.city  #=> "London"
 
   nested #=> {
-              song:  {title: "Rio"}
-              label: {city: "London"}
-             }
+         #   song:  {title: "Rio"}
+         #   label: {city: "London"}
+         #   }
 end
 ```
 
