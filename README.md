@@ -348,7 +348,15 @@ Check out [@gogogarret](https://twitter.com/GoGoGarrett/)'s [sample Rails app](h
 Rails and Reform work out-of-the-box. If you're using Rails but for some reason wanna use the pure reform, `require reform/form`, only.
 
 
-## ActiveModel compliance
+## ActiveRecord Compatibility
+
+Reform provides the following `ActiveRecord` specific features. They're mixed in automatically in a Rails/AR setup.
+
+ * Uniqueness validations. Use `validates_uniqueness_of` in your form.
+ * Calling `Form#save` will explicitely call `save` on your model (added in 0.2.1) which will usually trigger a database insertion or update.
+
+
+## ActiveModel Compliance
 
 Forms in Reform can easily be made ActiveModel-compliant.
 
