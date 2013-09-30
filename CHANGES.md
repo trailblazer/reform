@@ -2,6 +2,7 @@ h3. 0.2.1
 
 * `ActiveRecord::i18n_scope` now returns `activerecord`.
 * `Form#save` now calls save on the model in `ActiveRecord` context.
+* Added `virtual: true` option so you can have non-writeable fields like `password_confirmation`.
 
 h3. 0.2.0
 

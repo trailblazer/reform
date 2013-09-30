@@ -17,6 +17,8 @@ module Reform
       extend Forwardable
 
       def property(name, options={}, &block)
+        process_options(name, options, &block)
+
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given?
         create_accessor(name)
@@ -46,6 +48,12 @@ module Reform
     private
       def create_accessor(name)
         delegate [name, "#{name}="] => :fields
+      end
+
+      def process_options(name, options)
+        # DISCUSS: do we have more to process here? and should :virtual be handled
+        # in a separate module?
+        options[:readable] = false if options[:virtual]
       end
     end
     extend PropertyMethods
@@ -95,7 +103,13 @@ module Reform
 
     require "active_support/hash_with_indifferent_access" # DISCUSS: replace?
     def to_nested_hash
-      ActiveSupport::HashWithIndifferentAccess.new(to_hash)
+      map = mapper.new(self)
+      map.send(:clone_config!).each do |attr|
+        next unless attr.options[:virtual]
+        attr.options[:readable] = true
+      end
+
+      ActiveSupport::HashWithIndifferentAccess.new(map.to_hash)
     end
 
     def from_hash(params, *args)
