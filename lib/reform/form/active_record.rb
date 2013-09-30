@@ -33,5 +33,11 @@ class Reform::Form
         end
       end
     end
+
+    def save(*)
+      super.tap do
+        model.save # DISCUSS: should we implement nested saving here?
+      end
+    end
   end
 end

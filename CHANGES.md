@@ -1,3 +1,8 @@
+h3. 0.2.1
+
+* `ActiveRecord::i18n_scope` now returns `activerecord`.
+* `Form#save` now calls save on the model in `ActiveRecord` context.
+
 h3. 0.2.0
 
 * Added nested property and collection for `has_one` and `has_many` relationships. . Note that this currently works only 1-level deep.

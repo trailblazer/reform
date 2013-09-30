@@ -184,6 +184,16 @@ class ReformTest < ReformSpec
         form.validate({"name" => "Racer X"}).must_equal false
         form.errors.messages.must_equal({:name=>["has already been taken"], :created_at => ["can't be blank"]})
       end
+
+      describe "#save" do
+        # TODO: test 1-n?
+        it "calls AR#save" do
+          Artist.where(:name => "Bad Religion").size.must_equal 0
+          form.validate("name" => "Bad Religion")
+          form.save
+          Artist.where(:name => "Bad Religion").size.must_equal 1
+        end
+      end
     end
   end
 
