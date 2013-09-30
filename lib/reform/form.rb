@@ -120,8 +120,10 @@ module Reform
       @errors ||= Errors.new(self)
     end
 
+    attr_accessor :model
+
   private
-    attr_accessor :model, :fields
+    attr_accessor :fields
 
     def mapper
       self.class.representer_class
