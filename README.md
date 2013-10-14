@@ -104,6 +104,11 @@ To push the incoming data to the models directly, call `#save` without the block
                 #   by calling @form.song.title= and @form.song.length=.
 ```
 
+Think of `@form.save` as a sync operation where the submitted data is written to your models.
+
+Note that this does _not_ call `save` on your models per default: this only happens in an ActiveRecord environment (or when `Form::ActiveRecord` is mixed in).
+
+
 
 ## Nesting Forms: 1-1 Relations
 
