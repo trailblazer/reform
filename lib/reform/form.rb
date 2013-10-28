@@ -50,10 +50,7 @@ module Reform
         delegate [name, "#{name}="] => :fields
       end
 
-      def process_options(name, options)
-        # DISCUSS: do we have more to process here? and should :virtual be handled
-        # in a separate module?
-        options[:readable] = false if options[:virtual]
+      def process_options(name, options) # DISCUSS: do we need that hook?
       end
     end
     extend PropertyMethods
@@ -97,17 +94,13 @@ module Reform
     end
 
     # Use representer to return current key-value form hash.
-    def to_hash(*)
-      mapper.new(self).to_hash
+    def to_hash(*args)
+      mapper.new(self).to_hash(*args)
     end
 
     require "active_support/hash_with_indifferent_access" # DISCUSS: replace?
     def to_nested_hash
       map = mapper.new(self)
-      map.send(:clone_config!).each do |attr|
-        next unless attr.options[:virtual]
-        attr.options[:readable] = true
-      end
 
       ActiveSupport::HashWithIndifferentAccess.new(map.to_hash)
     end
@@ -122,6 +115,7 @@ module Reform
 
     attr_accessor :model
 
+    # 1) initialize -> setup fields -> Setup#to_hash
   private
     attr_accessor :fields
 
@@ -134,7 +128,7 @@ module Reform
 
       setup_nested_forms(representer)
 
-      create_fields(representer.fields, representer.to_hash)
+      create_fields(representer.fields, _setup_to_hash(representer))
     end
 
     def setup_nested_forms(representer)
@@ -156,38 +150,104 @@ module Reform
           :instance => false, # that's how we make it non-typed?.
         )
       end
-
-      #representer.to_hash override: { write: lambda { |doc, value|  } }
-
-      # DISCUSS: this would be cool in representable:
-      # to_hash(hit: lambda { |value| form_class.new(..) })
-
-      # steps:
-      # - bin.get
-      # - map that: Forms.new( orig ) <-- override only this in representable (how?)
-      # - mapped.to_hash
     end
+
+    # TODO: move to SetupRepresenter?
+    def _setup_to_hash(representer)
+      representer.to_hash
+    end
+    def _setup_to_hash(representer) # FIXME: move to Feature::EmptyField
+      empty_fields = representer.send(:representable_attrs).
+        find_all { |d| d.options[:empty] }.
+        collect  { |d| d.name.to_sym }
+      representer.to_hash(:exclude => empty_fields)
+    end
+
+    #representer.to_hash override: { write: lambda { |doc, value|  } }
+
+    # DISCUSS: this would be cool in representable:
+    # to_hash(hit: lambda { |value| form_class.new(..) })
+
+    # steps:
+    # - bin.get
+    # - map that: Forms.new( orig ) <-- override only this in representable (how?)
+    # - mapped.to_hash
+
 
     def create_fields(field_names, fields)
       Fields.new(field_names, fields)
     end
 
-    def save_to_models
-      representer = mapper.new(model)
+    # Mechanics for writing input to model.
+    module Sync
+      module EmptyAttributesOptions
+        def options # DISCUSS: why use the standard representer here? we should use it everywhere.
+          empty_fields = representable_attrs.
+            find_all { |d| d.options[:empty] }.
+            collect  { |d| d.name.to_sym }
 
-      representer.nested_forms do |attr, model|
-        attr.options.merge!(
-          :decorator => attr.options[:form].representer_class
-        )
-
-        if attr.options[:form_collection]
-          attr.options.merge!(
-            :collection => true
-          )
+          super.merge(:exclude => empty_fields)
         end
       end
 
-      representer.from_hash(to_hash)
+      module ReadonlyAttributesOptions
+        def options
+          readonly_fields = representable_attrs.
+            find_all { |d| d.options[:virtual] }.
+            collect  { |d| d.name.to_sym }
+
+          super.tap do |options|
+            options[:exclude] ||= []
+            options[:exclude] += readonly_fields
+          end
+        end
+      end
+
+      # Writes input to model.
+      module Representer
+        def from_hash(*)
+          nested_forms do |attr, model|
+            attr.options.merge!(
+              :decorator => attr.options[:form].representer_class
+            )
+
+            if attr.options[:form_collection]
+              attr.options.merge!(
+                :collection => true
+              )
+            end
+          end
+
+          super
+        end
+      end
+
+      # Transforms form input into what actually gets written to model.
+      module InputRepresenter
+        module Options
+          def options
+            {}
+          end
+        end
+        include Options
+        # TODO: make dynamic.
+        include EmptyAttributesOptions
+        include ReadonlyAttributesOptions
+
+        def to_hash(*)
+          super(options) # TODO: merge with options?
+        end
+      end
+    end
+
+    def save_to_models # TODO: rename to #sync_models
+      representer = mapper.new(model)
+
+      representer.extend(Sync::Representer)
+
+      input_representer = mapper.new(self).extend(Sync::InputRepresenter)
+
+      representer.from_hash(input_representer.to_hash)
     end
 
     # FIXME: make AM optional.
