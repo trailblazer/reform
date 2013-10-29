@@ -115,7 +115,6 @@ module Reform
 
     attr_accessor :model
 
-    # 1) initialize -> setup fields -> Setup#to_hash
   private
     attr_accessor :fields
 
@@ -145,28 +144,9 @@ module Reform
     end
 
 
+    require "reform/form/virtual_attributes"
     # Mechanics for writing input to model.
     module Sync
-      module EmptyAttributesOptions
-        def options # DISCUSS: why use the standard representer here? we should use it everywhere.
-          empty_fields = representable_attrs.
-            find_all { |d| d.options[:empty] }.
-            collect  { |d| d.name.to_sym }
-
-          super.exclude!(empty_fields)
-        end
-      end
-
-      module ReadonlyAttributesOptions
-        def options
-          readonly_fields = representable_attrs.
-            find_all { |d| d.options[:virtual] }.
-            collect  { |d| d.name.to_sym }
-
-          super.exclude!(readonly_fields)
-        end
-      end
-
       # Writes input to model.
       module Representer
         def from_hash(*)
@@ -199,7 +179,7 @@ module Reform
     module Setup
       module Representer
         include Reform::Representer::WithOptions
-        include Sync::EmptyAttributesOptions
+        include EmptyAttributesOptions
 
         def to_hash(*)
           setup_nested_forms
