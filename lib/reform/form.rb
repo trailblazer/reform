@@ -145,41 +145,6 @@ module Reform
     end
 
 
-    # Mechanics for setting up initial Field values.
-    module Setup
-      module Representer
-        def to_hash(*)
-          setup_nested_forms
-
-          empty_fields = representable_attrs.
-            find_all { |d| d.options[:empty] }.
-            collect  { |d| d.name.to_sym }
-          super(:exclude => empty_fields)
-        end
-
-      private
-        def setup_nested_forms
-          nested_forms do |attr, model|
-            form_class = attr.options[:form]
-
-            attr.options.merge!(
-              :getter   => lambda do |*|
-                nested_model  = send(attr.getter) # decorated.hit # TODO: use bin.get
-
-                if attr.options[:form_collection]
-                  Forms.new(nested_model.collect { |mdl| form_class.new(mdl)})
-                else
-                  form_class.new(nested_model)
-                end
-              end,
-              :instance => false, # that's how we make it non-typed?.
-            )
-          end
-        end
-      end
-    end
-
-
     # Mechanics for writing input to model.
     module Sync
       module EmptyAttributesOptions
@@ -188,7 +153,7 @@ module Reform
             find_all { |d| d.options[:empty] }.
             collect  { |d| d.name.to_sym }
 
-          super.merge(:exclude => empty_fields)
+          super.exclude!(empty_fields)
         end
       end
 
@@ -198,10 +163,7 @@ module Reform
             find_all { |d| d.options[:virtual] }.
             collect  { |d| d.name.to_sym }
 
-          super.tap do |options|
-            options[:exclude] ||= []
-            options[:exclude] += readonly_fields
-          end
+          super.exclude!(readonly_fields)
         end
       end
 
@@ -226,18 +188,43 @@ module Reform
 
       # Transforms form input into what actually gets written to model.
       module InputRepresenter
-        module Options
-          def options
-            {}
-          end
-        end
-        include Options
+        include Reform::Representer::WithOptions
         # TODO: make dynamic.
         include EmptyAttributesOptions
         include ReadonlyAttributesOptions
+      end
+    end
+
+    # Mechanics for setting up initial Field values.
+    module Setup
+      module Representer
+        include Reform::Representer::WithOptions
+        include Sync::EmptyAttributesOptions
 
         def to_hash(*)
-          super(options) # TODO: merge with to_hash options?
+          setup_nested_forms
+
+          super # TODO: allow something like super(:exclude => empty_fields)
+        end
+
+      private
+        def setup_nested_forms
+          nested_forms do |attr, model|
+            form_class = attr.options[:form]
+
+            attr.options.merge!(
+              :getter   => lambda do |*|
+                nested_model  = send(attr.getter) # decorated.hit # TODO: use bin.get
+
+                if attr.options[:form_collection]
+                  Forms.new(nested_model.collect { |mdl| form_class.new(mdl)})
+                else
+                  form_class.new(nested_model)
+                end
+              end,
+              :instance => false, # that's how we make it non-typed?.
+            )
+          end
         end
       end
     end

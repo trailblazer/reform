@@ -3,6 +3,36 @@ require 'representable/decorator'
 
 module Reform
   class Representer < Representable::Decorator
+    # Invokes #to_hash and/or #from_hash with #options. This provides a hook for other
+    # modules to add options for the representational process.
+    module WithOptions
+      class Options < Hash
+        def include!(names)
+          self[:include] ||= []
+          self[:include] += names
+          self
+        end
+
+        def exclude!(names)
+          self[:exclude] ||= []
+          self[:exclude] +=  names
+          self
+        end
+      end
+
+      def options
+        Options.new
+      end
+
+      def to_hash(*)
+        super(options)
+      end
+
+      def from_hash(*)
+        super(options)
+      end
+    end
+
     include Representable::Hash
 
     # Returns hash of all property names.
