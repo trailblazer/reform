@@ -124,43 +124,9 @@ module Reform
     end
 
     def setup_fields(model)
-      representer = Class.new(mapper).new(model)
+      representer = mapper.new(model).extend(Setup::Representer)
 
-      setup_nested_forms(representer)
-
-      create_fields(representer.fields, _setup_to_hash(representer))
-    end
-
-    def setup_nested_forms(representer)
-      # TODO: we should simply give a FormBuilder instance to representer.to_hash that does this kind of mapping:
-      # after this, Fields contains scalars and Form instances and Forms with form instances.
-      representer.nested_forms do |attr, model|
-        form_class = attr.options[:form]
-
-        attr.options.merge!(
-          :getter   => lambda do |*|
-            nested_model  = send(attr.getter) # decorated.hit # TODO: use bin.get
-
-            if attr.options[:form_collection]
-              Forms.new(nested_model.collect { |mdl| form_class.new(mdl)})
-            else
-              form_class.new(nested_model)
-            end
-          end,
-          :instance => false, # that's how we make it non-typed?.
-        )
-      end
-    end
-
-    # TODO: move to SetupRepresenter?
-    def _setup_to_hash(representer)
-      representer.to_hash
-    end
-    def _setup_to_hash(representer) # FIXME: move to Feature::EmptyField
-      empty_fields = representer.send(:representable_attrs).
-        find_all { |d| d.options[:empty] }.
-        collect  { |d| d.name.to_sym }
-      representer.to_hash(:exclude => empty_fields)
+      create_fields(representer.fields, representer.to_hash)
     end
 
     #representer.to_hash override: { write: lambda { |doc, value|  } }
@@ -177,6 +143,42 @@ module Reform
     def create_fields(field_names, fields)
       Fields.new(field_names, fields)
     end
+
+
+    # Mechanics for setting up initial Field values.
+    module Setup
+      module Representer
+        def to_hash(*)
+          setup_nested_forms
+
+          empty_fields = representable_attrs.
+            find_all { |d| d.options[:empty] }.
+            collect  { |d| d.name.to_sym }
+          super(:exclude => empty_fields)
+        end
+
+      private
+        def setup_nested_forms
+          nested_forms do |attr, model|
+            form_class = attr.options[:form]
+
+            attr.options.merge!(
+              :getter   => lambda do |*|
+                nested_model  = send(attr.getter) # decorated.hit # TODO: use bin.get
+
+                if attr.options[:form_collection]
+                  Forms.new(nested_model.collect { |mdl| form_class.new(mdl)})
+                else
+                  form_class.new(nested_model)
+                end
+              end,
+              :instance => false, # that's how we make it non-typed?.
+            )
+          end
+        end
+      end
+    end
+
 
     # Mechanics for writing input to model.
     module Sync
@@ -235,7 +237,7 @@ module Reform
         include ReadonlyAttributesOptions
 
         def to_hash(*)
-          super(options) # TODO: merge with options?
+          super(options) # TODO: merge with to_hash options?
         end
       end
     end
