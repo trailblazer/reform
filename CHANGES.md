@@ -1,3 +1,10 @@
+h3. 0.2.2
+
+* Introduce `:empty` to have empty fields that are accessible for validation and processing, only.
+* Introduce `:virtual` for read-only fields the are like `:empty` but initially read from the decorated model.
+* Fix uniqueness validation with `Composition` form.
+* Move `setup` and `save` logic into respective representer classes. This might break your code in case you overwrite private reform classes.
+
 h3. 0.2.1
 
 * `ActiveRecord::i18n_scope` now returns `activerecord`.
