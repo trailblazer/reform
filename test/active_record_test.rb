@@ -40,6 +40,19 @@ class ActiveRecordTest < MiniTest::Spec
       form.validate({"name" => "Racer X"}).must_equal false
       form.errors.messages.must_equal({:name=>["has already been taken"], :created_at => ["can't be blank"]})
     end
+
+    it "works with Composition" do
+      form = Class.new(Reform::Form) do
+        include Reform::Form::ActiveRecord
+        include Reform::Form::Composition
+
+        property :name, :on => :artist
+        validates_uniqueness_of :name
+      end.new(:artist => Artist.new)
+
+      Artist.create(:name => "Bad Religion")
+      form.validate("name" => "Bad Religion").must_equal false
+    end
   end
 
   describe "#save" do
