@@ -145,35 +145,6 @@ module Reform
 
 
     require "reform/form/virtual_attributes"
-    # Mechanics for writing input to model.
-    module Sync
-      # Writes input to model.
-      module Representer
-        def from_hash(*)
-          nested_forms do |attr, model|
-            attr.options.merge!(
-              :decorator => attr.options[:form].representer_class
-            )
-
-            if attr.options[:form_collection]
-              attr.options.merge!(
-                :collection => true
-              )
-            end
-          end
-
-          super
-        end
-      end
-
-      # Transforms form input into what actually gets written to model.
-      module InputRepresenter
-        include Reform::Representer::WithOptions
-        # TODO: make dynamic.
-        include EmptyAttributesOptions
-        include ReadonlyAttributesOptions
-      end
-    end
 
     # Mechanics for setting up initial Field values.
     module Setup
@@ -208,6 +179,37 @@ module Reform
         end
       end
     end
+
+    # Mechanics for writing input to model.
+    module Sync
+      # Writes input to model.
+      module Representer
+        def from_hash(*)
+          nested_forms do |attr, model|
+            attr.options.merge!(
+              :decorator => attr.options[:form].representer_class
+            )
+
+            if attr.options[:form_collection]
+              attr.options.merge!(
+                :collection => true
+              )
+            end
+          end
+
+          super
+        end
+      end
+
+      # Transforms form input into what actually gets written to model.
+      module InputRepresenter
+        include Reform::Representer::WithOptions
+        # TODO: make dynamic.
+        include EmptyAttributesOptions
+        include ReadonlyAttributesOptions
+      end
+    end
+
 
     def save_to_models # TODO: rename to #sync_models
       representer = mapper.new(model)
