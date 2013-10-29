@@ -334,6 +334,58 @@ end
   data.written_at #=> <DateTime XXX>
 ```
 
+## Virtual Attributes
+
+Virtual fields come in handy when there's no direct mapping to a model attribute or when you plan on displaying but not processing a value.
+
+
+### Empty Fields
+
+Often, fields like `password_confirmation` shouldn't be retrieved from the model. Reform comes with the `:empty` option for that.
+
+```ruby
+class PasswordForm < Reform::Form
+  property :password
+  property :password_confirmation, :empty => true
+```
+
+Here, the model won't be queried for a `password_confirmation` field when creating and rendering the form. Likewise, when saving the form, the input value is not written to the decorated model. It is only readable in validations and when saving the form.
+
+```ruby
+form.validate("password" => "123", "password_confirmation" => "321")
+
+form.password_confirmation #=> "321"
+```
+
+The nested hash in the block-`#save` provides the same value.
+
+```ruby
+form.save do |f, nested|
+  nested[:password_confirmation] #=> "321"
+```
+
+### Read-Only Fields
+
+Almost identical, the `:virtual` option makes fields read-only. Say you wanna show a value, but not process it after submission, this option is your friend.
+
+```ruby
+class ProfileForm < Reform::Form
+  property :country, :virtual => true
+```
+
+This time reform will query the model for the value by calling `model.country`.
+
+You want to use this to display an initial value or to further process this field with JavaScript. However, after submission, the field is no longer considered: it won't be written to the model when saving.
+
+It is still readable in the nested hash and through the form itself.
+
+```ruby
+form.save do |f, nested|
+  nested[:country] #=> "Australia"
+
+  f.country #=> "Australia"
+```
+
 
 ## Agnosticism: Mapping Data
 
