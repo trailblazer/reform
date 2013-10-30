@@ -1,16 +1,13 @@
-h3. 0.2.2
+h3. 0.2.1
 
+* `ActiveRecord::i18n_scope` now returns `activerecord`.
+* `Form#save` now calls save on the model in `ActiveRecord` context.
+* `Form#model` is public now.
 * Introduce `:empty` to have empty fields that are accessible for validation and processing, only.
 * Introduce `:virtual` for read-only fields the are like `:empty` but initially read from the decorated model.
 * Fix uniqueness validation with `Composition` form.
 * Move `setup` and `save` logic into respective representer classes. This might break your code in case you overwrite private reform classes.
 
-h3. 0.2.1
-
-* `ActiveRecord::i18n_scope` now returns `activerecord`.
-* `Form#save` now calls save on the model in `ActiveRecord` context.
-* Added `virtual: true` option so you can have non-writeable fields like `password_confirmation`.
-* `Form#model` is public now.
 
 h3. 0.2.0
 
