@@ -17,4 +17,4 @@ module Dummy
   end
 end
 
-require "reform/rails"
+#require "reform/rails" # FIXME: this has to happen automatically in the rake test_rails run.
