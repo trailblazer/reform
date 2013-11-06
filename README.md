@@ -407,7 +407,7 @@ Rails and Reform work together out-of-the-box.
 However, you should know about two things.
 
 1. In case you explicitely _don't_ want to have automatic support for `ActiveRecord` and form builder: `require reform/form`, only.
-2. In some setups around Rails 4 the `Form::ActiveRecord` module is not loaded properly, usually triggering a `NoMethodError` saying "undefined method `model'". If that happened to you, `require 'reform/rails'` manually at the bottom of your `config/application.rb`.
+2. In some setups around Rails 4 the `Form::ActiveRecord` module is not loaded properly, usually triggering a `NoMethodError` saying `undefined method 'model'`. If that happened to you, `require 'reform/rails'` manually at the bottom of your `config/application.rb`.
 
 ## ActiveRecord Compatibility
 
