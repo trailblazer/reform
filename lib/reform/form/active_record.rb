@@ -36,7 +36,7 @@ class Reform::Form
 
     def save(*)
       super.tap do
-        model.save # DISCUSS: should we implement nested saving here?
+        model.save unless block_given? # DISCUSS: should we implement nested saving here?
       end
     end
 

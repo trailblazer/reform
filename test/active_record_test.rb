@@ -57,11 +57,18 @@ class ActiveRecordTest < MiniTest::Spec
 
   describe "#save" do
     # TODO: test 1-n?
-    it "calls AR#save" do
+    it "calls model.save" do
       Artist.delete_all
       form.validate("name" => "Bad Religion")
       form.save
       Artist.where(:name => "Bad Religion").size.must_equal 1
+    end
+
+    it "doesn't call model.save when block is given" do
+      Artist.delete_all
+      form.validate("name" => "Bad Religion")
+      form.save {}
+      Artist.where(:name => "Bad Religion").size.must_equal 0
     end
   end
 end
