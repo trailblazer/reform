@@ -1,8 +1,9 @@
 ## 0.2.2
 
 * Fix a bug where `form.save do .. end` would call `model.save` even though a block was given. This no longer happens, if there's a block to `#save`, you have to manually save data (ActiveRecord environment, only).
+* `#validate` doesn't blow up anymore when input data is missing for a nested property or collection.
 
-h3. 0.2.1
+## 0.2.1
 
 * `ActiveRecord::i18n_scope` now returns `activerecord`.
 * `Form#save` now calls save on the model in `ActiveRecord` context.

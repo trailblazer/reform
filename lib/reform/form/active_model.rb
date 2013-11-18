@@ -24,14 +24,21 @@ module Reform::Form::ActiveModel
       # DISCUSS: #validate should actually expect the complete params hash and then pick the right key as it knows the form name.
       # however, this would cause confusion?
       mapper.new(self).nested_forms do |attr, model| # FIXME: make this simpler.
-        if attr.options[:form_collection] # FIXME: why no array?
-          params[attr.name] = params["#{attr.name}_attributes"].values
-        else
-          params[attr.name] = params["#{attr.name}_attributes"]# DISCUSS: delete old key? override existing?
-        end
+        rename_nested_param_for!(params, attr)
       end
 
       super
+    end
+
+  private
+    def rename_nested_param_for!(params, attr)
+      nested_name = "#{attr.name}_attributes"
+      return unless params.has_key?(nested_name)
+
+      value = params["#{attr.name}_attributes"]
+      value = value.values if attr.options[:form_collection]
+
+      params[attr.name] = value
     end
   end
 

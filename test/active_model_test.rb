@@ -49,8 +49,10 @@ class FormBuilderCompatTest < MiniTest::Spec
       end
     end
   }
-  let (:form) { form_class.new(OpenStruct.new(:artist => Artist.new, :songs => [OpenStruct.new])) }
-# TODO: test when keys are missing!
+
+  let (:song) { OpenStruct.new }
+  let (:form) { form_class.new(OpenStruct.new(
+    :artist => Artist.new(:name => "Propagandhi"), :songs => [song])) }
 
   it "respects _attributes params hash" do
     form.validate("artist_attributes" => {"name" => "Blink 182"},
@@ -58,6 +60,15 @@ class FormBuilderCompatTest < MiniTest::Spec
 
     form.artist.name.must_equal "Blink 182"
     form.songs.first.title.must_equal "Damnit"
+  end
+
+  it "allows nested collection and property to be missing" do
+    form.validate({})
+
+    form.artist.name.must_equal "Propagandhi"
+
+    form.songs.size.must_equal 1
+    form.songs[0].model.must_equal song # this is a weird test.
   end
 
   it "defines _attributes= setter so Rails' FB works properly" do

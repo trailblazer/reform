@@ -57,7 +57,7 @@ class NestedFormTest < MiniTest::Spec
       "hit"   =>{"title" => "Sacrifice"},
       "title" =>"Second Heat",
       "songs" => [{"title" => "Scarified"}])
-    } # TODO: test empty/non-present songs
+    }
 
     it "updates internal Fields" do
       data = {}
@@ -103,6 +103,15 @@ class NestedFormTest < MiniTest::Spec
       album.title.must_equal "Second Heat"
       song.title.must_equal "Sacrifice"
       songs.first.title.must_equal "Scarified"
+    end
+
+    describe "with invalid args" do
+      it "allows empty collection values" do
+        form.validate({})
+
+        form.songs.size.must_equal 1
+        form.songs[0].title.must_equal "Scarified"
+      end
     end
   end
 
