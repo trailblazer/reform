@@ -45,6 +45,7 @@ class FormBuilderCompatTest < MiniTest::Spec
 
       collection :songs do
         property :title
+        property :release_date
         validates :title, :presence => true
       end
     end
@@ -74,6 +75,16 @@ class FormBuilderCompatTest < MiniTest::Spec
   it "defines _attributes= setter so Rails' FB works properly" do
     form.must_respond_to("artist_attributes=")
     form.must_respond_to("songs_attributes=")
+  end
+
+  it "accepts deconstructed date parameters" do
+    form.validate("artist_attributes" => {"name" => "Blink 182"},
+      "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "2007", 
+        "release_date(2i)" => "4", "release_date(3i)" => "1"}})
+
+    form.artist.name.must_equal "Blink 182"
+    form.songs.first.title.must_equal "Damnit"
+    form.songs.first.release_date.must_equal Date.new(2007, 4, 1)
   end
 
   it "returns flat errors hash" do
