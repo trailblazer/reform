@@ -79,12 +79,10 @@ class FormBuilderCompatTest < MiniTest::Spec
 
   it "accepts deconstructed date parameters" do
     form.validate("artist_attributes" => {"name" => "Blink 182"},
-      "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "2007", 
-        "release_date(2i)" => "4", "release_date(3i)" => "1"}})
+      "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "1997",
+        "release_date(2i)" => "9", "release_date(3i)" => "27"}})
 
-    form.artist.name.must_equal "Blink 182"
-    form.songs.first.title.must_equal "Damnit"
-    form.songs.first.release_date.must_equal Date.new(2007, 4, 1)
+    form.songs.first.release_date.must_equal Date.new(1997, 9, 27)
   end
 
   it "returns flat errors hash" do

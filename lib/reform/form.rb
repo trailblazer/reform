@@ -64,7 +64,7 @@ module Reform
     module ValidateMethods # TODO: introduce Base module.
       def validate(params)
         # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
-        from_hash(filter_dates(params))
+        from_hash(params)
 
         res = valid?  # this validates on <Fields> using AM::Validations, currently.
         #inject(true) do |res, form| # FIXME: replace that!
@@ -82,34 +82,10 @@ module Reform
         errors.merge!(form.errors, prefix)
         false
       end
-      
-      def filter_dates(params)
-        date_attributes = {}
-        params.each do |attribute, value|
-          if value.is_a?(Hash)
-            filter_dates(value)
-          elsif attribute.to_s.include?("(1i)") || attribute.to_s.include?("(2i)") || attribute.to_s.include?("(3i)")
-            date_attribute = attribute.to_s.gsub(/(\(.*\))/, "")
-            date_attributes[date_attribute.to_s] = params_to_date(
-              params.delete("#{date_attribute}(1i)"),
-              params.delete("#{date_attribute}(2i)"),
-              params.delete("#{date_attribute}(3i)")
-            )
-          end
-        end
-        params.merge!(date_attributes)
-      end
-      
-      def params_to_date(year, month, day)
-        day ||= 1
-        begin
-          return Date.new(year.to_i, month.to_i, day.to_i)
-        rescue => e
-          return nil
-        end
-      end
     end
     include ValidateMethods
+    require 'reform/form/multi_parameter_attributes'
+    include MultiParameterAttributes # TODO: make features dynamic.
 
     def save
       # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
