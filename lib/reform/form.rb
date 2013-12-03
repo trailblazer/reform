@@ -20,7 +20,8 @@ module Reform
         process_options(name, options, &block)
 
         definition = representer_class.property(name, options, &block)
-        setup_form_definition(definition) if block_given?
+        setup_form_definition(definition) if block_given? or options[:form]
+
         create_accessor(name)
       end
 
@@ -35,7 +36,7 @@ module Reform
       end
 
       def setup_form_definition(definition)
-        definition.options[:form] = definition.options.delete(:extend)
+        definition.options[:form] ||= definition.options.delete(:extend)
 
         definition.options[:parse_strategy] = :sync
         definition.options[:instance] = true # just to make typed? work

@@ -128,6 +128,37 @@ class NestedFormTest < MiniTest::Spec
   #   end
   # end
 
+  class ExplicitNestedFormTest < MiniTest::Spec
+    let (:song)  { OpenStruct.new(:title => "Downtown") }
+    let (:album) do
+      OpenStruct.new(
+        :title  => "Blackhawks Over Los Angeles",
+        :hit    => song,
+      )
+    end
+    let (:form) { AlbumForm.new(album) }
+
+    class SongForm < Reform::Form
+      property :title
+      validates_presence_of :title
+    end
+
+    class AlbumForm < Reform::Form
+      property :title
+
+      property :hit, :form => SongForm #, :parse_strategy => :sync, :instance => true
+    end
+
+
+    it "allows rendering" do
+      form.hit.title.must_equal "Downtown"
+    end
+
+    it { form.validate({"hit" => {"title" => ""}})
+      form.errors[:"hit.title"].must_equal(["can't be blank"])
+    }
+  end
+
   class UnitTest < self
     it "keeps Forms for form collection" do
       form.send(:fields).songs.must_be_kind_of Reform::Form::Forms
