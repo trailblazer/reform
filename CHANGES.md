@@ -2,6 +2,7 @@
 
 * Fix a bug where `form.save do .. end` would call `model.save` even though a block was given. This no longer happens, if there's a block to `#save`, you have to manually save data (ActiveRecord environment, only).
 * `#validate` doesn't blow up anymore when input data is missing for a nested property or collection.
+* Allow `form: SongForm` to specify an explicit form class instead of using an inline form for nested properties.
 
 ## 0.2.1
 

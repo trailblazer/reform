@@ -455,11 +455,25 @@ class SongForm < Reform::Form
 end
 ```
 
-
 ## Security
 
 By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `
 attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
+
+
+## Additional Features
+
+### Nesting Without Inline Representers
+
+When nesting form, you usually use a so-called inline form doing `property :song do .. end`.
+
+Sometimes you wanna specify an explicit form rather than using an inline form. Use the `form:` option here.
+
+```ruby
+property :song, form: SongForm`
+```
+
+The nested `SongForm` is a stand-alone form class you have to provide.
 
 
 ## Support
