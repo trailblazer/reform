@@ -1,3 +1,7 @@
+## 0.2.3
+
+* `#form_for` now properly recognizes a nested form when declared using `:form` (instead of an inline form).
+
 ## 0.2.2
 
 * Fix a bug where `form.save do .. end` would call `model.save` even though a block was given. This no longer happens, if there's a block to `#save`, you have to manually save data (ActiveRecord environment, only).
