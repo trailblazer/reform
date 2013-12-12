@@ -48,12 +48,20 @@ class FormBuilderCompatTest < MiniTest::Spec
         property :release_date
         validates :title, :presence => true
       end
+
+      class LabelForm < Reform::Form
+        property :name
+      end
+
+      property :label, :form => LabelForm
     end
   }
 
   let (:song) { OpenStruct.new }
   let (:form) { form_class.new(OpenStruct.new(
-    :artist => Artist.new(:name => "Propagandhi"), :songs => [song])) }
+    :artist => Artist.new(:name => "Propagandhi"),
+    :songs  => [song],
+    :label  => OpenStruct.new)) }
 
   it "respects _attributes params hash" do
     form.validate("artist_attributes" => {"name" => "Blink 182"},
@@ -75,6 +83,7 @@ class FormBuilderCompatTest < MiniTest::Spec
   it "defines _attributes= setter so Rails' FB works properly" do
     form.must_respond_to("artist_attributes=")
     form.must_respond_to("songs_attributes=")
+    form.must_respond_to("label_attributes=")
   end
 
   it "accepts deconstructed date parameters" do

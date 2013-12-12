@@ -36,6 +36,7 @@ module Reform
       end
 
       def setup_form_definition(definition)
+        # TODO: allow Definition.form?
         definition.options[:form] ||= definition.options.delete(:extend)
 
         definition.options[:parse_strategy] = :sync
