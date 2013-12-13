@@ -86,12 +86,38 @@ class FormBuilderCompatTest < MiniTest::Spec
     form.must_respond_to("label_attributes=")
   end
 
-  it "accepts deconstructed date parameters" do
-    form.validate("artist_attributes" => {"name" => "Blink 182"},
-      "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "1997",
-        "release_date(2i)" => "9", "release_date(3i)" => "27"}})
+  describe "deconstructed date parameters" do
+    it "creates date with valid parameters" do
+      form.validate("artist_attributes" => {"name" => "Blink 182"},
+        "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "1997",
+          "release_date(2i)" => "9", "release_date(3i)" => "27"}})
 
-    form.songs.first.release_date.must_equal Date.new(1997, 9, 27)
+      form.songs.first.release_date.must_equal Date.new(1997, 9, 27)
+    end
+
+    it "rejects date when the year is missing" do
+      form.validate("artist_attributes" => {"name" => "Blink 182"},
+        "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "",
+          "release_date(2i)" => "9", "release_date(3i)" => "27"}})
+
+      form.songs.first.release_date.must_be_nil
+    end
+
+    it "rejects date when the month is missing" do
+      form.validate("artist_attributes" => {"name" => "Blink 182"},
+        "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "1997",
+          "release_date(2i)" => "", "release_date(3i)" => "27"}})
+
+      form.songs.first.release_date.must_be_nil
+    end
+
+    it "defaults missing day to 1" do
+      form.validate("artist_attributes" => {"name" => "Blink 182"},
+        "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "1997",
+          "release_date(2i)" => "9", "release_date(3i)" => ""}})
+
+      form.songs.first.release_date.must_equal Date.new(1997, 9, 1)
+    end
   end
 
   it "returns flat errors hash" do
