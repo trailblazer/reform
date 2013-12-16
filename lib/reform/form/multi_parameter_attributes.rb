@@ -21,8 +21,13 @@ class Reform::Form
 
     private
       def params_to_date(year, month, day)
-        day ||= 1 # FIXME: is that really what we want? test.
+        return nil if blank_date_parameter?(year, month, day)
+
         Date.new(year.to_i, month.to_i, day.to_i) # TODO: test fails.
+      end
+
+      def blank_date_parameter?(year, month, day)
+        year.blank? || month.blank? || day.blank?
       end
     end
 
