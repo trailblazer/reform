@@ -111,12 +111,12 @@ class FormBuilderCompatTest < MiniTest::Spec
       form.songs.first.release_date.must_be_nil
     end
 
-    it "defaults missing day to 1" do
+    it "rejects date when the day is missing" do
       form.validate("artist_attributes" => {"name" => "Blink 182"},
         "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "1997",
           "release_date(2i)" => "9", "release_date(3i)" => ""}})
 
-      form.songs.first.release_date.must_equal Date.new(1997, 9, 1)
+      form.songs.first.release_date.must_be_nil
     end
   end
 
