@@ -87,36 +87,35 @@ class FormBuilderCompatTest < MiniTest::Spec
   end
 
   describe "deconstructed date parameters" do
-    it "creates date with valid parameters" do
-      form.validate("artist_attributes" => {"name" => "Blink 182"},
-        "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "1997",
-          "release_date(2i)" => "9", "release_date(3i)" => "27"}})
+    let(:form_attributes) do
+      {
+        "artist_attributes" => {"name" => "Blink 182"},
+        "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => release_year,
+          "release_date(2i)" => release_month, "release_date(3i)" => release_day}}
+      }
+    end
+    let(:release_year) { "1997" }
+    let(:release_month) { "9" }
+    let(:release_day) { "27" }
 
-      form.songs.first.release_date.must_equal Date.new(1997, 9, 27)
+    describe "with valid parameters" do
+      it "creates a date" do
+        form.validate(form_attributes)
+
+        form.songs.first.release_date.must_equal Date.new(1997, 9, 27)
+      end
     end
 
-    it "rejects date when the year is missing" do
-      form.validate("artist_attributes" => {"name" => "Blink 182"},
-        "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "",
-          "release_date(2i)" => "9", "release_date(3i)" => "27"}})
+    %w(year month day).each do |date_attr|
+      describe "when the #{date_attr} is missing" do
+        let(:"release_#{date_attr}") { "" }
 
-      form.songs.first.release_date.must_be_nil
-    end
+        it "rejects the date" do
+          form.validate(form_attributes)
 
-    it "rejects date when the month is missing" do
-      form.validate("artist_attributes" => {"name" => "Blink 182"},
-        "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "1997",
-          "release_date(2i)" => "", "release_date(3i)" => "27"}})
-
-      form.songs.first.release_date.must_be_nil
-    end
-
-    it "rejects date when the day is missing" do
-      form.validate("artist_attributes" => {"name" => "Blink 182"},
-        "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "1997",
-          "release_date(2i)" => "9", "release_date(3i)" => ""}})
-
-      form.songs.first.release_date.must_be_nil
+          form.songs.first.release_date.must_be_nil
+        end
+      end
     end
   end
 
