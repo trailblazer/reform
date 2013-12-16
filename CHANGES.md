@@ -1,6 +1,7 @@
 ## 0.2.3
 
 * `#form_for` now properly recognizes a nested form when declared using `:form` (instead of an inline form).
+* Multiparameter dates as they're constructed from the Rails date helper are now processed automatically. As soon as an incoming attribute name is `property_name(1i)` or the like, it's compiled into a Date. That happens in `MultiParameterAttributes`. If a component (year/month/day) is missing, the date is considered `nil`.
 
 ## 0.2.2
 
