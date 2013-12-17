@@ -66,7 +66,7 @@ module Reform
     module ValidateMethods # TODO: introduce Base module.
       def validate(params)
         # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
-        from_hash(params)
+        from_hash(params.with_indifferent_access)
 
         res = valid?  # this validates on <Fields> using AM::Validations, currently.
         #inject(true) do |res, form| # FIXME: replace that!
