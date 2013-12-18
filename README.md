@@ -490,7 +490,7 @@ class SongForm < Reform::Form
   property :title
 
   def title=(v)
-    super(v.uppercase)
+    super(v.upcase)
   end
 ```
 
