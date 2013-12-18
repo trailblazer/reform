@@ -273,3 +273,20 @@ class ReadonlyAttributesTest < MiniTest::Spec
     hash.must_equal("country"=> "Germany")
   end
 end
+
+class OverridingAccessorsTest < MiniTest::Spec
+  class SongForm < Reform::Form
+    property :title
+
+    def title=(v)
+      super v.upcase
+    end
+  end
+
+
+  it "allows overriding accessors while keeping super" do
+    form = SongForm.new(OpenStruct.new)
+    form.validate("title" => "Hey Little World")
+    form.title.must_equal "HEY LITTLE WORLD"
+  end
+end

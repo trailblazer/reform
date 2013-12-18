@@ -49,7 +49,13 @@ module Reform
 
     private
       def create_accessor(name)
-        delegate [name, "#{name}="] => :fields
+        # Make a module that contains these very accessors, then include it
+        # so they can be overridden but still are callable with super.
+        accessors = Module.new do
+          extend Forwardable # DISCUSS: do we really need Forwardable here?
+          delegate [name, "#{name}="] => :fields
+        end
+        include accessors
       end
 
       def process_options(name, options) # DISCUSS: do we need that hook?
