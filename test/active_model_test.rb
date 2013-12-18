@@ -30,6 +30,48 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
 
     it { class_with_model.model_name.must_be_kind_of ActiveModel::Name }
     it { class_with_model.model_name.to_s.must_equal "Album" }
+
+    describe "inline with model" do
+      let (:form_class) {
+        Class.new(Reform::Form) do
+          include Reform::Form::ActiveModel
+
+          property :song do
+            include Reform::Form::ActiveModel
+            model :hit
+          end
+        end
+      }
+
+      let (:inline) { form_class.new(OpenStruct.new).song }
+
+      it { inline.class.model_name.must_be_kind_of ActiveModel::Name }
+      it { inline.class.model_name.to_s.must_equal "Hit" }
+    end
+
+    describe "inline without model" do
+      let (:form_class) {
+        Class.new(Reform::Form) do
+          include Reform::Form::ActiveModel
+
+          property :song do
+            include Reform::Form::ActiveModel
+          end
+
+          collection :hits do
+            include Reform::Form::ActiveModel
+          end
+        end
+      }
+
+      let (:form) { form_class.new(OpenStruct.new(:hits=>[OpenStruct.new], :song => OpenStruct.new)) }
+
+      it { form.song.class.model_name.must_be_kind_of ActiveModel::Name }
+      it { form.song.class.model_name.to_s.must_equal "Song" }
+      it "singularizes collection name" do
+        form.hits.first.class.model_name.to_s.must_equal "Hit"
+      end
+    end
   end
 end
 

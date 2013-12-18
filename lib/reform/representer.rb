@@ -55,12 +55,16 @@ module Reform
       @representable_attrs = attrs
     end
 
-    def self.inline_representer(base_module, &block) # DISCUSS: separate module?
+    def self.inline_representer(base_module, name, options, &block)
+      name = name.to_s.singularize.camelize
+
       Class.new(Form) do
         instance_exec &block
 
-        def self.name # FIXME: needed by ActiveModel::Validation - why?
-          "AnonInlineForm"
+        @form_name = name
+
+        def self.name # needed by ActiveModel::Validation and I18N.
+          @form_name
         end
       end
     end
