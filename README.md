@@ -386,7 +386,6 @@ form.save do |f, nested|
   f.country #=> "Australia"
 ```
 
-
 ## Agnosticism: Mapping Data
 
 Reform doesn't really know whether it's working with a PORO, an `ActiveRecord` instance or a `Sequel` row.
@@ -481,6 +480,21 @@ property :song, form: SongForm`
 
 The nested `SongForm` is a stand-alone form class you have to provide.
 
+
+### Overriding Accessors
+
+When "real" coercion is too much and you simply want to convert incoming data yourself, override the setter.
+
+```ruby
+class SongForm < Reform::Form
+  property :title
+
+  def title=(v)
+    super(v.uppercase)
+  end
+```
+
+This will capitalize the title _after_ calling `form.validate` but _before_ validation happens. Note that you can use `super` to call the original setter.
 
 ## Support
 

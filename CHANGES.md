@@ -1,3 +1,7 @@
+## 0.2.4
+
+* Accessors for properties (e.g. `title` and `title=`) can now be overridden in the form *and* call `super`. This is extremely helpful if you wanna do "manual coercion" since the accessors are invoked in `#validate`. Thanks to @cj for requesting this.
+
 ## 0.2.3
 
 * `#form_for` now properly recognizes a nested form when declared using `:form` (instead of an inline form).
