@@ -271,11 +271,16 @@ class SongWithLabelForm < Reform::Form
   property :title, on: :song
   property :city,  on: :label
 
+  model :song # only needed in ActiveModel context.
+
   validates :title, :city, presence: true
 end
 ```
 
 Note that reform needs to know about the owner objects of properties. You can do so by using the `on:` option.
+
+Also, the form needs to have a main object configured. This is where ActiveModel-methods like `#persisted?` or '#id' are delegated to. Use `::model` to define the main object.
+
 
 ### Composition: Setup
 

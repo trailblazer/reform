@@ -198,6 +198,18 @@ class ActiveModelWithCompositionTest < MiniTest::Spec
         model :song
       end.new(:song => rio, :artist => duran).song.must_equal rio
     end
+
+    # it "delegates when you call ::model" do
+    #   class SongOnlyForm < Reform::Form
+    #     include Composition
+    #     include Reform::Form::ActiveModel
+
+    #     property :title,  :on => :song
+    #     model :song
+
+    #     self
+    #   end.new(:song => rio, :artist => duran).persisted?
+    # end
   end
 
 
