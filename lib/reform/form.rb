@@ -179,7 +179,7 @@ module Reform
 
             attr.options.merge!(
               :getter   => lambda do |*|
-                nested_model  = send(attr.getter) # decorated.hit # TODO: use bin.get
+                nested_model  = send(attr.getter) || attr.options[:model].try(:new) # decorated.hit # TODO: use bin.get
 
                 if attr.options[:form_collection]
                   Forms.new(nested_model.collect { |mdl| form_class.new(mdl)})
