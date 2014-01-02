@@ -47,6 +47,10 @@ module Reform
         each(&block)
     end
 
+    def self.clone # called in inheritable_attr :representer_class.
+      Class.new(self) # By subclassing, representable_attrs.clone is called.
+    end
+
   private
     def clone_config!
       # TODO: representable_attrs.clone! which does exactly what's done below.

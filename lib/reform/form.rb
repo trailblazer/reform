@@ -4,6 +4,9 @@ require 'ostruct'
 require 'reform/composition'
 require 'reform/representer'
 
+require 'hooks/inheritable_attribute'
+
+
 module Reform
   class Form
     extend Forwardable
@@ -13,6 +16,12 @@ module Reform
     # validation: this object also contains the validation rules itself, should be separated.
 
     # Allows using property and friends in the Form itself. Forwarded to the internal representer_class.
+
+    extend Hooks::InheritableAttribute
+    inheritable_attr :representer_class
+    self.representer_class = Class.new(Reform::Representer)
+
+
     module PropertyMethods
       extend Forwardable
 
@@ -41,10 +50,6 @@ module Reform
 
         definition.options[:parse_strategy] = :sync
         definition.options[:instance] = true # just to make typed? work
-      end
-
-      def representer_class
-        @representer_class ||= Class.new(Reform::Representer)
       end
 
     private
