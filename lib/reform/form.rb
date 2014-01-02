@@ -4,6 +4,9 @@ require 'ostruct'
 require 'reform/composition'
 require 'reform/representer'
 
+require 'hooks/inheritable_attribute'
+
+
 module Reform
   class Form
     extend Forwardable
@@ -13,6 +16,12 @@ module Reform
     # validation: this object also contains the validation rules itself, should be separated.
 
     # Allows using property and friends in the Form itself. Forwarded to the internal representer_class.
+
+    extend Hooks::InheritableAttribute
+    inheritable_attr :representer_class
+    self.representer_class = Class.new(Reform::Representer)
+
+
     module PropertyMethods
       extend Forwardable
 
@@ -43,13 +52,15 @@ module Reform
         definition.options[:instance] = true # just to make typed? work
       end
 
-      def representer_class
-        @representer_class ||= Class.new(Reform::Representer)
-      end
-
     private
       def create_accessor(name)
-        delegate [name, "#{name}="] => :fields
+        # Make a module that contains these very accessors, then include it
+        # so they can be overridden but still are callable with super.
+        accessors = Module.new do
+          extend Forwardable # DISCUSS: do we really need Forwardable here?
+          delegate [name, "#{name}="] => :fields
+        end
+        include accessors
       end
 
       def process_options(name, options) # DISCUSS: do we need that hook?

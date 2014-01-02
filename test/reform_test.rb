@@ -213,6 +213,22 @@ class ReformTest < ReformSpec
   describe "#model" do
     it { form.model.must_equal comp }
   end
+
+
+  describe "inheritance" do
+    class HitForm < SongForm
+      property :position
+      validates :position, :presence => true
+    end
+
+    let (:form) { HitForm.new(OpenStruct.new) }
+    it do
+      form.validate({"title" => "The Body"})
+      form.title.must_equal "The Body"
+      form.position.must_equal nil
+      form.errors.messages.must_equal({:name=>["can't be blank"], :position=>["can't be blank"]})
+    end
+  end
 end
 
 class EmptyAttributesTest < MiniTest::Spec
@@ -271,5 +287,22 @@ class ReadonlyAttributesTest < MiniTest::Spec
     end
 
     hash.must_equal("country"=> "Germany")
+  end
+end
+
+class OverridingAccessorsTest < MiniTest::Spec
+  class SongForm < Reform::Form
+    property :title
+
+    def title=(v)
+      super v.upcase
+    end
+  end
+
+
+  it "allows overriding accessors while keeping super" do
+    form = SongForm.new(OpenStruct.new)
+    form.validate("title" => "Hey Little World")
+    form.title.must_equal "HEY LITTLE WORLD"
   end
 end

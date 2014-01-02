@@ -30,6 +30,48 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
 
     it { class_with_model.model_name.must_be_kind_of ActiveModel::Name }
     it { class_with_model.model_name.to_s.must_equal "Album" }
+
+    describe "inline with model" do
+      let (:form_class) {
+        Class.new(Reform::Form) do
+          include Reform::Form::ActiveModel
+
+          property :song do
+            include Reform::Form::ActiveModel
+            model :hit
+          end
+        end
+      }
+
+      let (:inline) { form_class.new(OpenStruct.new).song }
+
+      it { inline.class.model_name.must_be_kind_of ActiveModel::Name }
+      it { inline.class.model_name.to_s.must_equal "Hit" }
+    end
+
+    describe "inline without model" do
+      let (:form_class) {
+        Class.new(Reform::Form) do
+          include Reform::Form::ActiveModel
+
+          property :song do
+            include Reform::Form::ActiveModel
+          end
+
+          collection :hits do
+            include Reform::Form::ActiveModel
+          end
+        end
+      }
+
+      let (:form) { form_class.new(OpenStruct.new(:hits=>[OpenStruct.new], :song => OpenStruct.new)) }
+
+      it { form.song.class.model_name.must_be_kind_of ActiveModel::Name }
+      it { form.song.class.model_name.to_s.must_equal "Song" }
+      it "singularizes collection name" do
+        form.hits.first.class.model_name.to_s.must_equal "Hit"
+      end
+    end
   end
 end
 
@@ -86,12 +128,37 @@ class FormBuilderCompatTest < MiniTest::Spec
     form.must_respond_to("label_attributes=")
   end
 
-  it "accepts deconstructed date parameters" do
-    form.validate("artist_attributes" => {"name" => "Blink 182"},
-      "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => "1997",
-        "release_date(2i)" => "9", "release_date(3i)" => "27"}})
+  describe "deconstructed date parameters" do
+    let(:form_attributes) do
+      {
+        "artist_attributes" => {"name" => "Blink 182"},
+        "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => release_year,
+          "release_date(2i)" => release_month, "release_date(3i)" => release_day}}
+      }
+    end
+    let(:release_year) { "1997" }
+    let(:release_month) { "9" }
+    let(:release_day) { "27" }
 
-    form.songs.first.release_date.must_equal Date.new(1997, 9, 27)
+    describe "with valid parameters" do
+      it "creates a date" do
+        form.validate(form_attributes)
+
+        form.songs.first.release_date.must_equal Date.new(1997, 9, 27)
+      end
+    end
+
+    %w(year month day).each do |date_attr|
+      describe "when the #{date_attr} is missing" do
+        let(:"release_#{date_attr}") { "" }
+
+        it "rejects the date" do
+          form.validate(form_attributes)
+
+          form.songs.first.release_date.must_be_nil
+        end
+      end
+    end
   end
 
   it "returns flat errors hash" do
@@ -131,6 +198,18 @@ class ActiveModelWithCompositionTest < MiniTest::Spec
         model :song
       end.new(:song => rio, :artist => duran).song.must_equal rio
     end
+
+    # it "delegates when you call ::model" do
+    #   class SongOnlyForm < Reform::Form
+    #     include Composition
+    #     include Reform::Form::ActiveModel
+
+    #     property :title,  :on => :song
+    #     model :song
+
+    #     self
+    #   end.new(:song => rio, :artist => duran).persisted?
+    # end
   end
 
 

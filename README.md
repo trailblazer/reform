@@ -271,11 +271,16 @@ class SongWithLabelForm < Reform::Form
   property :title, on: :song
   property :city,  on: :label
 
+  model :song # only needed in ActiveModel context.
+
   validates :title, :city, presence: true
 end
 ```
 
 Note that reform needs to know about the owner objects of properties. You can do so by using the `on:` option.
+
+Also, the form needs to have a main object configured. This is where ActiveModel-methods like `#persisted?` or '#id' are delegated to. Use `::model` to define the main object.
+
 
 ### Composition: Setup
 
@@ -386,7 +391,6 @@ form.save do |f, nested|
   f.country #=> "Australia"
 ```
 
-
 ## Agnosticism: Mapping Data
 
 Reform doesn't really know whether it's working with a PORO, an `ActiveRecord` instance or a `Sequel` row.
@@ -455,10 +459,16 @@ class SongForm < Reform::Form
 end
 ```
 
+## Multiparameter Dates
+
+Composed multi-parameter dates as created by the Rails date helper are processed automatically. As soon as Reform detects an incoming `release_date(i1)` or the like it is gonna be converted into a date.
+
+Note that the date will be `nil` when one of the components (year/month/day) is missing.
+
+
 ## Security
 
-By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `
-attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
+By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
 
 
 ## Additional Features
@@ -475,6 +485,21 @@ property :song, form: SongForm`
 
 The nested `SongForm` is a stand-alone form class you have to provide.
 
+
+### Overriding Accessors
+
+When "real" coercion is too much and you simply want to convert incoming data yourself, override the setter.
+
+```ruby
+class SongForm < Reform::Form
+  property :title
+
+  def title=(v)
+    super(v.upcase)
+  end
+```
+
+This will capitalize the title _after_ calling `form.validate` but _before_ validation happens. Note that you can use `super` to call the original setter.
 
 ## Support
 
