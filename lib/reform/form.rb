@@ -10,12 +10,6 @@ require 'hooks/inheritable_attribute'
 module Reform
   class Form
     extend Forwardable
-    # reasons for delegation:
-    # presentation: this object is used in the presentation layer by #form_for.
-    # problem: #form_for uses respond_to?(:email_before_type_cast) which goes to an internal hash in the actual record.
-    # validation: this object also contains the validation rules itself, should be separated.
-
-    # Allows using property and friends in the Form itself. Forwarded to the internal representer_class.
 
     extend Hooks::InheritableAttribute
     inheritable_attr :representer_class
