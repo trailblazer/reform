@@ -463,7 +463,7 @@ end
 
 Composed multi-parameter dates as created by the Rails date helper are processed automatically. As soon as Reform detects an incoming `release_date(i1)` or the like it is gonna be converted into a date.
 
-Note that the date will be `nil` when one of the components (year/month/day) is missing.
+Note that the date will be `nil` when one of the components (year/month/day) is missing, and when an invalid date is submitted (like Feb 31, which can never happen).
 
 
 ## Security
