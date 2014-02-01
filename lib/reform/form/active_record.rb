@@ -41,10 +41,7 @@ class Reform::Form
     end
 
     def model_for_property(name)
-      return model unless is_a?(Reform::Form::Composition) # i am too lazy for proper inheritance. there should be a ActiveRecord::Composition that handles this.
-
-      model_name = mapper.representable_attrs[name].options[:on]
-      send(model_name)
+      model
     end
   end
 end
