@@ -8,8 +8,8 @@ class Reform::Form
 
     def save(*)
       save_to_models
-      super do
-        save_models unless block_given?
+      super do |data, nested|
+        block_given? ? yield(data, nested) : save_models
       end
     end
 

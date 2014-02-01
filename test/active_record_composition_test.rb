@@ -38,6 +38,16 @@ class ActiveRecordTest < MiniTest::Spec
       form.save {}
       Artist.where(:name => "Bad Religion").size.must_equal 0
     end
+
+    it "call the block there is a block" do
+      Artist.delete_all
+      form.validate("name" => "Bad Religion")
+      form.save do |data, nested|
+        data.name = nested[:artist][:name].downcase
+        data.save
+      end
+      Artist.where(:name => "bad religion").size.must_equal 1
+    end
   end
 
   describe "UniquenessValidator" do
