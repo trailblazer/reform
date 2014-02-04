@@ -30,6 +30,15 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
 
     it { class_with_model.model_name.must_be_kind_of ActiveModel::Name }
     it { class_with_model.model_name.to_s.must_equal "Album" }
+    
+
+    let (:subclass_of_class_with_model) {
+      Class.new(class_with_model)
+    }
+
+    it { subclass_of_class_with_model.model_name.must_be_kind_of ActiveModel::Name }
+    it { subclass_of_class_with_model.model_name.to_s.must_equal 'Album' }
+
 
     describe "inline with model" do
       let (:form_class) {
