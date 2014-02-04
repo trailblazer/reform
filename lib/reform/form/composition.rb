@@ -5,6 +5,7 @@ class Reform::Form
   module Composition
     def self.included(base)
       base.class_eval do
+        extend Reform::Form::ActiveModel::ClassMethods
         extend ClassMethods
       end
     end

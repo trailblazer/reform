@@ -56,13 +56,11 @@ module Reform::Form::ActiveModel
   end
 
   module ClassMethods
-    def model_options
-      return @model_options unless superclass.respond_to?(:model_options) and value = superclass.model_options
-      @model_options ||= value.clone
-    end
-
-    def model_options=(value)
-      @model_options = value
+    def self.extended(base)
+      base.class_eval do
+        extend Hooks::InheritableAttribute
+        inheritable_attr :model_options
+      end
     end
 
     # Set a model name for this form if the infered is wrong.
