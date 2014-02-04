@@ -56,17 +56,24 @@ module Reform::Form::ActiveModel
   end
 
   module ClassMethods
+    def self.extended(base)
+      base.class_eval do
+        extend Hooks::InheritableAttribute
+        inheritable_attr :model_options
+      end
+    end
+
     # Set a model name for this form if the infered is wrong.
     #
     #   class CoverSongForm < Reform::Form
     #     model :song
     def model(main_model, options={})
-      @model_options = [main_model, options]  # FIXME: make inheritable!
+      self.model_options = [main_model, options]
     end
 
     def model_name
-      if @model_options
-        form_name = @model_options.first.to_s.camelize
+      if self.model_options
+        form_name = self.model_options.first.to_s.camelize
       else
         form_name = name.sub(/Form$/, "")
       end
