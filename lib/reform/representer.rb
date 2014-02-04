@@ -51,23 +51,6 @@ module Reform
       Class.new(self) # By subclassing, representable_attrs.clone is called.
     end
 
-    def self.property(name, options={}, &block)
-      attr = representable_attrs[name]
-
-      if attr && block_given? && options[:inherit] == true
-        # if there is an existing representer for the given
-        # attribute, create a new subclass of the form and extend
-        attr.options[:form] = Class.new(attr.options[:form]) do
-          instance_exec(&block)
-        end
-
-        return attr
-      end
-
-      # new property
-      super
-    end
-
   private
     def clone_config!
       # TODO: representable_attrs.clone! which does exactly what's done below.
@@ -77,9 +60,13 @@ module Reform
     end
 
     def self.inline_representer(base_module, name, options, &block)
+      attr = representable_attrs[name]
       name = name.to_s.singularize.camelize
 
-      Class.new(Form) do
+      superclass = Form
+      superclass = attr.options[:form] if attr && options[:inherit] == true
+
+      Class.new(superclass) do
         instance_exec &block
 
         @form_name = name
