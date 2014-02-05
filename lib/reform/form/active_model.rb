@@ -55,15 +55,16 @@ module Reform::Form::ActiveModel
     end
   end
 
+
   module ClassMethods
-    def model_options
-      return @model_options unless superclass.respond_to?(:model_options) and value = superclass.model_options
-      @model_options ||= value.clone
+    # this module is only meant to extend (not include). # DISCUSS: is this a sustainable concept?
+    def self.extended(base)
+      base.class_eval do
+        extend Hooks::InheritableAttribute
+        inheritable_attr :model_options
+      end
     end
 
-    def model_options=(value)
-      @model_options = value
-    end
 
     # Set a model name for this form if the infered is wrong.
     #
@@ -74,8 +75,8 @@ module Reform::Form::ActiveModel
     end
 
     def model_name
-      if self.model_options
-        form_name = self.model_options.first.to_s.camelize
+      if model_options
+        form_name = model_options.first.to_s.camelize
       else
         form_name = name.sub(/Form$/, "")
       end
