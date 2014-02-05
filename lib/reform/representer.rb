@@ -60,9 +60,13 @@ module Reform
     end
 
     def self.inline_representer(base_module, name, options, &block)
+      attr = representable_attrs[name]
       name = name.to_s.singularize.camelize
 
-      Class.new(Form) do
+      superclass = Form
+      superclass = attr.options[:form] if attr && options[:inherit] == true
+
+      Class.new(superclass) do
         instance_exec &block
 
         @form_name = name

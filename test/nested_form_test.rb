@@ -171,4 +171,49 @@ class NestedFormTest < MiniTest::Spec
       end
     end
   end
+
+  class NestedInheritanceTest < MiniTest::Spec
+    class UserForm < Reform::Form
+      property :contact do
+        property :first_name
+        property :last_name
+
+        validates :first_name, :last_name,
+          :presence => true
+      end
+    end
+
+    class CompanyForm < UserForm
+      property :contact, :inherit => true do
+        property :fax_number
+
+        validates :fax_number, :presence => true
+      end
+    end
+
+    let (:user) do
+      OpenStruct.new({
+        :contact => OpenStruct.new
+      })
+    end
+
+    let (:user_form) do
+      UserForm.new(user)
+    end
+
+    let (:company_form) do
+      CompanyForm.new(user)
+    end
+
+    it "should inherit nested properties" do
+      company_form.contact.must_respond_to :first_name=
+      company_form.contact.first_name = 'Jane'
+      company_form.contact.first_name.must_equal 'Jane'
+    end
+
+    it "should not interfere with superclass attributes" do
+      user_form.contact.class.wont_equal company_form.contact.class
+      user_form.contact.wont_respond_to :fax_number=
+    end
+  end
 end
