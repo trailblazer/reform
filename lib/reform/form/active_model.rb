@@ -55,13 +55,16 @@ module Reform::Form::ActiveModel
     end
   end
 
+
   module ClassMethods
+    # this module is only meant to extend (not include). # DISCUSS: is this a sustainable concept?
     def self.extended(base)
       base.class_eval do
         extend Hooks::InheritableAttribute
         inheritable_attr :model_options
       end
     end
+
 
     # Set a model name for this form if the infered is wrong.
     #
@@ -72,8 +75,8 @@ module Reform::Form::ActiveModel
     end
 
     def model_name
-      if self.model_options
-        form_name = self.model_options.first.to_s.camelize
+      if model_options
+        form_name = model_options.first.to_s.camelize
       else
         form_name = name.sub(/Form$/, "")
       end
