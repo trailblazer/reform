@@ -112,12 +112,14 @@ class ReformTest < ReformSpec
     end
 
     it "exposes input via property accessors" do
-      comp.name.must_equal nil
-      form.name.must_equal nil
-
       form.validate("name" => "Duran Duran")
 
       form.name.must_equal "Duran Duran"
+    end
+
+    it "doesn't change model properties" do
+      form.validate("name" => "Duran Duran")
+
       comp.name.must_equal nil # don't touch model, yet.
     end
 
