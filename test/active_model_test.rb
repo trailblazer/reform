@@ -30,7 +30,7 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
 
     it { class_with_model.model_name.must_be_kind_of ActiveModel::Name }
     it { class_with_model.model_name.to_s.must_equal "Album" }
-    
+
 
     let (:subclass_of_class_with_model) {
       Class.new(class_with_model)
@@ -52,7 +52,7 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
         end
       }
 
-      let (:inline) { form_class.new(OpenStruct.new).song }
+      let (:inline) { form_class.new(OpenStruct.new(:song => Object.new)).song }
 
       it { inline.class.model_name.must_be_kind_of ActiveModel::Name }
       it { inline.class.model_name.to_s.must_equal "Hit" }

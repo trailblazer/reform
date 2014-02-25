@@ -115,6 +115,24 @@ class NestedFormTest < MiniTest::Spec
     end
   end
 
+  class EmptyNestedFormTest < MiniTest::Spec
+    class CompilationForm < Reform::Form
+      # collection :songs do
+      #   property :title
+      #   property :interpret do
+      #     property :name
+      #   end
+      # end
+
+      property :copyright do
+        # property :label do
+          property :name
+        # end
+      end
+    end
+
+    it { CompilationForm.new(OpenStruct.new) }
+  end
   # describe "with aliased nested form name" do
   #   let (:form) do
   #     Class.new(Reform::Form) do

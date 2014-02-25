@@ -179,7 +179,7 @@ module Reform
 
             attr.options.merge!(
               :getter   => lambda do |*|
-                nested_model  = send(attr.getter) # decorated.hit # TODO: use bin.get
+                nested_model  = send(attr.getter) or next # decorated.hit # TODO: use bin.get # DISCUSS: next moves on if property empty. this should be handled with representable's built-in mechanics.
 
                 if attr.options[:form_collection]
                   Forms.new(nested_model.collect { |mdl| form_class.new(mdl)})
