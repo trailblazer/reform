@@ -9,6 +9,8 @@ end
 require 'active_record'
 class Artist < ActiveRecord::Base
 end
+class Song < ActiveRecord::Base
+end
 ActiveRecord::Base.establish_connection(
   :adapter => "sqlite3",
   :database => "#{Dir.pwd}/database.sqlite3"

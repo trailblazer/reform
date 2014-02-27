@@ -35,6 +35,8 @@ module Reform
       end
     end
 
+    attr_accessor :models
+
     # TODO: make class method?
     def nested_hash_for(attrs)
       {}.tap do |hsh|
@@ -46,8 +48,10 @@ module Reform
       end
     end
 
-    def initialize(models)
-      models.each do |name, obj|
+    def initialize(hash)
+      @models = []
+      hash.each do |name, obj|
+        models << obj
         instance_variable_set(:"@#{name}", obj)
       end
     end
