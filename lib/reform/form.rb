@@ -4,14 +4,14 @@ require 'ostruct'
 require 'reform/composition'
 require 'reform/representer'
 
-require 'hooks/inheritable_attribute'
+require 'uber/inheritable_attr'
 
 
 module Reform
   class Form
     extend Forwardable
 
-    extend Hooks::InheritableAttribute
+    extend Uber::InheritableAttr
     inheritable_attr :representer_class
     self.representer_class = Class.new(Reform::Representer)
 
