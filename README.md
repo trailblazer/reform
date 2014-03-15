@@ -420,6 +420,15 @@ Reform provides the following `ActiveRecord` specific features. They're mixed in
  * Uniqueness validations. Use `validates_uniqueness_of` in your form.
  * Calling `Form#save` will explicitely call `save` on your model (added in 0.2.1) which will usually trigger a database insertion or update.
 
+As mentioned in the [Rails Integration](https://github.com/apotonick/reform#rails-integration) section some Rails 4 setups do not properly load.
+
+You may want to include the module manually then.
+
+```ruby
+class SongForm < Reform::Form
+  include Reform::Form::ActiveRecord
+```
+
 
 ## ActiveModel Compliance
 

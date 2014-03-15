@@ -5,12 +5,13 @@ class Reform::Form
   module Composition
     def self.included(base)
       base.class_eval do
+        extend Reform::Form::ActiveModel::ClassMethods # ::model.
         extend ClassMethods
       end
     end
 
     module ClassMethods
-      include Reform::Form::ActiveModel::ClassMethods # ::model.
+      #include Reform::Form::ActiveModel::ClassMethods # ::model.
 
       def model_class # DISCUSS: needed?
         rpr = representer_class
