@@ -60,7 +60,7 @@ module Reform::Form::ActiveModel
     # this module is only meant to extend (not include). # DISCUSS: is this a sustainable concept?
     def self.extended(base)
       base.class_eval do
-        extend Hooks::InheritableAttribute
+        extend Uber::InheritableAttribute
         inheritable_attr :model_options
       end
     end
