@@ -7,11 +7,18 @@ class ReformSpec < MiniTest::Spec
 end
 
 require 'active_record'
-class Artist < ActiveRecord::Base
-end
 ActiveRecord::Base.establish_connection(
   :adapter => "sqlite3",
   :database => "#{Dir.pwd}/database.sqlite3"
 )
 
-#Artist.delete_all
+class Artist < ActiveRecord::Base
+end
+class Album < ActiveRecord::Base
+  has_many :songs #, autosave: true
+end
+class Song < ActiveRecord::Base
+  belongs_to :album
+end
+
+[Artist, Album, Song].each(&:delete_all)
