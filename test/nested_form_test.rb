@@ -41,10 +41,17 @@ class NestedFormTest < MiniTest::Spec
     form.to_hash.must_equal({"hit"=>{"title"=>"Downtown"}, "title" => "Blackhawks Over Los Angeles", "songs"=>[{"title"=>"Calling"}]})
   end
 
+
   it "creates nested forms" do
     form.hit.must_be_kind_of Reform::Form
     form.songs.must_be_kind_of Reform::Form::Forms
   end
+  # describe "#initialize" do
+  #   it "allows empty properties" do
+  #     AlbumForm.new(OpenStruct.new)
+  #   end
+  # end
+
 
   describe "rendering" do
     it { form.title.must_equal "Blackhawks Over Los Angeles" }

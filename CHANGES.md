@@ -1,3 +1,7 @@
+## 0.2.6
+
+* Maintenance release cause I'm stupid.
+
 ## 0.2.5
 
 * Allow proper form inheritance. When having `HitForm < SongForm < Reform::Form` the `HitForm` class will contain `SongForm`'s properties in addition to its own fields.
