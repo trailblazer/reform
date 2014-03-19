@@ -2,6 +2,7 @@
 
 * Allow proper form inheritance. When having `HitForm < SongForm < Reform::Form` the `HitForm` class will contain `SongForm`'s properties in addition to its own fields.
 * `::model` is now inherited properly.
+* Allow instantiation of nested form with emtpy nested properties.
 
 ## 0.2.4
 
