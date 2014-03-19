@@ -11,6 +11,7 @@ class AlbumForm < Reform::Form # FIXME: sub forms don't inherit FBM.
 
   validates :title, presence: true
 
+  # TODO: Remove this. It should be handled by Reform::Form::ActiveRecord now
   def save
     super
     model.save
