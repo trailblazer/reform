@@ -56,19 +56,111 @@ class ActiveRecordTest < MiniTest::Spec
   end
 
   describe "#save" do
-    # TODO: test 1-n?
     it "calls model.save" do
       Artist.delete_all
-      form.validate("name" => "Bad Religion")
+      form.from_hash("name" => "Bad Religion")
+      Artist.where(:name => "Bad Religion").size.must_equal 0
       form.save
       Artist.where(:name => "Bad Religion").size.must_equal 1
     end
 
     it "doesn't call model.save when block is given" do
       Artist.delete_all
-      form.validate("name" => "Bad Religion")
+      form.from_hash("name" => "Bad Religion")
       form.save {}
       Artist.where(:name => "Bad Religion").size.must_equal 0
+    end
+  end
+
+  describe 'Album has_many :songs' do
+    require 'reform/active_record'
+    class AlbumForm < Reform::Form
+      include Reform::Form::ActiveRecord
+      property :title
+
+      collection :songs do
+        include Reform::Form::ActiveRecord
+        property :title
+        validates :title, :presence => true
+
+        # TODO: nest one level deeper and make sure it saves recursively to the deepest subform
+      end
+
+      validates :title, :presence => true
+    end
+
+    let(:album_hash) {
+      {"title"=>"Album", "songs"=>[{"title"=>"Song 1"}, {"title"=>"Song 2"}]}
+    }
+    let(:updated_album_hash) {
+      {"title"=>"Updated Album", "songs"=>[{"title"=>"Updated Song 1"}, {"title"=>"Updated Song 2"}]}
+    }
+
+    describe "create (records don't already exist)" do
+      let(:songs) { [Song.new(:title => "Song 1"),
+                     Song.new(:title => "Song 2")] }
+      let(:album) do
+        Album.new.tap do |album|
+          album.songs.build
+          album.songs.build
+        end
+      end
+      let(:form)  { AlbumForm.new(album) }
+
+      it "saves all objects, including each song" do
+        form.to_hash.must_equal({"songs"=>[{}, {}]})
+        form.from_hash(album_hash)
+        form.to_hash.must_equal(album_hash)
+        Album.count.must_equal 0
+        Song.count.must_equal 0
+
+        form.save
+        Album.count.must_equal 1
+        album = Album.first
+        album.songs[0].title.must_equal "Song 1"
+      end
+
+      it "doesn't call save on any objects when block is given" do
+        form.from_hash(album_hash)
+        form.save {}
+        Album.count.must_equal 0
+        Song.count.must_equal 0
+      end
+
+      after { Album.delete_all; Song.delete_all }
+    end
+
+    describe "update existing records" do
+      let(:songs) { [Song.create!(:title => "Song 1"),
+                     Song.create!(:title => "Song 2")] }
+      let(:album) do
+        Album.create!(
+          :title  => "Album",
+          :songs  => songs
+        )
+      end
+      let(:form)  { AlbumForm.new(album) }
+
+      it "saves all objects, including each song" do
+        form.to_hash.must_equal(album_hash)
+        Album.count.must_equal 1
+        album = Album.first
+        album.songs.size.must_equal 2
+        form.from_hash(updated_album_hash)
+
+        form.save
+        Album.count.must_equal 1
+        album = Album.first
+        album.songs[0].title.must_equal "Updated Song 1"
+      end
+
+      it "doesn't call save on any objects when block is given" do
+        form.from_hash(updated_album_hash)
+        form.save {}
+        Album.first.songs[0].title.must_equal "Song 1"
+      end
+
+      after { Album.delete_all; Song.delete_all }
     end
   end
 end
