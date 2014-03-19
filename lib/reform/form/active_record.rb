@@ -36,7 +36,16 @@ class Reform::Form
 
     def save(*)
       super.tap do
-        model.save unless block_given? # DISCUSS: should we implement nested saving here?
+        return if block_given?
+        model.save
+        fields.each_pair {|key, value|
+          value.each {|subform|
+            subform.save if subform.respond_to? :save
+            # Another option that wouldn't require including Reform::Form::ActiveRecord in the
+            # collection ("subform") definition:
+            #subform.model.save if subform.respond_to? :model
+          } if value.respond_to? :each
+        }
       end
     end
 

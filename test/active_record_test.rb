@@ -79,8 +79,11 @@ class ActiveRecordTest < MiniTest::Spec
       property :title
 
       collection :songs do
+        include Reform::Form::ActiveRecord
         property :title
         validates :title, :presence => true
+
+        # TODO: nest one level deeper and make sure it saves recursively to the deepest subform
       end
 
       validates :title, :presence => true
@@ -117,6 +120,13 @@ class ActiveRecordTest < MiniTest::Spec
         album.songs[0].title.must_equal "Song 1"
       end
 
+      it "doesn't call save on any objects when block is given" do
+        form.from_hash(album_hash)
+        form.save {}
+        Album.count.must_equal 0
+        Song.count.must_equal 0
+      end
+
       after { Album.delete_all; Song.delete_all }
     end
 
@@ -142,6 +152,12 @@ class ActiveRecordTest < MiniTest::Spec
         Album.count.must_equal 1
         album = Album.first
         album.songs[0].title.must_equal "Updated Song 1"
+      end
+
+      it "doesn't call save on any objects when block is given" do
+        form.from_hash(updated_album_hash)
+        form.save {}
+        Album.first.songs[0].title.must_equal "Song 1"
       end
 
       after { Album.delete_all; Song.delete_all }
