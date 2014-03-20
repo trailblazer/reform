@@ -76,6 +76,7 @@ module Reform
         res = valid?  # this validates on <Fields> using AM::Validations, currently.
         #inject(true) do |res, form| # FIXME: replace that!
         mapper.new(@fields).nested_forms do |attr, form| #.collect { |attr, form| nested[attr.from] = form }
+          next unless form # FIXME: this happens when the model's reader returns nil (property :song => nil). this shouldn't be considered by nested_forms!
           res = validate_for(form, res, attr.from)
         end
 
