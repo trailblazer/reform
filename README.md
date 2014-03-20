@@ -77,6 +77,10 @@ class SongsController
 
 Reform uses the validations you provided in the form - and nothing else.
 
+Note that Reform only updates values of the internal form attributes - the underlying model is still treated as immutuable and *remains unchanged*.
+
+This allows rendering the form after `validate` with the data that has been submitted. However, [don't get confused](https://github.com/GCorbel/activeform-rails/issues/3), the model's values are still the old, original values and are only changed after a `#save` or `#sync` operation.
+
 
 ## Saving Forms
 
