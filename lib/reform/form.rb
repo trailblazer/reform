@@ -120,6 +120,7 @@ module Reform
 
     def errors
       @errors ||= Errors.new(self)
+      @errors
     end
 
     attr_accessor :model
@@ -174,11 +175,14 @@ module Reform
 
             attr.options.merge!(
               :getter   => lambda do |*|
-                nested_model  = send(attr.getter) or next # decorated.hit # TODO: use bin.get # DISCUSS: next moves on if property empty. this should be handled with representable's built-in mechanics.
+                # FIXME: this is where i have to fix stuff.
+                nested_model  = send(attr.getter) # or next # decorated.hit # TODO: use bin.get # DISCUSS: next moves on if property empty. this should be handled with representable's built-in mechanics.
 
                 if attr.options[:form_collection]
-                  Forms.new(nested_model.collect { |mdl| form_class.new(mdl)})
+                  nested_model ||= []
+                  Forms.new(nested_model.collect { |mdl| form_class.new(mdl)}, attr.options)
                 else
+                  next unless nested_model # DISCUSS: do we want that?
                   form_class.new(nested_model)
                 end
               end,
@@ -265,12 +269,16 @@ module Reform
     require "representable/hash/collection"
     require 'active_model'
     class Forms < Array # DISCUSS: this should be a Form subclass.
+      def initialize(ary, options)
+        super(ary)
+        @options = options
+      end
+
       include Form::ValidateMethods
 
+      # TODO: make valid?(errors) the only public method.
       def valid?
-        inject(true) do |res, form|
-          res = validate_for(form, res)
-        end
+       res= validate_cardinality & validate_items
       end
 
       def errors
@@ -280,6 +288,22 @@ module Reform
       # this gives us each { to_hash }
       include Representable::Hash::Collection
       items :parse_strategy => :sync, :instance => true
+
+    private
+      def validate_items
+        inject(true) do |res, form|
+          res = validate_for(form, res)
+        end
+      end
+
+      def validate_cardinality
+        return true unless @options[:cardinality]
+        # TODO: use AM's cardinality validator here.
+        res = size >= @options[:cardinality][:minimum].to_i
+
+        errors.add(:size, "#{@options[:as]} size is 0 but must be #{@options[:cardinality].inspect}") unless res
+        res
+      end
     end
   end
 
