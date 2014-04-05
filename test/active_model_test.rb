@@ -40,6 +40,16 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
     it { subclass_of_class_with_model.model_name.to_s.must_equal 'Album' }
 
 
+    describe "class named Song::Form" do
+      it do
+        class Form < Reform::Form
+          include Reform::Form::ActiveModel
+          self
+        end.model_name.to_s.must_equal "NewActiveModelTest"
+      end
+    end
+
+
     describe "inline with model" do
       let (:form_class) {
         Class.new(Reform::Form) do
