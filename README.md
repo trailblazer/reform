@@ -4,7 +4,7 @@ Decouple your models from forms. Reform gives you a form object with validations
 
 Although reform can be used in any Ruby framework, it comes with [Rails support](#rails-integration), works with [simple_form and other form gems](#formbuilder-support), allows nesting forms to implement [has_one](#nesting-forms-1-1-relations) and [has_many](#nesting-forms-1-n-relations) relationships, can [compose a form](#compositions) from multiple objects and gives you [coercion](#coercion).
 
-# NOTE
+# Development Status
 
 Dear Reform users - you know I love all of you. Reform is currently being improved by myself. I am definitely *not* resisting all of the feature requests (especially about nesting, model validations, automatic model setup when validating has_many, etc.) but working hard to make it better. Expect a new Reform version _and_ better README mid-late April and please refrain from telling me how lazy I am. Thanks and see you soon!!! :heart:
 
