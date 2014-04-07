@@ -22,6 +22,7 @@ module Reform
       def property(name, options={}, &block)
         process_options(name, options, &block)
 
+        # at this point, :extend is a Form class.
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given? or options[:form]
 
@@ -40,10 +41,21 @@ module Reform
 
       def setup_form_definition(definition)
         # TODO: allow Definition.form?
-        definition.options[:form] ||= definition.options.delete(:extend)
+        options = {
+          :form => definition[:form] || definition[:extend],
+          :parse_strategy => :sync,
+          :pass_options => true, # new style of passing args
+          :instance => lambda { |fragment, args| args.binding.get }, # FIXME: where do we need this?
+        }
 
-        definition.options[:parse_strategy] = :sync
-        definition.options[:instance] = true # just to make typed? work
+        definition.delete(:extend)
+
+        # definition.options[:form] ||= definition.options.delete(:extend)
+
+        # definition.options[:parse_strategy] = :sync
+        # definition.options[:instance] = true # just to make typed? work
+
+        definition.merge!(options)
       end
 
     private
@@ -77,7 +89,7 @@ module Reform
         #inject(true) do |res, form| # FIXME: replace that!
         mapper.new(@fields).nested_forms do |attr, form| #.collect { |attr, form| nested[attr.from] = form }
           next unless form # FIXME: this happens when the model's reader returns nil (property :song => nil). this shouldn't be considered by nested_forms!
-          res = validate_for(form, res, attr.from)
+          res = validate_for(form, res, attr.name)
         end
 
         res
@@ -171,23 +183,27 @@ module Reform
       private
         def setup_nested_forms
           nested_forms do |attr, model|
-            form_class = attr.options[:form]
+            form_class = attr[:form].evaluate(nil)
 
-            attr.options.merge!(
+            attr.merge!(
               :getter   => lambda do |*|
                 # FIXME: this is where i have to fix stuff.
                 nested_model  = send(attr.getter) # or next # decorated.hit # TODO: use bin.get # DISCUSS: next moves on if property empty. this should be handled with representable's built-in mechanics.
 
                 if attr.options[:form_collection]
                   nested_model ||= []
+                  # TODO: move into Forms
                   Forms.new(nested_model.collect { |mdl| form_class.new(mdl)}, attr.options)
                 else
                   next unless nested_model # DISCUSS: do we want that?
                   form_class.new(nested_model)
                 end
               end,
-              :instance => false, # that's how we make it non-typed?.
+
+              :representable => false
             )
+
+            # TODO: allow typed: false or (better: allow :extend with serialize: false)
           end
         end
       end

@@ -114,7 +114,7 @@ class FormBuilderCompatTest < MiniTest::Spec
         property :name
       end
 
-      property :label, :form => LabelForm
+      property :label, :form => Uber::Options::Value.new( LabelForm) # FIXME: add as a dynamic option
     end
   }
 
