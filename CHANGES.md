@@ -1,3 +1,8 @@
+## 0.2.7
+
+* Last release supporting Representable 1.7.
+* In ActiveModel/ActiveRecord: The model name is now correctly infered even if the name is something like `Song::Form`.
+
 ## 0.2.6
 
 * Maintenance release cause I'm stupid.
