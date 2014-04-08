@@ -41,8 +41,9 @@ module Reform
 
       def setup_form_definition(definition)
         options = {
-          :form => definition[:form] || definition[:extend].evaluate(nil), # :form is always just a Form class name.
+          :form         => definition[:form] || definition[:extend].evaluate(nil), # :form is always just a Form class name.
           :pass_options => true, # new style of passing args
+          :prepare      => lambda { |form, args| form }, # always just return the form without decorating.
         }
 
         definition.merge!(options)
@@ -69,6 +70,7 @@ module Reform
       @model  = model # we need this for #save.
       @fields = setup_fields(model)  # delegate all methods to Fields instance.
     end
+
 
     module ValidateMethods # TODO: introduce Base module.
       def validate(params)
@@ -227,8 +229,6 @@ module Reform
             attr.merge!(
               :collection => attr[:form_collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
               :parse_strategy => :sync,
-
-              :prepare => lambda { |form, args| form }, # don't prepare anything
             )
           end
 
@@ -236,6 +236,8 @@ module Reform
         end
       end
     end
+
+    ### TODO: add ToHash with :prepare => lambda { |form, args| form },
 
 
     def save_to_models # TODO: rename to #sync_models
