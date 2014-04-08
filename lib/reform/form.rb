@@ -168,22 +168,21 @@ module Reform
           nested_forms do |attr|
 
             options = {
-              :prepare => lambda do |model, args|
-                attr = args.binding
+              #:exec_context  => :decorator, # call blocks etc in this context.
+              :representable => false, # don't call #to_hash.
 
+              :prepare       => lambda do |model, args|
+                attr       = args.binding
                 form_class = attr[:form] # non-dynamic option.
 
-                if attr.options[:form_collection]
+                if attr[:form_collection]
                   model ||= []
-                  # TODO: move into Forms
-                  Forms.new(model.collect { |mdl| form_class.new(mdl)}, attr.options)
+                  Forms.new(model.collect { |mdl| form_class.new(mdl)}, attr)
                 else
                   next unless model # DISCUSS: do we want that?
                   form_class.new(model)
                 end
-              end,
-
-              :representable => false # don't call #to_hash.
+              end
             }
 
             attr.merge!(options)

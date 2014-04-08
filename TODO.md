@@ -5,7 +5,6 @@
 * document getter: and representer_exec:
 
 * allow :as to rename nested forms
-* make #nested_forms easier
 
 vererben in inline representern (module zum einmixen, attrs löschen)
 
