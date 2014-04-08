@@ -42,8 +42,7 @@ module Reform
 
     def nested_forms(&block)
       clone_config!.
-        find_all { |attr| attr.options[:form] }.
-        collect  { |attr| [attr, represented.send(attr.getter)] }. # DISCUSS: can't we do this with the Binding itself?
+        find_all { |attr| attr[:form] }.
         each(&block)
     end
 

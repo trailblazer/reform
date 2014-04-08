@@ -79,7 +79,8 @@ module Reform
 
         res = valid?  # this validates on <Fields> using AM::Validations, currently.
         #inject(true) do |res, form| # FIXME: replace that!
-        mapper.new(@fields).nested_forms do |attr, form| #.collect { |attr, form| nested[attr.from] = form }
+        mapper.new(@fields).nested_forms do |attr| #.collect { |attr, form| nested[attr.from] = form }
+          form = send(attr.name)
           next unless form # FIXME: this happens when the model's reader returns nil (property :song => nil). this shouldn't be considered by nested_forms!
           res = validate_for(form, res, attr.name)
         end
@@ -164,7 +165,7 @@ module Reform
 
       private
         def setup_nested_forms
-          nested_forms do |attr, model|
+          nested_forms do |attr|
 
             options = {
               :prepare => lambda do |model, args|
@@ -196,7 +197,7 @@ module Reform
       # Writes input to model.
       module Representer
         def from_hash(*)
-          nested_forms do |attr, model|
+          nested_forms do |attr|
             attr.merge!(
               :extend         => attr[:form].representer_class, # we actually want decorate the model.
               :parse_strategy => :sync,
@@ -223,7 +224,7 @@ module Reform
     module Validate
       module Representer
         def from_hash(*)
-          nested_forms do |attr, model|
+          nested_forms do |attr|
             attr.merge!(
               :collection => attr[:form_collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
               :parse_strategy => :sync,
