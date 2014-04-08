@@ -103,8 +103,9 @@ module Reform
       # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
       return yield self, to_nested_hash if block_given?
 
-      save_to_models
+      sync_to_models
     end
+    alias_method :sync, :save # TODO: make it two separate concerns.
 
     # Use representer to return current key-value form hash.
     def to_hash(*args)
@@ -240,10 +241,8 @@ module Reform
     ### TODO: add ToHash with :prepare => lambda { |form, args| form },
 
 
-    def save_to_models # TODO: rename to #sync_models
-      representer = mapper.new(model)
-
-      representer.extend(Sync::Representer)
+    def sync_to_models # TODO: rename to #sync_models
+      representer = mapper.new(model).extend(Sync::Representer)
 
       input_representer = mapper.new(self).extend(Sync::InputRepresenter)
 
