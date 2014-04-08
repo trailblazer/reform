@@ -197,11 +197,11 @@ module Reform
       module Representer
         def from_hash(*)
           nested_forms do |attr, model|
-            attr.options.merge!(
-              :decorator => attr.options[:form].representer_class
-            )
+            # attr.options.merge!(
+            #   :decorator => attr.options[:form].representer_class
+            # )
 
-            if attr.options[:form_collection]
+            if attr[:form_collection]
               attr.options.merge!(
                 :collection => true
               )
