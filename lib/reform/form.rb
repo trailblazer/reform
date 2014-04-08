@@ -40,20 +40,10 @@ module Reform
       end
 
       def setup_form_definition(definition)
-        # TODO: allow Definition.form?
         options = {
-          :form => definition[:form] || definition[:extend],
-          :parse_strategy => :sync,
+          :form => definition[:form] || definition[:extend].evaluate(nil), # :form is always just a Form class name.
           :pass_options => true, # new style of passing args
-          :instance => lambda { |fragment, args| args.binding.get }, # FIXME: where do we need this?
         }
-
-        definition.delete(:extend)
-
-        # definition.options[:form] ||= definition.options.delete(:extend)
-
-        # definition.options[:parse_strategy] = :sync
-        # definition.options[:instance] = true # just to make typed? work
 
         definition.merge!(options)
       end
@@ -127,7 +117,7 @@ module Reform
     end
 
     def from_hash(params, *args)
-      mapper.new(self).from_hash(params) # sets form properties found in params on self.
+      mapper.new(self).extend(Validate::Representer).from_hash(params) # sets form properties found in params on self.
     end
 
     def errors
@@ -149,17 +139,6 @@ module Reform
 
       create_fields(representer.fields, representer.to_hash)
     end
-
-    #representer.to_hash override: { write: lambda { |doc, value|  } }
-
-    # DISCUSS: this would be cool in representable:
-    # to_hash(hit: lambda { |value| form_class.new(..) })
-
-    # steps:
-    # - bin.get
-    # - map that: Forms.new( orig ) <-- override only this in representable (how?)
-    # - mapped.to_hash
-
 
     def create_fields(field_names, fields)
       Fields.new(field_names, fields)
@@ -183,27 +162,27 @@ module Reform
       private
         def setup_nested_forms
           nested_forms do |attr, model|
-            form_class = attr[:form].evaluate(nil)
 
-            attr.merge!(
-              :getter   => lambda do |*|
-                # FIXME: this is where i have to fix stuff.
-                nested_model  = send(attr.getter) # or next # decorated.hit # TODO: use bin.get # DISCUSS: next moves on if property empty. this should be handled with representable's built-in mechanics.
+            options = {
+              :prepare => lambda do |model, args|
+                attr = args.binding
+
+                form_class = attr[:form] # non-dynamic option.
 
                 if attr.options[:form_collection]
-                  nested_model ||= []
+                  model ||= []
                   # TODO: move into Forms
-                  Forms.new(nested_model.collect { |mdl| form_class.new(mdl)}, attr.options)
+                  Forms.new(model.collect { |mdl| form_class.new(mdl)}, attr.options)
                 else
-                  next unless nested_model # DISCUSS: do we want that?
-                  form_class.new(nested_model)
+                  next unless model # DISCUSS: do we want that?
+                  form_class.new(model)
                 end
               end,
 
-              :representable => false
-            )
+              :representable => false # don't call #to_hash.
+            }
 
-            # TODO: allow typed: false or (better: allow :extend with serialize: false)
+            attr.merge!(options)
           end
         end
       end
@@ -236,6 +215,25 @@ module Reform
         # TODO: make dynamic.
         include EmptyAttributesOptions
         include ReadonlyAttributesOptions
+      end
+    end
+
+
+    # Mechanics for writing to forms in #validate.
+    module Validate
+      module Representer
+        def from_hash(*)
+          nested_forms do |attr, model|
+            attr.merge!(
+              :collection => attr[:form_collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
+              :parse_strategy => :sync,
+
+              :prepare => lambda { |form, args| form }, # don't prepare anything
+            )
+          end
+
+          super
+        end
       end
     end
 
