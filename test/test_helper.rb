@@ -15,3 +15,23 @@ ActiveRecord::Base.establish_connection(
 )
 
 #Artist.delete_all
+
+class BaseTest < MiniTest::Spec
+  class AlbumForm < Reform::Form
+    property :title
+
+    property :hit do
+      property :title
+    end
+
+    collection :songs do
+      property :title
+    end
+  end
+
+  Song = Struct.new(:title)
+  Album = Struct.new(:title, :hit, :songs)
+
+
+  let (:hit) { Song.new("Roxanne") }
+end
