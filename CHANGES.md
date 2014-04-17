@@ -1,3 +1,7 @@
+## 1.0.0
+
+* Removed `Form::DSL` in favour of `Form::Composition`.
+
 ## 0.2.7
 
 * Last release supporting Representable 1.7.
