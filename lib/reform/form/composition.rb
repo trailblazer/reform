@@ -53,18 +53,4 @@ class Reform::Form
       model.nested_hash_for(to_hash)  # use composition to compute nested hash.
     end
   end
-
-
-  # TODO: remove me in 1.3.
-  module DSL
-    include Composition
-
-    def self.included(base)
-      warn "[DEPRECATION] Reform::Form: `DSL` is deprecated.  Please use `Composition` instead."
-
-      base.class_eval do
-        extend Composition::ClassMethods
-      end
-    end
-  end
 end
