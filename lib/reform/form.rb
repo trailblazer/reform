@@ -74,6 +74,10 @@ module Reform
 
     module ValidateMethods # TODO: introduce Base module.
       def validate(params)
+        # populate nested properties
+        # update attributes of forms (from_hash)
+        # run validate(errors) for all forms (no 1-level limitation anymore)
+
         # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
         from_hash(params)
 
@@ -121,7 +125,7 @@ module Reform
     end
 
     def from_hash(params, *args)
-      mapper.new(self).extend(Validate::Representer).from_hash(params) # sets form properties found in params on self.
+      mapper.new(self).extend(Validate::Representer).from_hash(params) # sets form properties found in params on self and nested forms.
     end
 
     def errors
