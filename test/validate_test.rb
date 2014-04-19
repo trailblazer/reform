@@ -14,8 +14,7 @@ class ValidateTest < BaseTest
 
     before { subject.validate(params) }
 
-    it("xxx") { subject.title.must_equal "Best Of" }
-
+    it { subject.title.must_equal "Best Of" }
 
     it { subject.hit.must_be_kind_of Reform::Form }
     it { subject.hit.title.must_equal "Roxanne" }
@@ -28,5 +27,35 @@ class ValidateTest < BaseTest
 
     it { subject.songs[1].must_be_kind_of Reform::Form }
     it { subject.songs[1].title.must_equal "Roxanne" }
+  end
+
+
+  describe "setup with populator" do
+    let (:form) {
+      Class.new(Reform::Form) do
+        property :hit, :populator => lambda { |fragment, args|
+          puts "******************* #{fragment}"
+
+          hit or self.hit = args.binding[:form].new(Song.new)
+          # TODO: wrap into form/Forms automatically in :instance.
+          # what happens with @model? we have to sync that as well.
+        } do
+          property :title
+        end
+      end
+     }
+
+    let (:params) {
+      {
+        "hit"   => {"title" => "Roxanne"},
+        # "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"}]
+      }
+    }
+
+    subject { form.new(Album.new) }
+
+    before { subject.validate(params) }
+
+    it( "xxx") { subject.hit.title.must_equal "Roxanne" }
   end
 end

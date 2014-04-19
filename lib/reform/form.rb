@@ -74,6 +74,8 @@ module Reform
 
     module ValidateMethods # TODO: introduce Base module.
       def validate(params)
+        populate!(params)
+        puts "after populate! #{self.inspect}"
         # populate nested properties
         # update attributes of forms (from_hash)
         # run validate(errors) for all forms (no 1-level limitation anymore)
@@ -98,6 +100,10 @@ module Reform
 
         errors.merge!(form.errors, prefix)
         false
+      end
+
+      def populate!(params)
+        mapper.new(self).extend(Validate::Populator).from_hash(params)
       end
     end
     include ValidateMethods
@@ -235,6 +241,24 @@ module Reform
           end
 
           super
+        end
+      end
+
+      module Populator
+        def from_hash(params, *args)
+          populated_attrs = []
+
+          nested_forms do |attr|
+            next unless attr[:populator]
+
+            attr.merge!(
+              :parse_strategy => attr[:populator],
+              :representable  => false
+              )
+            populated_attrs << attr.name.to_sym
+          end
+
+          super(params, {:include => populated_attrs})
         end
       end
     end
