@@ -127,6 +127,7 @@ module Reform
 
         self.errors = errs # if the AM valid? API wouldn't use a "global" variable this would be better.
 
+        errors.valid?
       end
 
 
@@ -158,7 +159,7 @@ module Reform
     end
     include ValidateMethods
     require 'reform/form/multi_parameter_attributes'
-    ###include MultiParameterAttributes # TODO: make features dynamic.
+    include MultiParameterAttributes # TODO: make features dynamic.
 
     def save
       # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
@@ -317,12 +318,15 @@ module Reform
 
           msgs = [msgs] if Reform.rails3_0? # DISCUSS: fix in #each?
 
-          puts msgs.inspect
           msgs.each do |msg|
             next if messages[field] and messages[field].include?(msg)
             add(field, msg)
           end # Forms now contains a plain errors hash. the errors for each item are still available in item.errors.
         end
+      end
+
+      def valid? # TODO: test me in unit test.
+        blank?
       end
     end
 
