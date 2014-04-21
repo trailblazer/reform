@@ -84,7 +84,16 @@ module Reform
             attr.merge!(
               :collection => attr[:form_collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
               :parse_strategy => :sync, # just use nested objects as they are.
-              :deserialize_method => :validate!,
+              :deserialize => lambda { |object, params, args|
+
+                options = args.user_options.dup
+                options[:prefix] = options[:prefix].dup # TODO: implement Options#dup.
+                options[:prefix] << args.binding.name # FIXME: should be #as.
+
+                puts "======= user_options: #{args.user_options.inspect}"
+
+                object.validate!(params, options)
+              },
             )
           end
 
@@ -112,23 +121,15 @@ module Reform
     end
     module ValidateMethods # TODO: introduce Base module.
       def validate(params)
+        options = {:errors => errs = Errors.new(nil), :prefix => []}
 
-        options = {:errors => errs = Errors.new(nil)}
-
-
-        validate!(params, options, path)
-
+        validate!(params, options)
 
         self.errors = errs # if the AM valid? API wouldn't use a "global" variable this would be better.
 
-
-         puts "after merge: #{self.errors.messages.inspect}"
-
-        # res
       end
 
-    private
-      attr_writer :errors # only used in top form.
+
       def validate!(params, options)
         populate!(params)
 
@@ -139,26 +140,17 @@ module Reform
         # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
 
         # sets scalars and recurses #validate.
+        prefix = options[:prefix]
+
         mapper.new(self).extend(Validate::Representer).from_hash(params, options) # calls validate(..) on nested.
 
         res = valid?  # this validates on <Fields> using AM::Validations, currently.
-# puts "after vali in #{self}:: #{opts[:errors].messages.inspect}"
 
-
-        #inject(true) do |res, form| # FIXME: replace that!
-        # mapper.new(@fields).nested_forms do |attr| #.collect { |attr, form| nested[attr.from] = form }
-        #   form = send(attr.name)
-        #   next unless form # FIXME: this happens when the model's reader returns nil (property :song => nil). this shouldn't be considered by nested_forms!
-        #   res = validate_for(form, res, attr.name)
-        # end
-        # puts "in #{self}, merging errors #{self.errors.messages.inspect}" unless opts[:errors ] == self.errors
-
-        options[:errors].merge!(self.errors, prefix="blaaaa")
-      #   return res if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
-
-      #   errors.merge!(form.errors, prefix)
-      #   false
+        options[:errors].merge!(self.errors, prefix)
        end
+
+    private
+      attr_writer :errors # only used in top form.
 
       def populate!(params)
         mapper.new(self).extend(Validate::Populator).from_hash(params)
@@ -315,20 +307,19 @@ module Reform
       #   end
       # end
 
-      def merge!(errors, prefix=nil)
-        return if errors === self # TODO: test.
+      def merge!(errors, prefix)
 
-        puts "attempting to merge #{errors.messages} into #{object_id}"
+        prefixes = prefix.join(".")
 
         # TODO: merge into AM.
         errors.messages.each do |field, msgs|
-          field = "#{prefix}.#{field}" if prefix
+          field = (prefix+[field]).join(".").to_sym # TODO: why is that a symbol in Rails?
 
           msgs = [msgs] if Reform.rails3_0? # DISCUSS: fix in #each?
 
+          puts msgs.inspect
           msgs.each do |msg|
             next if messages[field] and messages[field].include?(msg)
-            puts "adding #{field}"
             add(field, msg)
           end # Forms now contains a plain errors hash. the errors for each item are still available in item.errors.
         end
