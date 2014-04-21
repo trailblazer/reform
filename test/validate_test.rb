@@ -59,3 +59,11 @@ class ValidateTest < BaseTest
     it( "xxx") { subject.hit.title.must_equal "Roxanne" }
   end
 end
+
+# #validate(params)
+#  title=(params[:title])
+#  song.validate(params[:song], errors)
+
+# #sync (assumes that forms already have updated fields)
+#   model.title=
+#   song.sync

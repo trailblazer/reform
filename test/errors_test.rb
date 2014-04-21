@@ -73,11 +73,11 @@ class ErrorsTest < MiniTest::Spec
     it { form.errors.messages.must_equal({:"hit.title"=>["can't be blank"]}) }
   end
 
-  describe "#validate with last nested form invalid" do
+  describe "#validate with collection form invalid" do
     before { @result = form.validate("songs"=>[{"title" => ""}]) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"songs.title"=>["can't be blank"]}) }
+    it( "xxxx") { form.errors.messages.must_equal({:"songs.title"=>["can't be blank"]}) }
   end
 
   describe "correct #validate" do

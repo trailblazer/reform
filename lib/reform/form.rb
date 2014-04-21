@@ -72,35 +72,93 @@ module Reform
     end
 
 
+        # Mechanics for writing to forms in #validate.
+    module Validate
+      module Representer
+        def from_hash(*)
+          # puts "+++++++++++++++++++++++ from_hash in #{self.inspect}"
+          nested_forms do |attr|
+            attr.delete(:prepare)
+            attr.delete(:extend)
+
+            attr.merge!(
+              :collection => attr[:form_collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
+              :parse_strategy => :sync, # just use nested objects as they are.
+              :deserialize_method => :validate!,
+            )
+          end
+
+          super
+        end
+      end
+
+      module Populator
+        def from_hash(params, *args)
+          populated_attrs = []
+
+          nested_forms do |attr|
+            next unless attr[:populator]
+
+            attr.merge!(
+              :parse_strategy => attr[:populator],
+              :representable  => false
+              )
+            populated_attrs << attr.name.to_sym
+          end
+
+          super(params, {:include => populated_attrs})
+        end
+      end
+    end
     module ValidateMethods # TODO: introduce Base module.
       def validate(params)
+
+        options = {:errors => errs = Errors.new(nil)}
+
+
+        validate!(params, options, path)
+
+
+        self.errors = errs # if the AM valid? API wouldn't use a "global" variable this would be better.
+
+
+         puts "after merge: #{self.errors.messages.inspect}"
+
+        # res
+      end
+
+    private
+      attr_writer :errors # only used in top form.
+      def validate!(params, options)
         populate!(params)
-        puts "after populate! #{self.inspect}"
+
         # populate nested properties
         # update attributes of forms (from_hash)
         # run validate(errors) for all forms (no 1-level limitation anymore)
 
         # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
-        from_hash(params)
+
+        # sets scalars and recurses #validate.
+        mapper.new(self).extend(Validate::Representer).from_hash(params, options) # calls validate(..) on nested.
 
         res = valid?  # this validates on <Fields> using AM::Validations, currently.
+# puts "after vali in #{self}:: #{opts[:errors].messages.inspect}"
+
+
         #inject(true) do |res, form| # FIXME: replace that!
-        mapper.new(@fields).nested_forms do |attr| #.collect { |attr, form| nested[attr.from] = form }
-          form = send(attr.name)
-          next unless form # FIXME: this happens when the model's reader returns nil (property :song => nil). this shouldn't be considered by nested_forms!
-          res = validate_for(form, res, attr.name)
-        end
+        # mapper.new(@fields).nested_forms do |attr| #.collect { |attr, form| nested[attr.from] = form }
+        #   form = send(attr.name)
+        #   next unless form # FIXME: this happens when the model's reader returns nil (property :song => nil). this shouldn't be considered by nested_forms!
+        #   res = validate_for(form, res, attr.name)
+        # end
+        # puts "in #{self}, merging errors #{self.errors.messages.inspect}" unless opts[:errors ] == self.errors
 
-        res
-      end
+        options[:errors].merge!(self.errors, prefix="blaaaa")
+      #   return res if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
 
-    private
-      def validate_for(form, res, prefix=nil)
-        return res if form.valid? # FIXME: we have to call validate here, otherwise this works only one level deep.
-
-        errors.merge!(form.errors, prefix)
-        false
-      end
+      #   errors.merge!(form.errors, prefix)
+      #   false
+       end
 
       def populate!(params)
         mapper.new(self).extend(Validate::Populator).from_hash(params)
@@ -108,7 +166,7 @@ module Reform
     end
     include ValidateMethods
     require 'reform/form/multi_parameter_attributes'
-    include MultiParameterAttributes # TODO: make features dynamic.
+    ###include MultiParameterAttributes # TODO: make features dynamic.
 
     def save
       # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
@@ -229,40 +287,6 @@ module Reform
     end
 
 
-    # Mechanics for writing to forms in #validate.
-    module Validate
-      module Representer
-        def from_hash(*)
-          nested_forms do |attr|
-            attr.merge!(
-              :collection => attr[:form_collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
-              :parse_strategy => :sync,
-            )
-          end
-
-          super
-        end
-      end
-
-      module Populator
-        def from_hash(params, *args)
-          populated_attrs = []
-
-          nested_forms do |attr|
-            next unless attr[:populator]
-
-            attr.merge!(
-              :parse_strategy => attr[:populator],
-              :representable  => false
-              )
-            populated_attrs << attr.name.to_sym
-          end
-
-          super(params, {:include => populated_attrs})
-        end
-      end
-    end
-
     ### TODO: add ToHash with :prepare => lambda { |form, args| form },
 
 
@@ -292,6 +316,10 @@ module Reform
       # end
 
       def merge!(errors, prefix=nil)
+        return if errors === self # TODO: test.
+
+        puts "attempting to merge #{errors.messages} into #{object_id}"
+
         # TODO: merge into AM.
         errors.messages.each do |field, msgs|
           field = "#{prefix}.#{field}" if prefix
@@ -300,6 +328,7 @@ module Reform
 
           msgs.each do |msg|
             next if messages[field] and messages[field].include?(msg)
+            puts "adding #{field}"
             add(field, msg)
           end # Forms now contains a plain errors hash. the errors for each item are still available in item.errors.
         end
