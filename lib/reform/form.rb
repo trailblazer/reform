@@ -354,12 +354,6 @@ module Reform
       items :parse_strategy => :sync, :instance => true
 
     private
-      def validate_items
-        inject(true) do |res, form|
-          res = validate_for(form, res)
-        end
-      end
-
       def validate_cardinality
         return true unless @options[:cardinality]
         # TODO: use AM's cardinality validator here.
