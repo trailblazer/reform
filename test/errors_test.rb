@@ -14,6 +14,14 @@ class ErrorsTest < MiniTest::Spec
       validates :title, :presence => true
     end
 
+    property :band do # yepp, people do crazy stuff like that.
+      property :label do
+        property :name
+        validates :name, :presence => true
+      end
+      # TODO: make band a required object.
+    end
+
     validates :title, :presence => true
   end
 
@@ -21,7 +29,9 @@ class ErrorsTest < MiniTest::Spec
     OpenStruct.new(
       :title  => "Blackhawks Over Los Angeles",
       :hit    => song,
-      :songs  => songs # TODO: document this requirement
+      :songs  => songs, # TODO: document this requirement,
+
+      :band => Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
     )
   end
   let (:song)  { OpenStruct.new(:title => "Downtown") }
@@ -55,7 +65,7 @@ class ErrorsTest < MiniTest::Spec
       form.errors.messages.must_equal({
         :title        => ["can't be blank"],
         :"hit.title"  => ["can't be blank"],
-        :"songs.title"=> ["can't be blank"]})
+        :"songs.title"=> ["can't be blank"]}) # here, there's one error message for 2 errors.
     end # TODO: add another invalid item.
   end
 
@@ -78,6 +88,14 @@ class ErrorsTest < MiniTest::Spec
 
     it { @result.must_equal false }
     it( "xxxx") { form.errors.messages.must_equal({:"songs.title"=>["can't be blank"]}) }
+  end
+
+
+  describe "#validate with collection and nested-nested invalid" do
+    before { @result = form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
+
+    it { @result.must_equal false }
+    it( "xxxx") { form.errors.messages.must_equal({:"songs.title"=>["can't be blank"], :"band.label.name"=>["can't be blank"]}) }
   end
 
   describe "correct #validate" do
