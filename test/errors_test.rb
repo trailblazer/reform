@@ -69,6 +69,7 @@ class ErrorsTest < MiniTest::Spec
     end # TODO: add another invalid item.
   end
 
+
   describe "#validate with main form invalid" do
     before { @result = form.validate("title"=>"") }
 
@@ -76,12 +77,14 @@ class ErrorsTest < MiniTest::Spec
     it { form.errors.messages.must_equal({:title=>["can't be blank"]}) }
   end
 
+
   describe "#validate with middle nested form invalid" do
     before { @result = form.validate("hit"=>{"title" => ""}) }
 
     it { @result.must_equal false }
     it { form.errors.messages.must_equal({:"hit.title"=>["can't be blank"]}) }
   end
+
 
   describe "#validate with collection form invalid" do
     before { @result = form.validate("songs"=>[{"title" => ""}]) }
@@ -91,12 +94,13 @@ class ErrorsTest < MiniTest::Spec
   end
 
 
-  describe "#validate with collection and nested-nested invalid" do
+  describe "#validate with collection and 2-level-nested invalid" do
     before { @result = form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
 
     it { @result.must_equal false }
-    it( "xxxx") { form.errors.messages.must_equal({:"songs.title"=>["can't be blank"], :"band.label.name"=>["can't be blank"]}) }
+    it { form.errors.messages.must_equal({:"songs.title"=>["can't be blank"], :"band.label.name"=>["can't be blank"]}) }
   end
+
 
   describe "correct #validate" do
     before { @result = form.validate(
