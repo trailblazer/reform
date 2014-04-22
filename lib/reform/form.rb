@@ -20,8 +20,6 @@ module Reform
       extend Forwardable
 
       def property(name, options={}, &block)
-        process_options(name, options, &block)
-
         # at this point, :extend is a Form class.
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given? or options[:form]
@@ -58,9 +56,6 @@ module Reform
           delegate [name, "#{name}="] => :fields
         end
         include accessors
-      end
-
-      def process_options(name, options) # DISCUSS: do we need that hook?
       end
     end
     extend PropertyMethods
