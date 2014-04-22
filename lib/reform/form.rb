@@ -78,6 +78,7 @@ module Reform
 
     require 'reform/form/validate'
     include Validate
+
     require 'reform/form/multi_parameter_attributes'
     include MultiParameterAttributes # TODO: make features dynamic.
 
@@ -218,17 +219,6 @@ module Reform
       def initialize(ary, options)
         super(ary)
         @options = options
-      end
-
-      include Form::Validate
-
-      # TODO: make valid?(errors) the only public method.
-      def valid?
-       res= validate_cardinality & validate_items
-      end
-
-      def errors
-        @errors ||= Form::Errors.new(self)
       end
 
       # this gives us each { to_hash }
