@@ -148,17 +148,12 @@ module Reform
       private
         def setup_nested_forms
           nested_forms do |attr|
-
-            options = {
+            attr.merge!(
               :representable => false, # don't call #to_hash.
-
               :prepare       => lambda do |model, args|
-                attr       = args.binding
-                attr[:form].new(model)
+                args.binding[:form].new(model)
               end
-            }
-
-            attr.merge!(options)
+            )
           end
         end
       end

@@ -11,3 +11,6 @@ vererben in inline representern (module zum einmixen, attrs löschen)
 # TODO: remove the concept of Errors#messages and just iterate over Errors.
 # each form contains its local field errors in Errors
 # form.messages should then go through them and compile a "summary" instead of adding them to the parents #errors in #validate.
+
+
+in a perfect world, a UI form would send JSON as in the API. that's why the reform form creates the correct object graph first, then validates. creating the graph usually happens in the API representer code.
