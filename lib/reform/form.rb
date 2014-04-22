@@ -173,7 +173,7 @@ module Reform
             attr.merge!(
               :extend         => attr[:form].representer_class, # we actually want decorate the model.
               :parse_strategy => :sync,
-              :collection     => attr[:form_collection]
+              :collection     => attr[:collection]
             )
             attr.delete(:prepare)
           end

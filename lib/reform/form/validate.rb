@@ -9,7 +9,7 @@ Reform::Form.class_eval do
           attr.delete(:extend)
 
           attr.merge!(
-            :collection => attr[:form_collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
+            :collection => attr[:collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
             :parse_strategy => :sync, # just use nested objects as they are.
             :deserialize => lambda { |object, params, args|
 
