@@ -44,7 +44,7 @@ class NestedFormTest < MiniTest::Spec
 
   it "creates nested forms" do
     form.hit.must_be_kind_of Reform::Form
-    form.songs.must_be_kind_of Reform::Form::Forms
+    form.songs.must_be_kind_of Array
   end
 
   describe "#initialize" do
@@ -76,6 +76,8 @@ class NestedFormTest < MiniTest::Spec
         collection :songs, :cardinality => {:minimum => 1} do
           property :title
         end
+
+        # validates :songs, :length => {:minimum => 1}
       end.new(OpenStruct.new) }
 
       it "whatxxx" do
@@ -201,7 +203,7 @@ class NestedFormTest < MiniTest::Spec
 
   class UnitTest < self
     it "keeps Forms for form collection" do
-      form.send(:fields).songs.must_be_kind_of Reform::Form::Forms
+      form.send(:fields).songs.must_be_kind_of Array
     end
 
     describe "#validate" do

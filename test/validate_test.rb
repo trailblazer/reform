@@ -19,7 +19,7 @@ class ValidateTest < BaseTest
     it { subject.hit.must_be_kind_of Reform::Form }
     it { subject.hit.title.must_equal "Roxanne" }
 
-    it { subject.songs.must_be_kind_of Reform::Form::Forms }
+    it { subject.songs.must_be_kind_of Array }
     it { subject.songs.size.must_equal 2 }
 
     it { subject.songs[0].must_be_kind_of Reform::Form }

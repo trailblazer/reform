@@ -30,7 +30,7 @@ module Reform
       end
 
       def collection(name, options={}, &block)
-        options[:form_collection] = true
+        options[:form_collection] = options[:collection] =true
 
         property(name, options, &block)
       end
@@ -150,20 +150,11 @@ module Reform
           nested_forms do |attr|
 
             options = {
-              #:exec_context  => :decorator, # call blocks etc in this context.
               :representable => false, # don't call #to_hash.
 
               :prepare       => lambda do |model, args|
                 attr       = args.binding
-                form_class = attr[:form] # non-dynamic option.
-
-                if attr[:form_collection]
-                  model ||= []
-                  Forms.new(model.collect { |mdl| form_class.new(mdl)}, attr)
-                else
-                  next unless model # DISCUSS: do we want that?
-                  form_class.new(model)
-                end
+                attr[:form].new(model)
               end
             }
 
@@ -210,30 +201,6 @@ module Reform
       input_representer = mapper.new(self).extend(Sync::InputRepresenter)
 
       representer.from_hash(input_representer.to_hash)
-    end
-
-
-    require "representable/hash/collection"
-    require 'active_model'
-    class Forms < Array # DISCUSS: this should be a Form subclass.
-      def initialize(ary, options)
-        super(ary)
-        @options = options
-      end
-
-      # this gives us each { to_hash }
-      include Representable::Hash::Collection
-      items :parse_strategy => :sync, :instance => true
-
-    private
-      def validate_cardinality
-        return true unless @options[:cardinality]
-        # TODO: use AM's cardinality validator here.
-        res = size >= @options[:cardinality][:minimum].to_i
-
-        errors.add(:size, "#{@options[:as]} size is 0 but must be #{@options[:cardinality].inspect}") unless res
-        res
-      end
     end
   end
 
