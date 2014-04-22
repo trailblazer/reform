@@ -9,8 +9,8 @@ module Reform
       def map_from(representer)
         options = {}
         representer.representable_attrs.each do |cfg|
-          options[cfg.options[:on]] ||= []
-          options[cfg.options[:on]] << cfg.name
+          options[cfg[:on]] ||= []
+          options[cfg[:on]] << cfg.name
         end
 
         map options

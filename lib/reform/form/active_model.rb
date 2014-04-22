@@ -36,7 +36,7 @@ module Reform::Form::ActiveModel
       return unless params.has_key?(nested_name)
 
       value = params["#{attr.name}_attributes"]
-      value = value.values if attr.options[:collection]
+      value = value.values if attr[:collection]
 
       params[attr.name] = value
     end

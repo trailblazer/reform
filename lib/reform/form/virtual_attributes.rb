@@ -4,7 +4,7 @@ module Reform
     module EmptyAttributesOptions
       def options
         empty_fields = representable_attrs.
-          find_all { |d| d.options[:empty] }.
+          find_all { |d| d[:empty] }.
           collect  { |d| d.name.to_sym }
 
         super.exclude!(empty_fields)
@@ -14,7 +14,7 @@ module Reform
     module ReadonlyAttributesOptions
       def options
         readonly_fields = representable_attrs.
-          find_all { |d| d.options[:virtual] }.
+          find_all { |d| d[:virtual] }.
           collect  { |d| d.name.to_sym }
 
         super.exclude!(readonly_fields)
