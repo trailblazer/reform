@@ -30,7 +30,7 @@ module Reform
       end
 
       def collection(name, options={}, &block)
-        options[:form_collection] = options[:collection] =true
+        options[:collection] =true
 
         property(name, options, &block)
       end
