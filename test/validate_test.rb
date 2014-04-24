@@ -58,6 +58,49 @@ class ValidateTest < BaseTest
 
     it( "xxx") { subject.hit.title.must_equal "Roxanne" }
   end
+
+
+  # test cardinalities.
+  describe "with empty collection and cardinality" do
+    let (:album) { Album.new }
+
+    subject { Class.new(Reform::Form) do
+      include Reform::Form::ActiveModel
+      model :album
+
+      collection :songs do
+        property :title
+      end
+
+      property :hit do
+        property :title
+      end
+
+      validates :songs, :length => {:minimum => 1}
+      validates :hit, :presence => true
+    end.new(album) }
+
+
+    describe "invalid" do
+      before { subject.validate({}).must_equal false }
+
+      it { subject.errors.messages.must_equal(
+        :songs => ["is too short (minimum is 1 characters)"],
+        :hit   => ["can't be blank"]) }
+    end
+
+
+    describe "valid" do
+      let (:album) { Album.new(nil, Song.new, [Song.new("Urban Myth")]) }
+
+      before {
+        subject.validate({"songs" => [{"title"=>"Daddy, Brother, Lover, Little Boy"}], "hit" => {"title"=>"The Horse"}}).
+          must_equal true
+      }
+
+      it { subject.errors.messages.must_equal({}) }
+    end
+  end
 end
 
 # #validate(params)

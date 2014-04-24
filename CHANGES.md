@@ -1,6 +1,11 @@
 ## 1.0.0
 
 * Removed `Form::DSL` in favour of `Form::Composition`.
+* Simplified nested forms. You can now do
+    ```ruby
+    validates :songs, :length => {:minimum => 1}
+    validates :hit, :presence => true
+    ```
 
 ## 0.2.7
 
