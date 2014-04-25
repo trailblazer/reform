@@ -23,5 +23,8 @@ class SyncTest < BaseTest
     end
 
     it { album.title.must_equal "Best Of" }
+    it { hit.title.must_equal "Roxanne" }
+    it { song1.title.must_equal "Fallout" }
+    it { song2.title.must_equal "Roxanne" }
   end
 end
