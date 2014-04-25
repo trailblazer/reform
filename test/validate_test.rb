@@ -101,6 +101,20 @@ class ValidateTest < BaseTest
       it { subject.errors.messages.must_equal({}) }
     end
   end
+
+
+  describe "with symbols" do
+    let (:album) { OpenStruct.new(:band => OpenStruct.new(:label => OpenStruct.new(:name => "Epitaph"))) }
+    subject { ErrorsTest::AlbumForm.new(album) }
+    let (:params) { {:band => {:label => {:name => "Stiff"}}, :title => "House Of Fun"} }
+
+    before {
+      subject.validate(params).must_equal true
+    }
+
+    it { subject.band.label.name.must_equal "Stiff" }
+    it { subject.title.must_equal "House Of Fun" }
+  end
 end
 
 # #validate(params)

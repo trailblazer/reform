@@ -6,6 +6,7 @@
     validates :songs, :length => {:minimum => 1}
     validates :hit, :presence => true
     ```
+* Allow passing symbol hash keys into `#validate`.
 
 ## 0.2.7
 

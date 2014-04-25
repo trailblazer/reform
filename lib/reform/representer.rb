@@ -3,6 +3,8 @@ require 'representable/decorator'
 
 module Reform
   class Representer < Representable::Decorator
+    include Representable::Hash::AllowSymbols
+
     # Invokes #to_hash and/or #from_hash with #options. This provides a hook for other
     # modules to add options for the representational process.
     module WithOptions
