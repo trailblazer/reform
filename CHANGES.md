@@ -7,6 +7,7 @@
     validates :hit, :presence => true
     ```
 * Allow passing symbol hash keys into `#validate`.
+* Unlimited nesting of forms, if you really want that.
 
 ## 0.2.7
 

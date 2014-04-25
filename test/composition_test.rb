@@ -51,7 +51,7 @@ class CompositionTest < ReformSpec
     it "works with strings in map" do
       Class.new(Reform::Composition) do
         map(:artist => ["name"])
-      end.new([nil]).nested_hash_for(:name => "Jimi Hendrix").must_equal({:artist=>{:name=>"Jimi Hendrix"}})
+      end.new({}).nested_hash_for(:name => "Jimi Hendrix").must_equal({:artist=>{:name=>"Jimi Hendrix"}})
     end
   end
 end
