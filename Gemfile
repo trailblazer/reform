@@ -2,5 +2,5 @@ source 'https://rubygems.org'
 
 gemspec
 
- # gem 'representable', path: "../representable"
-gem "disposable", path: "../disposable"
+# gem 'representable', path: "../representable"
+# gem "disposable", path: "../disposable"
