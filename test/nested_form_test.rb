@@ -70,21 +70,7 @@ class NestedFormTest < MiniTest::Spec
       # end
     end
 
-    describe "with empty object and cardinality" do
-      subject { Class.new(Reform::Form) do
-        # collection :songs, :validates => {:length => {:minimum => 1}}
-        collection :songs, :cardinality => {:minimum => 1} do
-          property :title
-        end
 
-        # validates :songs, :length => {:minimum => 1}
-      end.new(OpenStruct.new) }
-
-      it "whatxxx" do
-        subject.validate({}).must_equal false
-        subject.errors.messages.must_equal(:"songs.size"=>["songs size is 0 but must be {:minimum=>1}"])
-      end
-    end
   end
 
 

@@ -25,6 +25,7 @@ module Reform
         setup_form_definition(definition) if block_given? or options[:form]
 
         create_accessor(name)
+        definition
       end
 
       def collection(name, options={}, &block)

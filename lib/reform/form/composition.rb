@@ -21,8 +21,9 @@ class Reform::Form
       end
 
       def property(name, options={})
-        super
-        delegate options[:on] => :@model # form.band -> composition.band
+        super.tap do |definition|
+          delegate options[:on] => :@model # form.band -> composition.band
+        end
       end
 
       # Same as ActiveModel::model but allows you to define the main model in the composition

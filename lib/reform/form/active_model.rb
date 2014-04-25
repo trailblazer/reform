@@ -8,8 +8,9 @@ module Reform::Form::ActiveModel
 
     module ClassMethods
       def property(name, options={})
-        super
-        add_nested_attribute_compat(name) if options[:form] # TODO: fix that in Rails FB#1832 work.
+        super.tap do |definition|
+          add_nested_attribute_compat(name) if definition[:form] # TODO: fix that in Rails FB#1832 work.
+        end
       end
 
     private
