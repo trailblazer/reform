@@ -2,7 +2,6 @@
 module Reform::Form::Validate
   module Representer
     def from_hash(*)
-      # puts "+++++++++++++++++++++++ from_hash in #{self.inspect}"
       nested_forms do |attr|
         attr.delete(:prepare)
         attr.delete(:extend)
@@ -16,7 +15,7 @@ module Reform::Form::Validate
             options[:prefix] = options[:prefix].dup # TODO: implement Options#dup.
             options[:prefix] << args.binding.name # FIXME: should be #as.
 
-            puts "======= user_options: #{args.user_options.inspect}"
+            # puts "======= user_options: #{args.user_options.inspect}"
 
             object.validate!(params, options)
           },
@@ -70,7 +69,7 @@ module Reform::Form::Validate
     # sets scalars and recurses #validate.
     prefix = options[:prefix]
 
-    mapper.new(self).extend(Validate::Representer).from_hash(params, options) # calls validate(..) on nested.
+    mapper.new(self).extend(Representer).from_hash(params, options) # calls validate(..) on nested.
 
     res = valid?  # this validates on <Fields> using AM::Validations, currently.
 
@@ -81,7 +80,7 @@ private
   attr_writer :errors # only used in top form.
 
   def populate!(params)
-    mapper.new(self).extend(Validate::Populator).from_hash(params)
+    mapper.new(self).extend(Populator).from_hash(params)
   end
 
 

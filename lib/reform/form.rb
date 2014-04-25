@@ -72,8 +72,12 @@ module Reform
     require 'active_model'
     include ActiveModel::Validations
 
+    require "reform/form/virtual_attributes"
+
     require 'reform/form/validate'
     include Validate
+    require 'reform/form/sync'
+    include Sync
 
     require 'reform/form/multi_parameter_attributes'
     include MultiParameterAttributes # TODO: make features dynamic.
@@ -127,7 +131,7 @@ module Reform
     end
 
 
-    require "reform/form/virtual_attributes"
+
 
     # Mechanics for setting up initial Field values.
     module Setup
@@ -153,46 +157,7 @@ module Reform
           end
         end
       end
-    end
-
-    # Mechanics for writing input to model.
-    module Sync
-      # Writes input to model.
-      module Representer
-        def from_hash(*)
-          nested_forms do |attr|
-            attr.merge!(
-              :extend         => attr[:form].representer_class, # we actually want decorate the model.
-              :parse_strategy => :sync,
-              :collection     => attr[:collection]
-            )
-            attr.delete(:prepare)
-          end
-
-          super
-        end
-      end
-
-      # Transforms form input into what actually gets written to model.
-      module InputRepresenter
-        include Reform::Representer::WithOptions
-        # TODO: make dynamic.
-        include EmptyAttributesOptions
-        include ReadonlyAttributesOptions
-      end
-    end
-
-
-    ### TODO: add ToHash with :prepare => lambda { |form, args| form },
-
-
-    def sync_to_models # TODO: rename to #sync_models
-      representer = mapper.new(model).extend(Sync::Representer)
-
-      input_representer = mapper.new(self).extend(Sync::InputRepresenter)
-
-      representer.from_hash(input_representer.to_hash)
-    end
+    end # Setup
   end
 
 
