@@ -1,4 +1,7 @@
 class Reform::Form
+  # #sync!
+  #   1. assign scalars to model (respecting virtual, excluded attributes)
+  #   2. call sync! on nested
   module Sync
     # Mechanics for writing input to model.
       # Writes input to model.
@@ -39,10 +42,7 @@ class Reform::Form
       end
     end
 
-
     ### TODO: add ToHash with :prepare => lambda { |form, args| form },
-
-
 
     def sync_to_models # TODO: rename to #sync_models
       sync!
