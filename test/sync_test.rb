@@ -15,7 +15,7 @@ class SyncTest < BaseTest
     let (:song1) { Song.new }
     let (:song2) { Song.new }
 
-    subject { AlbumForm.new(album) }
+    subject { ErrorsTest::AlbumForm.new(album) }
 
     before do
       subject.validate(params)

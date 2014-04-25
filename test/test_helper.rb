@@ -29,8 +29,10 @@ class BaseTest < MiniTest::Spec
     end
   end
 
-  Song = Struct.new(:title)
-  Album = Struct.new(:title, :hit, :songs)
+  Song  = Struct.new(:title)
+  Album = Struct.new(:title, :hit, :songs, :band)
+  Band  = Struct.new(:label)
+  Label = Struct.new(:name)
 
 
   let (:hit) { Song.new("Roxanne") }
