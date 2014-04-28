@@ -74,10 +74,13 @@ module Reform
 
     require "reform/form/virtual_attributes"
 
+    require 'reform/form/setup'
+    include Setup
     require 'reform/form/validate'
     include Validate
     require 'reform/form/sync'
     include Sync
+
 
     require 'reform/form/multi_parameter_attributes'
     include MultiParameterAttributes # TODO: make features dynamic.
@@ -119,45 +122,6 @@ module Reform
     def mapper
       self.class.representer_class
     end
-
-    def setup_fields(model)
-      representer = mapper.new(model).extend(Setup::Representer)
-
-      create_fields(representer.fields, representer.to_hash)
-    end
-
-    def create_fields(field_names, fields)
-      Fields.new(field_names, fields)
-    end
-
-
-
-
-    # Mechanics for setting up initial Field values.
-    module Setup
-      module Representer
-        include Reform::Representer::WithOptions
-        include EmptyAttributesOptions
-
-        def to_hash(*)
-          setup_nested_forms
-
-          super # TODO: allow something like super(:exclude => empty_fields)
-        end
-
-      private
-        def setup_nested_forms
-          nested_forms do |attr|
-            attr.merge!(
-              :representable => false, # don't call #to_hash.
-              :prepare       => lambda do |model, args|
-                args.binding[:form].new(model)
-              end
-            )
-          end
-        end
-      end
-    end # Setup
   end
 
 
