@@ -167,6 +167,17 @@ class FormBuilderCompatTest < MiniTest::Spec
       end
     end
 
+    describe "with invalid date" do
+      let(:release_month) { "2" }
+      let(:release_day) { "31" }
+
+      it "rejects the date" do
+        form.validate(form_attributes)
+
+        form.songs.first.release_date.must_be_nil
+      end
+    end
+
     %w(year month day).each do |date_attr|
       describe "when the #{date_attr} is missing" do
         let(:"release_#{date_attr}") { "" }
