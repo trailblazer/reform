@@ -21,6 +21,7 @@ class CompositionTest < ReformSpec
     comp.artist.object_id.must_equal @artist.object_id
   end
 
+
   describe "::from" do
     it "creates the same mapping" do
       comp =
@@ -36,6 +37,7 @@ class CompositionTest < ReformSpec
       comp.title.must_equal "Rio"
     end
   end
+
 
   describe "#nested_hash_for" do
     it "returns nested hash" do

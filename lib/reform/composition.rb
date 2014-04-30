@@ -21,19 +21,24 @@ module Reform
         end
       end
 
+      # TODO: make unnecessary!!!
       def model_for_property(name) # name is public name
         @map.fetch(name.to_sym)[:model]
       end
     end
 
 
-    # TODO: make class method?
     def nested_hash_for(attrs)
       {}.tap do |hsh|
         attrs.each do |name, val|
-          obj = self.class.model_for_property(name)
-          hsh[obj] ||= {}
-          hsh[obj][name.to_sym] = val
+          #obj = self.class.model_for_property(name)
+          config = self.class.instance_variable_get(:@map)[name.to_sym]
+
+          model  = config[:model]
+          method = config[:method]
+
+          hsh[model] ||= {}
+          hsh[model][method] = val
         end
       end
     end
