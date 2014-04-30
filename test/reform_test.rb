@@ -252,7 +252,7 @@ class EmptyAttributesTest < MiniTest::Spec
     form.password.must_equal "123"
     form.password_confirmation.must_equal "321"
 
-    form.save
+    form.sync
     cred.password.must_equal "123"
 
     hash = {}
@@ -280,7 +280,7 @@ class ReadonlyAttributesTest < MiniTest::Spec
     form.country.must_equal "Germany"
 
 
-    form.save
+    form.sync
     loc.country.must_equal "Australia" # the writer wasn't called.
 
     hash = {}
