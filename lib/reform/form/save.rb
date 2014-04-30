@@ -6,8 +6,8 @@ class Reform::Form
         # and just call sync! on nested forms.
         nested_forms do |attr|
           attr.merge!(
-            :instance     => lambda { |fragment, *| fragment },
-            :serialize => lambda { |object, *| object.save! },
+            :instance  => lambda { |fragment, *| fragment },
+            :serialize => lambda { |object, args| object.save! unless args.binding[:save] === false },
           )
         end
 
