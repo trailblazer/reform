@@ -20,11 +20,6 @@ module Reform
           # puts composition@map.inspect
         end
       end
-
-      # TODO: make unnecessary!!!
-      def model_for_property(name) # name is public name
-        @map.fetch(name.to_sym)[:model]
-      end
     end
 
 
