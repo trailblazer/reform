@@ -44,10 +44,10 @@ class Reform::Form
 
     ### TODO: add ToHash with :prepare => lambda { |form, args| form },
 
-    def sync_to_models # TODO: rename to #sync_models
+    def sync_models
       sync!
     end
-    alias_method :sync, :sync_to_models
+    alias_method :sync, :sync_models
 
     def sync! # semi-public.
       input_representer = mapper.new(self).extend(InputRepresenter)

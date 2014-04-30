@@ -89,7 +89,7 @@ module Reform
       # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
       return yield self, to_nested_hash if block_given?
 
-      sync_to_models
+      sync_models
     end
 
 
