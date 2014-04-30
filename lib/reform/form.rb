@@ -80,17 +80,11 @@ module Reform
     include Validate
     require 'reform/form/sync'
     include Sync
-
+    require 'reform/form/save'
+    include Save
 
     require 'reform/form/multi_parameter_attributes'
     include MultiParameterAttributes # TODO: make features dynamic.
-
-    def save
-      # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
-      return yield self, to_nested_hash if block_given?
-
-      sync_models
-    end
 
 
     # Use representer to return current key-value form hash.

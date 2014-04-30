@@ -34,11 +34,6 @@ class Reform::Form
       end
     end
 
-    def save(*)
-      super.tap do
-        model.save unless block_given? # DISCUSS: should we implement nested saving here?
-      end
-    end
 
     def model_for_property(name)
       return model unless is_a?(Reform::Form::Composition) # i am too lazy for proper inheritance. there should be a ActiveRecord::Composition that handles this.
