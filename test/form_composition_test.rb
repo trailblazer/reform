@@ -1,17 +1,5 @@
 require 'test_helper'
 
-MiniTest::Spec.class_eval do
-  module Saveable
-    def save
-      @saved = true
-    end
-
-    def saved?
-      @saved
-    end
-  end
-end
-
 class FormCompositionTest < MiniTest::Spec
   Song      = Struct.new(:id, :title)
   Requester = Struct.new(:id, :name)
