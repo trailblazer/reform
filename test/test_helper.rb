@@ -2,8 +2,8 @@ require 'reform'
 require 'minitest/autorun'
 
 class ReformSpec < MiniTest::Spec
-  let (:duran)  { OpenStruct.new(:name => "Duran Duran") }
-  let (:rio)    { OpenStruct.new(:title => "Rio") }
+  let (:duran)  { Struct.new(:name).new("Duran Duran") }
+  let (:rio)    { Struct.new(:title).new("Rio") }
 end
 
 require 'active_record'
