@@ -91,7 +91,7 @@ module Reform
 
       sync_to_models
     end
-    alias_method :sync, :save # TODO: make it two separate concerns.
+
 
     # Use representer to return current key-value form hash.
     def to_hash(*args)

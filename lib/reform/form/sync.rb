@@ -47,8 +47,9 @@ class Reform::Form
     def sync_to_models # TODO: rename to #sync_models
       sync!
     end
+    alias_method :sync, :sync_to_models
 
-    def sync!
+    def sync! # semi-public.
       input_representer = mapper.new(self).extend(InputRepresenter)
 
       input = input_representer.to_hash
