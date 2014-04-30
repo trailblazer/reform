@@ -22,6 +22,9 @@ module Reform
       end
     end
 
+    def save
+      each { |model| model.save }
+    end
 
     def nested_hash_for(attrs)
       {}.tap do |hsh|

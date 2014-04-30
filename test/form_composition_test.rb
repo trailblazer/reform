@@ -1,5 +1,17 @@
 require 'test_helper'
 
+MiniTest::Spec.class_eval do
+  module Saveable
+    def save
+      @saved = true
+    end
+
+    def saved?
+      @saved
+    end
+  end
+end
+
 class FormCompositionTest < MiniTest::Spec
   Song      = Struct.new(:id, :title)
   Requester = Struct.new(:id, :name)
@@ -61,12 +73,17 @@ class FormCompositionTest < MiniTest::Spec
       hash.must_equal({:song=>{:title=>"Greyhound", :id=>1, :channel => "JJJ"}, :requester=>{:name=>"Frenzal Rhomb", :id=>2}})
     end
 
-    it "pushes data to models when no block passed" do
+    it "pushes data to models and calls #save when no block passed" do
+      song.extend(Saveable)
+      requester.extend(Saveable)
+
       form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb")
       form.save
 
       requester.name.must_equal "Frenzal Rhomb"
+      requester.saved?.must_equal true
       song.title.must_equal "Greyhound"
+      song.saved?.must_equal true
     end
   end
 end
