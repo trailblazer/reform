@@ -37,3 +37,15 @@ class BaseTest < MiniTest::Spec
 
   let (:hit) { Song.new("Roxanne") }
 end
+
+MiniTest::Spec.class_eval do
+  module Saveable
+    def save
+      @saved = true
+    end
+
+    def saved?
+      @saved
+    end
+  end
+end
