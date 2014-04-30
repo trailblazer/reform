@@ -14,13 +14,12 @@ class Reform::Form
       #include Reform::Form::ActiveModel::ClassMethods # ::model.
 
       def model_class # DISCUSS: needed?
-        rpr = representer_class
-        @model_class ||= Class.new(Reform::Composition) do
-          map_from rpr
-        end
+        @model_class ||= Reform::Composition.from(representer_class)
       end
 
       def property(name, options={})
+        options[:private_name] = options.delete(:as) # DISCUSS: right now, :as only works with Composition. is that ok?
+
         super.tap do |definition|
           delegate options[:on] => :@model # form.band -> composition.band
         end

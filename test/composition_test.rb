@@ -1,6 +1,6 @@
 class CompositionTest < ReformSpec
   class SongAndArtist < Reform::Composition
-    map({:artist => [:name], :song => [:title]}) #SongAndArtistMap.representable_attrs
+    map({:artist => [[:name]], :song => [[:title]]}) #SongAndArtistMap.representable_attrs
   end
 
   let (:comp) { SongAndArtist.new(:artist => @artist=OpenStruct.new, :song => rio) }
@@ -21,17 +21,15 @@ class CompositionTest < ReformSpec
     comp.artist.object_id.must_equal @artist.object_id
   end
 
-  describe "::map_from" do
+  describe "::from" do
     it "creates the same mapping" do
       comp =
-      Class.new(Reform::Composition) do
-        map_from(
+      Reform::Composition.from(
           Class.new(Reform::Representer) do
             property :name,  :on => :artist
             property :title, :on => :song
           end
-        )
-      end.
+        ).
       new(:artist => duran, :song => rio)
 
       comp.name.must_equal "Duran Duran"
@@ -50,7 +48,7 @@ class CompositionTest < ReformSpec
 
     it "works with strings in map" do
       Class.new(Reform::Composition) do
-        map(:artist => ["name"])
+        map(:artist => [["name"]])
       end.new({}).nested_hash_for(:name => "Jimi Hendrix").must_equal({:artist=>{:name=>"Jimi Hendrix"}})
     end
   end

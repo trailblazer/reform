@@ -1,26 +1,34 @@
 require 'test_helper'
 
 class FormCompositionTest < MiniTest::Spec
-  class SongForm < Reform::Form
+  Song      = Struct.new(:id, :title)
+  Requester = Struct.new(:id, :name)
+
+  class RequestForm < Reform::Form
     include Composition
 
-    property  :title,           :on => :song
-    properties [:name, :genre], :on => :artist
+    property  :name,          :on =>  :requester
+    property  :requester_id,  :on => :requester, :as => :id
+    properties [:title, :id], :on => :song
+    # property  :channel # FIXME: what about the "main model"?
 
-    validates :name, :title, :genre, :presence => true
+    validates :name, :title, :presence => true
   end
 
-  let (:form)   { SongForm.new(:song => song, :artist => artist) }
-  let (:song)   { OpenStruct.new(:title => "Rio") }
-  let (:artist) { OpenStruct.new(:name => "Duran Duran") }
+  let (:form)   { RequestForm.new(:song => song, :requester => requester) }
+  let (:song)   { Song.new(1, "Rio") }
+  let (:requester) { Requester.new(2, "Duran Duran") }
 
 
   # delegation form -> composition works
-  it { form.title.must_equal  "Rio" }
-  it { form.name.must_equal   "Duran Duran" }
+  it { form.id.must_equal 1 }
+  it { form.title.must_equal "Rio" }
+  it { form.name.must_equal "Duran Duran" }
+  it { form.requester_id.must_equal 2 }
+
   # delegation form -> composed models (e.g. when saving this can be handy)
   it { form.song.must_equal   song }
-  it { form.artist.must_equal artist }
+  it { form.requester.must_equal requester }
 
 
   it "creates Composition for you" do
@@ -46,14 +54,14 @@ class FormCompositionTest < MiniTest::Spec
         hash = map
       end
 
-      hash.must_equal({:song=>{:title=>"Rio"}, :artist=>{:name=>"Duran Duran"}})
+      hash.must_equal({:song=>{:title=>"Rio", :id=>1}, :requester=>{:name=>"Duran Duran", :id=>2}})
     end
 
     it "pushes data to models when no block passed" do
       form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb")
       form.save
 
-      artist.name.must_equal "Frenzal Rhomb"
+      requester.name.must_equal "Frenzal Rhomb"
       song.title.must_equal "Greyhound"
     end
   end
