@@ -111,7 +111,6 @@ module Reform
 
     def errors
       @errors ||= Errors.new(self)
-      @errors
     end
 
     attr_accessor :model
