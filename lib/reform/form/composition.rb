@@ -18,8 +18,6 @@ class Reform::Form
       end
 
       def property(name, options={})
-        options[:private_name] = options.delete(:as) # DISCUSS: right now, :as only works with Composition. is that ok?
-
         super.tap do |definition|
           delegate options[:on] => :@model # form.band -> composition.band
         end
@@ -47,6 +45,10 @@ class Reform::Form
     def initialize(models)
       composition = self.class.model_class.new(models)
       super(composition)
+    end
+
+    def aliased_model # we don't need an Expose as we save the Composition instance in the constructor.
+      model
     end
 
     def to_nested_hash

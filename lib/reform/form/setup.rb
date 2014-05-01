@@ -1,7 +1,7 @@
 class Reform::Form
   module Setup
-    def setup_fields(model)
-      representer = mapper.new(model).extend(Setup::Representer)
+    def setup_fields
+      representer = mapper.new(aliased_model).extend(Setup::Representer)
 
       create_fields(representer.fields, representer.to_hash)
     end

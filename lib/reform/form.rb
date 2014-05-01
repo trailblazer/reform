@@ -20,6 +20,8 @@ module Reform
       extend Forwardable
 
       def property(name, options={}, &block)
+        options[:private_name] = options.delete(:as)
+
         # at this point, :extend is a Form class.
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given? or options[:form]
@@ -64,9 +66,13 @@ module Reform
 
     def initialize(model)
       @model  = model # we need this for #save.
-      @fields = setup_fields(model)  # delegate all methods to Fields instance.
+      @fields = setup_fields  # delegate all methods to Fields instance.
     end
 
+    def aliased_model
+      # TODO: cache the Expose.from class!
+      Reform::Expose.from(self.class.representer_class).new(:model => model)
+    end
 
     # FIXME: make AM optional.
     require 'active_model'

@@ -54,6 +54,6 @@ class Reform::Form
 
     input = input_representer.to_hash
 
-    mapper.new(model).extend(Writer).from_hash(input)
+    mapper.new(aliased_model).extend(Writer).from_hash(input)
   end
 end
