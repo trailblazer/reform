@@ -10,7 +10,7 @@ class RepresenterTest < MiniTest::Spec
 
   describe "#fields" do
     it "returns all properties as strings" do
-      rpr.fields.must_equal([:title, :name])
+      rpr.fields.must_equal(["title", "name"])
     end
   end
 end
@@ -31,13 +31,20 @@ end
 class FieldsTest < MiniTest::Spec
   describe "#new" do
     it "accepts list of properties" do
-      fields = Reform::Fields.new([:name, :title], {})
+      fields = Reform::Fields.new([:name, :title])
       fields.name.must_equal  nil
       fields.title.must_equal nil
     end
 
     it "accepts list of properties and values" do
-      fields = Reform::Fields.new([:name, :title], "title" => "The Body")
+      fields = Reform::Fields.new(["name", "title"], "title" => "The Body")
+      fields.name.must_equal  nil
+      fields.title.must_equal "The Body"
+    end
+
+    it "processes value syms" do
+      skip "we don't need to test this as representer.to_hash always returns strings"
+      fields = Reform::Fields.new(["name", "title"], :title => "The Body")
       fields.name.must_equal  nil
       fields.title.must_equal "The Body"
     end
