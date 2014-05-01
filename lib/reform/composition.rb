@@ -10,8 +10,8 @@ module Reform
       def from(representer)
         options = {}
 
-        representer.representable_attrs.each do |cfg|
-          process_for!(options, cfg)
+        representer.representable_attrs.each do |definition|
+          process_definition!(options, definition)
         end
 
         Class.new(self).tap do |composition| # for 1.8 compat. you're welcome.
@@ -21,9 +21,9 @@ module Reform
       end
 
     private
-      def process_for!(options, cfg)
+      def process_definition!(options, definition)
         options[:model] ||= []
-        options[:model] << [cfg[:private_name], cfg.name].compact
+        options[:model] << [definition[:private_name], definition.name].compact
       end
     end
   end
@@ -34,9 +34,9 @@ module Reform
     # DISCUSS: this might be moved to Disposable::Twin::Composition.
     class << self
       # Builder for a concrete Composition class with configurations from the form's representer.
-      def process_for!(options, cfg)
-        options[cfg[:on]] ||= []
-        options[cfg[:on]] << [cfg[:private_name], cfg.name].compact
+      def process_definition!(options, definition)
+        options[definition[:on]] ||= []
+        options[definition[:on]] << [definition[:private_name], definition.name].compact
       end
     end
 
