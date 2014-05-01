@@ -29,15 +29,42 @@ class ValidateTest < BaseTest
     it { subject.songs[1].title.must_equal "Roxanne" }
   end
 
-
-  describe "setup with populator" do
+  # TODO: the following tests go to populate_test.rb
+  describe "manual setup with populator" do
     let (:form) {
       Class.new(Reform::Form) do
         property :hit, :populator => lambda { |fragment, args|
           puts "******************* #{fragment}"
 
           hit or self.hit = args.binding[:form].new(Song.new)
-          # TODO: wrap into form/Forms automatically in :instance.
+          # what happens with @model? we have to sync that as well.
+        } do
+          property :title
+        end
+      end
+     }
+
+    let (:params) {
+      {
+        "hit"   => {"title" => "Roxanne"},
+        # "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"}]
+      }
+    }
+
+    subject { form.new(Album.new) }
+
+    before { subject.validate(params) }
+
+    it( "xxx") { subject.hit.title.must_equal "Roxanne" }
+  end
+
+  describe "populate_if_empty" do
+    let (:form) {
+      Class.new(Reform::Form) do
+        property :hit, :populate_if_empty => lambda { |fragment, args|
+          puts "*******************??????++++++++ #{fragment}"
+
+          Song.new
           # what happens with @model? we have to sync that as well.
         } do
           property :title
