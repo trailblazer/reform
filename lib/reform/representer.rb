@@ -39,7 +39,7 @@ module Reform
 
     # Returns hash of all property names.
     def fields
-      representable_attrs.map(&:name)
+      representable_attrs.map { |attr| attr.name.to_sym }
     end
 
     def nested_forms(&block)

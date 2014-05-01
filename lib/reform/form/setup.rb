@@ -20,9 +20,7 @@ class Reform::Form
         nested_forms do |attr|
           attr.merge!(
             :representable => false, # don't call #to_hash.
-            :prepare       => lambda do |model, args|
-              args.binding[:form].new(model)
-            end
+            :prepare       => lambda { |model, args| args.binding[:form].new(model) }
           )
         end
 

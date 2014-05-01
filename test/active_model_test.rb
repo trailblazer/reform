@@ -58,11 +58,12 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
           property :song do
             include Reform::Form::ActiveModel
             model :hit
+            property :title
           end
         end
       }
 
-      let (:inline) { form_class.new(OpenStruct.new(:song => Object.new)).song }
+      let (:inline) { form_class.new(OpenStruct.new(:song => OpenStruct.new)).song }
 
       it { inline.class.model_name.must_be_kind_of ActiveModel::Name }
       it { inline.class.model_name.to_s.must_equal "Hit" }
@@ -75,10 +76,12 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
 
           property :song do
             include Reform::Form::ActiveModel
+            property :title
           end
 
           collection :hits do
             include Reform::Form::ActiveModel
+            property :title
           end
         end
       }

@@ -94,6 +94,7 @@ module Reform
 
 
     # Use representer to return current key-value form hash.
+    # TODO: we don't need that!
     def to_hash(*args)
       mapper.new(self).to_hash(*args)
     end
@@ -115,10 +116,10 @@ module Reform
 
   # Keeps values of the form fields. What's in here is to be displayed in the browser!
   # we need this intermediate object to display both "original values" and new input from the form after submitting.
-  class Fields < OpenStruct
-    def initialize(properties, values={})
-      fields = properties.inject({}) { |hsh, attr| hsh.merge!(attr => nil) }
-      super(fields.merge!(values))  # TODO: stringify value keys!
+  class Fields < Struct
+    def self.new(properties, values)
+      fields = properties.inject([]) { |arr, attr| arr << values[attr.to_s] }
+      super(*properties).new(*fields) # TODO: cache Struct since it never changes.
     end
   end
 
