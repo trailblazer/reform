@@ -9,7 +9,8 @@
 * Allow passing symbol hash keys into `#validate`.
 * Unlimited nesting of forms, if you really want that.
 save on all nested, disable with save: false
-composition simplified, empty fields, save
+composition simplified, empty fields, save ("everything works with everything")
+* as: now works
 
 ## 0.2.7
 
