@@ -59,7 +59,4 @@ module Reform
       end
     end
   end
-
-
-
 end

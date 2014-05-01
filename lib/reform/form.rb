@@ -98,10 +98,6 @@ module Reform
       mapper.new(self).to_hash(*args)
     end
 
-    def from_hash(params, *args)
-      mapper.new(self).extend(Validate::Representer).from_hash(params) # sets form properties found in params on self and nested forms.
-    end
-
     def errors
       @errors ||= Errors.new(self)
     end
