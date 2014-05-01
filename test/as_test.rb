@@ -21,6 +21,14 @@ class AsTest < BaseTest
 
   let (:song2) { Song.new("Roxanne") }
 
+  let (:params) {
+      {
+        "name" => "Best Of The Police",
+        "single"   => {"title" => "So Lonely"},
+        "tracks" => [{"name" => "Message In A Bottle"}, {"name" => "Roxanne"}]
+      }
+    }
+
   subject { AlbumForm.new(Album.new("Best Of", hit, [Song.new("Fallout"), song2])) }
 
   it { subject.name.must_equal "Best Of" }
@@ -30,13 +38,7 @@ class AsTest < BaseTest
 
 
   describe "#validate" do
-    let (:params) {
-      {
-        "name" => "Best Of The Police",
-        "single"   => {"title" => "So Lonely"},
-        "tracks" => [{"name" => "Message In A Bottle"}, {"name" => "Roxanne"}]
-      }
-    }
+
 
     before { subject.validate(params) }
 
@@ -56,7 +58,18 @@ class AsTest < BaseTest
     it { song2.title.must_equal "Livin' Ain't No Crime" }
   end
 
-  describe "#save (nested hash)" do
 
+  describe "#save (nested hash)" do
+    before { subject.validate(params) }
+
+    it do
+      hash = nil
+
+      subject.save do |f, nested_hash|
+        hash = nested_hash
+      end
+
+      hash.must_equal({"title"=>"Best Of The Police", "hit"=>{"title"=>"So Lonely"}, "songs"=>[{"title"=>"Message In A Bottle"}, {"title"=>"Roxanne"}]})
+    end
   end
 end

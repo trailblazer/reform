@@ -31,7 +31,7 @@ module Reform
       end
 
       def collection(name, options={}, &block)
-        options[:collection] =true
+        options[:collection] = true
 
         property(name, options, &block)
       end
@@ -96,13 +96,6 @@ module Reform
     # Use representer to return current key-value form hash.
     def to_hash(*args)
       mapper.new(self).to_hash(*args)
-    end
-
-    require "active_support/hash_with_indifferent_access" # DISCUSS: replace?
-    def to_nested_hash
-      map = mapper.new(self)
-
-      ActiveSupport::HashWithIndifferentAccess.new(map.to_hash)
     end
 
     def from_hash(params, *args)
