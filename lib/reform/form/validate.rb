@@ -35,6 +35,7 @@ module Reform::Form::Validate
         next unless attr[:populate_if_empty]
 
         attr.merge!(
+          # DISCUSS: it would be cool to move the lambda block to PopulateIfEmpty#call.
           :populator => lambda do |fragment, *args|
             binding = args.last.binding
             model   = binding.get
@@ -71,8 +72,12 @@ module Reform::Form::Validate
   end
 
 
+  def errors
+    @errors ||= Errors.new(self)
+  end
+
   def validate(params)
-    options = {:errors => errs = Errors.new(nil), :prefix => []}
+    options = {:errors => errs = Errors.new(self), :prefix => []}
 
     validate!(params, options)
 

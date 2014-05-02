@@ -98,10 +98,6 @@ module Reform
       mapper.new(self).to_hash(*args)
     end
 
-    def errors
-      @errors ||= Errors.new(self)
-    end
-
     attr_accessor :model
 
   private
