@@ -37,7 +37,6 @@ class ValidateTest < BaseTest
           puts "******************* #{fragment}"
 
           hit or self.hit = args.binding[:form].new(Song.new)
-          # what happens with @model? we have to sync that as well.
         } do
           property :title
         end
@@ -58,15 +57,14 @@ class ValidateTest < BaseTest
     it( "xxx") { subject.hit.title.must_equal "Roxanne" }
   end
 
-  describe "populate_if_empty" do
+  describe ":populate_if_empty" do
     let (:form) {
       Class.new(Reform::Form) do
-        property :hit, :populate_if_empty => lambda { |fragment, args|
-          puts "*******************??????++++++++ #{fragment}"
+        property :hit, :populate_if_empty => lambda { |fragment, args| Song.new } do
+          property :title
+        end
 
-          Song.new
-          # what happens with @model? we have to sync that as well.
-        } do
+        collection :songs, :populate_if_empty => lambda { |fragment, args| Song.new } do
           property :title
         end
       end
@@ -75,15 +73,17 @@ class ValidateTest < BaseTest
     let (:params) {
       {
         "hit"   => {"title" => "Roxanne"},
-        # "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"}]
+        "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"}]
       }
     }
 
-    subject { form.new(Album.new) }
+    subject { form.new(Album.new(nil,nil,[])) } # DISCUSS: require at least an array here? this is provided by all ORMs.
 
     before { subject.validate(params) }
 
-    it( "xxx") { subject.hit.title.must_equal "Roxanne" }
+    it { subject.hit.title.must_equal "Roxanne" }
+    it { subject.songs[0].title.must_equal "Fallout" }
+    it { subject.songs[1].title.must_equal "Roxanne" }
   end
 
 

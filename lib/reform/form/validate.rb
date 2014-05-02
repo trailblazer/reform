@@ -32,10 +32,40 @@ module Reform::Form::Validate
       populated_attrs = []
 
       nested_forms do |attr|
+        next unless attr[:populate_if_empty]
+
+        attr.merge!(
+          :populator => lambda do |fragment, *args|
+            binding = args.last.binding
+
+            model = binding.get
+
+            return if binding.array? and model and model[args.first]
+            return if !binding.array? and model
+
+            #unless not_empty
+              model = binding[:populate_if_empty].call(fragment, args.last) # call user block.
+              form  = binding[:form].new(model) # free service: wrap model with Form.
+
+              puts "[[[[[[[[[[[[[[[[[[ #{binding[:collection].inspect}"
+              if binding.array?
+                puts args.inspect
+                send("#{binding.getter}")[args.first]= form
+              else
+                send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
+              end
+            #end
+          end
+        )
+      end
+
+
+      nested_forms do |attr|
         next unless attr[:populator]
 
         attr.merge!(
           :parse_strategy => attr[:populator],
+          # :collection => attr[:collection],
           :representable  => false
           )
         populated_attrs << attr.name.to_sym
