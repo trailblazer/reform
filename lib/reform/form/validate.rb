@@ -37,24 +37,20 @@ module Reform::Form::Validate
         attr.merge!(
           :populator => lambda do |fragment, *args|
             binding = args.last.binding
+            model   = binding.get
 
-            model = binding.get
-
-            return if binding.array? and model and model[args.first]
+            return if binding.array? and model and model[args.first] # TODO: this should be handled by the Binding.
             return if !binding.array? and model
+            # only get here when above model is nil.
 
-            #unless not_empty
-              model = binding[:populate_if_empty].call(fragment, args.last) # call user block.
-              form  = binding[:form].new(model) # free service: wrap model with Form.
+            model = binding[:populate_if_empty].call(fragment, args.last) # call user block.
+            form  = binding[:form].new(model) # free service: wrap model with Form.
 
-              puts "[[[[[[[[[[[[[[[[[[ #{binding[:collection].inspect}"
-              if binding.array?
-                puts args.inspect
-                send("#{binding.getter}")[args.first]= form
-              else
-                send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
-              end
-            #end
+            if binding.array?
+              send("#{binding.getter}")[args.first] = form
+            else
+              send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
+            end
           end
         )
       end
@@ -65,7 +61,6 @@ module Reform::Form::Validate
 
         attr.merge!(
           :parse_strategy => attr[:populator],
-          # :collection => attr[:collection],
           :representable  => false
           )
         populated_attrs << attr.name.to_sym
