@@ -13,6 +13,7 @@ class Reform::Form
           attr.merge!(
             :instance     => lambda { |fragment, *| fragment },
             :deserialize => lambda { |object, *| object.sync! },
+            :setter => lambda { |*| } # don't write hit=<Form>.
           )
         end
 

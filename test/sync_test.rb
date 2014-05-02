@@ -26,6 +26,11 @@ class SyncTest < BaseTest
     end
 
     it { album.title.must_equal "Best Of" }
+    it { album.hit.must_be_kind_of Struct }
+    it { album.songs[0].must_be_kind_of Struct }
+    it { album.songs[1].must_be_kind_of Struct }
+
+    # it { hit.must_be_kind_of Struct }
     it { hit.title.must_equal "Roxanne" }
     it { song1.title.must_equal "Fallout" }
     it { song2.title.must_equal "Roxanne" }
