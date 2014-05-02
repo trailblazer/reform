@@ -67,17 +67,24 @@ class ValidateTest < BaseTest
         collection :songs, :populate_if_empty => lambda { |fragment, args| Song.new } do
           property :title
         end
+
+        property :band, :populate_if_empty => lambda { |fragment, args| Band.new } do
+          property :label, :populate_if_empty => lambda { |fragment, args| Label.new } do
+            property :name
+          end
+        end
       end
      }
 
     let (:params) {
       {
         "hit"   => {"title" => "Roxanne"},
-        "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"}]
+        "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"}],
+        "band"  => {"label" => {"name" => "Epitaph"}}
       }
     }
 
-    let (:album) { Album.new(nil,nil,[]) }
+    let (:album) { Album.new(nil,nil,[], nil) }
     subject { form.new(album) } # DISCUSS: require at least an array here? this is provided by all ORMs.
 
     before { subject.validate(params) }
@@ -88,6 +95,8 @@ class ValidateTest < BaseTest
 
     it { album.hit.must_be_kind_of Struct }
     it { album.songs.size.must_equal 2 } # #validate must associate items with model.
+
+    it { subject.band.label.name.must_equal "Epitaph" }
   end
 
 
