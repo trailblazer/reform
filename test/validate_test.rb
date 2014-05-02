@@ -77,13 +77,17 @@ class ValidateTest < BaseTest
       }
     }
 
-    subject { form.new(Album.new(nil,nil,[])) } # DISCUSS: require at least an array here? this is provided by all ORMs.
+    let (:album) { Album.new(nil,nil,[]) }
+    subject { form.new(album) } # DISCUSS: require at least an array here? this is provided by all ORMs.
 
     before { subject.validate(params) }
 
     it { subject.hit.title.must_equal "Roxanne" }
     it { subject.songs[0].title.must_equal "Fallout" }
     it { subject.songs[1].title.must_equal "Roxanne" }
+
+    it { album.hit.must_be_kind_of Struct }
+    it { album.songs.size.must_equal 2 } # #validate must associate items with model.
   end
 
 

@@ -38,18 +38,20 @@ module Reform::Form::Validate
           # DISCUSS: it would be cool to move the lambda block to PopulateIfEmpty#call.
           :populator => lambda do |fragment, *args|
             binding = args.last.binding
-            model   = binding.get
+            form    = binding.get
 
-            return if binding.array? and model and model[args.first] # TODO: this should be handled by the Binding.
-            return if !binding.array? and model
-            # only get here when above model is nil.
+            return if binding.array? and form and form[args.first] # TODO: this should be handled by the Binding.
+            return if !binding.array? and form
+            # only get here when above form is nil.
 
             model = binding[:populate_if_empty].call(fragment, args.last) # call user block.
             form  = binding[:form].new(model) # free service: wrap model with Form.
 
             if binding.array?
+              self.model.send("#{binding.getter}")[args.first] = model # FIXME: i don't like this, but we have to add the model to the parent object to make associating work.
               send("#{binding.getter}")[args.first] = form
             else
+              self.model.send("#{binding.setter}", model) # FIXME: i don't like this, but we have to add the model to the parent object to make associating work.
               send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
             end
           end
