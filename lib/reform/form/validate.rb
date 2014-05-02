@@ -45,10 +45,10 @@ module Reform::Form::Validate
             # only get here when above form is nil.
 
             model = binding[:populate_if_empty].call(fragment, args.last) # call user block.
-            form  = binding[:form].new(model) # free service: wrap model with Form.
+            form  = binding[:form].new(model) # free service: wrap model with Form. this usually happens in #setup.
 
             if binding.array?
-              self.model.send("#{binding.getter}")[args.first] = model # FIXME: i don't like this, but we have to add the model to the parent object to make associating work.
+              self.model.send("#{binding.getter}") << model # FIXME: i don't like this, but we have to add the model to the parent object to make associating work. i have to use #<< to stay compatible with AR's has_many API. DISCUSS: what happens when we get out-of-sync here?
               send("#{binding.getter}")[args.first] = form
             else
               self.model.send("#{binding.setter}", model) # FIXME: i don't like this, but we have to add the model to the parent object to make associating work.
