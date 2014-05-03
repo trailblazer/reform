@@ -15,6 +15,9 @@ module Reform
     inheritable_attr :representer_class
     self.representer_class = Class.new(Reform::Representer)
 
+    inheritable_attr :features
+    self.features = []
+
 
     module PropertyMethods
       extend Forwardable
@@ -23,6 +26,7 @@ module Reform
         options[:private_name] = options.delete(:as)
 
         # at this point, :extend is a Form class.
+        options[:features] = features if block_given?
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given? or options[:form]
 

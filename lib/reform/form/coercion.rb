@@ -4,6 +4,7 @@ class Reform::Form
   module Coercion
     def self.included(base)
       base.extend(ClassMethods)
+      base.features << self
     end
 
     module ClassMethods

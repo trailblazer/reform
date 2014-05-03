@@ -23,7 +23,6 @@ class FormBuilderCompatTest < BaseTest
       property :label, :form => LabelForm
 
       property :band do
-        include Reform::Form::ActiveModel::FormBuilderMethods # FIXME: automatically inherit that!
         property :label do
           property :name
         end

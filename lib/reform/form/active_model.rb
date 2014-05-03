@@ -3,6 +3,7 @@ module Reform::Form::ActiveModel
     def self.included(base)
       base.class_eval do
         extend ClassMethods # ::model_name
+        features << FormBuilderMethods
       end
     end
 
@@ -41,12 +42,13 @@ module Reform::Form::ActiveModel
 
       params[attr.name] = value
     end
-  end
+  end # FormBuilderMethods
 
 
   def self.included(base)
     base.class_eval do
       extend ClassMethods
+      features << ActiveModel
 
       delegate [:persisted?, :to_key, :to_param, :id] => :model
 

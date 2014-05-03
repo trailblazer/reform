@@ -64,6 +64,9 @@ module Reform
       name = name.to_s.singularize.camelize
 
       Class.new(Form) do
+        # TODO: this will soon become a generic feature in representable.
+        include *options[:features].reverse if options[:features]
+
         instance_exec &block
 
         @form_name = name

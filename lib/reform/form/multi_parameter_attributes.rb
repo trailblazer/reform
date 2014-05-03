@@ -1,5 +1,9 @@
 class Reform::Form
   module MultiParameterAttributes
+    def self.included(base)
+      base.features << self
+    end
+
     class DateParamsFilter
       def call(params)
         date_attributes = {}
