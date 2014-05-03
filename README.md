@@ -4,11 +4,6 @@ Decouple your models from forms. Reform gives you a form object with validations
 
 Although reform can be used in any Ruby framework, it comes with [Rails support](#rails-integration), works with [simple_form and other form gems](#formbuilder-support), allows nesting forms to implement [has_one](#nesting-forms-1-1-relations) and [has_many](#nesting-forms-1-n-relations) relationships, can [compose a form](#compositions) from multiple objects and gives you [coercion](#coercion).
 
-# Development Status
-
-Dear Reform users - you know I love all of you. Reform is currently being improved by myself. I am definitely *not* resisting all of the feature requests (especially about nesting, model validations, automatic model setup when validating has_many, etc.) but working hard to make it better. Expect a new Reform version _and_ better README mid-late April and please refrain from telling me how lazy I am. Thanks and see you soon!!! :heart:
-
-
 ## Installation
 
 Add this line to your Gemfile:
@@ -34,7 +29,20 @@ end
 To add fields to the form use the `::property` method. Also, validations no longer go into the model but sit in the form.
 
 
-## Using Forms
+## The API
+
+Forms have a ridiculously simple API with only a handful of public methods.
+
+1. `#initialize` always requires a model that the form represents.
+2. `#validate(params)` will run all validations for the form with the input `params`. Its return value is either `true` or `false` if validations were not satisfied.
+3. `#errors` returns validation messages in a classy ActiveModel style.
+4. `#sync` writes form data back to the model.
+5. `#save` (optional) will call `#save` on the model and nested models. Note that this implies a `#sync` call.
+
+In addition to the main API, forms expose accessors to the defined properties. This is used for rendering or manual operations.
+
+
+## Setup
 
 In your controller you'd create a form instance and pass in the models you wanna work on.
 
@@ -54,6 +62,25 @@ class SongsController
   end
 ```
 
+Reform will read property values from the model in setup. Given the following form class.
+
+```ruby
+class SongForm < Reform::Form
+  property :title
+```
+
+Internally, this form will call `song.title` to populate the title field.
+
+If you, for whatever reasons, want to use a different public name, use `:as`.
+
+```ruby
+class SongForm < Reform::Form
+  property :name, as: :title
+```
+
+This will still call `song.title` but expose the attribute as `name`.
+
+
 ## Rendering Forms
 
 Your `@form` is now ready to be rendered, either do it yourself or use something like Rails' `#form_for`, `simple_form` or `formtastic`.
@@ -65,7 +92,10 @@ Your `@form` is now ready to be rendered, either do it yourself or use something
   = f.input :title
 ```
 
-## Validating Forms
+Nested forms and collections can easily rendered with `fields_for`, etc. Just use Reform as if it would be an ActiveModel instance in the view layer.
+
+
+## Validation
 
 After a form submission, you wanna validate the input.
 
@@ -86,9 +116,32 @@ Note that Reform only updates values of the internal form attributes - the under
 This allows rendering the form after `validate` with the data that has been submitted. However, don't get confused, the model's values are still the old, original values and are only changed after a `#save` or `#sync` operation.
 
 
+## Syncing Back
+
+After validation, you have two choices: either call `#save` and let Reform sort out the rest. Or call `#sync`, which will write all the properties back to the model. In a nested form, this works recursively, of course.
+
+It's then up to you what to do with the updated models - they're still unsaved.
+
+
 ## Saving Forms
 
-We provide a bullet-proof way to save your form data: by letting _you_ do it!
+The easiest way to save the data is to call `#save` on the form.
+
+```ruby
+    @form.save  #=> populates song with incoming data
+                #   by calling @form.song.title= and @form.song.length=.
+```
+
+This will sync the data to the model and then call `song.save`.
+
+Sometimes, you need to do stuff manually.
+
+
+## Saving Forms Manually
+
+This is where you call `#save` with a block. This won't touch the models at all but give you a nice hash, so you can do it yourself.
+
+Note that you can call `#sync` and _then_ call `#save` with the block to save models yourself.
 
 ```ruby
   if @form.validate(params[:song])
@@ -97,25 +150,13 @@ We provide a bullet-proof way to save your form data: by letting _you_ do it!
       data.title  #=> "Rio"
       data.length #=> "366"
 
-      nested      #=> {title: "Rio"}
+      nested      #=> {title: "Rio", length: "366"}
 
       Song.create(nested)
     end
 ```
 
 While `data` gives you an object exposing the form property readers, `nested` is a hash reflecting the nesting structure of your form. Note how you can use arbitrary code to create/update models - in this example, we used `Song::create`.
-
-To push the incoming data to the models directly, call `#save` without the block.
-
-```ruby
-    @form.save  #=> populates song with incoming data
-                #   by calling @form.song.title= and @form.song.length=.
-```
-
-Think of `@form.save` as a sync operation where the submitted data is written to your models using public setters.
-
-Note that this does _not_ call `save` on your models per default: this only happens in an ActiveRecord environment or when `Form::ActiveRecord` is mixed in (learn more [here](https://github.com/apotonick/reform#activerecord-compatibility)).
-
 
 
 ## Nesting Forms: 1-1 Relations
@@ -201,6 +242,7 @@ Supposed you use reform's automatic save without a block, the following assignme
 ```ruby
 form.song.title       = "Hungry Like The Wolf"
 form.song.artist.name = "Duran Duran"
+form.song.save
 ```
 
 ## Nesting Forms: 1-n Relations
@@ -263,6 +305,69 @@ The block form of `#save` will expose the data structures already discussed.
          #   songs: [{title: "Hungry Like The Wolf"},
          #          {title: "Last Chance On The Stairways"}]
 end
+```
+
+
+## Nesting Configuration
+
+### Turning Off Autosave
+
+You can assign Reform to _not_ call `save` on a particular nested model (per default, it is called automatically on all nested models).
+
+```ruby
+class AlbumForm < Reform::Form
+  # ...
+
+  collection :songs, save: false do
+    # ..
+  end
+```
+
+The `:save` options set to false won't save models.
+
+
+### Populating Forms For Validation
+
+With a complex nested setup it can sometimes be painful to setup the model object graph.
+
+Let's assume you rendered the following form.
+
+```ruby
+@form = AlbumForm.new(Album.new(songs: [Song.new, Song.new]))
+```
+
+This will render two nested forms to create new songs.
+
+When **validating**, you're supposed to setup the very same object graph, again. Reform has no way of remembering what the object setup was like a request ago.
+
+So, the following code will fail.
+
+```ruby
+@form = AlbumForm.new(Album.new).validate(params[:album])
+```
+
+However, you can advise Reform to setup the correct objects for you.
+
+```ruby
+class AlbumForm < Reform::Form
+  # ...
+
+  collection :songs, populate_if_emtpy: Song do
+    # ..
+  end
+```
+
+This works for both `property` and `collection` and instantiates `Song` objects where they're missing when calling `#validate`.
+
+If you wanna create the objects yourself, because you're smarter than Reform, do it with a lambda.
+
+```ruby
+class AlbumForm < Reform::Form
+  # ...
+
+  collection :songs, populate_if_emtpy: lambda { |fragment, args| Song.new } do
+    # ..
+  end
 ```
 
 
@@ -405,7 +510,9 @@ Reform doesn't really know whether it's working with a PORO, an `ActiveRecord` i
 
 When rendering the form, reform calls readers on the decorated model to retrieve the field data (`Song#title`, `Song#length`).
 
-When saving a submitted form, the same happens using writers. Reform simply calls `Song#title=(value)`. No knowledge is required about the underlying database layer.
+When syncing a submitted form, the same happens using writers. Reform simply calls `Song#title=(value)`. No knowledge is required about the underlying database layer.
+
+The same applies to saving: Reform will call `#save` on the main model and nested models.
 
 Nesting forms only requires readers for the nested properties as `Album#songs`.
 
@@ -426,7 +533,6 @@ However, you should know about two things.
 Reform provides the following `ActiveRecord` specific features. They're mixed in automatically in a Rails/AR setup.
 
  * Uniqueness validations. Use `validates_uniqueness_of` in your form.
- * Calling `Form#save` will explicitely call `save` on your model (added in 0.2.1) which will usually trigger a database insertion or update.
 
 As mentioned in the [Rails Integration](https://github.com/apotonick/reform#rails-integration) section some Rails 4 setups do not properly load.
 
@@ -518,6 +624,26 @@ class SongForm < Reform::Form
 
 This will capitalize the title _after_ calling `form.validate` but _before_ validation happens. Note that you can use `super` to call the original setter.
 
+
+## Undocumented Features
+
+_(Please don't read this section!)_
+
+
+### Populator
+
+You can run your very own populator logic if you're keen (and you know what you're doing).
+
+```ruby
+class AlbumForm < Reform::Form
+  # ...
+
+  collection :songs, populator: lambda { |fragment, args| args.binding[:form].new(Song.find fragment[:id]) } do
+    # ..
+  end
+```
+
+
 ## Support
 
 If you run into any trouble chat with us on irc.freenode.org#trailblazer.
@@ -532,4 +658,4 @@ If you run into any trouble chat with us on irc.freenode.org#trailblazer.
 
 ### Attributions!!!
 
-Great thanks to [Blake Education](https://github.com/blake-education) for giving us the freedom and time to develop this project while working on their project.
+Great thanks to [Blake Education](https://github.com/blake-education) for giving us the freedom and time to develop this project in 2013 while working on their project.
