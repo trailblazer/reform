@@ -54,7 +54,7 @@ class ValidateTest < BaseTest
 
     before { subject.validate(params) }
 
-    it( "xxx") { subject.hit.title.must_equal "Roxanne" }
+    it { subject.hit.title.must_equal "Roxanne" }
   end
 
   describe ":populate_if_empty" do

@@ -28,6 +28,40 @@ module Reform::Form::Validate
 
 
   module Populator
+    class PopulateIfEmpty
+      def initialize(*args)
+        @form, @fragment, args = args
+        @index = args.first
+        @args = args.last
+      end
+
+      def call
+        binding = @args.binding
+        form    = binding.get
+
+        return if binding.array? and form and form[@index] # TODO: this should be handled by the Binding.
+        return if !binding.array? and form
+        # only get here when above form is nil.
+
+        if binding[:populate_if_empty].is_a?(Proc)
+          model = binding[:populate_if_empty].call(@fragment, @args) # call user block.
+        else
+          model = binding[:populate_if_empty].new
+        end
+
+        form  = binding[:form].new(model) # free service: wrap model with Form. this usually happens in #setup.
+
+        if binding.array?
+          @form.model.send("#{binding.getter}") << model # FIXME: i don't like this, but we have to add the model to the parent object to make associating work. i have to use #<< to stay compatible with AR's has_many API. DISCUSS: what happens when we get out-of-sync here?
+          @form.send("#{binding.getter}")[@index] = form
+        else
+          @form.model.send("#{binding.setter}", model) # FIXME: i don't like this, but we have to add the model to the parent object to make associating work.
+          @form.send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
+        end
+      end
+    end
+
+
     def from_hash(params, *args)
       populated_attrs = []
 
@@ -37,28 +71,7 @@ module Reform::Form::Validate
         attr.merge!(
           # DISCUSS: it would be cool to move the lambda block to PopulateIfEmpty#call.
           :populator => lambda do |fragment, *args|
-            binding = args.last.binding
-            form    = binding.get
-
-            return if binding.array? and form and form[args.first] # TODO: this should be handled by the Binding.
-            return if !binding.array? and form
-            # only get here when above form is nil.
-
-            if binding[:populate_if_empty].is_a?(Proc)
-              model = binding[:populate_if_empty].call(fragment, args.last) # call user block.
-            else
-              model = binding[:populate_if_empty].new
-            end
-
-            form  = binding[:form].new(model) # free service: wrap model with Form. this usually happens in #setup.
-
-            if binding.array?
-              self.model.send("#{binding.getter}") << model # FIXME: i don't like this, but we have to add the model to the parent object to make associating work. i have to use #<< to stay compatible with AR's has_many API. DISCUSS: what happens when we get out-of-sync here?
-              send("#{binding.getter}")[args.first] = form
-            else
-              self.model.send("#{binding.setter}", model) # FIXME: i don't like this, but we have to add the model to the parent object to make associating work.
-              send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
-            end
+            PopulateIfEmpty.new(self, fragment, args).call
           end
         )
       end
