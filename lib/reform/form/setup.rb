@@ -1,5 +1,10 @@
 class Reform::Form
   module Setup
+    def initialize(model)
+      @model  = model # we need this for #save.
+      @fields = setup_fields  # delegate all methods to Fields instance.
+    end
+
     def setup_fields
       representer = mapper.new(aliased_model).extend(Setup::Representer)
 

@@ -68,11 +68,6 @@ module Reform
     extend PropertyMethods
 
 
-    def initialize(model)
-      @model  = model # we need this for #save.
-      @fields = setup_fields  # delegate all methods to Fields instance.
-    end
-
     def aliased_model
       # TODO: cache the Expose.from class!
       Reform::Expose.from(self.class.representer_class).new(:model => model)
