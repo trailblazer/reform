@@ -100,6 +100,30 @@ class ValidateTest < BaseTest
   end
 
 
+  describe "populate_if_empty: Class" do
+    let (:form) {
+      Class.new(Reform::Form) do
+        property :hit, :populate_if_empty => Song do
+          property :title
+        end
+      end
+     }
+
+    let (:params) {
+      {
+        "hit"   => {"title" => "Roxanne"},
+      }
+    }
+
+    let (:album) { Album.new }
+    subject { form.new(album) }
+
+    before { subject.validate(params) }
+
+    it { subject.hit.title.must_equal "Roxanne" }
+  end
+
+
   # test cardinalities.
   describe "with empty collection and cardinality" do
     let (:album) { Album.new }

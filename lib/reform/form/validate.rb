@@ -44,7 +44,12 @@ module Reform::Form::Validate
             return if !binding.array? and form
             # only get here when above form is nil.
 
-            model = binding[:populate_if_empty].call(fragment, args.last) # call user block.
+            if binding[:populate_if_empty].is_a?(Proc)
+              model = binding[:populate_if_empty].call(fragment, args.last) # call user block.
+            else
+              model = binding[:populate_if_empty].new
+            end
+
             form  = binding[:form].new(model) # free service: wrap model with Form. this usually happens in #setup.
 
             if binding.array?
@@ -90,6 +95,7 @@ module Reform::Form::Validate
 
 
   def validate!(params, options)
+    # puts "validate! in #{self.class.name}: #{params.inspect}"
     populate!(params)
 
     # populate nested properties
