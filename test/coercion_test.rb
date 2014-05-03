@@ -39,6 +39,6 @@ class CoercionTest < BaseTest
     end.new(OpenStruct.new())
 
     form.validate("id" => "1")
-    form.to_hash.must_equal("id" => 1)
+    form.id.must_equal 1
   end
 end

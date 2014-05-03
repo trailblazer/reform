@@ -37,8 +37,12 @@ class NestedFormTest < MiniTest::Spec
   let (:songs) { [OpenStruct.new(:title => "Calling")] }
   let (:form)  { AlbumForm.new(album) }
 
-  it "responds to #to_hash" do
-    form.to_hash.must_equal({"hit"=>{"title"=>"Downtown"}, "title" => "Blackhawks Over Los Angeles", "songs"=>[{"title"=>"Calling"}]})
+  it "responds to #save" do
+    hsh = nil
+    form.save do |f, nested|
+      hsh = nested
+    end
+    hsh.must_equal({"hit"=>{"title"=>"Downtown"}, "title" => "Blackhawks Over Los Angeles", "songs"=>[{"title"=>"Calling"}]})
   end
 
 

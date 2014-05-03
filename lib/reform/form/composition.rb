@@ -54,5 +54,9 @@ class Reform::Form
     def to_nested_hash
       model.nested_hash_for(to_hash)  # use composition to compute nested hash.
     end
+
+    def to_hash(*args)
+      mapper.new(self).to_hash(*args)
+    end
   end
 end

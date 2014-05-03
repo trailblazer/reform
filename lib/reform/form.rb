@@ -91,12 +91,6 @@ module Reform
     require 'reform/form/multi_parameter_attributes'
     include MultiParameterAttributes # TODO: make features dynamic.
 
-
-    # Use representer to return current key-value form hash.
-    def to_hash(*args)
-      mapper.new(self).to_hash(*args)
-    end
-
     attr_accessor :model
 
   private

@@ -58,11 +58,14 @@ class ReformTest < ReformSpec
 
 
   describe "::properties" do
-    it do
+    subject do
       Class.new(Reform::Form) do
         properties [:name, :title]
-      end.new(comp).to_hash.must_equal({"name"=>"Duran Duran", "title"=>"Rio"})
+      end.new(comp)
     end
+
+    it { subject.name.must_equal "Duran Duran" }
+    it { subject.title.must_equal "Rio" }
   end
 
   class SongForm < Reform::Form
