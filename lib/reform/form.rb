@@ -5,12 +5,7 @@ require 'reform/composition'
 
 module Reform
   class Form < Contract
-    # self.representer_class.form_class = self
-    self.representer_class.class_eval do
-      def self.form_class
-        Reform::Form
-      end
-    end
+    self.representer_class = Reform::Representer.for(:form_class => Reform::Form)
 
     def aliased_model
       # TODO: cache the Expose.from class!
@@ -20,7 +15,7 @@ module Reform
     require "reform/form/virtual_attributes"
 
     require 'reform/form/validate'
-    include Validate
+    include Validate # extend Contract#validate with additional behaviour.
     require 'reform/form/sync'
     include Sync
     require 'reform/form/save'

@@ -5,19 +5,12 @@ require 'reform/representer'
 
 module Reform
   # Gives you a DSL for defining the object structure and its validations.
-  # TODO: Contract shouldn't have setters.
   class Contract # DISCUSS: make class?
     extend Forwardable
 
     extend Uber::InheritableAttr
     inheritable_attr :representer_class
-    self.representer_class = Class.new(Reform::Representer)
-
-    self.representer_class.class_eval do
-      def self.form_class
-        Reform::Contract
-      end
-    end
+    self.representer_class = Reform::Representer.for(:form_class => Reform::Contract)
 
     inheritable_attr :features
     self.features = []

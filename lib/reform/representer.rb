@@ -5,6 +5,10 @@ module Reform
   class Representer < Representable::Decorator
     include Representable::Hash::AllowSymbols
 
+    extend Uber::InheritableAttr
+    inheritable_attr :options
+    # self.options = {}
+
     # Invokes #to_hash and/or #from_hash with #options. This provides a hook for other
     # modules to add options for the representational process.
     module WithOptions
@@ -48,6 +52,12 @@ module Reform
         each(&block)
     end
 
+    def self.for(options)
+      clone.tap do |representer|
+        representer.options = options
+      end
+    end
+
     def self.clone # called in inheritable_attr :representer_class.
       Class.new(self) # By subclassing, representable_attrs.clone is called.
     end
@@ -63,8 +73,7 @@ module Reform
     def self.inline_representer(base_module, name, options, &block)
       name = name.to_s.singularize.camelize
 
-      puts "self: #{self}"
-      Class.new(form_class) do
+      Class.new(self.options[:form_class]) do
         # TODO: this will soon become a generic feature in representable.
         include *options[:features].reverse if options[:features]
 
