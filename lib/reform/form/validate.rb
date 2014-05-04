@@ -44,7 +44,7 @@ module Reform::Form::Validate
         # only get here when above form is nil.
 
         if binding[:populate_if_empty].is_a?(Proc)
-          model = binding[:populate_if_empty].call(@fragment, @args) # call user block.
+          model = @form.instance_exec(@fragment, @args, &binding[:populate_if_empty]) # call user block.
         else
           model = binding[:populate_if_empty].new
         end

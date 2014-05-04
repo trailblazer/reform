@@ -64,7 +64,7 @@ class ValidateTest < BaseTest
           property :title
         end
 
-        collection :songs, :populate_if_empty => lambda { |fragment, args| Song.new } do
+        collection :songs, :populate_if_empty => lambda { |fragment, args| model.songs.build } do
           property :title
         end
 
@@ -84,7 +84,8 @@ class ValidateTest < BaseTest
       }
     }
 
-    let (:album) { Album.new(nil,nil,[], nil) }
+    let (:song_collection_proxy) { Class.new(Array) { def build; Song.new; end } }
+    let (:album) { Album.new(nil,nil, song_collection_proxy.new, nil) }
     subject { form.new(album) } # DISCUSS: require at least an array here? this is provided by all ORMs.
 
     before { subject.validate(params) }
