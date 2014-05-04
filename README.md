@@ -14,7 +14,10 @@ gem 'reform'
 
 ## Nomenklatura
 
-Reform gives you two things: form objects for UI bla and contracts for API validation, taking the validations from the models into separate classes.
+Reform comes with two base classes.
+
+* `Form` is what made you come here - it gives you a form class to handle all validations, wrap models, allow rendering with Rails form helpers, simplifies saving of models, and more.
+* `Contract` gives you a sub-set of `Form`: this class is meant for API validation where already populated models get validated without having to maintain validations in the model classes.
 
 
 ## Defining Forms
@@ -162,6 +165,51 @@ Note that you can call `#sync` and _then_ call `#save` with the block to save mo
 ```
 
 While `data` gives you an object exposing the form property readers, `nested` is a hash reflecting the nesting structure of your form. Note how you can use arbitrary code to create/update models - in this example, we used `Song::create`.
+
+
+## Contracts
+
+Contracts give you a sub-set of the `Form` API.
+
+1. `#initialize` accepts an already populated model.
+2. `#validate` will run defined validations (without accepting a params hash as in `Form`).
+
+Contracts can be used to completely remove validation logic from your model classes. Validation should happen in a separate layer - a `Contract`.
+
+### Defining Contracts
+
+A contract looks like a form.
+
+```ruby
+class AlbumContract < Reform::Contract
+  property :title
+  validates :title, length: {minimum: 9}
+
+  collection :songs do
+    property :title
+    validates :title, presence: true
+  end
+```
+
+It defines the validations and the object graph to be run.
+
+In future versions and with the upcoming [Trailblazer framework](https://github.com/apotonick/trailblazer), contracts can be inherited from forms, representers, and cells, and vice-versa.
+
+### Using Contracts
+
+Applying a contract is simple, all you need is a populated object (e.g. an album after `#update_attributes`).
+
+```ruby
+album.update_attributes(..)
+
+if AlbumContract.new(album).validate
+  album.save
+else
+  raise album.errors.messages.inspect
+end
+```
+
+Contracts help you to make your data layer a dumb persistance tier. My [upcoming book discusses that in detail](http://nicksda.apotomo.de).
 
 
 ## Nesting Forms: 1-1 Relations
