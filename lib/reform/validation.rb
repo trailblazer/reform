@@ -83,6 +83,8 @@ module Reform
       self.class.representer_class
     end
 
+    alias_method :aliased_model, :model
+
 
     # Keeps values of the form fields. What's in here is to be displayed in the browser!
     # we need this intermediate object to display both "original values" and new input from the form after submitting.

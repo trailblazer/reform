@@ -13,6 +13,7 @@ module Reform
         create_fields(representer.fields, representer.to_hash)
       end
 
+      # DISCUSS: setting up the Validation (populating with values) will soon be handled with Disposable::Twin logic.
       def create_fields(field_names, fields)
         Fields.new(field_names, fields)
       end
