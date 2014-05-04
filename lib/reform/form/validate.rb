@@ -2,7 +2,7 @@
 module Reform
   class Form < Validation
   module Validate
-    module Writer
+    module Update
       def from_hash(*)
         nested_forms do |attr|
           attr.delete(:prepare)
@@ -11,16 +11,7 @@ module Reform
           attr.merge!(
             :collection => attr[:collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
             :parse_strategy => :sync, # just use nested objects as they are.
-            :deserialize => lambda { |object, params, args|
-
-              options = args.user_options.dup
-              options[:prefix] = options[:prefix].dup # TODO: implement Options#dup.
-              options[:prefix] << args.binding.name # FIXME: should be #as.
-
-              # puts "======= user_options: #{args.user_options.inspect}"
-
-              object.validate!(params, options)
-            },
+            :deserialize => lambda { |object, params, args| object.update!(params) },
           )
         end
 
@@ -94,45 +85,20 @@ module Reform
     end
 
 
-    def errors
-      @errors ||= Validation::Errors.new(self)
-    end
-
     def validate(params)
-      options = {:errors => errs = Validation::Errors.new(self), :prefix => []}
+      update!(params)
 
-      validate!(params, options)
-
-      self.errors = errs # if the AM valid? API wouldn't use a "global" variable this would be better.
-
-      errors.valid?
+      super()
     end
 
-
-    def validate!(params, options)
-      # puts "validate! in #{self.class.name}: #{params.inspect}"
+    def update!(params)
+      # puts "updating in #{self.class.name}"
       populate!(params)
 
-      # populate nested properties
-      # update attributes of forms (from_hash)
-      # run validate(errors) for all forms (no 1-level limitation anymore)
-
-      # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
-
-
-      prefix = options[:prefix]
-
-      # sets scalars and recurses #validate.
-      mapper.new(self).extend(Writer).from_hash(params, options)
-
-      res = valid?  # this validates on <Fields> using AM::Validations, currently.
-
-      options[:errors].merge!(self.errors, prefix)
+      mapper.new(self).extend(Update).from_hash(params)
     end
 
   private
-
-
     def populate!(params)
       mapper.new(self).extend(Populator).from_hash(params)
     end

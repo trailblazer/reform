@@ -22,7 +22,7 @@ module Reform::Form::ActiveModel
     end
 
     # Modify the incoming Rails params hash to be representable compliant.
-    def validate!(params, errors)
+    def update!(params)
       # DISCUSS: #validate should actually expect the complete params hash and then pick the right key as it knows the form name.
       # however, this would cause confusion?
       mapper.new(self).nested_forms do |attr, model| # FIXME: make this simpler.

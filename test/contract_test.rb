@@ -39,6 +39,6 @@ class ContractTest < BaseTest
       res.must_equal false
     }
 
-    it { subject.errors.messages.must_equal({:songs=>["is too short (minimum is 4 characters)"], :title=>["can't be blank", "is too short (minimum is 3 characters)"]}) }
+    it { subject.errors.messages.must_equal({:"hit.title"=>["can't be blank"], :"songs.title"=>["can't be blank"], :"band.label"=>["can't be blank"], :songs=>["is too short (minimum is 4 characters)"], :title=>["can't be blank", "is too short (minimum is 3 characters)"]}) }
   end
 end

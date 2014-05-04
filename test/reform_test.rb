@@ -166,6 +166,8 @@ class ReformTest < ReformSpec
   end
 
   describe "#errors" do
+    before { form.validate({})}
+
     it { form.errors.must_be_kind_of Reform::Form::Errors }
 
     it { form.errors.messages.must_equal({}) }

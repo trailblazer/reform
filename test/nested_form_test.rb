@@ -186,7 +186,9 @@ class NestedFormTest < MiniTest::Spec
       form.hit.title.must_equal "Downtown"
     end
 
-    it { form.validate({"hit" => {"title" => ""}})
+    it ("xxx") {
+      form.validate({"hit" => {"title" => ""}})
+      form.hit.title.must_equal ""
       form.errors[:"hit.title"].must_equal(["can't be blank"])
     }
   end

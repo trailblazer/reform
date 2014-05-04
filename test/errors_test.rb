@@ -49,7 +49,9 @@ class ErrorsTest < MiniTest::Spec
       form.errors.messages.must_equal({
         :title  => ["can't be blank"],
         :"hit.title"=>["can't be blank"],
-        :"songs.title"=>["can't be blank"]})
+        :"songs.title"=>["can't be blank"],
+        :"band.label.name"=>["can't be blank"]
+      })
     end
 
     it do
@@ -65,13 +67,15 @@ class ErrorsTest < MiniTest::Spec
       form.errors.messages.must_equal({
         :title        => ["can't be blank"],
         :"hit.title"  => ["can't be blank"],
-        :"songs.title"=> ["can't be blank"]}) # here, there's one error message for 2 errors.
-    end # TODO: add another invalid item.
+        :"songs.title"=> ["can't be blank"],
+        :"band.label.name"=>["can't be blank"]
+      })
+    end
   end
 
 
   describe "#validate with main form invalid" do
-    before { @result = form.validate("title"=>"") }
+    before { @result = form.validate("title"=>"", "band"=>{"label"=>{:name => "Fat Wreck"}}) }
 
     it { @result.must_equal false }
     it { form.errors.messages.must_equal({:title=>["can't be blank"]}) }
@@ -79,7 +83,7 @@ class ErrorsTest < MiniTest::Spec
 
 
   describe "#validate with middle nested form invalid" do
-    before { @result = form.validate("hit"=>{"title" => ""}) }
+    before { @result = form.validate("hit"=>{"title" => ""}, "band"=>{"label"=>{:name => "Fat Wreck"}}) }
 
     it { @result.must_equal false }
     it { form.errors.messages.must_equal({:"hit.title"=>["can't be blank"]}) }
@@ -87,7 +91,7 @@ class ErrorsTest < MiniTest::Spec
 
 
   describe "#validate with collection form invalid" do
-    before { @result = form.validate("songs"=>[{"title" => ""}]) }
+    before { @result = form.validate("songs"=>[{"title" => ""}], "band"=>{"label"=>{:name => "Fat Wreck"}}) }
 
     it { @result.must_equal false }
     it( "xxxx") { form.errors.messages.must_equal({:"songs.title"=>["can't be blank"]}) }
@@ -106,7 +110,8 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate(
       "hit"   => {"title" => "Sacrifice"},
       "title" => "Second Heat",
-      "songs" => [{"title"=>"Heart Of A Lion"}]
+      "songs" => [{"title"=>"Heart Of A Lion"}],
+      "band"  => {"label"=>{:name => "Fat Wreck"}}
       ) }
 
     it { @result.must_equal true }

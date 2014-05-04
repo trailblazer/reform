@@ -5,6 +5,7 @@ require 'reform/representer'
 
 module Reform
   # Gives you a DSL for defining the object structure and its validations.
+  # TODO: Contract shouldn't have setters.
   class Validation # DISCUSS: make class?
     extend Forwardable
 
@@ -52,6 +53,7 @@ module Reform
           :form         => definition[:form] || definition[:extend].evaluate(nil), # :form is always just a Form class name.
           :pass_options => true, # new style of passing args
           :prepare      => lambda { |form, args| form }, # always just return the form without decorating.
+          :representable => true, # form: Class must be treated as a typed property.
         }
 
         definition.merge!(options)
@@ -139,7 +141,7 @@ module Reform
 
               # puts "======= user_options: #{args.user_options.inspect}"
 
-              object.valid?(options) # recursively call valid?
+              object.validate!(options) # recursively call valid?
             },
           )
         end
@@ -158,12 +160,13 @@ module Reform
       errors.valid?
     end
     def validate!(options)
+      # puts "validate! in #{self.class.name}: #{true.inspect}"
       prefix = options[:prefix]
 
       # call valid? recursively and collect nested errors.
       mapper.new(self).extend(NestedValid).to_hash(options)
 
-      res = valid?  # this validates on <Fields> using AM::Validations, currently.
+      valid?  # this validates on <Fields> using AM::Validations, currently.
 
       options[:errors].merge!(self.errors, prefix)
     end
