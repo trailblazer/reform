@@ -75,7 +75,8 @@ module Reform
 
     require 'reform/contract/setup'
     include Setup
-
+    require 'reform/contract/validate'
+    include Validate
 
 
     attr_writer :errors # only used in top form.
@@ -86,51 +87,6 @@ module Reform
 
 
 
-    module NestedValid
-      def to_hash(*)
-        nested_forms do |attr|
-          # attr.delete(:prepare)
-          # attr.delete(:extend)
-
-          attr.merge!(
-            :serialize => lambda { |object, args|
-
-              # FIXME: merge with Validate::Writer
-              options = args.user_options.dup
-              options[:prefix] = options[:prefix].dup # TODO: implement Options#dup.
-              options[:prefix] << args.binding.name # FIXME: should be #as.
-
-              # puts "======= user_options: #{args.user_options.inspect}"
-
-              object.validate!(options) # recursively call valid?
-            },
-          )
-        end
-
-        super
-      end
-    end
-
-    def validate
-      options = {:errors => errs = Errors.new(self), :prefix => []}
-
-      validate!(options)
-
-      self.errors = errs # if the AM valid? API wouldn't use a "global" variable this would be better.
-
-      errors.valid?
-    end
-    def validate!(options)
-      # puts "validate! in #{self.class.name}: #{true.inspect}"
-      prefix = options[:prefix]
-
-      # call valid? recursively and collect nested errors.
-      mapper.new(self).extend(NestedValid).to_hash(options)
-
-      valid?  # this validates on <Fields> using AM::Validations, currently.
-
-      options[:errors].merge!(self.errors, prefix)
-    end
 
 
 
@@ -158,20 +114,7 @@ module Reform
         super(fields.merge!(values))  # TODO: stringify value keys!
       end
     end # Fields
-
-
-
-
   end
-
-
-
-
-
-
-
-
-
 end
 
 require 'reform/contract/errors'
