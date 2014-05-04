@@ -1,6 +1,6 @@
 # Mechanics for writing to forms in #validate.
 module Reform::Form::Validate
-  module Representer
+  module Writer
     def from_hash(*)
       nested_forms do |attr|
         attr.delete(:prepare)
@@ -117,10 +117,11 @@ module Reform::Form::Validate
 
     # here it would be cool to have a validator object containing the validation rules representer-like and then pass it the formed model.
 
-    # sets scalars and recurses #validate.
+
     prefix = options[:prefix]
 
-    mapper.new(self).extend(Representer).from_hash(params, options) # calls validate(..) on nested.
+    # sets scalars and recurses #validate.
+    mapper.new(self).extend(Writer).from_hash(params, options)
 
     res = valid?  # this validates on <Fields> using AM::Validations, currently.
 

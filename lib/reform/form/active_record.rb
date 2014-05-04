@@ -1,4 +1,4 @@
-class Reform::Form
+Reform::Form.class_eval do
   module ActiveRecord
     def self.included(base)
       base.class_eval do

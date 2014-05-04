@@ -31,13 +31,13 @@ end
 class FieldsTest < MiniTest::Spec
   describe "#new" do
     it "accepts list of properties" do
-      fields = Reform::Fields.new([:name, :title])
+      fields = Reform::Validation::Fields.new([:name, :title])
       fields.name.must_equal  nil
       fields.title.must_equal nil
     end
 
     it "accepts list of properties and values" do
-      fields = Reform::Fields.new(["name", "title"], "title" => "The Body")
+      fields = Reform::Validation::Fields.new(["name", "title"], "title" => "The Body")
       fields.name.must_equal  nil
       fields.title.must_equal "The Body"
     end

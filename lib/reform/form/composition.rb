@@ -1,6 +1,6 @@
 require "reform/form/active_model"
 
-class Reform::Form
+Reform::Form.class_eval do
   # Automatically creates a Composition object for you when initializing the form.
   module Composition
     def self.included(base)

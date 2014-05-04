@@ -1,4 +1,4 @@
-class Reform::Form
+Reform::Form.class_eval do
   # #sync!
   #   1. assign scalars to model (respecting virtual, excluded attributes)
   #   2. call sync! on nested
@@ -26,8 +26,8 @@ class Reform::Form
     module InputRepresenter
       include Reform::Representer::WithOptions
       # TODO: make dynamic.
-      include EmptyAttributesOptions
-      include ReadonlyAttributesOptions
+      include Reform::Form::EmptyAttributesOptions
+      include Reform::Form::ReadonlyAttributesOptions
 
       def to_hash(*)
         nested_forms do |attr|
@@ -51,10 +51,10 @@ class Reform::Form
   alias_method :sync, :sync_models
 
   def sync! # semi-public.
-    input_representer = mapper.new(self).extend(InputRepresenter)
+    input_representer = mapper.new(self).extend(Sync::InputRepresenter)
 
     input = input_representer.to_hash
 
-    mapper.new(aliased_model).extend(Writer).from_hash(input)
+    mapper.new(aliased_model).extend(Sync::Writer).from_hash(input)
   end
 end

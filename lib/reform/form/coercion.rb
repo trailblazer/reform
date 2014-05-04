@@ -1,6 +1,6 @@
 require 'representable/decorator/coercion'
 
-class Reform::Form
+Reform::Form.class_eval do
   module Coercion
     def self.included(base)
       base.extend(ClassMethods)

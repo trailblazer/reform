@@ -1,4 +1,4 @@
-class Reform::Form
+Reform::Form.class_eval do
   module MultiParameterAttributes
     def self.included(base)
       base.features << self

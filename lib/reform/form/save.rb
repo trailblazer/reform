@@ -1,4 +1,4 @@
-class Reform::Form
+Reform::Form.class_eval do
   module Save
     module RecursiveSave
       def to_hash(*)

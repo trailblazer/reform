@@ -1,5 +1,4 @@
-module Reform
-  class Form
+class Reform::Form < Reform::Validation # FIXME: just make it run for now.
     # TODO: this should be in Representer namespace.
     module EmptyAttributesOptions
       def options
@@ -20,5 +19,4 @@ module Reform
         super.exclude!(readonly_fields)
       end
     end
-  end
 end
