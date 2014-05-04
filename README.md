@@ -357,7 +357,7 @@ However, you can advise Reform to setup the correct objects for you.
 class AlbumForm < Reform::Form
   # ...
 
-  collection :songs, populate_if_emtpy: Song do
+  collection :songs, populate_if_empty: Song do
     # ..
   end
 ```
@@ -370,7 +370,7 @@ If you wanna create the objects yourself, because you're smarter than Reform, do
 class AlbumForm < Reform::Form
   # ...
 
-  collection :songs, populate_if_emtpy: lambda { |fragment, args| Song.new } do
+  collection :songs, populate_if_empty: lambda { |fragment, args| Song.new } do
     # ..
   end
 ```
