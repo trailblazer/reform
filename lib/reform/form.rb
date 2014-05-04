@@ -5,11 +5,11 @@ require 'reform/composition'
 
 module Reform
   class Form < Contract
-    self.representer_class = Reform::Representer.for(:form_class => Reform::Form)
+    self.representer_class = Reform::Representer.for(:form_class => self)
 
     def aliased_model
       # TODO: cache the Expose.from class!
-      Reform::Expose.from(self.class.representer_class).new(:model => model)
+      Reform::Expose.from(mapper).new(:model => model)
     end
 
     require "reform/form/virtual_attributes"

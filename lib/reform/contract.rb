@@ -10,7 +10,7 @@ module Reform
 
     extend Uber::InheritableAttr
     inheritable_attr :representer_class
-    self.representer_class = Reform::Representer.for(:form_class => Reform::Contract)
+    self.representer_class = Reform::Representer.for(:form_class => self)
 
     inheritable_attr :features
     self.features = []
