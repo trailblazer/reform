@@ -4,7 +4,7 @@
 * document Form#to_hash and Form#to_nested_hash (e.g. with OpenStruct composition to make it a very simple form)
 * document getter: and representer_exec:
 
-* allow :as to rename nested forms
+* Debug module that logs every step.
 
 vererben in inline representern (module zum einmixen, attrs löschen)
 
@@ -13,4 +13,12 @@ vererben in inline representern (module zum einmixen, attrs löschen)
 # form.messages should then go through them and compile a "summary" instead of adding them to the parents #errors in #validate.
 
 
+
 in a perfect world, a UI form would send JSON as in the API. that's why the reform form creates the correct object graph first, then validates. creating the graph usually happens in the API representer code.
+
+
+WHY DON'T PEOPLE USE THIS:
+http://guides.rubyonrails.org/association_basics.html#the-has-many-association
+4.2.2.2 :autosave
+
+If you set the :autosave option to true, Rails will save any loaded members and destroy members that are marked for destruction whenever you save the parent object.
