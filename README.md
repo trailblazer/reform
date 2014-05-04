@@ -12,7 +12,7 @@ Add this line to your Gemfile:
 gem 'reform'
 ```
 
-## Nomenklatura
+## Nomenclatura
 
 Reform comes with two base classes.
 
