@@ -1,6 +1,6 @@
 
 module Reform
-  class Validation
+  class Contract
     module Setup
       def initialize(model)
         @model  = model # we need this for #save.

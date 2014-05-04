@@ -1,10 +1,10 @@
 require 'ostruct'
 
-require 'reform/validation'
+require 'reform/contract'
 require 'reform/composition'
 
 module Reform
-  class Form < Validation
+  class Form < Contract
     # self.representer_class.form_class = self
     self.representer_class.class_eval do
       def self.form_class

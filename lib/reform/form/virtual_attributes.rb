@@ -1,4 +1,4 @@
-class Reform::Form < Reform::Validation # FIXME: just make it run for now.
+class Reform::Form < Reform::Contract
     # TODO: this should be in Representer namespace.
     module EmptyAttributesOptions
       def options
