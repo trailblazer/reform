@@ -17,6 +17,8 @@ class ContractTest < BaseTest
     validates :songs, :length => {:minimum => 4}
 
     property :band do # yepp, people do crazy stuff like that.
+      validates :label, :presence => true
+
       property :label do
         property :name
         validates :name, :presence => true
@@ -27,12 +29,13 @@ class ContractTest < BaseTest
     validates :title, :presence => true, :length => {:minimum => 3}
   end
 
-  let (:album) { Album.new(nil, Song.new, [Song.new, Song.new], Band.new(Label.new) ) }
+  let (:album) { Album.new(nil, Song.new, [Song.new, Song.new], Band.new() ) }
   subject { AlbumContract.new(album) }
+
 
   describe "invalid" do
     before {
-      res = subject.valid?
+      res = subject.validate
       res.must_equal false
     }
 

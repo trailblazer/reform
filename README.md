@@ -12,6 +12,11 @@ Add this line to your Gemfile:
 gem 'reform'
 ```
 
+## Nomenklatura
+
+Reform gives you two things: form objects for UI bla and contracts for API validation, taking the validations from the models into separate classes.
+
+
 ## Defining Forms
 
 You're working at a famous record label and your job is archiving all the songs, albums and artists. You start with a form to populate your `songs` table.

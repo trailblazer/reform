@@ -63,7 +63,8 @@ module Reform
     def self.inline_representer(base_module, name, options, &block)
       name = name.to_s.singularize.camelize
 
-      Class.new(Form) do
+      puts "self: #{self}"
+      Class.new(form_class) do
         # TODO: this will soon become a generic feature in representable.
         include *options[:features].reverse if options[:features]
 
