@@ -23,7 +23,7 @@ module Reform::Form::Validate
       def initialize(*args)
         @form, @fragment, args = args
         @index = args.first
-        @args = args.last
+        @args  = args.last
       end
 
       def call

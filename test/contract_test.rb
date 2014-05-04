@@ -3,6 +3,7 @@ require 'test_helper'
 class ContractTest < BaseTest
   class AlbumContract < Reform::Contract
     property :title
+    validates :title, :presence => true, :length => {:minimum => 3}
 
     property :hit do
       property :title
@@ -25,8 +26,6 @@ class ContractTest < BaseTest
       end
       # TODO: make band a required object.
     end
-
-    validates :title, :presence => true, :length => {:minimum => 3}
   end
 
   let (:album) { Album.new(nil, Song.new, [Song.new, Song.new], Band.new() ) }
@@ -40,5 +39,19 @@ class ContractTest < BaseTest
     }
 
     it { subject.errors.messages.must_equal({:"hit.title"=>["can't be blank"], :"songs.title"=>["can't be blank"], :"band.label"=>["can't be blank"], :songs=>["is too short (minimum is 4 characters)"], :title=>["can't be blank", "is too short (minimum is 3 characters)"]}) }
+  end
+
+
+  describe "valid" do
+    let (:album) { Album.new(
+      "Keeper Of The Seven Keys",
+      nil,
+      [Song.new("Initiation"), Song.new("I'm Alive"), Song.new("A Little Time"), Song.new("Future World"),],
+      Band.new(Label.new("Noise"))
+    ) }
+
+    before { subject.validate.must_equal true }
+
+    it { subject.errors.messages.must_equal({}) }
   end
 end
