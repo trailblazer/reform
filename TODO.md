@@ -5,6 +5,7 @@
 * document getter: and representer_exec:
 
 * Debug module that logs every step.
+* no setters in Contract#setup
 
 vererben in inline representern (module zum einmixen, attrs löschen)
 

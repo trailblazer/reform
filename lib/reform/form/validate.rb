@@ -50,7 +50,7 @@ module Reform::Form::Validate
           @form.send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
         end
       end
-    end
+    end # PopulateIfEmpty
 
 
     def from_hash(params, *args)

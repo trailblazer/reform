@@ -37,6 +37,7 @@ Reform::Form.class_eval do
 
     def validate(params)
       # TODO: make it cleaner to hook into essential reform steps.
+      # TODO: test with nested.
       DateParamsFilter.new.call(params)
 
       super
