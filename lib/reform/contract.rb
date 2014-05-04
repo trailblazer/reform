@@ -79,25 +79,9 @@ module Reform
     include Validate
 
 
-    attr_writer :errors # only used in top form.
-    private :errors=
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   private
     attr_accessor :fields
+    attr_writer :errors # only used in top form. (is that true?)
 
     def mapper
       self.class.representer_class
