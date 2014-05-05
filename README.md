@@ -17,7 +17,7 @@ gem 'reform'
 Reform comes with two base classes.
 
 * `Form` is what made you come here - it gives you a form class to handle all validations, wrap models, allow rendering with Rails form helpers, simplifies saving of models, and more.
-* `Contract` gives you a sub-set of `Form`: this class is meant for API validation where already populated models get validated without having to maintain validations in the model classes.
+* `Contract` gives you a sub-set of `Form`: [this class](#contracts) is meant for API validation where already populated models get validated without having to maintain validations in the model classes.
 
 
 ## Defining Forms
@@ -193,7 +193,7 @@ class AlbumContract < Reform::Contract
 
 It defines the validations and the object graph to be run.
 
-In future versions and with the upcoming [Trailblazer framework](https://github.com/apotonick/trailblazer), contracts can be inherited from forms, representers, and cells, and vice-versa.
+In future versions and with the upcoming [Trailblazer framework](https://github.com/apotonick/trailblazer), contracts can be inherited from forms, representers, and cells, and vice-versa. Actually this already works with representer inheritance - let me know if you need help.
 
 ### Using Contracts
 
