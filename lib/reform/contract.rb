@@ -79,6 +79,11 @@ module Reform
     include Validate
 
 
+    def errors # FIXME: this is needed for Rails 3.0 compatibility.
+      @errors ||= Errors.new(self)
+    end
+
+
   private
     attr_accessor :fields
     attr_writer :errors # only used in top form. (is that true?)

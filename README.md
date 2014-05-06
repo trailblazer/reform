@@ -12,7 +12,7 @@ Add this line to your Gemfile:
 gem 'reform'
 ```
 
-## Nomenklatura
+## Nomenclatura
 
 Reform comes with two base classes.
 
@@ -193,7 +193,7 @@ class AlbumContract < Reform::Contract
 
 It defines the validations and the object graph to be inspected.
 
-In future versions and with the upcoming [Trailblazer framework](https://github.com/apotonick/trailblazer), contracts can be inherited from forms, representers, and cells, and vice-versa.
+In future versions and with the upcoming [Trailblazer framework](https://github.com/apotonick/trailblazer), contracts can be inherited from forms, representers, and cells, and vice-versa. Actually this already works with representer inheritance - let me know if you need help.
 
 ### Using Contracts
 

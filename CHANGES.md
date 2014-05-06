@@ -8,9 +8,13 @@
     ```
 * Allow passing symbol hash keys into `#validate`.
 * Unlimited nesting of forms, if you really want that.
-save on all nested, disable with save: false
-composition simplified, empty fields, save ("everything works with everything")
-* as: now works
+* `save` gets called on all nested forms automatically, disable with `save: false`.
+* Renaming with `as:` now works everywhere.
+* Fixes to make `Composition` work everywhere.
+* Extract setup and validate into `Contract`.
+* Automatic population with `:populate_if_empty` in `#validate`.
+* Remove `#from_hash` and `#to_hash`.
+* Introduce `#sync` and make `#save` less smart.
 
 ## 0.2.7
 
