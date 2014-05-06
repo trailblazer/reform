@@ -1,8 +1,37 @@
 require 'test_helper'
 
 class SetupTest < BaseTest
+  class AlbumForm < Reform::Form
+    property :title
+
+    property :hit do
+      property :title
+      validates :title, :presence => true
+    end
+
+    collection :songs do
+      property :title
+      validates :title, :presence => true
+
+      property :length do
+        property :minutes
+      end
+    end
+
+    property :band do # yepp, people do crazy stuff like that.
+      property :label do
+        property :name
+        validates :name, :presence => true
+      end
+      # TODO: make band a required object.
+    end
+
+    validates :title, :presence => true
+  end
+
+
   describe "populated" do
-    subject { AlbumForm.new(Album.new("Best Of", hit, [Song.new("Fallout"), Song.new("Roxanne")])) }
+    subject { AlbumForm.new(Album.new("Best Of", hit, [Song.new("Fallout", Length.new(2,3)), Song.new("Roxanne")])) }
 
     it { subject.title.must_equal "Best Of" }
 
@@ -15,6 +44,7 @@ class SetupTest < BaseTest
 
     it { subject.songs[0].must_be_kind_of Reform::Form }
     it { subject.songs[0].title.must_equal "Fallout" }
+    it { subject.songs[0].length.minutes.must_equal 2 }
 
     it { subject.songs[1].must_be_kind_of Reform::Form }
     it { subject.songs[1].title.must_equal "Roxanne" }
