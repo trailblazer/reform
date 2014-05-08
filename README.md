@@ -100,7 +100,7 @@ Your `@form` is now ready to be rendered, either do it yourself or use something
   = f.input :title
 ```
 
-Nested forms and collections can easily rendered with `fields_for`, etc. Just use Reform as if it would be an ActiveModel instance in the view layer.
+Nested forms and collections can be easily rendered with `fields_for`, etc. Just use Reform as if it would be an ActiveModel instance in the view layer.
 
 
 ## Validation
