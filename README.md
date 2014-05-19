@@ -42,7 +42,7 @@ To add fields to the form use the `::property` method. Also, validations no long
 Forms have a ridiculously simple API with only a handful of public methods.
 
 1. `#initialize` always requires a model that the form represents.
-2. `#validate(params)` will run all validations for the form with the input data. Its return value is the boolean result of the validations.
+2. `#validate(params)` updates the form's fields with the input data (only the form, _not_ the model) and then runs all validations. The return value is the boolean result of the validations.
 3. `#errors` returns validation messages in a classy ActiveModel style.
 4. `#sync` writes form data back to the model. This will only use setter methods on the model(s).
 5. `#save` (optional) will call `#save` on the model and nested models. Note that this implies a `#sync` call.
