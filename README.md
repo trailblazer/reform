@@ -656,7 +656,7 @@ When nesting form, you usually use a so-called inline form doing `property :song
 Sometimes you wanna specify an explicit form rather than using an inline form. Use the `form:` option here.
 
 ```ruby
-property :song, form: SongForm`
+property :song, form: SongForm
 ```
 
 The nested `SongForm` is a stand-alone form class you have to provide.
