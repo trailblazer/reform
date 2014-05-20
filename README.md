@@ -52,7 +52,7 @@ In addition to the main API, forms expose accessors to the defined properties. T
 
 ## Setup
 
-In your controller you'd create a form instance and pass in the models you wanna work on.
+In your controller you'd create a form instance and pass in the models you want to work on.
 
 ```ruby
 class SongsController
@@ -105,7 +105,7 @@ Nested forms and collections can be easily rendered with `fields_for`, etc. Just
 
 ## Validation
 
-After a form submission, you wanna validate the input.
+After a form submission, you want to validate the input.
 
 ```ruby
 class SongsController
@@ -412,7 +412,7 @@ class AlbumForm < Reform::Form
 
 This works for both `property` and `collection` and instantiates `Song` objects where they're missing when calling `#validate`.
 
-If you wanna create the objects yourself, because you're smarter than Reform, do it with a lambda.
+If you want to create the objects yourself, because you're smarter than Reform, do it with a lambda.
 
 ```ruby
 class AlbumForm < Reform::Form
@@ -537,7 +537,7 @@ form.save do |f, nested|
 
 ### Read-Only Fields
 
-Almost identical, the `:virtual` option makes fields read-only. Say you wanna show a value, but not process it after submission, this option is your friend.
+Almost identical, the `:virtual` option makes fields read-only. Say you want to show a value, but not process it after submission, this option is your friend.
 
 ```ruby
 class ProfileForm < Reform::Form
@@ -619,7 +619,7 @@ class CoverSongForm < Reform::Form
 end
 ```
 
-This is especially helpful when your framework tries to render `cover_song_path` although you wanna go with `song_path`.
+This is especially helpful when your framework tries to render `cover_song_path` although you want to go with `song_path`.
 
 
 ## FormBuilder Support
@@ -653,7 +653,7 @@ By explicitely defining the form layout using `::property` there is no more need
 
 When nesting form, you usually use a so-called inline form doing `property :song do .. end`.
 
-Sometimes you wanna specify an explicit form rather than using an inline form. Use the `form:` option here.
+Sometimes you want to specify an explicit form rather than using an inline form. Use the `form:` option here.
 
 ```ruby
 property :song, form: SongForm`
