@@ -59,15 +59,16 @@ module Reform::Form::Composition
     super(composition)
   end
 
-  def aliased_model # we don't need an Expose as we save the Composition instance in the constructor.
-    model
-  end
-
   def to_nested_hash
     model.nested_hash_for(to_hash)  # use composition to compute nested hash.
   end
 
   def to_hash(*args)
     mapper.new(self).to_hash(*args)
+  end
+
+private
+  def aliased_model # we don't need an Expose as we save the Composition instance in the constructor.
+    model
   end
 end

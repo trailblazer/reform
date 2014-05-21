@@ -7,11 +7,6 @@ module Reform
   class Form < Contract
     self.representer_class = Reform::Representer.for(:form_class => self)
 
-    def aliased_model
-      # TODO: cache the Expose.from class!
-      Reform::Expose.from(mapper).new(:model => model)
-    end
-
     require "reform/form/virtual_attributes"
 
     require 'reform/form/validate'
@@ -23,5 +18,11 @@ module Reform
 
     require 'reform/form/multi_parameter_attributes'
     include MultiParameterAttributes # TODO: make features dynamic.
+
+  private
+    def aliased_model
+      # TODO: cache the Expose.from class!
+      Reform::Expose.from(mapper).new(:model => model)
+    end
   end
 end

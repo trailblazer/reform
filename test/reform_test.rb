@@ -57,6 +57,17 @@ class ReformTest < ReformSpec
   let (:form) { SongForm.new(comp) }
 
 
+  describe "::property" do
+    subject do
+      Class.new(Reform::Form) do
+        property :model
+      end.new(OpenStruct.new)
+    end
+
+    it { subject.name.must_equal "Duran Duran" }
+  end
+
+
   describe "::properties" do
     subject do
       Class.new(Reform::Form) do
