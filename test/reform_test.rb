@@ -249,11 +249,9 @@ class EmptyAttributesTest < MiniTest::Spec
   let (:cred) { Credentials.new }
   let (:form) { PasswordForm.new(cred) }
 
-  it { form }
+  before { form.validate("password" => "123", "password_confirmation" => "321") }
 
   it {
-
-    form.validate("password" => "123", "password_confirmation" => "321")
     form.password.must_equal "123"
     form.password_confirmation.must_equal "321"
 

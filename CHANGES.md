@@ -1,3 +1,31 @@
+## 1.0.1
+
+* Deprecated model readers for `Composition` and `ActiveModel`. Consider the following setup.
+    ```ruby
+      class RecordingForm < Reform::Form
+        include Composition
+
+        property :title, on: :song
+      end
+    ```
+
+  Before, Reform would allow you to do `form.song` which returned the song model. You can still do this (but you shouldn't) with `form.model[:song]`.
+
+  This allows having composed models and properties with the same name. Until 1.1, you have to use `skip_accessors: true` to advise Reform _not_ to create the deprecated accessor.
+
+  Also deprecated is the alias accessor as found with `ActiveModel`.
+    ```ruby
+      class RecordingForm < Reform::Form
+        include Composition
+        include ActiveModel
+
+        model :hit, on: :song
+      end
+    ```
+  Here, an automatic reader `Form#hit` was created. This is deprecated as
+
+  This is gonna be **removed in 1.1**.
+
 ## 1.0.0
 
 * Removed `Form::DSL` in favour of `Form::Composition`.

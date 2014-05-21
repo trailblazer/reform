@@ -18,7 +18,7 @@ module Reform::Form::Composition
 
     def property(name, options={})
       super.tap do |definition|
-        delegate options[:on] => :@model # form.band -> composition.band
+        handle_deprecated_model_accessor(options[:on]) unless options[:skip_accessors] # TODO: remove in 1.2.
       end
     end
 
@@ -32,12 +32,25 @@ module Reform::Form::Composition
 
       composition_model = options[:on] || main_model
 
-      delegate composition_model => :model # #song => model.song
+      handle_deprecated_model_accessor(composition_model) # TODO: remove in 1.2.
 
       # FIXME: this should just delegate to :model as in FB, and the comp would take care of it internally.
-      delegate [:persisted?, :to_key, :to_param] => composition_model  # #to_key => song.to_key
+      [:persisted?, :to_key, :to_param].each do |method|
+        define_method method do
+          model[composition_model].send(method)
+        end
+      end
 
-      alias_method main_model, composition_model # #hit => model.song.
+      alias_method main_model, composition_model # #hit => model.song. # TODO: remove in 1.2.
+    end
+
+  private
+    def handle_deprecated_model_accessor(name, aliased=name)
+      define_method name do # form.band -> composition.band
+        warn %{[Reform] Deprecation WARNING: When using Composition, you may not call Form##{name} anymore to access the contained model. Please use Form#model[:#{name}] and have a lovely day!}
+
+        @model[name]
+      end
     end
   end
 
