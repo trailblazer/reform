@@ -1,3 +1,8 @@
+## 1.0.2
+
+* The following property names are reserved and will raise an exception: `[:model, :aliased_model, :fields, :mapper]`
+
+
 ## 1.0.1
 
 * Deprecated model readers for `Composition` and `ActiveModel`. Consider the following setup.
@@ -25,6 +30,7 @@
   Here, an automatic reader `Form#hit` was created. This is deprecated as
 
   This is gonna be **removed in 1.1**.
+
 
 ## 1.0.0
 
