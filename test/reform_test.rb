@@ -58,13 +58,13 @@ class ReformTest < ReformSpec
 
 
   describe "::property" do
-    subject do
-      Class.new(Reform::Form) do
-        property :model
-      end.new(OpenStruct.new)
+    it "doesn't allow reserved names" do
+      assert_raises RuntimeError do
+        Class.new(Reform::Form) do
+          property :model
+        end
+      end
     end
-
-    it { subject.name.must_equal "Duran Duran" }
   end
 
 

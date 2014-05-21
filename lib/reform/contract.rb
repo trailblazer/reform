@@ -56,7 +56,7 @@ module Reform
 
     private
       def create_accessor(name)
-        raise "[Reform] the property name '#{name}' is reserved, please use something else using :as." if RESERVED_METHODS.include?(name)
+        handle_reserved_names(name)
 
         # Make a module that contains these very accessors, then include it
         # so they can be overridden but still are callable with super.
@@ -65,6 +65,10 @@ module Reform
           delegate [name, "#{name}="] => :fields
         end
         include accessors
+      end
+
+      def handle_reserved_names(name)
+        raise "[Reform] the property name '#{name}' is reserved, please consider something else using :as." if RESERVED_METHODS.include?(name)
       end
     end
     extend PropertyMethods
