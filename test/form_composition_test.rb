@@ -33,7 +33,7 @@ class FormCompositionTest < MiniTest::Spec
 
   # [DEPRECATED] # TODO: remove in 1.2.
   # delegation form -> composed models (e.g. when saving this can be handy)
-  it { form.song.must_equal      song }
+  it { form.song.must_equal song }
 
 
   # #model just returns <Composition>.

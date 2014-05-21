@@ -32,7 +32,7 @@ module Reform::Form::Composition
 
       composition_model = options[:on] || main_model
 
-      handle_deprecated_model_accessor(composition_model) # TODO: remove in 1.2.
+      handle_deprecated_model_accessor(composition_model)  unless options[:skip_accessors] # TODO: remove in 1.2.
 
       # FIXME: this should just delegate to :model as in FB, and the comp would take care of it internally.
       [:persisted?, :to_key, :to_param].each do |method|
