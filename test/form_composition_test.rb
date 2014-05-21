@@ -14,6 +14,7 @@ class FormCompositionTest < MiniTest::Spec
     # property  :channel # FIXME: what about the "main model"?
     property :channel, :empty => true, :on => :song
     property :requester,      :on => :requester, :skip_accessors => true
+    property :captcha,        :on => :song, :empty => true
 
     validates :name, :title, :channel, :presence => true
   end
@@ -30,6 +31,7 @@ class FormCompositionTest < MiniTest::Spec
   it { form.requester_id.must_equal 2 }
   it { form.channel.must_equal nil }
   it { form.requester.must_equal "MCP" } # same name as composed model.
+  it { form.captcha.must_equal nil }
 
   # [DEPRECATED] # TODO: remove in 1.2.
   # delegation form -> composed models (e.g. when saving this can be handy)
@@ -61,7 +63,7 @@ class FormCompositionTest < MiniTest::Spec
     end
 
     it "provides nested symbolized hash as second block argument" do
-      form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb", "channel" => "JJJ")
+      form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb", "channel" => "JJJ", "captcha" => "wonderful")
 
       hash = {}
 
@@ -69,14 +71,19 @@ class FormCompositionTest < MiniTest::Spec
         hash = map
       end
 
-      hash.must_equal({:song=>{:title=>"Greyhound", :id=>1, :channel => "JJJ"}, :requester=>{:name=>"Frenzal Rhomb", :id=>2, :requester => "MCP"}})
+      hash.must_equal({
+        :song=>{:title=>"Greyhound", :id=>1, :channel => "JJJ", :captcha=>"wonderful"},
+        :requester=>{:name=>"Frenzal Rhomb", :id=>2, :requester => "MCP"}}
+      )
     end
 
     it "pushes data to models and calls #save when no block passed" do
       song.extend(Saveable)
       requester.extend(Saveable)
 
-      form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb")
+      form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb", "captcha" => "1337")
+      form.captcha.must_equal "1337" # TODO: move to separate test.
+
       form.save
 
       requester.name.must_equal "Frenzal Rhomb"
