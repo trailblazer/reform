@@ -90,10 +90,8 @@ module Reform::Form::Validate
   end
 
   def update!(params)
-    # puts "updating in #{self.class.name}"
     populate!(params)
-
-    mapper.new(self).extend(Update).from_hash(params)
+    deserialize!(params)
   end
 
 private
@@ -101,4 +99,7 @@ private
     mapper.new(self).extend(Populator).from_hash(params)
   end
 
+  def deserialize!(params)
+    mapper.new(self).extend(Update).from_hash(params)
+  end
 end
