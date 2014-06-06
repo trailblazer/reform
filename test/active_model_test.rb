@@ -110,9 +110,9 @@ class ActiveModelWithCompositionTest < MiniTest::Spec
   let (:duran) { OpenStruct.new }
   let (:form) { HitForm.new(:song => rio, :artist => duran) }
 
-  describe "main form reader #hit" do
+  describe "main form reader #hit" do# TODO: remove in 1.2. we don't support this reader #hit anymore.
     it "delegates to :on model" do
-      form.hit.must_equal rio
+      form.hit.must_equal rio # TODO: remove in 1.2.
     end
 
     it "doesn't delegate when :on missing" do
@@ -177,6 +177,6 @@ class ActiveModelWithCompositionTest < MiniTest::Spec
     end
 
 
-    AnotherForm.new(:song => rio).song.must_equal rio
+    AnotherForm.new(:song => rio).model[:song].must_equal rio
   end
 end

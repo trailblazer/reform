@@ -38,6 +38,6 @@ module Reform::Form::ActiveRecord
     return model unless is_a?(Reform::Form::Composition) # i am too lazy for proper inheritance. there should be a ActiveRecord::Composition that handles this.
 
     model_name = mapper.representable_attrs[name][:on]
-    send(model_name)
+    model[model_name]
   end
 end

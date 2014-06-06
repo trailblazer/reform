@@ -16,12 +16,6 @@ class CompositionTest < ReformSpec
     end
   end
 
-  it "creates readers to models" do
-    comp.song.object_id.must_equal rio.object_id
-    comp.artist.object_id.must_equal @artist.object_id
-  end
-
-
   describe "::from" do
     it "creates the same mapping" do
       comp =

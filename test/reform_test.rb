@@ -57,6 +57,17 @@ class ReformTest < ReformSpec
   let (:form) { SongForm.new(comp) }
 
 
+  describe "::property" do
+    it "doesn't allow reserved names" do
+      assert_raises RuntimeError do
+        Class.new(Reform::Form) do
+          property :model
+        end
+      end
+    end
+  end
+
+
   describe "::properties" do
     subject do
       Class.new(Reform::Form) do
@@ -249,11 +260,9 @@ class EmptyAttributesTest < MiniTest::Spec
   let (:cred) { Credentials.new }
   let (:form) { PasswordForm.new(cred) }
 
-  it { form }
+  before { form.validate("password" => "123", "password_confirmation" => "321") }
 
   it {
-
-    form.validate("password" => "123", "password_confirmation" => "321")
     form.password.must_equal "123"
     form.password_confirmation.must_equal "321"
 
@@ -297,19 +306,35 @@ class ReadonlyAttributesTest < MiniTest::Spec
   end
 end
 
-class OverridingAccessorsTest < MiniTest::Spec
+
+# TODO: formatter: lambda { |args| 1 }
+# to define reader for presentation layer (e.g. default value for #weight).
+class OverridingAccessorsTest < BaseTest
   class SongForm < Reform::Form
     property :title
 
     def title=(v)
       super v.upcase
     end
+
+    def title
+      super.downcase
+    end
   end
+
+  # override reader for presentation.
+  it { SongForm.new(Song.new("Pray")).title.must_equal "pray" }
 
 
   it "allows overriding accessors while keeping super" do
     form = SongForm.new(OpenStruct.new)
     form.validate("title" => "Hey Little World")
-    form.title.must_equal "HEY LITTLE WORLD"
+    form.title.must_equal "hey little world"
+
+    processed_title = nil
+    form.save do |f, hash|
+      processed_title = hash["title"]
+    end
+    processed_title.must_equal "hey little world"
   end
 end

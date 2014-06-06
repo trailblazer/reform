@@ -42,7 +42,7 @@ To add fields to the form use the `::property` method. Also, validations no long
 Forms have a ridiculously simple API with only a handful of public methods.
 
 1. `#initialize` always requires a model that the form represents.
-2. `#validate(params)` will run all validations for the form with the input data. Its return value is the boolean result of the validations.
+2. `#validate(params)` updates the form's fields with the input data (only the form, _not_ the model) and then runs all validations. The return value is the boolean result of the validations.
 3. `#errors` returns validation messages in a classy ActiveModel style.
 4. `#sync` writes form data back to the model. This will only use setter methods on the model(s).
 5. `#save` (optional) will call `#save` on the model and nested models. Note that this implies a `#sync` call.
@@ -52,7 +52,7 @@ In addition to the main API, forms expose accessors to the defined properties. T
 
 ## Setup
 
-In your controller you'd create a form instance and pass in the models you wanna work on.
+In your controller you'd create a form instance and pass in the models you want to work on.
 
 ```ruby
 class SongsController
@@ -100,12 +100,12 @@ Your `@form` is now ready to be rendered, either do it yourself or use something
   = f.input :title
 ```
 
-Nested forms and collections can easily rendered with `fields_for`, etc. Just use Reform as if it would be an ActiveModel instance in the view layer.
+Nested forms and collections can be easily rendered with `fields_for`, etc. Just use Reform as if it would be an ActiveModel instance in the view layer.
 
 
 ## Validation
 
-After a form submission, you wanna validate the input.
+After a form submission, you want to validate the input.
 
 ```ruby
 class SongsController
@@ -117,9 +117,9 @@ class SongsController
     if @form.validate(params[:song])
 ```
 
-Reform uses the validations you provided in the form - and nothing else.
+The `#validate` method first updates the values of the form - the underlying model is still treated as immutuable and *remains unchanged*. It then runs all validations you provided in the form.
 
-Note that Reform only updates values of the internal form attributes - the underlying model is still treated as immutuable and *remains unchanged*.
+It's the only entry point for updating the form. This is per design, as separating writing and validation doesn't make sense for a form.
 
 This allows rendering the form after `validate` with the data that has been submitted. However, don't get confused, the model's values are still the old, original values and are only changed after a `#save` or `#sync` operation.
 
@@ -412,7 +412,7 @@ class AlbumForm < Reform::Form
 
 This works for both `property` and `collection` and instantiates `Song` objects where they're missing when calling `#validate`.
 
-If you wanna create the objects yourself, because you're smarter than Reform, do it with a lambda.
+If you want to create the objects yourself, because you're smarter than Reform, do it with a lambda.
 
 ```ruby
 class AlbumForm < Reform::Form
@@ -537,7 +537,7 @@ form.save do |f, nested|
 
 ### Read-Only Fields
 
-Almost identical, the `:virtual` option makes fields read-only. Say you wanna show a value, but not process it after submission, this option is your friend.
+Almost identical, the `:virtual` option makes fields read-only. Say you want to show a value, but not process it after submission, this option is your friend.
 
 ```ruby
 class ProfileForm < Reform::Form
@@ -619,7 +619,7 @@ class CoverSongForm < Reform::Form
 end
 ```
 
-This is especially helpful when your framework tries to render `cover_song_path` although you wanna go with `song_path`.
+This is especially helpful when your framework tries to render `cover_song_path` although you want to go with `song_path`.
 
 
 ## FormBuilder Support
@@ -653,10 +653,10 @@ By explicitely defining the form layout using `::property` there is no more need
 
 When nesting form, you usually use a so-called inline form doing `property :song do .. end`.
 
-Sometimes you wanna specify an explicit form rather than using an inline form. Use the `form:` option here.
+Sometimes you want to specify an explicit form rather than using an inline form. Use the `form:` option here.
 
 ```ruby
-property :song, form: SongForm`
+property :song, form: SongForm
 ```
 
 The nested `SongForm` is a stand-alone form class you have to provide.

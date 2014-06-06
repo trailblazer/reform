@@ -15,6 +15,8 @@ module Reform
     inheritable_attr :features
     self.features = []
 
+    RESERVED_METHODS = [:model, :aliased_model, :fields, :mapper] # TODO: refactor that so we don't need that.
+
 
     module PropertyMethods
       extend Forwardable
@@ -54,6 +56,8 @@ module Reform
 
     private
       def create_accessor(name)
+        handle_reserved_names(name)
+
         # Make a module that contains these very accessors, then include it
         # so they can be overridden but still are callable with super.
         accessors = Module.new do
@@ -61,6 +65,10 @@ module Reform
           delegate [name, "#{name}="] => :fields
         end
         include accessors
+      end
+
+      def handle_reserved_names(name)
+        raise "[Reform] the property name '#{name}' is reserved, please consider something else using :as." if RESERVED_METHODS.include?(name)
       end
     end
     extend PropertyMethods

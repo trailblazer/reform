@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["apotonick@gmail.com", "heinleng@gmail.com"]
   spec.description   = %q{Freeing your AR models from form logic.}
   spec.summary       = %q{Decouples your models from form by giving you form objects with validation, presentation, workflows and security.}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/apotonick/reform"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency             "representable",  "~> 1.8.1"
-  spec.add_dependency             "disposable",     "~> 0.0.3"
+  spec.add_dependency             "disposable",     "~> 0.0.4"
   spec.add_dependency             "uber",           "~> 0.0.4"
   spec.add_dependency             "activemodel"
   spec.add_development_dependency "bundler",        "~> 1.3"
