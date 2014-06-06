@@ -49,8 +49,10 @@ module Reform::Form::Sync
   end
   alias_method :sync, :sync_models
 
+  # reading from fields allows using readers in form for presentation
+  # and writers still pass to fields in #validate???? TODO: also, test with and without #save block.
   def sync! # semi-public.
-    input_representer = mapper.new(self).extend(InputRepresenter)
+    input_representer = mapper.new(self).extend(InputRepresenter) # FIXME: take values from self.fields!
 
     input = input_representer.to_hash
 

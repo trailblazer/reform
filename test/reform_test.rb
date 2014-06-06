@@ -306,19 +306,35 @@ class ReadonlyAttributesTest < MiniTest::Spec
   end
 end
 
-class OverridingAccessorsTest < MiniTest::Spec
+
+# TODO: formatter: lambda { |args| 1 }
+# to define reader for presentation layer (e.g. default value for #weight).
+class OverridingAccessorsTest < BaseTest
   class SongForm < Reform::Form
     property :title
 
     def title=(v)
       super v.upcase
     end
+
+    def title
+      super.downcase
+    end
   end
+
+  # override reader for presentation.
+  it { SongForm.new(Song.new("Pray")).title.must_equal "pray" }
 
 
   it "allows overriding accessors while keeping super" do
     form = SongForm.new(OpenStruct.new)
     form.validate("title" => "Hey Little World")
-    form.title.must_equal "HEY LITTLE WORLD"
+    form.title.must_equal "hey little world"
+
+    processed_title = nil
+    form.save do |f, hash|
+      processed_title = hash["title"]
+    end
+    processed_title.must_equal "hey little world"
   end
 end
