@@ -311,7 +311,7 @@ end
 # to define reader for presentation layer (e.g. default value for #weight).
 class OverridingAccessorsTest < BaseTest
   class SongForm < Reform::Form
-    property :title, :custom_accessors => true
+    property :title, :presentation_accessors => true
 
     def title=(v)
       super v*2
