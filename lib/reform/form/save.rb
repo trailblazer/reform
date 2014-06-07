@@ -52,7 +52,9 @@ module Reform::Form::Save
 
   require "active_support/hash_with_indifferent_access" # DISCUSS: replace?
   def to_nested_hash
-    map = mapper.new(self).extend(NestedHash)
+    source = deprecate_potential_readers_used_in_sync_or_save(fields) # TODO: remove in 1.1.
+
+    map = mapper.new(source).extend(NestedHash)
 
     ActiveSupport::HashWithIndifferentAccess.new(map.to_hash)
   end

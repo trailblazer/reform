@@ -21,7 +21,7 @@ module Reform::Form::Validate
   module Populator
     class PopulateIfEmpty
       def initialize(*args)
-        @form, @fragment, args = args
+        @fields, @fragment, args = args
         @index = args.first
         @args  = args.last
       end
@@ -30,12 +30,15 @@ module Reform::Form::Validate
         binding = @args.binding
         form    = binding.get
 
+        form_instance =  @args.user_options[:form]
+        form_model    = form_instance.model # FIXME: sort out who's responsible for sync.
+
         return if binding.array? and form and form[@index] # TODO: this should be handled by the Binding.
         return if !binding.array? and form
         # only get here when above form is nil.
 
         if binding[:populate_if_empty].is_a?(Proc)
-          model = @form.instance_exec(@fragment, @args, &binding[:populate_if_empty]) # call user block.
+          model = @args.user_options[:form].instance_exec(@fragment, @args, &binding[:populate_if_empty]) # call user block.
         else
           model = binding[:populate_if_empty].new
         end
@@ -43,17 +46,17 @@ module Reform::Form::Validate
         form  = binding[:form].new(model) # free service: wrap model with Form. this usually happens in #setup.
 
         if binding.array?
-          @form.model.send("#{binding.getter}") << model # FIXME: i don't like this, but we have to add the model to the parent object to make associating work. i have to use #<< to stay compatible with AR's has_many API. DISCUSS: what happens when we get out-of-sync here?
-          @form.send("#{binding.getter}")[@index] = form
+          form_model.send("#{binding.getter}") << model # FIXME: i don't like this, but we have to add the model to the parent object to make associating work. i have to use #<< to stay compatible with AR's has_many API. DISCUSS: what happens when we get out-of-sync here?
+          @fields.send("#{binding.getter}")[@index] = form
         else
-          @form.model.send("#{binding.setter}", model) # FIXME: i don't like this, but we have to add the model to the parent object to make associating work.
-          @form.send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
+          form_model.send("#{binding.setter}", model) # FIXME: i don't like this, but we have to add the model to the parent object to make associating work.
+          @fields.send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
         end
       end
     end # PopulateIfEmpty
 
 
-    def from_hash(params, *args)
+    def from_hash(params, args)
       populated_attrs = []
 
       nested_forms do |attr|
@@ -78,7 +81,7 @@ module Reform::Form::Validate
         populated_attrs << attr.name.to_sym
       end
 
-      super(params, {:include => populated_attrs})
+      super(params, {:include => populated_attrs}.merge(args))
     end
   end
 
@@ -96,10 +99,14 @@ module Reform::Form::Validate
 
 private
   def populate!(params)
-    mapper.new(self).extend(Populator).from_hash(params)
+    target = deprecate_potential_writers_used_in_validate(fields) # TODO: remove in 1.1.
+
+    mapper.new(target).extend(Populator).from_hash(params, :form => self) # TODO: remove model(form) once we found out how to synchronize the model correctly. see https://github.com/apotonick/reform/issues/86#issuecomment-43402047
   end
 
   def deserialize!(params)
-    mapper.new(self).extend(Update).from_hash(params)
+    target = deprecate_potential_writers_used_in_validate(fields) # TODO: remove in 1.1.
+
+    mapper.new(target).extend(Update).from_hash(params)
   end
 end

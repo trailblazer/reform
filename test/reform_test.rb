@@ -311,10 +311,10 @@ end
 # to define reader for presentation layer (e.g. default value for #weight).
 class OverridingAccessorsTest < BaseTest
   class SongForm < Reform::Form
-    property :title
+    property :title, :custom_accessors => true
 
     def title=(v)
-      super v.upcase
+      super v*2
     end
 
     def title
@@ -322,19 +322,80 @@ class OverridingAccessorsTest < BaseTest
     end
   end
 
+  let (:song) { Song.new("Pray") }
+  subject { SongForm.new(song) }
+
   # override reader for presentation.
-  it { SongForm.new(Song.new("Pray")).title.must_equal "pray" }
+  it { subject.title.must_equal "pray" }
+
+  # overridden writer only works when called explicitely.
+  it do
+    subject.title = "Swing Life Away"
+    subject.title.must_equal "swing life awayswing life away"
+  end
 
 
-  it "allows overriding accessors while keeping super" do
-    form = SongForm.new(OpenStruct.new)
-    form.validate("title" => "Hey Little World")
-    form.title.must_equal "hey little world"
+  describe "#save" do
+    before { subject.validate("title" => "Hey Little World") }
 
-    processed_title = nil
-    form.save do |f, hash|
-      processed_title = hash["title"]
+    # for presentation, always use overridden accessor
+    it { subject.title.must_equal "hey little world" }
+
+    # the reader is not used when saving/syncing.
+    it do
+      subject.save do |f, hash|
+        hash["title"].must_equal "Hey Little World"
+      end
     end
-    processed_title.must_equal "hey little world"
+
+    # the reader is not used when saving/syncing.
+    it do
+      song.extend(Saveable)
+      subject.save
+      song.title.must_equal "Hey Little World"
+    end
+  end
+end
+
+
+class OLDOverridingAccessorsTest < BaseTest # TODO: remove in 1.1
+  class SongForm < Reform::Form
+    property :title
+
+    def title=(v) # used in #validate.
+      super v*2
+    end
+
+    def title # used in #sync.
+      super.downcase
+    end
+  end
+
+  let (:song) { Song.new("Pray") }
+  subject { SongForm.new(song) }
+
+  # override reader for presentation.
+  it { subject.title.must_equal "pray" }
+
+
+  describe "#save" do
+    before { subject.validate("title" => "Hey Little World") }
+
+    # reader always used
+    it { subject.title.must_equal "hey little worldhey little world" }
+
+    # the reader is not used when saving/syncing.
+    it do
+      subject.save do |f, hash|
+        hash["title"].must_equal "hey little worldhey little world"
+      end
+    end
+
+    # reader and writer used when saving/syncing.
+    it do
+      song.extend(Saveable)
+      subject.save
+      song.title.must_equal "hey little worldhey little world"
+    end
   end
 end
