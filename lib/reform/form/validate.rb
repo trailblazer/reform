@@ -30,15 +30,15 @@ module Reform::Form::Validate
         binding = @args.binding
         form    = binding.get
 
-        form_instance =  @args.user_options[:form]
-        form_model    = form_instance.model # FIXME: sort out who's responsible for sync.
+        parent_form =  @args.user_options[:parent_form]
+        form_model    = parent_form.model # FIXME: sort out who's responsible for sync.
 
         return if binding.array? and form and form[@index] # TODO: this should be handled by the Binding.
         return if !binding.array? and form
         # only get here when above form is nil.
 
         if binding[:populate_if_empty].is_a?(Proc)
-          model = @args.user_options[:form].instance_exec(@fragment, @args, &binding[:populate_if_empty]) # call user block.
+          model = parent_form.instance_exec(@fragment, @args, &binding[:populate_if_empty]) # call user block.
         else
           model = binding[:populate_if_empty].new
         end
@@ -101,7 +101,7 @@ private
   def populate!(params)
     target = deprecate_potential_writers_used_in_validate(fields) # TODO: remove in 1.1.
 
-    mapper.new(target).extend(Populator).from_hash(params, :form => self) # TODO: remove model(form) once we found out how to synchronize the model correctly. see https://github.com/apotonick/reform/issues/86#issuecomment-43402047
+    mapper.new(target).extend(Populator).from_hash(params, :parent_form => self) # TODO: remove model(form) once we found out how to synchronize the model correctly. see https://github.com/apotonick/reform/issues/86#issuecomment-43402047
   end
 
   def deserialize!(params)

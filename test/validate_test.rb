@@ -83,7 +83,31 @@ class ValidateTest < BaseTest
     it { subject.songs[0].model.object_id.must_equal song.object_id } # this song was existing before.
     it { subject.songs[0].title.must_equal "Fallout" }
     it { subject.songs[1].title.must_equal "Roxanne" }
-    # it { subject.songs.title.must_equal "Roxanne" }
+  end
+
+  describe ":populate_if_empty, half-populated collection" do
+    let (:form) {
+      Class.new(Reform::Form) do
+        collection :songs, :populate_if_empty => Song do
+          property :title
+        end
+      end
+     }
+
+    let (:params) {
+      {
+        "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"}]
+      }
+    }
+    let (:song) { Song.new("Englishman") }
+
+    subject { form.new(Album.new("Hits", nil, [song])) }
+
+    before { subject.validate(params) }
+
+    it { subject.songs[0].model.object_id.must_equal song.object_id } # this song was existing before.
+    it { subject.songs[0].title.must_equal "Fallout" }
+    it { subject.songs[1].title.must_equal "Roxanne" }
   end
 
 
