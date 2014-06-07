@@ -1,7 +1,19 @@
 ## 1.0.2
 
 * The following property names are reserved and will raise an exception: `[:model, :aliased_model, :fields, :mapper]`
+* You get warned now when overriding accessors for your properties:
 
+    ```ruby
+    property :title
+
+    def title
+      super.upcase
+    end
+    ```
+
+    This is because in Reform 1.1, those accessors will only be used when rendering the form, e.g. when doing `= @form.title`. If you override the accessors for presentation, only, you're fine. Add `presentation_accessors: true` to any property, the warnings will be suppressed and everything's gonna work. You may remove `presentation_accessors: true` in 1.1, but it won't affect the form.
+
+    However, if you used to override `#title` or `#title=` to manipulate incoming data, this is no longer working in 1.1. The reason for this is to make Reform cleaner. You will get two options `:validate_processor` and `:sync_processor` in order to filter data when calling `#validate` and when syncing data back to the model with `#sync` or `#save`.
 
 ## 1.0.1
 
