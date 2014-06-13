@@ -64,7 +64,7 @@ module Reform::Form::Composition
   end
 
   def to_hash(*args)
-    mapper.new(self).to_hash(*args)
+    mapper.new(fields).to_hash(*args)
   end
 
 private
