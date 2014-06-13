@@ -24,7 +24,7 @@ module Reform::Form::Save
 
   def save!
     save_model
-    mapper.new(self).extend(RecursiveSave).to_hash # save! on all nested forms.
+    mapper.new(fields).extend(RecursiveSave).to_hash # save! on all nested forms.  # TODO: only include nested forms here.
   end
 
   def save_model
