@@ -38,7 +38,7 @@ module Reform::Contract::Validate
     prefix = options[:prefix]
 
     # call valid? recursively and collect nested errors.
-    mapper.new(self).extend(NestedValid).to_hash(options)
+    mapper.new(fields).extend(NestedValid).to_hash(options) # TODO: only include nested forms here.
 
     valid?  # this validates on <Fields> using AM::Validations, currently.
 
