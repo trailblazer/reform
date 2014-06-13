@@ -1,3 +1,7 @@
+## 1.0.3
+
+* Systematically use `fields` when saving the form. This avoids calling presentational readers that might have been defined by the user.
+
 ## 1.0.2
 
 * The following property names are reserved and will raise an exception: `[:model, :aliased_model, :fields, :mapper]`
