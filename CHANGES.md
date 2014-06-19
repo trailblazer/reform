@@ -1,3 +1,27 @@
+## 1.0.4
+
+Reverting what I did in 1.0.3. Leave your code as it is. You may override a writers like `#title=` to sanitize or filter incoming data, as in
+
+```ruby
+def title=(v)
+  super(v.strip)
+end
+```
+
+This setter will only be called in `#validate`.
+
+Readers still work the same, meaning that
+
+```ruby
+def title
+  super.downcase
+end
+```
+
+will result in lowercased title when rendering the form (and only then).
+
+The reason for this confusion is that you don't blog enough about Reform. Only after introducing all those deprecation warnings, people started to contact me to ask what's going on. This gave me the feedback I needed to decide what's the best way for filtering incoming data.
+
 ## 1.0.3
 
 * Systematically use `fields` when saving the form. This avoids calling presentational readers that might have been defined by the user.

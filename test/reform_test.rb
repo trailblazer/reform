@@ -307,58 +307,7 @@ class ReadonlyAttributesTest < MiniTest::Spec
 end
 
 
-# TODO: formatter: lambda { |args| 1 }
-# to define reader for presentation layer (e.g. default value for #weight).
 class OverridingAccessorsTest < BaseTest
-  class SongForm < Reform::Form
-    property :title, :presentation_accessors => true
-
-    def title=(v)
-      super v*2
-    end
-
-    def title
-      super.downcase
-    end
-  end
-
-  let (:song) { Song.new("Pray") }
-  subject { SongForm.new(song) }
-
-  # override reader for presentation.
-  it { subject.title.must_equal "pray" }
-
-  # overridden writer only works when called explicitely.
-  it do
-    subject.title = "Swing Life Away"
-    subject.title.must_equal "swing life awayswing life away"
-  end
-
-
-  describe "#save" do
-    before { subject.validate("title" => "Hey Little World") }
-
-    # for presentation, always use overridden accessor
-    it { subject.title.must_equal "hey little world" }
-
-    # the reader is not used when saving/syncing.
-    it do
-      subject.save do |f, hash|
-        hash["title"].must_equal "Hey Little World"
-      end
-    end
-
-    # the reader is not used when saving/syncing.
-    it do
-      song.extend(Saveable)
-      subject.save
-      song.title.must_equal "Hey Little World"
-    end
-  end
-end
-
-
-class OLDOverridingAccessorsTest < BaseTest # TODO: remove in 1.1
   class SongForm < Reform::Form
     property :title
 
@@ -387,15 +336,15 @@ class OLDOverridingAccessorsTest < BaseTest # TODO: remove in 1.1
     # the reader is not used when saving/syncing.
     it do
       subject.save do |f, hash|
-        hash["title"].must_equal "hey little worldhey little world"
+        hash["title"].must_equal "Hey Little WorldHey Little World"
       end
     end
 
-    # reader and writer used when saving/syncing.
+    # no reader or writer used when saving/syncing.
     it do
       song.extend(Saveable)
       subject.save
-      song.title.must_equal "hey little worldhey little world"
+      song.title.must_equal "Hey Little WorldHey Little World"
     end
   end
 end

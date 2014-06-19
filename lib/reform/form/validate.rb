@@ -99,14 +99,12 @@ module Reform::Form::Validate
 
 private
   def populate!(params)
-    target = deprecate_potential_writers_used_in_validate(fields) # TODO: remove in 1.1.
-
-    mapper.new(target).extend(Populator).from_hash(params, :parent_form => self) # TODO: remove model(form) once we found out how to synchronize the model correctly. see https://github.com/apotonick/reform/issues/86#issuecomment-43402047
+    # populate only happens for nested forms, if you override that setter it's your fault.
+    mapper.new(fields).extend(Populator).from_hash(params, :parent_form => self) # TODO: remove model(form) once we found out how to synchronize the model correctly. see https://github.com/apotonick/reform/issues/86#issuecomment-43402047
   end
 
   def deserialize!(params)
-    target = deprecate_potential_writers_used_in_validate(fields) # TODO: remove in 1.1.
-
-    mapper.new(target).extend(Update).from_hash(params)
+    # using self here will call the form's setters like title= which might be overridden.
+    mapper.new(self).extend(Update).from_hash(params)
   end
 end
