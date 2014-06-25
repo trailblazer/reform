@@ -1,3 +1,7 @@
+## 1.0.5
+
+* Deprecate first block argument in save. It's new signature is `save { |hash| }`. You already got the form instance when calling `form.save` so there's no need to pass it into the block.
+
 ## 1.0.4
 
 Reverting what I did in 1.0.3. Leave your code as it is. You may override a writers like `#title=` to sanitize or filter incoming data, as in
