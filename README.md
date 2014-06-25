@@ -149,19 +149,6 @@ Sometimes, you need to do stuff manually.
 
 Calling `#save` with a block doesn't do anything but providing you a nested hash with all the validated input. This allows you to implement the saving yourself.
 
-You can use readers from the form instances to sync data to your model.
-
-```ruby
-  if @form.validate(params[:song])
-
-    @form.save do |nested|
-      Song.create(title: @form.title)
-
-      @form.title  #=> "Rio"
-      @form.length #=> "366"
-    end
-```
-
 The block parameter is a nested hash of the form input.
 
 ```ruby
