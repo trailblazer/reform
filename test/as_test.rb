@@ -65,7 +65,7 @@ class AsTest < BaseTest
     it do
       hash = nil
 
-      subject.save do |f, nested_hash|
+      subject.save do |nested_hash|
         hash = nested_hash
       end
 

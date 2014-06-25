@@ -103,21 +103,10 @@ class NestedFormTest < MiniTest::Spec
       data.must_equal(:title=>"Second Heat", :hit_title => "Sacrifice", :first_title => "Scarified")
     end
 
-    it "passes form instances in first argument" do
-      frm = nil
-
-      form.save { |f, hsh| frm = f }
-
-      frm.must_equal form
-      frm.title.must_be_kind_of String
-      frm.hit.must_be_kind_of Reform::Form
-      frm.songs.first.must_be_kind_of Reform::Form
-    end
-
     it "returns nested hash with indifferent access" do
       nested = nil
 
-      form.save do |hash, nested_hash|
+      form.save do |nested_hash|
         nested = nested_hash
       end
 

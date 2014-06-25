@@ -204,7 +204,7 @@ class ReformTest < ReformSpec
     end
 
     describe "#save with block" do
-      it "provides data block argument" do
+      it "Deprecated: provides data block argument" do # TODO: remove in 1.1.
         hash = {}
 
         form.save do |data, map|
@@ -215,10 +215,20 @@ class ReformTest < ReformSpec
         hash.must_equal({:name=>"Diesel Boy", :title=>nil})
       end
 
-      it "provides nested symbolized hash as second block argument" do
+      it "Deprecated: provides nested symbolized hash as second block argument" do # TODO: remove in 1.1.
         hash = {}
 
         form.save do |data, map|
+          hash = map
+        end
+
+        hash.must_equal({"name"=>"Diesel Boy"})
+      end
+
+      it do
+        hash = {}
+
+        form.save do |map|
           hash = map
         end
 
@@ -291,7 +301,7 @@ class EmptyAttributesTest < MiniTest::Spec
     cred.password.must_equal "123"
 
     hash = {}
-    form.save do |f, nested|
+    form.save do |nested|
       hash = nested
     end
 
@@ -319,7 +329,7 @@ class ReadonlyAttributesTest < MiniTest::Spec
     loc.country.must_equal "Australia" # the writer wasn't called.
 
     hash = {}
-    form.save do |f, nested|
+    form.save do |nested|
       hash = nested
     end
 
@@ -356,7 +366,7 @@ class OverridingAccessorsTest < BaseTest
 
     # the reader is not used when saving/syncing.
     it do
-      subject.save do |f, hash|
+      subject.save do |hash|
         hash["title"].must_equal "Hey Little WorldHey Little World"
       end
     end

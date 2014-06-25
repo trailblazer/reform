@@ -51,7 +51,7 @@ class FormCompositionTest < MiniTest::Spec
   end
 
   describe "#save" do
-    it "provides data block argument" do
+    it "Deprecated: provides data block argument" do # TODO: remove in 1.1.
       hash = {}
 
       form.save do |data, map|
@@ -67,7 +67,7 @@ class FormCompositionTest < MiniTest::Spec
 
       hash = {}
 
-      form.save do |data, map|
+      form.save do |map|
         hash = map
       end
 

@@ -147,24 +147,42 @@ Sometimes, you need to do stuff manually.
 
 ## Saving Forms Manually
 
-This is where you call `#save` with a block. This won't touch the models at all but give you a nice hash, so you can do it yourself.
+Calling `#save` with a block doesn't do anything but providing you a nested hash with all the validated input. This allows you to implement the saving yourself.
 
-Note that you can call `#sync` and _then_ call `#save` with the block to save models yourself.
+You can use readers from the form instances to sync data to your model.
 
 ```ruby
   if @form.validate(params[:song])
 
-    @form.save do |data, nested|
-      data.title  #=> "Rio"
-      data.length #=> "366"
+    @form.save do |nested|
+      Song.create(title: @form.title)
 
-      nested      #=> {title: "Rio", length: "366"}
-
-      Song.create(nested)
+      @form.title  #=> "Rio"
+      @form.length #=> "366"
     end
 ```
 
-While `data` gives you an object exposing the form property readers, `nested` is a hash reflecting the nesting structure of your form. Note how you can use arbitrary code to create/update models - in this example, we used `Song::create`.
+The block parameter is a nested hash of the form input.
+
+```ruby
+  @form.save do |hash|
+    hash      #=> {title: "Rio", length: "366"}
+
+    Song.create(hash)
+  end
+```
+
+You can always access the form's model. This is helpful when you were using populators to set up objects when validating.
+
+```ruby
+  @form.save do |nested|
+    album = @form.album.model
+
+    album.update_attributes(nested[:album])
+  end
+```
+
+Note that you can call `#sync` and _then_ call `#save` with the block to save models yourself.
 
 
 ## Contracts

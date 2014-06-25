@@ -14,9 +14,9 @@ module Reform::Form::Save
     end
   end
 
-  def save
+  def save(&block)
     # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
-    return yield self, to_nested_hash if block_given?
+    return deprecate_first_save_block_arg(&block) if block_given?
 
     sync_models # recursion
     save!
@@ -50,10 +50,21 @@ module Reform::Form::Save
     end
   end
 
+
   require "active_support/hash_with_indifferent_access" # DISCUSS: replace?
   def to_nested_hash
     map = mapper.new(fields).extend(NestedHash)
 
     ActiveSupport::HashWithIndifferentAccess.new(map.to_hash)
+  end
+
+private
+  def deprecate_first_save_block_arg(&block)
+    if block.arity == 2
+      warn "[Reform] Deprecation Warning: The first block argument in `save { |form, hash| .. }` is deprecated and its new signature is `save { |hash| .. }`. If you need the form instance, use it in the block. Enjoy, smile and be nice."
+      return yield(self, to_nested_hash)
+    end
+
+    yield to_nested_hash # new behaviour.
   end
 end
