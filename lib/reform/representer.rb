@@ -58,6 +58,10 @@ module Reform
       end
     end
 
+    def self.default_inline_class
+      options[:form_class]
+    end
+
     def self.clone # called in inheritable_attr :representer_class.
       Class.new(self) # By subclassing, representable_attrs.clone is called.
     end
@@ -66,16 +70,20 @@ module Reform
     def clone_config!
       # TODO: representable_attrs.clone! which does exactly what's done below.
       attrs = Representable::Config.new
-      attrs.inherit(representable_attrs) # since in every use case we modify Config we clone.
+      attrs.inherit!(representable_attrs) # since in every use case we modify Config we clone.
       @representable_attrs = attrs
     end
 
-    def self.inline_representer(base_module, name, options, &block)
+    def self.build_inline(base, features, name, options, &block)
       name = name.to_s.singularize.camelize
 
-      Class.new(self.options[:form_class]) do
+      puts "inline for #{default_inline_class}, #{name}"
+      Class.new(default_inline_class) do
         # TODO: this will soon become a generic feature in representable.
-        include *options[:features].reverse if options[:features]
+        features = representer_class.representable_attrs.features
+        features -= [Representable::Hash]
+
+        include *features
 
         instance_exec &block
 

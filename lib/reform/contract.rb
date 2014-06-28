@@ -12,9 +12,6 @@ module Reform
     inheritable_attr :representer_class
     self.representer_class = Reform::Representer.for(:form_class => self)
 
-    inheritable_attr :features
-    self.features = []
-
     RESERVED_METHODS = [:model, :aliased_model, :fields, :mapper] # TODO: refactor that so we don't need that.
 
 
@@ -25,7 +22,7 @@ module Reform
         options[:private_name] = options.delete(:as)
 
         # at this point, :extend is a Form class.
-        options[:features] = features if block_given?
+        puts "~~~~~ property: #{name}, features: #{representer_class.representable_attrs.features.inspect}"
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given? or options[:form]
 
@@ -79,6 +76,7 @@ module Reform
     include ActiveModel::Validations
 
 
+
     attr_accessor :model
 
     require 'reform/contract/setup'
@@ -98,6 +96,10 @@ module Reform
 
     def mapper
       self.class.representer_class
+    end
+
+    def self.register_feature(mod)
+      representer_class.send(:register_feature, mod)
     end
 
     alias_method :aliased_model, :model

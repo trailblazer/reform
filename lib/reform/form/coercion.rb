@@ -3,7 +3,7 @@ require 'representable/decorator/coercion'
 module Reform::Form::Coercion
   def self.included(base)
     base.extend(ClassMethods)
-    base.features << self
+    base.send(:register_feature, self)
   end
 
   module ClassMethods
