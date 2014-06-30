@@ -9,8 +9,27 @@ module Reform
     extend Forwardable
 
     extend Uber::InheritableAttr
-    inheritable_attr :representer_class
-    self.representer_class = Reform::Representer.for(:form_class => self)
+    # representer_class gets inherited (cloned) to subclasses.
+    inheritable_attr :___representer_class
+    self.___representer_class = Reform::Representer.for(:form_class => self) # only happens in Contract/Form.
+
+    def self.representer_class
+      @bla ||= begin
+        rep = ___representer_class
+        puts "merging #{features.inspect}"
+
+        rep.form_features = features.keys # configure the representer class.
+
+        rep
+      end
+    end
+
+    # each contract keeps track of its features and passes them onto its local representer_class.
+    # gets inherited, features get automatically included into inline representer.
+    # TODO: the representer class should handle that, e.g. in options (deep-clone when inheriting.)
+    inheritable_attr :features
+    self.features = {}
+
 
     RESERVED_METHODS = [:model, :aliased_model, :fields, :mapper] # TODO: refactor that so we don't need that.
 
@@ -22,7 +41,6 @@ module Reform
         options[:private_name] = options.delete(:as)
 
         # at this point, :extend is a Form class.
-        puts "~~~~~ property: #{name}, features: #{representer_class.representable_attrs.features.inspect}"
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given? or options[:form]
 
@@ -99,7 +117,7 @@ module Reform
     end
 
     def self.register_feature(mod)
-      representer_class.send(:register_feature, mod)
+      features[mod] = true
     end
 
     alias_method :aliased_model, :model

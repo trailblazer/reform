@@ -6,8 +6,14 @@ module Reform
     include Representable::Hash::AllowSymbols
 
     extend Uber::InheritableAttr
-    inheritable_attr :options
+    inheritable_attr :options # FIXME: this doesn't need to be inheritable.
     # self.options = {}
+
+
+    class << self
+      attr_accessor :form_features
+    end
+
 
     # Invokes #to_hash and/or #from_hash with #options. This provides a hook for other
     # modules to add options for the representational process.
@@ -78,11 +84,13 @@ module Reform
       name = name.to_s.singularize.camelize
 
       puts "inline for #{default_inline_class}, #{name}"
-      Class.new(default_inline_class) do
-        # TODO: this will soon become a generic feature in representable.
-        features = representer_class.representable_attrs.features
-        features -= [Representable::Hash]
 
+      # features are set in Contract::representerclass, per representer class. how to inherit properly?
+      puts "Representer: my features are #{representable_attrs.options.inspect}"
+      features = form_features
+
+
+      Class.new(default_inline_class) do
         include *features
 
         instance_exec &block
