@@ -39,7 +39,7 @@ module Reform::Form::ActiveModel
         namespaced_attributes = attributes.map do |attribute|
           [model_name, attribute].compact
         end
-        @mapping.inverse_map(namespaced_attributes)
+        @mapping.inverse_image(namespaced_attributes)
       end
 
     end
@@ -68,7 +68,7 @@ module Reform::Form::ActiveModel
         generate_indexes
       end
 
-      def forward_map(attrs)
+      def forward_image(attrs)
         attrs.map do |attr|
           forward(attr)
         end.compact
@@ -78,7 +78,7 @@ module Reform::Form::ActiveModel
         @forward_map[attr]
       end
 
-      def inverse_map(attrs)
+      def inverse_image(attrs)
         attrs.map do |attr|
           inverse(attr)
         end.compact
