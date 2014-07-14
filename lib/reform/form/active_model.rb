@@ -1,3 +1,5 @@
+require 'reform/form/active_model/model_validations'
+
 module Reform::Form::ActiveModel
   module FormBuilderMethods # TODO: rename to FormBuilderCompat.
     def self.included(base)
