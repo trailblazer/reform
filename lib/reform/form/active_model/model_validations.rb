@@ -18,8 +18,6 @@ module Reform::Form::ActiveModel
         end
       end
 
-
-
       def copy_from_model(model, model_name=nil)
         model.validators.each do |validator|
           add_validator(validator, model_name)
@@ -48,7 +46,7 @@ module Reform::Form::ActiveModel
           ((value[:private_name] || key).to_sym == attribute_from.to_sym) && (model_name.nil? || model_name == value[:on])
         end
 
-        attribute_to.nil? ? nil : attribute_to.first
+        attribute_to.nil? ? nil : attribute_to.first.to_sym
       end
 
     end
