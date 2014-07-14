@@ -3,7 +3,7 @@ require 'test_helper'
 class ModelValidationsTest < MiniTest::Spec
 
   class Album
-    include ActiveModel::Model
+    include ActiveModel::Validations
     attr_accessor :title, :artist, :other_attribute
 
     validates :title, :artist, presence: true
@@ -11,7 +11,7 @@ class ModelValidationsTest < MiniTest::Spec
   end
 
   class AlbumRating
-    include ActiveModel::Model
+    include ActiveModel::Validations
 
     attr_accessor :rating
 
