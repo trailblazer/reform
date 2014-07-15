@@ -56,22 +56,21 @@ module Reform::Form::ActiveModel
       end
 
       def initialize
-        @mapping = []
-        generate_indexes
+        @forward_map = {}
+        @inverse_map = {}
       end
 
-      # from is a symbol
+      # from is a symbol attribute
       # to is an 1 or 2 element array, depending on whether the attribute is 'namespaced', as it is with composite forms.
+      # eg, add(:phone_number, [:person, :phone])
       def add(from, to)
         raise 'Mapping is not one-to-one' if @forward_map.has_key?(from) || @inverse_map.has_key?(to)
-        @mapping << [from, to]
-        generate_indexes
+        @forward_map[from] = to
+        @inverse_map[to] = from
       end
 
       def forward_image(attrs)
-        attrs.map do |attr|
-          forward(attr)
-        end.compact
+        @forward_map.values_at(*attrs).compact
       end
 
       def forward(attr)
@@ -79,29 +78,13 @@ module Reform::Form::ActiveModel
       end
 
       def inverse_image(attrs)
-        attrs.map do |attr|
-          inverse(attr)
-        end.compact
+        @inverse_map.values_at(*attrs).compact
       end
 
       def inverse(attr)
         @inverse_map[attr]
       end
 
-    private
-
-      def generate_indexes
-        generate_forward_map
-        generate_inverse_map
-      end
-
-      def generate_forward_map
-        @forward_map = Hash[@mapping]
-      end
-
-      def generate_inverse_map
-        @inverse_map = Hash[@mapping.map { |(from, to)| [to, from] }]
-      end
     end
 
     def copy_validations_from(models)
