@@ -141,7 +141,7 @@ class SelfNestedTest < BaseTest
   # validate string only if it's in params.
   class StringForm < Reform::Form
     property :image, :features => [Reform::Form::Scalar],
-      populate_if_empty: String do
+      populate_if_empty: Object do
 
         validates :length => {:minimum => 10}
     end
@@ -149,14 +149,14 @@ class SelfNestedTest < BaseTest
 
 
   # validates when present.
-  it "what" do
+  it do
     form = StringForm.new(AlbumCover.new(nil))
-    form.validate("image" => "{}").must_equal false
-    form.image.model.must_equal("{}")
+    form.validate("image" => "0x123").must_equal false
+    form.image.model.must_equal("0x123")
   end
 
   # does not validate when absent (that's the whole point of this directive).
-  it "what" do
+  it do
     form = StringForm.new(AlbumCover.new(nil))
     form.validate({}).must_equal true
   end

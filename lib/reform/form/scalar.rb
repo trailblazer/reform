@@ -5,19 +5,19 @@ module Reform::Form::Scalar
   end
 
   def update!(object)
-    model.replace(object)
+    self.model = object
   end
 
 
   module ClassMethods
-    def validates(name, *args)
+    def validates(name, options={})
       if name.is_a?(Hash)
-        name, args = :model, name # per default, validate #model (e.g. "Hello").
+        name, options = :model, name # per default, validate #model (e.g. "Hello").
       else
         def_delegator :model, name
       end
 
-      super(name, args)
+      super(name, options)
     end
   end
 end
