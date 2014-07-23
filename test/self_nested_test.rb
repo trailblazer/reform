@@ -50,11 +50,24 @@ class SelfNestedTest < BaseTest
     form.errors.messages.must_equal({})
   end
 
+  module Blaa
+    def size; model.size; end
+      def type; model.class.to_s; end
+  end
+
 
   class ImageForm < Reform::Form
-    property :image, instance: lambda { |object, args| puts "@@@"; Reform::Form.new(object) }  do
+    # property :image, populate_if_empty: lambda { |object, args| object }  do
+    property :image, populator: lambda { |object, args|
+      # self.image = Reform::Form.new(object).extend(Reform::Form::Scalar) } do
+      self.image = args.binding[:form].new(object).extend(Reform::Form::Scalar).extend(Blaa) } do
+
       validates :size,  numericality: { less_than: 10 }
       validates :type, inclusion: { in: "String" } # TODO: make better validators and remove AM::Validators at some point.
+
+      # FIXME: does that only work with representable 2.0?
+      def size; model.size; end
+      def type; model.class.to_s; end
     end
   end
 
@@ -88,17 +101,18 @@ class SelfNestedTest < BaseTest
   end
 
   # image in params but NOT in model.
-  it "xx"do
+  it do
     form = ImageForm.new(AlbumCover.new(nil))
-    form.image.extend(Reform::Form::Scalar)
-    form.image.instance_exec do
-      def size; model.size; end
-      def type; model.class.to_s; end
-    end
+    # form.image.extend(Reform::Form::Scalar)
+    # form.image.instance_exec do
+    #   def size; model.size; end
+    #   def type; model.class.to_s; end
+    # end
 
     form.validate({"image" => "I'm OK!"})
+    puts form.inspect
     form.errors.messages.must_equal({})
-    form.image.must_equal "I'm OK!"
+    form.image.model.must_equal "I'm OK!"
   end
 
   # OK image.
@@ -115,13 +129,13 @@ class SelfNestedTest < BaseTest
   end
 
   # invalid image.
-  it do
+  it "xx"do
     form = ImageForm.new(AlbumCover.new("nil"))
-    form.image.extend(Reform::Form::Scalar)
-    form.image.instance_exec do
-      def size; model.size; end
-      def type; model.class.to_s; end
-    end
+    # form.image.extend(Reform::Form::Scalar)
+    # form.image.instance_exec do
+    #   def size; model.size; end
+    #   def type; model.class.to_s; end
+    # end
 
     form.validate({"image" => "I'm too long, is that a problem?"})
     form.errors.messages.must_equal({:"image.size"=>["must be less than 10"]})

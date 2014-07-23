@@ -5,7 +5,7 @@ module Reform::Form::Validate
     def from_hash(*)
       nested_forms do |attr|
         attr.merge!(
-          # set parse_strategy: sync>
+          # set parse_strategy: sync> # DISCUSS: that kills the :setter directive, which usually sucks. at least document this in :populator.
           :collection => attr[:collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
           :parse_strategy => :sync, # just use nested objects as they are.
 
