@@ -1,6 +1,7 @@
 # Mechanics for writing to forms in #validate.
 module Reform::Form::Validate
   module Update
+    # Go through all nested forms and call form.update!(hash).
     def from_hash(*)
       nested_forms do |attr|
         attr.delete(:prepare)
