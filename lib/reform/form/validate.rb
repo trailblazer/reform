@@ -9,7 +9,6 @@ module Reform::Form::Validate
           :collection => attr[:collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
           :parse_strategy => :sync, # just use nested objects as they are.
 
-
           :deserialize => lambda { |object, params, args| object.update!(params) },
         )
 
@@ -25,6 +24,7 @@ module Reform::Form::Validate
 
 
   module Populator
+    # TODO: this will soon get replaced and simplified.
     class PopulateIfEmpty
       def initialize(*args)
         @fields, @fragment, args = args
@@ -63,42 +63,6 @@ module Reform::Form::Validate
         end
       end
     end # PopulateIfEmpty
-
-
-    def from_hash(params, args)
-      populated_attrs = []
-
-      nested_forms do |attr|
-        next unless attr[:populate_if_empty]
-
-        attr.merge!(
-          # DISCUSS: it would be cool to move the lambda block to PopulateIfEmpty#call.
-          :populator => lambda do |fragment, *args|
-            PopulateIfEmpty.new(self, fragment, args).call
-          end
-        )
-      end
-
-
-      nested_forms do |attr|
-        next unless attr[:populator]
-
-        attr.merge!(
-          :instance => attr[:populator],
-          :setter => lambda { |*| },
-          :representable  => false
-          )
-        populated_attrs << attr.name.to_sym
-      end
-
-      # puts populated_attrs.inspect
-      # populated_attrs = [:image]
-
-
-
-
-      super(params, {:include => populated_attrs}.merge(args))
-    end
   end
 
   # 1. Populate the form object graph so that each incoming object has a representative form object.
