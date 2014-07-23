@@ -39,8 +39,6 @@ module Reform::Form::Validate
         parent_form =  @args.user_options[:parent_form]
         form_model    = parent_form.model # FIXME: sort out who's responsible for sync.
 
-         puts "heellooooo: #{form}"
-
         return form[@index] if binding.array? and form and form[@index] # TODO: this should be handled by the Binding.
         return if !binding.array? and form
         # only get here when above form is nil.
@@ -75,17 +73,10 @@ module Reform::Form::Validate
   end
 
   def update!(params)
-    #populate!(params)
-    # puts "}}}"+self.inspect
     deserialize!(params)
   end
 
 private
-  def populate!(params)
-    # populate only happens for nested forms, if you override that setter it's your fault.
-    mapper.new(fields).extend(Populator).from_hash(params, :parent_form => self) # TODO: remove model(form) once we found out how to synchronize the model correctly. see https://github.com/apotonick/reform/issues/86#issuecomment-43402047
-  end
-
   def deserialize!(params)
     # using self here will call the form's setters like title= which might be overridden.
     mapper.new(self).extend(Update).from_hash(params, :parent_form => self)
