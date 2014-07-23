@@ -169,7 +169,7 @@ You can always access the form's model. This is helpful when you were using popu
   end
 ```
 
-Note that you can call `#sync` and _then_ call `#save` with the block to save models yourself.
+Note that you can call `#sync` and _then_ call `#save { |hsh| }` to save models yourself.
 
 
 ## Contracts
