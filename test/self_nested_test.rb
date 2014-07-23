@@ -52,7 +52,7 @@ class SelfNestedTest < BaseTest
 
 
   class ImageForm < Reform::Form
-    property :image, parse_strategy: lambda { |object, args| puts "@@@"; Reform::Form.new(object) }  do
+    property :image, instance: lambda { |object, args| puts "@@@"; Reform::Form.new(object) }  do
       validates :size,  numericality: { less_than: 10 }
       validates :type, inclusion: { in: "String" } # TODO: make better validators and remove AM::Validators at some point.
     end
