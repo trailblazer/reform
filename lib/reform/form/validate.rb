@@ -4,66 +4,20 @@ module Reform::Form::Validate
     # Go through all nested forms and call form.update!(hash).
     def from_hash(*)
       nested_forms do |attr|
-        attr.delete(:prepare)
-        attr.delete(:extend)
-
         attr.merge!(
+          # set parse_strategy: sync>
           :collection => attr[:collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
           :parse_strategy => :sync, # just use nested objects as they are.
 
 
-
-
-
           :deserialize => lambda { |object, params, args| object.update!(params) },
         )
+
+        # TODO: :populator now is just an alias for :instance. handle in ::property.
+        attr.merge!(:instance => attr[:populator]) if attr[:populator]
+
+        attr.merge!(:instance => lambda { |fragment, *args| Populator::PopulateIfEmpty.new(self, fragment, args).call }) if attr[:populate_if_empty]
       end
-
-
-
-
-
-
-
-
-      populated_attrs = []
-
-      nested_forms do |attr|
-        next unless attr[:populate_if_empty]
-
-        attr.merge!(
-          # DISCUSS: it would be cool to move the lambda block to PopulateIfEmpty#call.
-          :populator => lambda do |fragment, *args|
-            puts "populate_if_empty: #{fragment}"
-            Populator::PopulateIfEmpty.new(self, fragment, args).call
-          end
-        )
-
-      end
-
-
-      nested_forms do |attr|
-        next unless attr[:populator]
-
-        attr.merge!(
-          :instance => attr[:populator],
-          :setter => lambda { |*| },
-          # :representable  => false
-          )
-        # populated_attrs << attr.name.to_sym
-
-        puts "@@@@@@ #{attr[:instance].inspect}"
-      end
-
-
-      # puts populated_attrs.inspect
-
-
-
-
-
-
-
 
       super
     end
