@@ -34,9 +34,11 @@ module Reform::Form::Validate
         attr.merge!(
           # DISCUSS: it would be cool to move the lambda block to PopulateIfEmpty#call.
           :populator => lambda do |fragment, *args|
+            puts "populate_if_empty: #{fragment}"
             Populator::PopulateIfEmpty.new(self, fragment, args).call
           end
         )
+
       end
 
 
@@ -48,8 +50,11 @@ module Reform::Form::Validate
           :setter => lambda { |*| },
           # :representable  => false
           )
-        populated_attrs << attr.name.to_sym
+        # populated_attrs << attr.name.to_sym
+
+        puts "@@@@@@ #{attr[:instance].inspect}"
       end
+
 
       # puts populated_attrs.inspect
 
@@ -80,9 +85,12 @@ module Reform::Form::Validate
         parent_form =  @args.user_options[:parent_form]
         form_model    = parent_form.model # FIXME: sort out who's responsible for sync.
 
-        return if binding.array? and form and form[@index] # TODO: this should be handled by the Binding.
+         puts "heellooooo: #{form}"
+
+        return form[@index] if binding.array? and form and form[@index] # TODO: this should be handled by the Binding.
         return if !binding.array? and form
         # only get here when above form is nil.
+
 
         if binding[:populate_if_empty].is_a?(Proc)
           model = parent_form.instance_exec(@fragment, @args, &binding[:populate_if_empty]) # call user block.
