@@ -10,9 +10,55 @@ module Reform::Form::Validate
         attr.merge!(
           :collection => attr[:collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
           :parse_strategy => :sync, # just use nested objects as they are.
+
+
+
+
+
           :deserialize => lambda { |object, params, args| object.update!(params) },
         )
       end
+
+
+
+
+
+
+
+
+      populated_attrs = []
+
+      nested_forms do |attr|
+        next unless attr[:populate_if_empty]
+
+        attr.merge!(
+          # DISCUSS: it would be cool to move the lambda block to PopulateIfEmpty#call.
+          :populator => lambda do |fragment, *args|
+            Populator::PopulateIfEmpty.new(self, fragment, args).call
+          end
+        )
+      end
+
+
+      nested_forms do |attr|
+        next unless attr[:populator]
+
+        attr.merge!(
+          :instance => attr[:populator],
+          :setter => lambda { |*| },
+          # :representable  => false
+          )
+        populated_attrs << attr.name.to_sym
+      end
+
+      # puts populated_attrs.inspect
+
+
+
+
+
+
+
 
       super
     end
@@ -76,25 +122,35 @@ module Reform::Form::Validate
         next unless attr[:populator]
 
         attr.merge!(
-          :parse_strategy => attr[:populator],
+          :instance => attr[:populator],
+          :setter => lambda { |*| },
           :representable  => false
           )
         populated_attrs << attr.name.to_sym
       end
 
+      # puts populated_attrs.inspect
+      # populated_attrs = [:image]
+
+
+
+
       super(params, {:include => populated_attrs}.merge(args))
     end
   end
 
-
+  # 1. Populate the form object graph so that each incoming object has a representative form object.
+  # 2. Deserialize. This is wrong and should be done in 1.
+  # 3. Validate the form object graph.
   def validate(params)
     update!(params)
 
-    super()
+    super() # run the actual validation on self.
   end
 
   def update!(params)
-    populate!(params)
+    #populate!(params)
+    # puts "}}}"+self.inspect
     deserialize!(params)
   end
 
@@ -106,6 +162,6 @@ private
 
   def deserialize!(params)
     # using self here will call the form's setters like title= which might be overridden.
-    mapper.new(self).extend(Update).from_hash(params)
+    mapper.new(self).extend(Update).from_hash(params, :parent_form => self)
   end
 end
