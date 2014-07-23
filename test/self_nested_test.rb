@@ -148,10 +148,16 @@ class SelfNestedTest < BaseTest
   end
 
 
+  # validates when present.
   it "what" do
     form = StringForm.new(AlbumCover.new(nil))
     form.validate("image" => "{}").must_equal false
     form.image.model.must_equal("{}")
   end
 
+  # does not validate when absent (that's the whole point of this directive).
+  it "what" do
+    form = StringForm.new(AlbumCover.new(nil))
+    form.validate({}).must_equal true
+  end
 end
