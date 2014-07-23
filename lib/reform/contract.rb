@@ -25,7 +25,7 @@ module Reform
         options[:private_name] = options.delete(:as)
 
         # at this point, :extend is a Form class.
-        options[:features] = features if block_given?
+        options[:features] ||= features if block_given?
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given? or options[:form]
 
