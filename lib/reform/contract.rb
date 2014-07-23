@@ -12,6 +12,7 @@ module Reform
     # representer_class gets inherited (cloned) to subclasses.
     inheritable_attr :___representer_class
     self.___representer_class = Reform::Representer.for(:form_class => self) # only happens in Contract/Form.
+    # this should be the only mechanism to inherit, features should be stored in this as well.
 
     def self.representer_class
       @bla ||= begin
