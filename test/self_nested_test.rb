@@ -1,10 +1,7 @@
 require 'test_helper'
 
-module Reform::Form::Scalar
-  def update!(object)
-    model.replace(object)
-  end
-end
+
+require 'reform/form/scalar'
 
 class SelfNestedTest < BaseTest
   class Form < Reform::Form
@@ -141,28 +138,20 @@ class SelfNestedTest < BaseTest
     form.errors.messages.must_equal({:"image.size"=>["must be less than 10"]})
   end
 
+  # validate string only if it's in params.
+  class StringForm < Reform::Form
+    property :image, :features => [Reform::Form::Scalar],
+      populate_if_empty: String do
 
-
-
-
-
-
-
-
-
-
-  # validate test
-  class BlaForm < Reform::Form
-    property :image, instance: lambda { |object, args| puts "@@@"; Reform::Form.new(object) } , representable: false do
-
+        validates :length => {:minimum => 10}
     end
   end
 
 
   it "what" do
-    form = BlaForm.new(AlbumCover.new("nil"))
-    form.validate("image" => {})
-    form.image.model.must_equal({})
+    form = StringForm.new(AlbumCover.new(nil))
+    form.validate("image" => "{}").must_equal false
+    form.image.model.must_equal("{}")
   end
 
 end
