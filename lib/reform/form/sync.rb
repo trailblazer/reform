@@ -11,8 +11,8 @@ module Reform::Form::Sync
       nested_forms do |attr|
         attr.merge!(
           :instance     => lambda { |fragment, *| fragment },
-          :deserialize => lambda { |object, *| object.sync! },
-          :setter => lambda { |*| } # don't write hit=<Form>.
+          :deserialize => lambda { |object, *| model = object.sync! } # sync! returns the synced model.
+          # representable's :setter will do collection=([..]) or property=(..) for us on the model.
         )
       end
 
@@ -34,15 +34,12 @@ module Reform::Form::Sync
           :representable  => false,
           :prepare        => lambda { |obj, *| obj }
         )
-
       end
 
       super
     end
   end
 
-
-### TODO: add ToHash with :prepare => lambda { |form, args| form },
 
   def sync_models
     sync!
@@ -56,6 +53,8 @@ module Reform::Form::Sync
 
     input = input_representer.to_hash
 
-    mapper.new(aliased_model).extend(Writer).from_hash(input)
+    mapper.new(aliased_model).extend(Writer).from_hash(input) # sync properties to Song.
+
+    model
   end
 end

@@ -37,7 +37,7 @@ module Reform::Form::Save
       # Transform form data into a nested hash for #save.
       nested_forms do |attr|
         attr.merge!(
-          :serialize => lambda { |object, args| object.to_nested_hash },
+          :serialize => lambda { |object, args| object.to_nested_hash }
         )
       end
 
@@ -56,6 +56,7 @@ module Reform::Form::Save
 
     ActiveSupport::HashWithIndifferentAccess.new(map.to_hash)
   end
+  # DISCUSS: make this (again) available as #to_hash or even #attributes?
 
 private
   def deprecate_first_save_block_arg(&block)

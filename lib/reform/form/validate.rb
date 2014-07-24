@@ -54,10 +54,8 @@ module Reform::Form::Validate
         form  = binding[:form].new(model) # free service: wrap model with Form. this usually happens in #setup.
 
         if binding.array?
-          form_model.send("#{binding.getter}") << model # FIXME: i don't like this, but we have to add the model to the parent object to make associating work. i have to use #<< to stay compatible with AR's has_many API. DISCUSS: what happens when we get out-of-sync here?
           @fields.send("#{binding.getter}")[@index] = form
         else
-          form_model.send("#{binding.setter}", model) # FIXME: i don't like this, but we have to add the model to the parent object to make associating work.
           @fields.send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
         end
       end

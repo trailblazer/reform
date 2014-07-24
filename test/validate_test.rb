@@ -148,6 +148,7 @@ class ValidateTest < BaseTest
     it { subject.songs[0].title.must_equal "Fallout" }
     it { subject.songs[1].title.must_equal "Roxanne" }
 
+    # population already writes to the model!
     it { album.hit.must_be_kind_of Struct }
     it { album.songs.size.must_equal 2 } # #validate must associate items with model.
 

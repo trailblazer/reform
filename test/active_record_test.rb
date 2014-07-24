@@ -1,8 +1,8 @@
 require 'test_helper'
+require 'reform/active_record'
 
 class ActiveRecordTest < MiniTest::Spec
   let (:form) do
-    require 'reform/active_record'
     Class.new(Reform::Form) do
       include Reform::Form::ActiveRecord
       model :artist
@@ -19,12 +19,17 @@ class ActiveRecordTest < MiniTest::Spec
   it { form.class.i18n_scope.must_equal :activerecord }
 
   describe "UniquenessValidator" do
-    #  ActiveRecord::Schema.define do
-    #    create_table :artists do |table|
-    #      table.column :name, :string
-    #      table.timestamps
-    #    end
-    #  end
+    # ActiveRecord::Schema.define do
+    #   create_table :artists do |table|
+    #     table.column :name, :string
+    #     table.timestamps
+    #   end
+    #   create_table :songs do |table|
+    #     table.column :title, :string
+    #     table.column :artist_id, :integer
+    #     table.timestamps
+    #   end
+    # end
     # Artist.new(:name => "Racer X").save
 
     it "allows accessing the database" do
@@ -72,3 +77,82 @@ class ActiveRecordTest < MiniTest::Spec
     end
   end
 end
+
+
+class PopulateWithActiveRecordTest < MiniTest::Spec
+  class AlbumForm < Reform::Form
+    property :title
+
+    collection :songs, :populate_if_empty => Song do
+      property :title
+    end
+  end
+
+  let (:album) { Album.new }
+  it do
+    form = AlbumForm.new(album)
+
+    form.validate("songs" => [{"title" => "Straight From The Jacket"}])
+
+    # form populated.
+    form.songs.size.must_equal 1
+    form.songs[0].model.must_be_kind_of Song
+
+    # model NOT populated.
+    album.songs.must_equal []
+
+
+    form.sync
+
+    # form populated.
+    form.songs.size.must_equal 1
+    form.songs[0].model.must_be_kind_of Song
+
+    # model also populated.
+
+    album.songs.size.must_equal 1
+    album.songs[0].must_be_kind_of Song
+
+  end
+
+  it do
+    a=Album.new
+    a.songs << Song.new(title: "Old What's His Name") # Song does not get persisted.
+
+    a.songs[1] = Song.new(title: "Permanent Rust")
+
+    puts "@@@"
+    puts a.songs.inspect
+
+    puts "---"
+    a.save
+    puts a.songs.inspect
+
+
+
+    b = a.songs.first
+
+    a.songs = [Song.new(title:"Biomag")]
+    puts "\\\\"
+    a.save
+    a.reload
+    puts a.songs.inspect
+
+    b.reload
+    puts "#{b.inspect}, #{b.persisted?}"
+
+
+    a.songs = [a.songs.first, Song.new(title: "Count Down")]
+    b = a.songs.first
+    puts ":::::"
+    a.save
+    a.reload
+    puts a.songs.inspect
+
+    b.reload
+    puts "#{b.inspect}, #{b.persisted?}"
+  end
+end
+
+
+

@@ -1,6 +1,8 @@
 ## 1.0.5
 
 * Deprecate first block argument in save. It's new signature is `save { |hash| }`. You already got the form instance when calling `form.save` so there's no need to pass it into the block.
+* Scalar
+
 
 ## 1.0.4
 
