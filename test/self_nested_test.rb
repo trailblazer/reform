@@ -145,7 +145,7 @@ class SelfNestedTest < BaseTest
 
     # FIXME: problem in populate_if_empty
     ### cover.image.must_equal nil # don't write to the model, yet.
-    cover.image.must_equal "" # FIXME: wrong, must be nil!
+    cover.image.must_equal nil
 
     # TODO:  save
 

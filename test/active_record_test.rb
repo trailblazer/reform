@@ -109,49 +109,98 @@ class PopulateWithActiveRecordTest < MiniTest::Spec
     form.songs[0].model.must_be_kind_of Song
 
     # model also populated.
+    song = album.songs[0]
+    album.songs.must_equal [song]
+    song.title.must_equal "Straight From The Jacket"
 
-    album.songs.size.must_equal 1
-    album.songs[0].must_be_kind_of Song
 
+    # saving saves association.
+    form.save
+
+    album.reload
+    song = album.songs[0]
+    album.songs.must_equal [song]
+    song.title.must_equal "Straight From The Jacket"
   end
 
-  it do
-    a=Album.new
-    a.songs << Song.new(title: "Old What's His Name") # Song does not get persisted.
 
-    a.songs[1] = Song.new(title: "Permanent Rust")
+  describe "modifying 1., adding 2." do
+    let (:song) { Song.new(:title => "Part 2") }
+    let (:album) { Album.create(:songs => [song]) }
 
-    puts "@@@"
-    puts a.songs.inspect
+    it do
+      form = AlbumForm.new(album)
 
-    puts "---"
-    a.save
-    puts a.songs.inspect
+      id = album.songs[0].id
+      assert id > 0
 
+      form.validate("songs" => [{"title" => "Part Two"}, {"title" => "Check For A Pulse"}])
 
+      # form populated.
+      form.songs.size.must_equal 2
+      form.songs[0].model.must_be_kind_of Song
+      form.songs[1].model.must_be_kind_of Song
 
-    b = a.songs.first
-
-    a.songs = [Song.new(title:"Biomag")]
-    puts "\\\\"
-    a.save
-    a.reload
-    puts a.songs.inspect
-
-    b.reload
-    puts "#{b.inspect}, #{b.persisted?}"
+      # model NOT populated.
+      album.songs.must_equal [song]
 
 
-    a.songs = [a.songs.first, Song.new(title: "Count Down")]
-    b = a.songs.first
-    puts ":::::"
-    a.save
-    a.reload
-    puts a.songs.inspect
+      form.sync
 
-    b.reload
-    puts "#{b.inspect}, #{b.persisted?}"
+      # form populated.
+      form.songs.size.must_equal 2
+
+      # model also populated.
+      album.songs.size.must_equal 2
+
+      # corrected title
+      album.songs[0].title.must_equal "Part Two"
+      # ..but same song.
+      album.songs[0].id.must_equal id
+
+      # and a new song.
+      album.songs[1].title.must_equal "Check For A Pulse"
+      album.songs[1].persisted?.must_equal true # TODO: with << strategy, this shouldn't be saved.
+    end
   end
+
+  # it do
+  #   a=Album.new
+  #   a.songs << Song.new(title: "Old What's His Name") # Song does not get persisted.
+
+  #   a.songs[1] = Song.new(title: "Permanent Rust")
+
+  #   puts "@@@"
+  #   puts a.songs.inspect
+
+  #   puts "---"
+  #   a.save
+  #   puts a.songs.inspect
+
+
+
+  #   b = a.songs.first
+
+  #   a.songs = [Song.new(title:"Biomag")]
+  #   puts "\\\\"
+  #   a.save
+  #   a.reload
+  #   puts a.songs.inspect
+
+  #   b.reload
+  #   puts "#{b.inspect}, #{b.persisted?}"
+
+
+  #   a.songs = [a.songs.first, Song.new(title: "Count Down")]
+  #   b = a.songs.first
+  #   puts ":::::"
+  #   a.save
+  #   a.reload
+  #   puts a.songs.inspect
+
+  #   b.reload
+  #   puts "#{b.inspect}, #{b.persisted?}"
+  # end
 end
 
 
