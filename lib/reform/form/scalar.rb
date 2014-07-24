@@ -16,6 +16,10 @@ module Reform::Form::Scalar
     model.replace(scalar)
   end
 
+  def to_nested_hash
+    scalar
+  end
+
 
   module ClassMethods
     def validates(name, options={})

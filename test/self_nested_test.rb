@@ -155,7 +155,7 @@ class SelfNestedTest < BaseTest
     cover.image.must_equal "0x123456789" # #save writes back to model.
 
     form.save do |hash|
-      hash.must_equal()
+      hash.must_equal("image"=>"0x123456789")
     end
   end
 
