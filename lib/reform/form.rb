@@ -24,5 +24,9 @@ module Reform
       # TODO: cache the Expose.from class!
       Reform::Expose.from(mapper).new(:model => model)
     end
+
+
+    require 'reform/form/scalar'
+    extend Scalar::Property # experimental feature!
   end
 end

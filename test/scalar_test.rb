@@ -1,8 +1,6 @@
 require 'test_helper'
 
 
-require 'reform/form/scalar'
-
 class SelfNestedTest < BaseTest
   class Form < Reform::Form
     property :title  do
@@ -48,7 +46,7 @@ class SelfNestedTest < BaseTest
 
   class ImageForm < Reform::Form
     # property :image, populate_if_empty: lambda { |object, args| object }  do
-    property :image, :features => [Reform::Form::Scalar], :populate_if_empty => Object do
+    property :image, :scalar => true do
       validates :size,  numericality: { less_than: 10 }
       validates :length, numericality: { greater_than: 1 } # TODO: make better validators and remove AM::Validators at some point.
 
@@ -115,8 +113,7 @@ class SelfNestedTest < BaseTest
 
   # validate string only if it's in params.
   class StringForm < Reform::Form
-    property :image, :features => [Reform::Form::Scalar],
-      populate_if_empty: String do # creates "empty" form
+    property :image, :scalar => true do # creates "empty" form
 
         validates :length => {:minimum => 10}
     end
