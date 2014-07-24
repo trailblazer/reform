@@ -61,7 +61,7 @@ module Reform::Form::Save
 private
   def deprecate_first_save_block_arg(&block)
     if block.arity == 2
-      warn "[Reform] Deprecation Warning: The first block argument in `save { |form, hash| .. }` is deprecated and its new signature is `save { |hash| .. }`. If you need the form instance, use it in the block. Enjoy, smile and be nice."
+      warn "[Reform] Deprecation Warning: The first block argument in `save { |form, hash| .. }` is deprecated and its new signature is `save { |hash| .. }`. If you need the form instance, use it in the block. Have a good day."
       return yield(self, to_nested_hash)
     end
 
