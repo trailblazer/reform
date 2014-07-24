@@ -142,15 +142,17 @@ class SelfNestedTest < BaseTest
     form.validate("image" => "0x123456789").must_equal true
 
     form.image.scalar.must_equal("0x123456789")
-
-    # FIXME: problem in populate_if_empty
-    ### cover.image.must_equal nil # don't write to the model, yet.
     cover.image.must_equal nil
 
-    # TODO:  save
-
+    # errors
     form.errors.messages.must_equal({})
 
+    # sync
+    form.sync
+    form.image.scalar.must_equal("0x123456789")
+    cover.image.must_equal "0x123456789" # that already writes it back.
+
+    # save
     form.save
     cover.image.must_equal "0x123456789" # #save writes back to model.
 
