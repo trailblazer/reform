@@ -1,19 +1,23 @@
 module Reform::Form::Scalar
+  # IDEA: what if every "leaf" property would be represented by a Scalar form?
   def self.included(base)
     base.extend ClassMethods
     base.extend Forwardable
   end
 
   def update!(object)
-    @scalar = object # @scalar is "I came from the outside." or <ArbitraryObject>.
+    @fields = object # @scalar is "I came from the outside." or <ArbitraryObject>.
   end
-  attr_reader :scalar # in a "real" form, this is fields.
+
+  def scalar
+    fields
+  end
 
   def save!
   end
 
   def sync!
-    model.replace(scalar)
+    model.replace(fields)
   end
 
   def to_nested_hash
