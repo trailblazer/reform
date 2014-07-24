@@ -37,7 +37,6 @@ module Reform::Form::Save
       # Transform form data into a nested hash for #save.
       nested_forms do |attr|
         attr.merge!(
-          :instance  => lambda { |fragment, *| fragment },
           :serialize => lambda { |object, args| object.to_nested_hash },
         )
       end

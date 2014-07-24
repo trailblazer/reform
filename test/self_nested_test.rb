@@ -152,8 +152,11 @@ class SelfNestedTest < BaseTest
     form.errors.messages.must_equal({})
 
     form.save
+    cover.image.must_equal "0x123456789" # #save writes back to model.
 
-    cover.image.must_equal "0x123456789"
+    form.save do |hash|
+      hash.must_equal()
+    end
   end
 
   # does not validate when absent (that's the whole point of this directive).
