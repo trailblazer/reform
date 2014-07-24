@@ -126,7 +126,7 @@ class PopulateWithActiveRecordTest < MiniTest::Spec
 
   describe "modifying 1., adding 2." do
     let (:song) { Song.new(:title => "Part 2") }
-    let (:album) { Album.create(:songs => [song]) }
+    let (:album) { Album.create.tap { |a| a.songs << song } }
 
     it do
       form = AlbumForm.new(album)
