@@ -1,7 +1,7 @@
 Reform::Form.class_eval do
   module MultiParameterAttributes
     def self.included(base)
-      base.features << self
+      base.send(:register_feature, self)
     end
 
     class DateParamsFilter

@@ -1,15 +1,15 @@
-require 'representable/decorator/coercion'
+require 'representable/coercion'
 
 module Reform::Form::Coercion
   def self.included(base)
     base.extend(ClassMethods)
-    base.features << self
+    base.send(:register_feature, self)
   end
 
   module ClassMethods
-    def representer_class
+    def representer_class # TODO: check out how we can utilise Config#features.
       super.class_eval do
-        include Representable::Decorator::Coercion unless self < Representable::Decorator::Coercion # DISCUSS: include it once. why do we have to check this?
+        include Representable::Coercion
         self
       end
     end

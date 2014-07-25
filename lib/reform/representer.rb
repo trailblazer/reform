@@ -6,8 +6,14 @@ module Reform
     include Representable::Hash::AllowSymbols
 
     extend Uber::InheritableAttr
-    inheritable_attr :options
+    inheritable_attr :options # FIXME: this doesn't need to be inheritable.
     # self.options = {}
+
+
+    class << self
+      attr_accessor :form_features
+    end
+
 
     # Invokes #to_hash and/or #from_hash with #options. This provides a hook for other
     # modules to add options for the representational process.
@@ -58,6 +64,10 @@ module Reform
       end
     end
 
+    def self.default_inline_class
+      options[:form_class]
+    end
+
     def self.clone # called in inheritable_attr :representer_class.
       Class.new(self) # By subclassing, representable_attrs.clone is called.
     end
@@ -66,16 +76,22 @@ module Reform
     def clone_config!
       # TODO: representable_attrs.clone! which does exactly what's done below.
       attrs = Representable::Config.new
-      attrs.inherit(representable_attrs) # since in every use case we modify Config we clone.
+      attrs.inherit!(representable_attrs) # since in every use case we modify Config we clone.
       @representable_attrs = attrs
     end
 
-    def self.inline_representer(base_module, name, options, &block)
+    def self.build_inline(base, features, name, options, &block)
       name = name.to_s.singularize.camelize
 
-      Class.new(self.options[:form_class]) do
-        # TODO: this will soon become a generic feature in representable.
-        include *options[:features].reverse if options[:features]
+      puts "inline for #{default_inline_class}, #{name}"
+
+      # features are set in Contract::representerclass, per representer class. how to inherit properly?
+      puts "Representer: my features are #{representable_attrs.options.inspect}"
+      features = form_features
+
+
+      Class.new(default_inline_class) do
+        include *features
 
         instance_exec &block
 
