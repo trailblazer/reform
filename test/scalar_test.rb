@@ -114,8 +114,7 @@ class SelfNestedTest < BaseTest
   # validate string only if it's in params.
   class StringForm < Reform::Form
     property :image, :scalar => true do # creates "empty" form
-
-        validates :length => {:minimum => 10}
+      validates :length => {:minimum => 10}
     end
   end
 
