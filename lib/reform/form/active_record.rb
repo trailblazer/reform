@@ -37,7 +37,9 @@ module Reform::Form::ActiveRecord
   def model_for_property(name)
     return model unless is_a?(Reform::Form::Composition) # i am too lazy for proper inheritance. there should be a ActiveRecord::Composition that handles this.
 
-    model_name = mapper.representable_attrs[name][:on]
+    puts mapper.representable_attrs.inspect
+    puts "***************************"
+    model_name = mapper.representable_attrs.get(name)[:on]
     model[model_name]
   end
 end
