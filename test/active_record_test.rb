@@ -27,6 +27,11 @@ class ActiveRecordTest < MiniTest::Spec
     #   create_table :songs do |table|
     #     table.column :title, :string
     #     table.column :artist_id, :integer
+    #     table.column :album_id, :integer
+    #     table.timestamps
+    #   end
+    #   create_table :albums do |table|
+    #     table.column :title, :string
     #     table.timestamps
     #   end
     # end

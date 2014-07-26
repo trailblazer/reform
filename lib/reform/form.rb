@@ -5,7 +5,7 @@ require 'reform/composition'
 
 module Reform
   class Form < Contract
-    self.___representer_class = Reform::Representer.for(:form_class => self)
+    self.representer_class = Reform::Representer.for(:form_class => self)
 
     require "reform/form/virtual_attributes"
 

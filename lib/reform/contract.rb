@@ -10,20 +10,10 @@ module Reform
 
     extend Uber::InheritableAttr
     # representer_class gets inherited (cloned) to subclasses.
-    inheritable_attr :___representer_class
-    self.___representer_class = Reform::Representer.for(:form_class => self) # only happens in Contract/Form.
+    inheritable_attr :representer_class
+    self.representer_class = Reform::Representer.for(:form_class => self) # only happens in Contract/Form.
     # this should be the only mechanism to inherit, features should be stored in this as well.
 
-    def self.representer_class
-      @bla ||= begin
-        rep = ___representer_class
-        puts "merging #{features.inspect}"
-
-        rep.form_features = features.keys # configure the representer class.
-
-        rep
-      end
-    end
 
     # each contract keeps track of its features and passes them onto its local representer_class.
     # gets inherited, features get automatically included into inline representer.
@@ -42,7 +32,8 @@ module Reform
         options[:private_name] = options.delete(:as)
 
         # at this point, :extend is a Form class.
-        options[:features] ||= features if block_given?
+        options[:features] ||= []
+        options[:features] += features.keys if block_given?
 
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given? or options[:form]
@@ -79,7 +70,7 @@ module Reform
         # Make a module that contains these very accessors, then include it
         # so they can be overridden but still are callable with super.
         accessors = Module.new do
-          extend Forwardable # DISCUSS: do we really need Forwardable here?
+          extend Forwardable
           delegate [name, "#{name}="] => :fields
         end
         include accessors

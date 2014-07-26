@@ -10,11 +10,6 @@ module Reform
     # self.options = {}
 
 
-    class << self
-      attr_accessor :form_features
-    end
-
-
     # Invokes #to_hash and/or #from_hash with #options. This provides a hook for other
     # modules to add options for the representational process.
     module WithOptions
@@ -85,10 +80,7 @@ module Reform
 
       puts "inline for #{default_inline_class}, #{name}"
 
-      # features are set in Contract::representerclass, per representer class. how to inherit properly?
-      puts "Representer: my features are #{representable_attrs.options.inspect}"
-      features = form_features
-
+      features = options[:features]
 
       Class.new(default_inline_class) do
         include *features
