@@ -78,6 +78,11 @@ module Reform::Form::Validate
 private
   def deserialize!(params)
     # using self here will call the form's setters like title= which might be overridden.
-    mapper.new(self).extend(Update).from_hash(params, :parent_form => self)
+    # from_hash(params, parent_form: self)
+    mapper.new(self).extend(Update).send(deserialize_method, params, :parent_form => self)
+  end
+
+  def deserialize_method
+    :from_hash
   end
 end
