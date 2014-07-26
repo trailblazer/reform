@@ -26,8 +26,6 @@ module Reform
 
 
     module PropertyMethods
-      extend Forwardable
-
       def property(name, options={}, &block)
         options[:private_name] = options.delete(:as)
 
