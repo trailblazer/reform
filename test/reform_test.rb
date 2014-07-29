@@ -359,3 +359,27 @@ class OverridingAccessorsTest < BaseTest
     end
   end
 end
+
+
+class MethodInFormTest < MiniTest::Spec
+  class AlbumForm < Reform::Form
+    property :title
+
+    def title
+      "The Suffer And The Witness"
+    end
+
+    property :hit do
+      property :title
+
+      def title
+        "Drones"
+      end
+    end
+  end
+
+  # methods can be used instead of created accessors.
+  subject { AlbumForm.new(OpenStruct.new(:hit => OpenStruct.new)) }
+  it { subject.title.must_equal "The Suffer And The Witness" }
+  it { subject.hit.title.must_equal "Drones" }
+end

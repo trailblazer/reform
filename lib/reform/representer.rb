@@ -84,8 +84,7 @@ module Reform
       Class.new(base || default_inline_class) do
         include *features
 
-        instance_exec &block
-        # class_eval &block
+        class_eval &block
 
         @form_name = name
 
