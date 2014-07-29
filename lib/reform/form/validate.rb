@@ -18,7 +18,7 @@ module Reform::Form::Validate
         # TODO: :populator now is just an alias for :instance. handle in ::property.
         attr.merge!(:instance => attr[:populator]) if attr[:populator]
 
-        attr.merge!(:instance => lambda { |fragment, *args| Populator::PopulateIfEmpty.new(self, fragment, args).call }) if attr[:populate_if_empty]
+        attr.merge!(:instance => Populator::PopulateIfEmpty.new) if attr[:populate_if_empty]
       end
 
       # FIXME: solve this with a dedicated Populate Decorator per Form.
@@ -32,28 +32,26 @@ module Reform::Form::Validate
 
 
   module Populator
-    # TODO: this will soon get replaced and simplified.
+    # This might change soon (e.g. moved into disposable).
     class PopulateIfEmpty
-      def initialize(*args)
-        @fields, @fragment, args = args
-        @index = args.first
-        @args  = args.last
-      end
+      include Uber::Callable
 
-      def call
-        binding = @args.binding
+      def call(fields, fragment, *args)
+        index   = args.first
+        options = args.last
+        binding = options.binding
         form    = binding.get
 
-        parent_form =  @args.user_options[:parent_form]
+        parent_form =  options.user_options[:parent_form]
 
         # FIXME: test those cases!!!
-        return form[@index] if binding.array? and form and form[@index] # TODO: this should be handled by the Binding.
+        return form[index] if binding.array? and form and form[index] # TODO: this should be handled by the Binding.
         return form if !binding.array? and form
         # only get here when above form is nil.
 
 
         if binding[:populate_if_empty].is_a?(Proc)
-          model = parent_form.instance_exec(@fragment, @args, &binding[:populate_if_empty]) # call user block.
+          model = parent_form.instance_exec(fragment, options.user_options, &binding[:populate_if_empty]) # call user block.
         else
           model = binding[:populate_if_empty].new
         end
@@ -61,9 +59,9 @@ module Reform::Form::Validate
         form  = binding[:form].new(model) # free service: wrap model with Form. this usually happens in #setup.
 
         if binding.array?
-          @fields.send("#{binding.getter}")[@index] = form
+          fields.send("#{binding.getter}")[index] = form
         else
-          @fields.send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
+          fields.send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
         end
       end
     end # PopulateIfEmpty
