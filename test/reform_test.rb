@@ -260,26 +260,6 @@ class ReformTest < ReformSpec
 end
 
 
-# class InheritanceTest < BaseTest
-#   class CompilationForm < AlbumForm
-#     validates :title, :presence => true
-
-#     property :hit, :inherit => true do
-#       puts "executing block!"
-#       property :rating
-#       validates :title, :rating, :presence => true
-#     end
-
-#     puts "after "
-#     puts representer_class.representable_attrs[:hit][:form].representer_class.representable_attrs.inspect
-#   end
-
-#   let (:form) { CompilationForm.new(OpenStruct.new(:hit => OpenStruct.new)) }
-#   before { form.validate({"hit" => {}}) }
-#   it("ficken") { form.errors.messages.must_equal( {}) }
-# end
-
-
 class EmptyAttributesTest < MiniTest::Spec
   Credentials = Struct.new(:password)
 

@@ -78,11 +78,11 @@ module Reform
     def self.build_inline(base, features, name, options, &block)
       name = name.to_s.singularize.camelize
 
-      puts "inline for #{default_inline_class}, #{name}"
+      puts "inline for #{default_inline_class}, #{name}: base: #{base}"
 
       features = options[:features]
 
-      Class.new(default_inline_class) do
+      Class.new(base || default_inline_class) do
         include *features
 
         instance_exec &block
