@@ -53,6 +53,7 @@ module Reform
 
       def setup_form_definition(definition)
         options = {
+          # TODO: make this a bit nicer. why do we need :form at all?
           :form         => (definition[:extend] and definition[:extend].evaluate(nil)) || definition[:form], # :form is always just a Form class name.
           :pass_options => true, # new style of passing args
           :prepare      => lambda { |form, args| form }, # always just return the form without decorating.
