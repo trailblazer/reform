@@ -53,7 +53,7 @@ module Reform
 
       def setup_form_definition(definition)
         options = {
-          :form         => definition[:form] || definition[:extend].evaluate(nil), # :form is always just a Form class name.
+          :form         => (definition[:extend] and definition[:extend].evaluate(nil)) || definition[:form], # :form is always just a Form class name.
           :pass_options => true, # new style of passing args
           :prepare      => lambda { |form, args| form }, # always just return the form without decorating.
           :representable => true, # form: Class must be treated as a typed property.

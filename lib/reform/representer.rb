@@ -75,10 +75,9 @@ module Reform
       @representable_attrs = attrs
     end
 
+    # Inline forms always get saved in :extend.
     def self.build_inline(base, features, name, options, &block)
       name = name.to_s.singularize.camelize
-
-      puts "inline for #{default_inline_class}, #{name}: base: #{base}"
 
       features = options[:features]
 
@@ -86,6 +85,7 @@ module Reform
         include *features
 
         instance_exec &block
+        # class_eval &block
 
         @form_name = name
 
