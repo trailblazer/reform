@@ -2,6 +2,12 @@ require "test_helper"
 require "reform/form/coercion"
 
 class CoercionTest < BaseTest
+  class Irreversible < Virtus::Attribute
+    def coerce(value)
+      value*2
+    end
+  end
+
   class Form < Reform::Form
     include Coercion
 
@@ -17,7 +23,7 @@ class CoercionTest < BaseTest
       include Coercion
       property :label do
         include Coercion
-        property :value, :type => Float
+        property :value, :type => Irreversible
       end
     end
   end
@@ -56,7 +62,7 @@ class CoercionTest < BaseTest
     it { subject.released_at.must_equal DateTime.parse("30/03/1981") }
     it { subject.hit.length.must_equal 312 }
     it { subject.hit.good.must_equal nil }
-    it { subject.band.label.value.must_equal 9999.99 }
+    it { subject.band.label.value.must_equal "9999.999999.99" } # coercion happened once.
   end
 
   # save

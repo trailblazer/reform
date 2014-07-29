@@ -6,6 +6,7 @@
 * coercion in validate, only
 * inheritance with :inherit now works properly.
 * You can now define methods in inline forms.
+* deserialize json
 
 ## 1.0.4
 
