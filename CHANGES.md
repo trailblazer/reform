@@ -3,7 +3,9 @@
 * Deprecate first block argument in save. It's new signature is `save { |hash| }`. You already got the form instance when calling `form.save` so there's no need to pass it into the block.
 * Scalar
 * `#validate` does **not** touch any model anymore. Both single values and collections are written to the model after `#sync` or `#save`.
-
+* coercion in validate, only
+* inheritance with :inherit now works properly.
+* You can now define methods in inline forms.
 
 ## 1.0.4
 
