@@ -1,6 +1,9 @@
 # Mechanics for writing to forms in #validate.
 module Reform::Form::Validate
   module Update
+    # IDEA: what if Populate was a Decorator that simply knows how to setup the Form object graph, nothing more? That would decouple
+    # the population from the validation (good and bad as less customizable).
+
     # Go through all nested forms and call form.update!(hash).
     def from_hash(*)
       nested_forms do |attr|
@@ -16,6 +19,11 @@ module Reform::Form::Validate
         attr.merge!(:instance => attr[:populator]) if attr[:populator]
 
         attr.merge!(:instance => lambda { |fragment, *args| Populator::PopulateIfEmpty.new(self, fragment, args).call }) if attr[:populate_if_empty]
+      end
+
+      # FIXME: solve this with a dedicated Populate Decorator per Form.
+      representable_attrs.each do |attr|
+        attr.merge!(:parse_filter => Representable::Coercion::Coercer.new(attr[:coercion_type])) if attr[:coercion_type]
       end
 
       super

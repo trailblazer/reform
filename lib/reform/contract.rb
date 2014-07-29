@@ -29,6 +29,8 @@ module Reform
       def property(name, options={}, &block)
         options[:private_name] = options.delete(:as)
 
+        options[:coercion_type] = options.delete(:type)
+
         options[:features] ||= []
         options[:features] += features.keys if block_given?
 
