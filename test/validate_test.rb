@@ -153,6 +153,17 @@ class ValidateTest < BaseTest
     it { album.songs.size.must_equal 0 }
 
     it { subject.band.label.name.must_equal "Epitaph" }
+
+
+    describe "missing parameters" do
+      let (:params) {
+        { }
+      }
+
+      before { subject.validate(params) }
+
+      it { subject.hit.must_equal nil }
+    end
   end
 
 

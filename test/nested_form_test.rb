@@ -39,7 +39,7 @@ class NestedFormTest < MiniTest::Spec
 
   it "responds to #save" do
     hsh = nil
-    form.save do |f, nested|
+    form.save do |nested|
       hsh = nested
     end
     hsh.must_equal({"hit"=>{"title"=>"Downtown"}, "title" => "Blackhawks Over Los Angeles", "songs"=>[{"title"=>"Calling"}]})
