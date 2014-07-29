@@ -491,6 +491,47 @@ Here's how the block parameters look like.
 end
 ```
 
+## Inheritance
+
+Forms can be derived from other forms and will inherit all properties and validations.
+
+```ruby
+class AlbumForm < Reform::Form
+  property :title
+
+  collection :songs do
+    property :title
+
+    validates :title, presence: true
+  end
+end
+```
+
+Now, a simple inheritance can add fields.
+
+```ruby
+class CompilationForm < AlbumForm
+  property :composers do
+    property :name
+  end
+end
+```
+
+This will _add_ `composers` to the existing fields.
+
+You can also partially override fields using `:inherit`.
+
+```ruby
+class CompilationForm < AlbumForm
+  property :songs, inherit: true do
+    property :band_id
+    validates :band_id, presence: true
+  end
+end
+```
+
+Using `inherit:` here will extend the existing `songs` form with the `band_id` field. Note that this simply uses [representable's inheritance mechanism](https://github.com/apotonick/representable/#partly-overriding-properties).
+
 ## Coercion
 
 Often you want incoming form data to be converted to a type, like timestamps. Reform uses [virtus](https://github.com/solnic/virtus) for coercion, the DSL is seamlessly integrated into Reform with the `:type` option.
