@@ -4,17 +4,13 @@ require 'representable/json'
 class InheritTest < BaseTest
   class CompilationForm < AlbumForm
 
-    puts "hits:::::::::"
     property :hit, :inherit => true do
-      puts "i am evaluated"
       property :rating
       validates :title, :rating, :presence => true
     end
 
-    puts "zo"
-    puts representer_class.representable_attrs.
-      get(:hit)[:extend].evaluate(nil).new(OpenStruct.new).rating
-
+    # puts representer_class.representable_attrs.
+    #   get(:hit)[:extend].evaluate(nil).new(OpenStruct.new).rating
   end
 
   let (:album) { Album.new(nil, OpenStruct.new(:hit => OpenStruct.new()) ) }
@@ -30,8 +26,9 @@ class InheritTest < BaseTest
   }
 
   it do
-    puts subject.class.representer_class.representable_attrs.get(:hit)[:extend].evaluate(nil).new(album.hit).rating
-
-    puts CompilationForm.representer_class.representable_attrs.get(:hit)[:extend].evaluate(nil).name
+    subject.validate({})
+    subject.hit.title.must_equal nil
+    subject.hit.rating.must_equal nil
+    subject.errors.messages.must_equal({:"hit.title"=>["can't be blank"], :"hit.rating"=>["can't be blank"]})
   end
 end
