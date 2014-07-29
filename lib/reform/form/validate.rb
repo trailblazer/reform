@@ -45,7 +45,6 @@ module Reform::Form::Validate
         form    = binding.get
 
         parent_form =  @args.user_options[:parent_form]
-        form_model    = parent_form.model # FIXME: sort out who's responsible for sync.
 
         # FIXME: test those cases!!!
         return form[@index] if binding.array? and form and form[@index] # TODO: this should be handled by the Binding.
