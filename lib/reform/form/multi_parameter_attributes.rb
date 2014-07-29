@@ -38,9 +38,29 @@ Reform::Form.class_eval do
     def validate(params)
       # TODO: make it cleaner to hook into essential reform steps.
       # TODO: test with nested.
-      DateParamsFilter.new.call(params)
+      DateParamsFilter.new.call(params) if params.is_a?(Hash) # this currently works for hash, only.
 
       super
     end
+
+
+    # module ClassMethods
+    #   def representer_class # TODO: check out how we can utilise Config#features.
+    #     super.class_eval do
+    #       extend BuildDefinition
+    #       self
+    #     end
+    #   end
+    # end
+
+
+    # module BuildDefinition
+    #   def build_definition(name, options, &block)
+    #     return super unless options[:multi_params]
+
+    #     options[:parse_filter] << DateParamsFilter.new
+    #     super
+    #   end
+    # end
   end
 end

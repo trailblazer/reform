@@ -12,7 +12,7 @@ class FormBuilderCompatTest < BaseTest
 
       collection :songs do
         property :title
-        property :release_date
+        property :release_date, :multi_params => true
         validates :title, :presence => true
       end
 
