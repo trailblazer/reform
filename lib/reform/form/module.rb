@@ -1,3 +1,4 @@
+# Include this in every module that gets further included.
 module Reform::Form::Module
   def self.included(base)
     base.extend ClassMethods
