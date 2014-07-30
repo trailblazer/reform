@@ -16,12 +16,6 @@ module Reform::Form::Composition
       @model_class ||= Reform::Composition.from(representer_class)
     end
 
-    def property(name, options={})
-      super.tap do |definition|
-        handle_deprecated_model_accessor(options[:on]) unless options[:skip_accessors] # TODO: remove in 1.2.
-      end
-    end
-
     # Same as ActiveModel::model but allows you to define the main model in the composition
     # using +:on+.
     #
@@ -32,8 +26,6 @@ module Reform::Form::Composition
 
       composition_model = options[:on] || main_model
 
-      handle_deprecated_model_accessor(composition_model)  unless options[:skip_accessors] # TODO: remove in 1.2.
-
       # FIXME: this should just delegate to :model as in FB, and the comp would take care of it internally.
       [:persisted?, :to_key, :to_param].each do |method|
         define_method method do
@@ -41,16 +33,7 @@ module Reform::Form::Composition
         end
       end
 
-      alias_method main_model, composition_model # #hit => model.song. # TODO: remove in 1.2.
-    end
-
-  private
-    def handle_deprecated_model_accessor(name, aliased=name)
-      define_method name do # form.band -> composition.band
-        warn %{[Reform] Deprecation WARNING: When using Composition, you may not call Form##{name} anymore to access the contained model. Please use Form#model[:#{name}] and have a lovely day!}
-
-        @model[name]
-      end
+      self
     end
   end
 
@@ -64,7 +47,7 @@ module Reform::Form::Composition
   end
 
   def to_hash(*args)
-    mapper.new(fields).to_hash(*args)
+    mapper.new(fields).to_hash(*args) # do not map names, yet. this happens in #to_nested_hash
   end
 
 private

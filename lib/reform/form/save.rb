@@ -51,12 +51,14 @@ module Reform::Form::Save
 
 
   require "active_support/hash_with_indifferent_access" # DISCUSS: replace?
-  def to_nested_hash
+  def to_nested_hash(*)
     map = mapper.new(fields).extend(NestedHash)
 
     ActiveSupport::HashWithIndifferentAccess.new(map.to_hash)
   end
-  # DISCUSS: make this (again) available as #to_hash or even #attributes?
+  alias_method :to_hash, :to_nested_hash
+  # NOTE: it is not recommended using #to_hash and #to_nested_hash in your code, consider
+  # them private.
 
 private
   def deprecate_first_save_block_arg(&block)

@@ -110,10 +110,9 @@ class ActiveModelWithCompositionTest < MiniTest::Spec
   let (:duran) { OpenStruct.new }
   let (:form) { HitForm.new(:song => rio, :artist => duran) }
 
-  describe "main form reader #hit" do# TODO: remove in 1.2. we don't support this reader #hit anymore.
-    it "delegates to :on model" do
-      form.hit.must_equal rio # TODO: remove in 1.2.
-    end
+  describe "model accessors a la model#[:hit]" do
+    it { form.model[:song].must_equal rio }
+    it { form.model[:artist].must_equal duran }
 
     it "doesn't delegate when :on missing" do
       class SongOnlyForm < Reform::Form
@@ -123,28 +122,10 @@ class ActiveModelWithCompositionTest < MiniTest::Spec
         property :title,  :on => :song
 
         model :song
-      end.new(:song => rio, :artist => duran).song.must_equal rio
+      end.new(:song => rio, :artist => duran).model[:song].must_equal rio
     end
-
-    # it "delegates when you call ::model" do
-    #   class SongOnlyForm < Reform::Form
-    #     include Composition
-    #     include Reform::Form::ActiveModel
-
-    #     property :title,  :on => :song
-    #     model :song
-
-    #     self
-    #   end.new(:song => rio, :artist => duran).persisted?
-    # end
   end
 
-
-  it "creates composition readers" do
-    skip "we don't want those anymore since they don't represent the form internal state!"
-    form.song.must_equal rio
-    form.artist.must_equal duran
-  end
 
   it "provides ::model_name" do
     form.class.model_name.must_equal "Hit"
