@@ -2,6 +2,7 @@ require 'ostruct'
 
 require 'reform/contract'
 require 'reform/composition'
+require 'reform/form/module'
 
 module Reform
   class Form < Contract

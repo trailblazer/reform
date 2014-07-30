@@ -33,29 +33,6 @@ class InheritTest < BaseTest
   end
 end
 
-module Reform::Form::Module
-  def self.included(base)
-    base.extend ClassMethods
-    base.extend Included
-  end
-
-  module Included # TODO: use representable's inheritance mechanism.
-    def included(base)
-      @property_configs.each { |cfg| base.property(*cfg.first, &cfg.last) }
-    end
-  end
-
-  module ClassMethods
-    def property(*args, &block)
-      property_configs << [args, block]
-    end
-
-    def property_configs
-      @property_configs ||= []
-    end
-  end
-end
-
 
 class ModuleInclusionTest < MiniTest::Spec
   module BandPropertyForm
@@ -63,7 +40,19 @@ class ModuleInclusionTest < MiniTest::Spec
 
     property :band do
       property :title
+
+      validates :title, :presence => true
+
+      def id # gets mixed into Form, too.
+        2
+      end
     end
+
+    def id # gets mixed into Form, too.
+      1
+    end
+
+    validates :band, :presence => true
   end
 
 
@@ -73,6 +62,18 @@ class ModuleInclusionTest < MiniTest::Spec
     include BandPropertyForm
   end
 
+  let (:song) { OpenStruct.new(:band => OpenStruct.new(:title => "Time Again")) }
 
-  it { SongForm.new(OpenStruct.new(:band => OpenStruct.new(:title => "Time Again"))).band.title.must_equal "Time Again" }
+  # nested form from module is present and creates accessor.
+  it { SongForm.new(song).band.title.must_equal "Time Again" }
+
+  # methods from module get included.
+  it { SongForm.new(song).id.must_equal 1 }
+  it { SongForm.new(song).band.id.must_equal 2 }
+
+  it do
+     form = SongForm.new(OpenStruct.new())
+     form.validate({})
+     form.errors.messages.must_equal({:band=>["can't be blank"]})
+  end
 end
