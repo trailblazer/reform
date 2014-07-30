@@ -7,6 +7,7 @@
 * inheritance with :inherit now works properly.
 * You can now define methods in inline forms.
 * deserialize json
+* Composition forms no longer expose readers to the composition members. the composition is available via Form#model, members via Form#model[:member_name].
 
 ## 1.0.4
 

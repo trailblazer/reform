@@ -23,10 +23,10 @@ class FormCompositionTest < MiniTest::Spec
     end
   end
 
-  let (:form)   { RequestForm.new(:song => song, :requester => requester) }
-  let (:song)   { Song.new(1, "Rio", Band.new("Duran^2")) }
-  let (:requester) { Requester.new(2, "Duran Duran", "MCP") }
-
+  let (:form)       { RequestForm.new(:song => song, :requester => requester) }
+  let (:song)       { Song.new(1, "Rio", band) }
+  let (:requester)  { Requester.new(2, "Duran Duran", "MCP") }
+  let (:band)       { Band.new("Duran^2") }
 
   # delegation form -> composition works
   it { form.id.must_equal 1 }
@@ -51,7 +51,7 @@ class FormCompositionTest < MiniTest::Spec
 
   describe "#save" do
     # #save with {}
-    it("xxx") do
+    it do
       hash = {}
 
       form.save do |map|
@@ -72,14 +72,16 @@ class FormCompositionTest < MiniTest::Spec
       end
 
       hash.must_equal({
-        :song=>{:title=>"Greyhound", :id=>1, :channel => "JJJ", :captcha=>"wonderful"},
-        :requester=>{:name=>"Frenzal Rhomb", :id=>2, :requester => "MCP"}}
+        :song=>{:title=>"Greyhound", :id=>1, :channel => "JJJ", :captcha=>"wonderful", :band=>{"title"=>"Duran^2"}},
+        :requester=>{:name=>"Frenzal Rhomb", :id=>2, :requester => "MCP"}
+        }
       )
     end
 
     it "pushes data to models and calls #save when no block passed" do
       song.extend(Saveable)
       requester.extend(Saveable)
+      band.extend(Saveable)
 
       form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb", "captcha" => "1337")
       form.captcha.must_equal "1337" # TODO: move to separate test.
@@ -90,6 +92,8 @@ class FormCompositionTest < MiniTest::Spec
       requester.saved?.must_equal true
       song.title.must_equal "Greyhound"
       song.saved?.must_equal true
+      song.band.title.must_equal "Duran^2"
+      song.band.saved?.must_equal true
     end
   end
 end
@@ -115,5 +119,5 @@ class FormCompositionCollectionTest < MiniTest::Spec
   let (:form)   { LibraryForm.new(library: library) }
   let (:library) { Library.new(2) }
 
-  it { form.save do |hash| hash.must_equal({"books"=>[{"id"=>1, "name"=>"My book"}]}) end }
+  it { form.save do |hash| hash.must_equal({:library=>{:books=>[{"id"=>1, "name"=>"My book"}]}}) end }
 end
