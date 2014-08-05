@@ -205,12 +205,14 @@ In future versions and with the upcoming [Trailblazer framework](https://github.
 Applying a contract is simple, all you need is a populated object (e.g. an album after `#update_attributes`).
 
 ```ruby
-album.update_attributes(..)
+album.assign_attributes(..)
 
-if AlbumContract.new(album).validate
+contract = AlbumContract.new(album)
+
+if contract.validate
   album.save
 else
-  raise album.errors.messages.inspect
+  raise contract.errors.messages.inspect
 end
 ```
 
