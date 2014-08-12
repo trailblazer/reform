@@ -40,4 +40,10 @@ module Reform::Form::ActiveRecord
     model_name = mapper.representable_attrs.get(name)[:on]
     model[model_name]
   end
+
+  # Delegate column for attribute to the model to support simple_form's
+  # attribute type interrogation.
+  def column_for_attribute(name)
+    model.column_for_attribute(name)
+  end
 end
