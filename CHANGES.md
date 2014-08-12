@@ -8,6 +8,7 @@
 * You can now define methods in inline forms.
 * deserialize json
 * Composition forms no longer expose readers to the composition members. the composition is available via Form#model, members via Form#model[:member_name].
+* Include ActiveRecord support correctly.
 
 ## 1.0.4
 
