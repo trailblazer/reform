@@ -1,5 +1,7 @@
 module Reform::Form::ActiveModel
   module ModelValidations
+    # TODO: extract Composition behaviour.
+    # reduce code in Mapping.
 
     class ValidationCopier
 
@@ -47,9 +49,9 @@ module Reform::Form::ActiveModel
     class Mapping
       def self.from_representable_attrs(attrs)
         new.tap do |mapping|
-          attrs.to_a.each do |(key,value)|
-            from = key.to_sym
-            to = [value[:on], (value[:private_name] || key)].compact.map(&:to_sym)
+          attrs.each do |dfn|
+            from = dfn.name
+            to = [dfn[:on], (dfn[:private_name] || dfn.name)].compact.map(&:to_sym)
             mapping.add(from, to)
           end
         end
