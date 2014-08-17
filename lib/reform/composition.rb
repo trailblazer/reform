@@ -1,5 +1,6 @@
 require 'disposable/composition'
 
+# TODO: replace that with lazy Twin and Composition from Disposable.
 module Reform
   class Expose
     include Disposable::Composition
