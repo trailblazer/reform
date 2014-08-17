@@ -262,8 +262,10 @@ class ReformTest < ReformSpec
     let (:model) { Artist.new }
     let (:klass) do
       require 'reform/active_record'
-      Class.new(Reform::Form) do
+
+      Class.new Reform::Form do
         include Reform::Form::ActiveRecord
+
         model :artist
 
         property :name
@@ -273,12 +275,50 @@ class ReformTest < ReformSpec
 
     it 'should delegate to the model' do
       Calls = []
-      def model.column_for_attribute(name)
-        Calls << :column_for_attribute
+
+      def model.column_for_attribute(*args)
+        Calls << [:column_for_attribute, *args]
       end
 
       form.column_for_attribute(:name)
-      Calls.must_include :column_for_attribute
+      Calls.must_include [:column_for_attribute, :name]
+    end
+  end
+
+  describe "#column_for_attribute with composition" do
+    let (:artist_model) { Artist.new }
+    let (:song_model) { Song.new }
+    let (:form_klass) do
+      require 'reform/active_record'
+
+      Class.new Reform::Form do
+        include Reform::Form::ActiveRecord
+        include Reform::Form::Composition
+
+        model :artist
+
+        property :name, on: :artist
+        property :title, on: :song
+      end
+    end
+    let (:form) { form_klass.new(artist: artist_model, song: song_model) }
+
+    it 'should delegate to the model' do
+      ArtistCalls, SongCalls = [], []
+
+      def artist_model.column_for_attribute(*args)
+        ArtistCalls << [:column_for_attribute, *args]
+      end
+
+      def song_model.column_for_attribute(*args)
+        SongCalls << [:column_for_attribute, *args]
+      end
+
+      form.column_for_attribute(:name)
+      ArtistCalls.must_include [:column_for_attribute, :name]
+
+      form.column_for_attribute(:title)
+      SongCalls.must_include [:column_for_attribute, :title]
     end
   end
 end

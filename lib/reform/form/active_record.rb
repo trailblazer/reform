@@ -44,6 +44,6 @@ module Reform::Form::ActiveRecord
   # Delegate column for attribute to the model to support simple_form's
   # attribute type interrogation.
   def column_for_attribute(name)
-    model.column_for_attribute(name)
+    model_for_property(name).column_for_attribute(name)
   end
 end
