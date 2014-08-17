@@ -50,7 +50,7 @@ module Reform::Form::ActiveModel
       def self.from_representable_attrs(attrs)
         new.tap do |mapping|
           attrs.each do |dfn|
-            from = dfn.name
+            from = dfn.name.to_sym
             to = [dfn[:on], (dfn[:private_name] || dfn.name)].compact.map(&:to_sym)
             mapping.add(from, to)
           end
