@@ -85,6 +85,34 @@ class ValidateTest < BaseTest
     it { subject.songs[1].title.must_equal "Roxanne" }
   end
 
+
+  # not sure if we should catch that in Reform or rather do that in disposable. this is https://github.com/apotonick/reform/pull/104
+  # describe ":populator with :empty" do
+  #   let (:form) {
+  #     Class.new(Reform::Form) do
+  #       collection :songs, :empty => true, :populator => lambda { |fragment, index, args|
+  #         songs[index] = args.binding[:form].new(Song.new)
+  #       } do
+  #         property :title
+  #       end
+  #     end
+  #    }
+
+  #   let (:params) {
+  #     {
+  #       "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"}]
+  #     }
+  #   }
+
+  #   subject { form.new(Album.new("Hits", [], [])) }
+
+  #   before { subject.validate(params) }
+
+  #   it { subject.songs[0].title.must_equal "Fallout" }
+  #   it { subject.songs[1].title.must_equal "Roxanne" }
+  # end
+
+
   describe ":populate_if_empty, half-populated collection" do
     let (:form) {
       Class.new(Reform::Form) do
