@@ -31,9 +31,7 @@ module Reform::Form::ActiveModel
       def add_validator(validator, model_name=nil)
         attributes = map_attributes(validator.attributes, model_name)
         if attributes.any?
-          @form_class.instance_eval do
-            validates(*attributes, {validator.kind => validator.options})
-          end
+          @form_class.validates(*attributes, {validator.kind => validator.options})
         end
       end
 
