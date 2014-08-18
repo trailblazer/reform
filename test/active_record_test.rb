@@ -93,7 +93,7 @@ class PopulateWithActiveRecordTest < MiniTest::Spec
     end
   end
 
-  let (:album) { Album.new }
+  let (:album) { Album.new(:songs => []) }
   it do
     form = AlbumForm.new(album)
 
@@ -119,13 +119,15 @@ class PopulateWithActiveRecordTest < MiniTest::Spec
     song.title.must_equal "Straight From The Jacket"
 
 
-    # saving saves association.
-    form.save
+    if ActiveRecord::VERSION::STRING !~ /^3.0/
+      # saving saves association.
+      form.save
 
-    album.reload
-    song = album.songs[0]
-    album.songs.must_equal [song]
-    song.title.must_equal "Straight From The Jacket"
+      album.reload
+      song = album.songs[0]
+      album.songs.must_equal [song]
+      song.title.must_equal "Straight From The Jacket"
+    end
   end
 
 
