@@ -1,6 +1,7 @@
 module Reform::Form::ActiveRecord
   def self.included(base)
     base.class_eval do
+      register_feature Reform::Form::ActiveRecord
       include Reform::Form::ActiveModel
       extend ClassMethods
     end

@@ -1,75 +1,81 @@
 require 'test_helper'
 require 'reform/active_record'
 
+# ActiveRecord::Schema.define do
+#   create_table :artists do |table|
+#     table.column :name, :string
+#     table.timestamps
+#   end
+#   create_table :songs do |table|
+#     table.column :title, :string
+#     table.column :artist_id, :integer
+#     table.column :album_id, :integer
+#     table.timestamps
+#   end
+#   create_table :albums do |table|
+#     table.column :title, :string
+#     table.timestamps
+#   end
+# end
+# Artist.new(:name => "Racer X").save
+
+
 class ActiveRecordTest < MiniTest::Spec
-  let (:form) do
-    Class.new(Reform::Form) do
-      include Reform::Form::ActiveRecord
-      model :artist
+  class SongForm < Reform::Form
+    include Reform::Form::ActiveRecord
+    model :song
 
+    property :title
+    property :created_at
+
+    validates_uniqueness_of :title
+    validates :created_at, :presence => true # have another property to test if we mix up.
+
+    property :artist do
       property :name
-      property :created_at
-
-      validates_uniqueness_of :name
-      validates :created_at, :presence => true # have another property to test if we mix up.
-    end.
-    new(Artist.new)
+      validates_uniqueness_of :name # this currently also tests if Form::AR is included as a feature.
+    end
   end
+
+  let (:form) { SongForm.new(Song.new(:artist => Artist.new)) }
 
   it { form.class.i18n_scope.must_equal :activerecord }
 
-  describe "UniquenessValidator" do
-    # ActiveRecord::Schema.define do
-    #   create_table :artists do |table|
-    #     table.column :name, :string
-    #     table.timestamps
-    #   end
-    #   create_table :songs do |table|
-    #     table.column :title, :string
-    #     table.column :artist_id, :integer
-    #     table.column :album_id, :integer
-    #     table.timestamps
-    #   end
-    #   create_table :albums do |table|
-    #     table.column :title, :string
-    #     table.timestamps
-    #   end
-    # end
-    # Artist.new(:name => "Racer X").save
+  it "allows accessing the database" do
+  end
 
-    it "allows accessing the database" do
-    end
+  # uniqueness
+  it "is valid when name is unique" do
+    form.validate("artist" => {"name" => "Paul Gilbert"}, "title" => "The Gargoyle", "created_at" => "November 6, 1966").must_equal true
+  end
 
-    it "is valid when name is unique" do
-      form.validate({"name" => "Paul Gilbert", "created_at" => "November 6, 1966"}).must_equal true
-    end
+  # nested object taken.
+  it "is invalid and shows error when taken" do
+    Song.delete_all
+    Artist.create(:name => "Racer X")
 
-    it "is invalid and shows error when taken" do
-      Artist.create(:name => "Racer X")
+    form.validate("artist" => {"name" => "Racer X"}, "title" => "Ghost Inside My Skin").must_equal false
+    form.errors.messages.must_equal({:"artist.name"=>["has already been taken"], :created_at => ["can't be blank"]})
+  end
 
-      form.validate({"name" => "Racer X"}).must_equal false
-      form.errors.messages.must_equal({:name=>["has already been taken"], :created_at => ["can't be blank"]})
-    end
+  it "works with Composition" do
+    form = Class.new(Reform::Form) do
+      include Reform::Form::ActiveRecord
+      include Reform::Form::Composition
 
-    it "works with Composition" do
-      form = Class.new(Reform::Form) do
-        include Reform::Form::ActiveRecord
-        include Reform::Form::Composition
+      property :name, :on => :artist
+      validates_uniqueness_of :name
+    end.new(:artist => Artist.new)
 
-        property :name, :on => :artist
-        validates_uniqueness_of :name
-      end.new(:artist => Artist.new)
-
-      Artist.create(:name => "Bad Religion")
-      form.validate("name" => "Bad Religion").must_equal false
-    end
+    Artist.create(:name => "Bad Religion")
+    form.validate("name" => "Bad Religion").must_equal false
   end
 
   describe "#save" do
     # TODO: test 1-n?
     it "calls model.save" do
       Artist.delete_all
-      form.validate("name" => "Bad Religion")
+      form.validate("artist" => {"name" => "Bad Religion"}, "title" => "Ghost Inside My Skin")
       form.save
       Artist.where(:name => "Bad Religion").size.must_equal 1
     end
