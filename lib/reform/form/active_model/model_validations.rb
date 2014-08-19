@@ -5,43 +5,44 @@ module Reform::Form::ActiveModel
 
     class ValidationCopier
 
-      def initialize(form_class, mapping)
-        @form_class = form_class
-        @mapping = mapping
-      end
-
-      def copy_from(models)
+      def self.copy(form_class, mapping, models)
         if models.is_a?(Hash)
           models.each do |model_name, model|
-            copy_from_model(model, model_name)
+            new(form_class, mapping, model, model_name).copy
           end
         else
-          copy_from_model(models)
+          new(form_class, mapping, models).copy
         end
       end
 
-      def copy_from_model(model, model_name=nil)
-        model.validators.each do |validator|
-          add_validator(validator, model_name)
-        end
+      def initialize(form_class, mapping, model, model_name=nil)
+        @form_class = form_class
+        @mapping = mapping
+        @model = model
+        @model_name = model_name
+      end
+
+      def copy
+        @model.validators.each(&method(:add_validator))
       end
 
     private
 
-      def add_validator(validator, model_name=nil)
-        attributes = map_attributes(validator.attributes, model_name)
+      def add_validator(validator)
+        attributes = inverse_map_attributes(validator.attributes)
         if attributes.any?
-          @form_class.instance_eval do
-            validates(*attributes, {validator.kind => validator.options})
-          end
+          @form_class.validates(*attributes, {validator.kind => validator.options})
         end
       end
 
-      def map_attributes(attributes, model_name=nil)
-        namespaced_attributes = attributes.map do |attribute|
-          [model_name, attribute].compact
+      def inverse_map_attributes(attributes)
+        @mapping.inverse_image(create_attributes(attributes))
+      end
+
+      def create_attributes(attributes)
+        attributes.map do |attribute|
+          [@model_name, attribute].compact
         end
-        @mapping.inverse_image(namespaced_attributes)
       end
 
     end
@@ -90,7 +91,7 @@ module Reform::Form::ActiveModel
     end
 
     def copy_validations_from(models)
-      ValidationCopier.new(self, Mapping.from_representable_attrs(representer_class.representable_attrs)).copy_from(models)
+      ValidationCopier.copy(self, Mapping.from_representable_attrs(representer_class.representable_attrs), models)
     end
 
   end
