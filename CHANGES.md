@@ -2,13 +2,13 @@
 
 * Deprecate first block argument in save. It's new signature is `save { |hash| }`. You already got the form instance when calling `form.save` so there's no need to pass it into the block.
 * `#validate` does **not** touch any model anymore. Both single values and collections are written to the model after `#sync` or `#save`.
-* coercion in validate, only
-* forms in modules!
-* inheritance with :inherit now works properly.
+* Coercion now happens in `#validate`, only.
+* You can now define forms in modules including `Reform::Form::Module` to improve reusability.
+* Inheriting from forms and then overriding/extending properties with `:inherit` now works properly.
 * You can now define methods in inline forms.
-* deserialize json
-* Composition forms no longer expose readers to the composition members. the composition is available via Form#model, members via Form#model[:member_name].
-* Include ActiveRecord support correctly.
+* Forms can now also deserialize other formats, e.g. JSON. This allows them to be used as a contract for API endpoints and in Operations in Trailblazer.
+* Composition forms no longer expose readers to the composition members. The composition is available via `Form#model`, members via `Form#model[:member_name]`.
+* ActiveRecord support is now included correctly and passed on to nested forms.
 * Undocumented/Experimental: Scalar forms. This is still WIP.
 
 ## 1.0.4
