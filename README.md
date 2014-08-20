@@ -493,6 +493,35 @@ Here's how the block parameters look like.
 end
 ```
 
+
+## Forms In Modules
+
+To maximize reusability, you can also define forms in modules and include them in other modules or classes.
+
+```ruby
+module SongsForm
+  include Reform::Form::Module
+
+  collection :songs do
+    property :title
+    validates :title, presence: true
+  end
+end
+```
+
+This can now be included into a real form.
+
+```ruby
+class AlbumForm < Reform::Form
+  property :title
+
+  include SongsForm
+end
+```
+
+Note that you can also override properties [using inheritance](#inheritance) in Reform.
+
+
 ## Inheritance
 
 Forms can be derived from other forms and will inherit all properties and validations.
