@@ -52,7 +52,7 @@ module Reform::Form::ActiveModel
       extend ClassMethods
       register_feature ActiveModel
 
-      delegate [:persisted?, :to_key, :to_param, :id] => :model
+      delegates :model, *[:persisted?, :to_key, :to_param, :id] # Uber::Delegates
 
       def to_model # this is called somewhere in FormBuilder and ActionController.
         self

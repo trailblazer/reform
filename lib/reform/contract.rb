@@ -1,12 +1,13 @@
 require 'forwardable'
 require 'uber/inheritable_attr'
+require 'uber/delegates'
 
 require 'reform/representer'
 
 module Reform
   # Gives you a DSL for defining the object structure and its validations.
   class Contract # DISCUSS: make class?
-    extend Forwardable
+    extend Uber::Delegates
 
     extend Uber::InheritableAttr
     # representer_class gets inherited (cloned) to subclasses.
@@ -67,13 +68,7 @@ module Reform
       def create_accessor(name)
         handle_reserved_names(name)
 
-        # Make a module that contains these very accessors, then include it
-        # so they can be overridden but still are callable with super.
-        accessors = Module.new do
-          extend Forwardable
-          delegate [name, "#{name}="] => :fields
-        end
-        include accessors
+        delegates :fields, name, "#{name}=" # Uber::Delegates
       end
 
       def handle_reserved_names(name)
