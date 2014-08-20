@@ -1,14 +1,15 @@
-## 2.0.0
+## 1.1.0
 
 * Deprecate first block argument in save. It's new signature is `save { |hash| }`. You already got the form instance when calling `form.save` so there's no need to pass it into the block.
-* Scalar
 * `#validate` does **not** touch any model anymore. Both single values and collections are written to the model after `#sync` or `#save`.
 * coercion in validate, only
+* forms in modules!
 * inheritance with :inherit now works properly.
 * You can now define methods in inline forms.
 * deserialize json
 * Composition forms no longer expose readers to the composition members. the composition is available via Form#model, members via Form#model[:member_name].
 * Include ActiveRecord support correctly.
+* Undocumented/Experimental: Scalar forms. This is still WIP.
 
 ## 1.0.4
 
