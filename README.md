@@ -567,6 +567,8 @@ Using `inherit:` here will extend the existing `songs` form with the `band_id` f
 
 Often you want incoming form data to be converted to a type, like timestamps. Reform uses [virtus](https://github.com/solnic/virtus) for coercion, the DSL is seamlessly integrated into Reform with the `:type` option.
 
+### Virtus Coercion
+
 Be sure to add `virtus` to your Gemfile.
 
 ```ruby
@@ -578,9 +580,31 @@ class SongForm < Reform::Form
   property :written_at, type: DateTime
 end
 
-@form.save do |data, nested|
-  data.written_at #=> <DateTime XXX>
+form.validate("written_at" => "26 September")
 ```
+
+Coercion only happens in `#validate`.
+
+```
+form.written_at #=> <DateTime "2014 September 26 00:00">
+```
+
+### Manual Coercing Values
+
+If you need to filter values manually, you can override the setter in the form.
+
+```ruby
+class SongForm < Reform::Form
+  property :title
+
+  def title=(value)
+    sanitize(value) # value is raw form input.
+  end
+end
+```
+
+As with the built-in coercion, this setter is only called in `#validate`.
+
 
 ## Virtual Attributes
 
