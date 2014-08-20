@@ -598,7 +598,7 @@ class SongForm < Reform::Form
   property :title
 
   def title=(value)
-    sanitize(value) # value is raw form input.
+    super sanitize(value) # value is raw form input.
   end
 end
 ```
