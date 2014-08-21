@@ -77,7 +77,7 @@ class ModuleInclusionTest < MiniTest::Spec
      form.errors.messages.must_equal({:band=>["can't be blank"]})
   end
 
-
+  # include a module into a module into a class :)
   module AlbumFormModule
     include Reform::Form::Module
     include BandPropertyForm
