@@ -100,4 +100,19 @@ class ModuleInclusionTest < MiniTest::Spec
     form.validate({"band" => {}})
     form.errors.messages.must_equal({:"band.title"=>["can't be blank"], :"band.label"=>["can't be blank"], :name=>["can't be blank"]})
   end
+
+
+  # including representer into form
+  module GenericRepresenter
+    include Representable
+
+    property :title
+  end
+
+  class LabelForm < Reform::Form
+    def self.inherit_module!(representer)
+
+    end
+    include GenericRepresenter
+  end
 end
