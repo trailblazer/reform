@@ -658,6 +658,35 @@ form.save do |f, nested|
   f.country #=> "Australia"
 ```
 
+## Validations From Models
+
+Sometimes when you still keep validations in your models (which you shouldn't) copying them to a form might not feel right. In that case, you can let Reform automatically copy them.
+
+```ruby
+class SongForm < Reform::Form
+  property :title
+
+  extend ActiveModel::ModelValidations
+  copy_validations_from Song
+end
+```
+
+Note how `copy_validations_from` copies over the validations allowing you to stay DRY.
+
+This also works with Composition.
+
+```ruby
+class SongForm < Reform::Form
+  include Composition
+  # ...
+
+  extend ActiveModel::ModelValidations
+  copy_validations_from song: Song, band: Band
+end
+```
+
+Be warned that we _do not_ encourage copying validations. You should rather move validation code into forms and not work on your model directly anymore.
+
 ## Agnosticism: Mapping Data
 
 Reform doesn't really know whether it's working with a PORO, an `ActiveRecord` instance or a `Sequel` row.

@@ -6,6 +6,7 @@
 * You can now define forms in modules including `Reform::Form::Module` to improve reusability.
 * Inheriting from forms and then overriding/extending properties with `:inherit` now works properly.
 * You can now define methods in inline forms.
+* Added `Form::ActiveModel::ModelValidations` to copy validations from model classes. Thanks to @cameron-martin for this fine addition.
 * Forms can now also deserialize other formats, e.g. JSON. This allows them to be used as a contract for API endpoints and in Operations in Trailblazer.
 * Composition forms no longer expose readers to the composition members. The composition is available via `Form#model`, members via `Form#model[:member_name]`.
 * ActiveRecord support is now included correctly and passed on to nested forms.
