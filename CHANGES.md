@@ -1,3 +1,7 @@
+## 1.1.1
+
+* Fix a bug where including a form module would mess up the options has of the validations (under older Rails).
+
 ## 1.1.0
 
 * Deprecate first block argument in save. It's new signature is `save { |hash| }`. You already got the form instance when calling `form.save` so there's no need to pass it into the block.

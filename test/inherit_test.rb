@@ -72,8 +72,32 @@ class ModuleInclusionTest < MiniTest::Spec
   it { SongForm.new(song).band.id.must_equal 2 }
 
   it do
-     form = SongForm.new(OpenStruct.new())
+     form = SongForm.new(OpenStruct.new)
      form.validate({})
      form.errors.messages.must_equal({:band=>["can't be blank"]})
+  end
+
+
+  module AlbumFormModule
+    include Reform::Form::Module
+    include BandPropertyForm
+
+    property :name
+    validates :name, :presence => true
+  end
+
+  class AlbumForm < Reform::Form
+    include AlbumFormModule
+
+    property :band, :inherit => true do
+      property :label
+      validates :label, :presence => true
+    end
+  end
+
+  it do
+    form = AlbumForm.new(OpenStruct.new(:band => OpenStruct.new))
+    form.validate({"band" => {}})
+    form.errors.messages.must_equal({:"band.title"=>["can't be blank"], :"band.label"=>["can't be blank"], :name=>["can't be blank"]})
   end
 end
