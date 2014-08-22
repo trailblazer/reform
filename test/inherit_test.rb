@@ -94,6 +94,7 @@ class ModuleInclusionTest < MiniTest::Spec
       validates :label, :presence => true
     end
   end
+  # puts "......"+ AlbumForm.representer_class.representable_attrs.get(:band).inspect
 
   it do
     form = AlbumForm.new(OpenStruct.new(:band => OpenStruct.new))
@@ -107,12 +108,26 @@ class ModuleInclusionTest < MiniTest::Spec
     include Representable
 
     property :title
+    property :manager do
+      property :title
+    end
   end
 
   class LabelForm < Reform::Form
-    def self.inherit_module!(representer)
+    property :location
 
-    end
     include GenericRepresenter
+    validates :title, :presence => true
+    property :manager, :inherit => true do
+      validates :title, :presence => true
+    end
+  end
+    # puts "......"+ LabelForm.representer_class.representable_attrs.get(:manager).inspect
+
+
+  it do
+    form = LabelForm.new(OpenStruct.new(:manager => OpenStruct.new))
+    form.validate({"manager" => {}})
+    form.errors.messages.must_equal(:title=>["can't be blank"], :"manager.title"=>["can't be blank"], )
   end
 end

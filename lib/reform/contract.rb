@@ -55,7 +55,7 @@ module Reform
       def setup_form_definition(definition)
         options = {
           # TODO: make this a bit nicer. why do we need :form at all?
-          :form         => (definition[:extend] and definition[:extend].evaluate(nil)) || definition[:form], # :form is always just a Form class name.
+          :form         => (definition.representer_module) || definition[:form], # :form is always just a Form class name.
           :pass_options => true, # new style of passing args
           :prepare      => lambda { |form, args| form }, # always just return the form without decorating.
           :representable => true, # form: Class must be treated as a typed property.
@@ -107,6 +107,15 @@ module Reform
 
     def self.register_feature(mod)
       features[mod] = true
+    end
+
+    # allows including representers from Representable, Roar or disposable.
+    def self.inherit_module!(representer) # called from Representable::included.
+      # representer_class.inherit_module!(representer)
+      representer.representable_attrs.each do |dfn|
+        # TODO: remove manifesting and do that in representable, too!
+        property(dfn.name, dfn.instance_variable_get(:@options)) { include dfn.representer_module if dfn.representer_module }
+      end
     end
 
     alias_method :aliased_model, :model
