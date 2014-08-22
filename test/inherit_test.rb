@@ -122,12 +122,12 @@ class ModuleInclusionTest < MiniTest::Spec
       validates :title, :presence => true
     end
   end
-    # puts "......"+ LabelForm.representer_class.representable_attrs.get(:manager).inspect
+    puts "......"+ LabelForm.representer_class.representable_attrs.get(:title).inspect
 
 
   it do
     form = LabelForm.new(OpenStruct.new(:manager => OpenStruct.new))
-    form.validate({"manager" => {}})
+    form.validate({"manager" => {}, "title"=>""}) # it's important to pass both nested and scalar here!
     form.errors.messages.must_equal(:title=>["can't be blank"], :"manager.title"=>["can't be blank"], )
   end
 end
