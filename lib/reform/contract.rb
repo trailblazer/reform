@@ -114,8 +114,10 @@ module Reform
       # representer_class.inherit_module!(representer)
       representer.representable_attrs.each do |dfn|
         next if dfn.name == "links" # wait a second # FIXME what is that?
+
         # TODO: remove manifesting and do that in representable, too!
         args = [dfn.name, dfn.instance_variable_get(:@options)] # TODO: dfn.to_args (inluding &block)
+
         property(*args) and next unless dfn.representer_module
         property(*args) { include dfn.representer_module } # nested.
       end
