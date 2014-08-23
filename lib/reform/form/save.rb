@@ -14,6 +14,7 @@ module Reform::Form::Save
     end
   end
 
+  # Returns the result of that save invocation on the model.
   def save(&block)
     # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
     return deprecate_first_save_block_arg(&block) if block_given?
@@ -23,8 +24,9 @@ module Reform::Form::Save
   end
 
   def save!
-    save_model
+    result = save_model
     mapper.new(fields).extend(RecursiveSave).to_hash # save! on all nested forms.  # TODO: only include nested forms here.
+    result
   end
 
   def save_model

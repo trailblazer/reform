@@ -78,4 +78,12 @@ class SaveTest < BaseTest
     it { band.saved?.must_equal true }
     it { label.saved?.must_equal nil }
   end
+
+
+  # #save returns result (this goes into disposable soon).
+  it { subject.save.must_equal true }
+  it do
+    album.instance_eval { def save; false; end }
+    subject.save.must_equal false
+  end
 end
