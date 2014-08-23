@@ -19,7 +19,6 @@ require 'reform/active_record'
 # end
 # Artist.new(:name => "Racer X").save
 
-
 class ActiveRecordTest < MiniTest::Spec
   class SongForm < Reform::Form
     include Reform::Form::ActiveRecord
@@ -28,7 +27,7 @@ class ActiveRecordTest < MiniTest::Spec
     property :title
     property :created_at
 
-    validates_uniqueness_of :title
+    validates_uniqueness_of :title, scope: [:album_id, :artist_id]
     validates :created_at, :presence => true # have another property to test if we mix up.
 
     property :artist do
@@ -37,7 +36,9 @@ class ActiveRecordTest < MiniTest::Spec
     end
   end
 
-  let (:form) { SongForm.new(Song.new(:artist => Artist.new)) }
+  let(:album)   { Album.create(:title => "Damnation") }
+  let(:artist)  { Artist.create(:name => "Opeth") }
+  let(:form)    { SongForm.new(Song.new(:artist => Artist.new)) }
 
   it { form.class.i18n_scope.must_equal :activerecord }
 
@@ -45,11 +46,20 @@ class ActiveRecordTest < MiniTest::Spec
   end
 
   # uniqueness
-  it "is valid when name is unique" do
-    form.validate("artist" => {"name" => "Paul Gilbert"}, "title" => "The Gargoyle", "created_at" => "November 6, 1966").must_equal true
+  it "is valid when title is unique for the same artist and album" do
+    form.validate("title" => "The Gargoyle", "artist_id" => artist.id, "album" => album.id).must_equal true
+  end
+
+  it "is invalid when title is taken for the same artist and album" do
+    Song.create(title: "Windowpane", artist: artist, album: album)
+    form.validate("title" => "Windowpane", "artist_id" => artist.id, "album" => album).must_equal false
   end
 
   # nested object taken.
+  it "is valid when artist name is unique" do
+    form.validate("artist" => {"name" => "Paul Gilbert"}, "title" => "The Gargoyle", "created_at" => "November 6, 1966").must_equal true
+  end
+
   it "is invalid and shows error when taken" do
     Song.delete_all
     Artist.create(:name => "Racer X")
@@ -189,8 +199,6 @@ class PopulateWithActiveRecordTest < MiniTest::Spec
   #   puts "---"
   #   a.save
   #   puts a.songs.inspect
-
-
 
   #   b = a.songs.first
 
