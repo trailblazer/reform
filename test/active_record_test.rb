@@ -47,11 +47,11 @@ class ActiveRecordTest < MiniTest::Spec
 
   # uniqueness
   it "is valid when title is unique for the same artist and album" do
-    form.validate("title" => "The Gargoyle", "artist_id" => artist.id, "album" => album.id).must_equal true
+    form.validate("title" => "The Gargoyle", "artist_id" => artist.id, "album" => album.id, "created_at" => "November 6, 1966").must_equal true
   end
 
   it "is invalid when title is taken for the same artist and album" do
-    Song.create(title: "Windowpane", artist: artist, album: album)
+    Song.create(title: "Windowpane", artist_id: artist.id, album_id: album.id)
     form.validate("title" => "Windowpane", "artist_id" => artist.id, "album" => album).must_equal false
   end
 
