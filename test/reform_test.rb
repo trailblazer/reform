@@ -164,23 +164,6 @@ class ReformTest < ReformSpec
         form.errors.messages.must_equal({:name=>["can't be blank"], :title=>["can't be blank"]})
       end
     end
-
-    describe "method validations" do
-      it "allows accessing models" do
-        form = Class.new(Reform::Form) do
-          property :name
-          validate "name_correct?"
-
-          def name_correct?
-            errors.add :name, "Please give me a name" if model.name.nil?
-          end
-        end.new(comp)
-
-        form.validate({}).must_equal false
-        form.errors.messages.must_equal({:name=>["Please give me a name"]})
-      end
-    end
-
   end
 
   describe "#errors" do

@@ -275,6 +275,32 @@ class ValidateTest < BaseTest
     it { subject.band.label.name.must_equal "Stiff" }
     it { subject.title.must_equal "House Of Fun" }
   end
+
+
+  # providing manual validator method allows accessing form's API.
+  describe "with ::validate" do
+    let (:form) {
+      Class.new(Reform::Form) do
+        property :title
+
+        validate :title?
+
+        def title?
+          errors.add :title, "not lowercase" if title == "Fallout"
+        end
+      end
+     }
+
+    let (:params) { {"title" => "Fallout"} }
+    let (:song) { Song.new("Englishman") }
+
+    subject { form.new(song) }
+
+    before { @res = subject.validate(params) }
+
+    it { @res.must_equal false }
+    it { subject.errors.messages.must_equal({:title=>["not lowercase"]}) }
+  end
 end
 
 # #validate(params)
