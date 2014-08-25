@@ -48,8 +48,8 @@ module Reform
         property(name, options, &block)
       end
 
-      def properties(names, *args)
-        names.each { |name| property(name, *args) }
+      def properties(names, options={})
+        names.each { |name| property(name, options.dup) }
       end
 
       def setup_form_definition(definition)
