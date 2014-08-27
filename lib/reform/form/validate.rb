@@ -12,6 +12,8 @@ module Reform::Form::Validate
           :collection => attr[:collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
           :parse_strategy => :sync, # just use nested objects as they are.
 
+          # :getter grabs nested forms directly from fields bypassing the reader method which could possibly be overridden for presentation.
+          :getter      => lambda { |options| fields.send(options.binding.name) },
           :deserialize => lambda { |object, params, args| object.update!(params) },
         )
 
@@ -59,6 +61,10 @@ module Reform::Form::Validate
         form  = binding[:form].new(model) # free service: wrap model with Form. this usually happens in #setup.
 
         if binding.array?
+          # TODO: please extract this into Disposable.
+          fields = fields.send(:fields)
+
+          fields.send("#{binding.setter}", []) unless fields.send("#{binding.getter}") # DISCUSS: why do I have to initialize this here?
           fields.send("#{binding.getter}")[index] = form
         else
           fields.send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.

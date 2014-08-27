@@ -4,7 +4,7 @@
 * Fix `::properties` which modified the options hash while iterating properties.
 * `Form#save` now returns the result of the `model.save` invocation.
 * `::validates_uniqueness_of` now accepts options like `:scope`. Thanks to @cveneziani for a failing test and insight.
-
+* Fix: When overriding a reader method for a nested form for presentation (e.g. to provide an initial new record), this reader was used in `#update!`. The deserialize/update run now grabs the actual nested form instances directly from `fields`.
 
 ## 1.1.0
 

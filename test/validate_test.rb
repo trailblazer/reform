@@ -301,6 +301,40 @@ class ValidateTest < BaseTest
     it { @res.must_equal false }
     it { subject.errors.messages.must_equal({:title=>["not lowercase"]}) }
   end
+
+
+  # overriding the reader for a nested form should only be considered when rendering.
+  describe "with overridden reader for nested form" do
+    let (:form) {
+      Class.new(Reform::Form) do
+        property :band, :populate_if_empty => lambda { |*| Band.new } do
+          property :label
+        end
+
+        collection :songs, :populate_if_empty => lambda { |*| Song.new } do
+          property :title
+        end
+
+        def band
+          raise "only call me when rendering the form!"
+        end
+
+        def songs
+          raise "only call me when rendering the form!"
+        end
+      end.new(album)
+     }
+
+     let (:album) { Album.new }
+
+     # don't use #artist when validating!
+     it do
+       form.validate("band" => {"label" => "Hellcat"}, "songs" => [{"title" => "Stand Your Ground"}, {"title" => "Otherside"}])
+       form.sync
+       album.band.label.must_equal "Hellcat"
+       album.songs.first.title.must_equal "Stand Your Ground"
+     end
+  end
 end
 
 # #validate(params)
