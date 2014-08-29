@@ -82,6 +82,8 @@ module Reform::Form::Validate
     super() # run the actual validation on self.
   end
 
+  # Some users use this method to pre-populate a form. Not saying this is right, but we'll keep
+  # this method here.
   def update!(params)
     deserialize!(params)
   end

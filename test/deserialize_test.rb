@@ -3,6 +3,8 @@ require 'representable/json'
 
 class DeserializeTest < BaseTest
   class AlbumContract < Reform::Form
+    include Reform::Form::ActiveModel::FormBuilderMethods # overrides #update!, too.
+
     self.representer_class.class_eval do
       include Representable::JSON
     end
@@ -33,8 +35,8 @@ class DeserializeTest < BaseTest
 
   let (:json) { '{"hit":{"title":"Sacrifice"},"title":"Second Heat","songs":[{"title":"Heart Of A Lion"}],"band":{"label":{"name":"Fat Wreck"}}}' }
 
-  it {
+  it do
     subject.validate(json)
     subject.band.label.name.must_equal "Fat Wreck"
-     }
+  end
 end

@@ -25,8 +25,9 @@ module Reform::Form::ActiveModel
 
     # Modify the incoming Rails params hash to be representable compliant.
     def update!(params)
-      # DISCUSS: #validate should actually expect the complete params hash and then pick the right key as it knows the form name.
-      # however, this would cause confusion?
+      return super unless params.is_a?(Hash)
+      # TODO: run this only for hash deserialization, but generically (#deserialize_hash ?).
+
       mapper.new(self).nested_forms do |attr, model| # FIXME: make this simpler.
         rename_nested_param_for!(params, attr)
       end
