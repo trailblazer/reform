@@ -46,13 +46,15 @@ class ActiveRecordTest < MiniTest::Spec
   end
 
   # uniqueness
-  it "is valid when title is unique for the same artist and album" do
-    form.validate("title" => "The Gargoyle", "artist_id" => artist.id, "album" => album.id, "created_at" => "November 6, 1966").must_equal true
+  it "has no errors on title when title is unique for the same artist and album" do
+    form.validate("title" => "The Gargoyle", "artist_id" => artist.id, "album" => album.id, "created_at" => "November 6, 1966")
+    assert_empty form.errors[:title]
   end
 
-  it "is invalid when title is taken for the same artist and album" do
+  it "has errors on title when title is taken for the same artist and album" do
     Song.create(title: "Windowpane", artist_id: artist.id, album_id: album.id)
-    form.validate("title" => "Windowpane", "artist_id" => artist.id, "album" => album).must_equal false
+    form.validate("title" => "Windowpane", "artist_id" => artist.id, "album" => album)
+    refute_empty form.errors[:title]
   end
 
   # nested object taken.
