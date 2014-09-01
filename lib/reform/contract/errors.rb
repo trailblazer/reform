@@ -32,6 +32,6 @@ class Reform::Contract::Errors < ActiveModel::Errors
   end
 
   def to_s
-    messages.to_s
+    messages.inspect
   end
 end # Errors
