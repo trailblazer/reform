@@ -55,6 +55,17 @@ class ModuleInclusionTest < MiniTest::Spec
     validates :band, :presence => true
   end
 
+  # TODO: test if works, move stuff into inherit_schema!
+  module AirplaysPropertyForm
+    include Reform::Form::Module
+
+    collection :airplays do
+      property :station
+      validates :station, :presence => true
+    end
+    validates :airplays, :presence => true
+  end
+
 
   class SongForm < Reform::Form
     property :title

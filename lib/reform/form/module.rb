@@ -1,5 +1,5 @@
 # Include this in every module that gets further included.
-module Reform::Form::Module
+module Reform::Form::Module # Schema
   def self.included(base)
     base.extend ClassMethods
     base.extend Included
@@ -17,11 +17,8 @@ module Reform::Form::Module
   end
 
   module ClassMethods
-    def property(*args, &block)
-      instructions << [:property, args, block]
-    end
-    def validates(*args, &block)
-      instructions << [:validates, args, block]
+    def method_missing(method, *args, &block)
+      instructions << [method, args, block]
     end
 
     def instructions
