@@ -30,4 +30,8 @@ class Reform::Contract::Errors < ActiveModel::Errors
   def valid? # TODO: test me in unit test.
     blank?
   end
+
+  def to_s
+    messages.to_s
+  end
 end # Errors

@@ -5,6 +5,7 @@
 * `Form#save` now returns the result of the `model.save` invocation.
 * `::validates_uniqueness_of` now accepts options like `:scope`. Thanks to @cveneziani for a failing test and insight.
 * Fix: When overriding a reader method for a nested form for presentation (e.g. to provide an initial new record), this reader was used in `#update!`. The deserialize/update run now grabs the actual nested form instances directly from `fields`.
+* `Errors#to_s` is now delegated to `messages.to_s`. This is used in `Trailblazer::Operation`.
 
 ## 1.1.0
 

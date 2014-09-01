@@ -119,4 +119,12 @@ class ErrorsTest < MiniTest::Spec
     it { form.title.must_equal "Second Heat" }
     it { form.songs.first.title.must_equal "Heart Of A Lion" }
   end
+
+
+  describe "Errors#to_s" do
+    before { form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
+
+    # to_s is aliased to messages
+    it { form.errors.to_s.must_equal "{:\"songs.title\"=>[\"can't be blank\"], :\"band.label.name\"=>[\"can't be blank\"]}" }
+  end
 end
