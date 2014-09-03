@@ -34,6 +34,7 @@ class InheritTest < BaseTest
 end
 
 
+require 'reform/form/coercion'
 class ModuleInclusionTest < MiniTest::Spec
   module BandPropertyForm
     include Reform::Form::Module
@@ -53,6 +54,8 @@ class ModuleInclusionTest < MiniTest::Spec
     end
 
     validates :band, :presence => true
+
+    property :cool, type: Virtus::Attribute::Boolean # test coercion.
   end
 
   # TODO: test if works, move stuff into inherit_schema!
@@ -67,11 +70,18 @@ class ModuleInclusionTest < MiniTest::Spec
   end
 
 
+  # test:
+  # by including BandPropertyForm into multiple classes we assure that options hashes don't get messed up by AM:V.
+  class HitForm < Reform::Form
+    include BandPropertyForm
+  end
+
   class SongForm < Reform::Form
     property :title
 
     include BandPropertyForm
   end
+
 
   let (:song) { OpenStruct.new(:band => OpenStruct.new(:title => "Time Again")) }
 
@@ -82,11 +92,20 @@ class ModuleInclusionTest < MiniTest::Spec
   it { SongForm.new(song).id.must_equal 1 }
   it { SongForm.new(song).band.id.must_equal 2 }
 
+  # validators get inherited.
   it do
-     form = SongForm.new(OpenStruct.new)
-     form.validate({})
-     form.errors.messages.must_equal({:band=>["can't be blank"]})
+    form = SongForm.new(OpenStruct.new)
+    form.validate({})
+    form.errors.messages.must_equal({:band=>["can't be blank"]})
   end
+
+  # coercion works
+  it do
+    form = SongForm.new(OpenStruct.new)
+    form.validate({:cool => "1"})
+    form.cool.must_equal true
+  end
+
 
   # include a module into a module into a class :)
   module AlbumFormModule
