@@ -1,9 +1,12 @@
+## 1.1.2
+
+* `::validates_uniqueness_of` now accepts options like `:scope`. Thanks to @cveneziani for a failing test and insight.
+
 ## 1.1.1
 
 * Fix a bug where including a form module would mess up the options has of the validations (under older Rails).
 * Fix `::properties` which modified the options hash while iterating properties.
 * `Form#save` now returns the result of the `model.save` invocation.
-* `::validates_uniqueness_of` now accepts options like `:scope`. Thanks to @cveneziani for a failing test and insight.
 * Fix: When overriding a reader method for a nested form for presentation (e.g. to provide an initial new record), this reader was used in `#update!`. The deserialize/update run now grabs the actual nested form instances directly from `fields`.
 * `Errors#to_s` is now delegated to `messages.to_s`. This is used in `Trailblazer::Operation`.
 
