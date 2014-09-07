@@ -26,6 +26,9 @@ module Reform::Form::Validate
       # FIXME: solve this with a dedicated Populate Decorator per Form.
       representable_attrs.each do |attr|
         attr.merge!(:parse_filter => Representable::Coercion::Coercer.new(attr[:coercion_type])) if attr[:coercion_type]
+
+        attr.merge!(:skip_if => Skip::AllBlank.new) if attr[:skip_if] == :all_blank
+        attr.merge!(:skip_parse => attr[:skip_if]) if attr[:skip_if]
       end
 
       super
@@ -71,6 +74,21 @@ module Reform::Form::Validate
         end
       end
     end # PopulateIfEmpty
+  end
+
+
+  module Skip
+    class AllBlank
+      include Uber::Callable
+
+      def call(form, params, options)
+        # TODO: hahahahahaha.
+        properties = options.binding.representer_module.representer_class.representable_attrs[:definitions].keys
+
+        properties.each { |name| params[name].present? and return false }
+        true # skip
+      end
+    end
   end
 
   # 1. Populate the form object graph so that each incoming object has a representative form object.

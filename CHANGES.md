@@ -1,6 +1,7 @@
 ## 1.1.2
 
 * `::validates_uniqueness_of` now accepts options like `:scope`. Thanks to @cveneziani for a failing test and insight.
+* `:skip_if`, `:skip_if: :all_blank`.
 
 ## 1.1.1
 
