@@ -202,7 +202,7 @@ In future versions and with the upcoming [Trailblazer framework](https://github.
 
 ### Using Contracts
 
-Applying a contract is simple, all you need is a populated object (e.g. an album after `#update_attributes`).
+Applying a contract is simple, all you need is a populated object (e.g. an album after `#assign_attributes`).
 
 ```ruby
 album.assign_attributes(..)
