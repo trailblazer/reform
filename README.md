@@ -288,9 +288,7 @@ Or use something like `#fields_for` in a Rails environment.
 The block form of `#save` would give you the following data.
 
 ```ruby
-@form.save do |data, nested|
-  data.title #=> "Hungry Like The Wolf"
-  data.artist.name #=> "Duran Duran"
+@form.save do |nested|
 
   nested #=> {title:  "Hungry Like The Wolf",
          #    artist: {name: "Duran Duran"}}
@@ -357,10 +355,8 @@ However, `#fields_for` works just fine, again.
 The block form of `#save` will expose the data structures already discussed.
 
 ```ruby
-@form.save do |data, nested|
-  data.title #=> "Rio"
-  data.songs.first.title #=> "Hungry Like The Wolf"
-
+@form.save do |nested|
+  
   nested #=> {title: "Rio"
          #   songs: [{title: "Hungry Like The Wolf"},
          #          {title: "Last Chance On The Stairways"}]
@@ -482,10 +478,8 @@ When using `#save' without a block reform will use writer methods on the differe
 Here's how the block parameters look like.
 
 ```ruby
-@form.save do |data, nested|
-  data.title #=> "Rio"
-  data.city  #=> "London"
-
+@form.save do |nested|
+  
   nested #=> {
          #   song:  {title: "Rio"}
          #   label: {city: "London"}
@@ -632,7 +626,7 @@ form.password_confirmation #=> "321"
 The nested hash in the block-`#save` provides the same value.
 
 ```ruby
-form.save do |f, nested|
+form.save do |nested|
   nested[:password_confirmation] #=> "321"
 ```
 
@@ -652,10 +646,8 @@ You want to use this to display an initial value or to further process this fiel
 It is still readable in the nested hash and through the form itself.
 
 ```ruby
-form.save do |f, nested|
+form.save do |nested|
   nested[:country] #=> "Australia"
-
-  f.country #=> "Australia"
 ```
 
 ## Validations From Models
