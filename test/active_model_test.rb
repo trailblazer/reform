@@ -13,6 +13,7 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
   it { form.persisted?.must_equal true }
   it { form.to_key.must_equal [artist.id] }
   it { form.to_param.must_equal "#{artist.id}" }
+  it { form.has_attribute?(:name).must_equal true }
   it { form.to_model.must_equal form }
   it { form.id.must_equal artist.id }
 
