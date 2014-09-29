@@ -144,6 +144,10 @@ class ActiveModelWithCompositionTest < MiniTest::Spec
     HitForm.new(:song => OpenStruct.new.instance_eval { def to_param; "yo!"; end; self }, :artist => OpenStruct.new).to_param.must_equal "yo!"
   end
 
+  it "provides #has_attribute?" do
+    HitForm.new(:song => OpenStruct.new.instance_eval { def has_attribute?; "yo!"; end; self }, :artist => OpenStruct.new).has_attribute?.must_equal "yo!"
+  end
+
   it "provides #to_model" do
     form = HitForm.new(:song => OpenStruct.new, :artist => OpenStruct.new)
     form.to_model.must_equal form

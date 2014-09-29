@@ -27,7 +27,7 @@ module Reform::Form::Composition
       composition_model = options[:on] || main_model
 
       # FIXME: this should just delegate to :model as in FB, and the comp would take care of it internally.
-      [:persisted?, :to_key, :to_param].each do |method|
+      [:persisted?, :to_key, :to_param, :has_attribute?].each do |method|
         define_method method do
           model[composition_model].send(method)
         end
