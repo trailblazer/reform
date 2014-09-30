@@ -95,6 +95,28 @@ class FormCompositionTest < MiniTest::Spec
       song.band.title.must_equal "Duran^2"
       song.band.saved?.must_equal true
     end
+
+    it "returns true when models all save successfully" do
+      song.extend(Saveable)
+      requester.extend(Saveable)
+      band.extend(Saveable)
+
+      form.save.must_equal true
+    end
+
+    it "returns false when one or more models don't save successfully" do
+      module Unsaveable
+        def save
+          false
+        end
+      end
+
+      song.extend(Unsaveable)
+      requester.extend(Saveable)
+      band.extend(Saveable)
+
+      form.save.must_equal false
+    end
   end
 end
 
