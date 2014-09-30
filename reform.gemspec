@@ -18,8 +18,8 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency             "representable",  "~> 2.0.3"
-  spec.add_dependency             "disposable",     "~> 0.0.5"
+  spec.add_dependency             "representable",  ">= 2.0.3", "< 2.2.0" # I'm most probably change tiny bits in rep-2.2.
+  spec.add_dependency             "disposable",     "~> 0.0.7"
   spec.add_dependency             "uber",           "~> 0.0.8"
   spec.add_dependency             "activemodel"
   spec.add_development_dependency "bundler",        "~> 1.3"
