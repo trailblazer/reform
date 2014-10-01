@@ -13,4 +13,6 @@ module Reform::Form::ModelReflections
   def column_for_attribute(name)
     model_for_property(name).column_for_attribute(name)
   end
+
+  # this should also contain to_param and friends as this is used by the form helpers.
 end

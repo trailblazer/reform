@@ -19,12 +19,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency             "representable",  ">= 2.0.3", "< 2.2.0" # I'm most probably change tiny bits in rep-2.2.
-  spec.add_dependency             "disposable",     "~> 0.0.7"
+  spec.add_dependency             "disposable",     "~> 0.0.8"
   spec.add_dependency             "uber",           "~> 0.0.8"
   spec.add_dependency             "activemodel"
   spec.add_development_dependency "bundler",        "~> 1.3"
   spec.add_development_dependency "rake"
-  spec.add_development_dependency "minitest",       "4.2.0"
+  spec.add_development_dependency "minitest",       "5.4.1"
   spec.add_development_dependency "activerecord"
   spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "virtus"

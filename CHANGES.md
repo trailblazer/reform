@@ -9,7 +9,9 @@
       include ModelReflections
     ```
 
-    Including this module will add `#column_for_attributes` and other methods need by form builders to automatically guess the type of a property.
+    Including this module will add `#column_for_attribute` and other methods need by form builders to automatically guess the type of a property.
+
+### Changes
 
 * `Form#save` with `Composition` now returns true only if all composite models saved.
 * `Form::copy_validations_from` allows copying custom validators now.
