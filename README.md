@@ -163,9 +163,18 @@ You can always access the form's model. This is helpful when you were using popu
 
 ```ruby
   @form.save do |nested|
-    album = @form.album.model
+    album = @form.model
 
     album.update_attributes(nested[:album])
+  end
+```
+
+If the form wraps multiple models, via [composition](#compositions), you can access them like this:
+
+```ruby
+  @form.save do |nested|
+    song = @form.model[:song]
+    label = @form.model[:label]
   end
 ```
 
@@ -356,7 +365,7 @@ The block form of `#save` will expose the data structures already discussed.
 
 ```ruby
 @form.save do |nested|
-  
+
   nested #=> {title: "Rio"
          #   songs: [{title: "Hungry Like The Wolf"},
          #          {title: "Last Chance On The Stairways"}]
@@ -479,7 +488,7 @@ Here's how the block parameters look like.
 
 ```ruby
 @form.save do |nested|
-  
+
   nested #=> {
          #   song:  {title: "Rio"}
          #   label: {city: "London"}
