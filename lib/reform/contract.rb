@@ -34,6 +34,9 @@ module Reform
 
         options[:features] ||= []
         options[:features] += features.keys if block_given?
+        if options[:validates]
+          validates name, options.delete(:validates)
+        end
 
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given? or options[:form]
