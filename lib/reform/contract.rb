@@ -27,32 +27,19 @@ module Reform
 
 
     module PropertyMethods
-      def property(name, options={}, &block)
-        options[:private_name] = options.delete(:as)
+      def property(*args, &block)
+        options = args.last.kind_of?(Hash) ? args.pop : {}
+        args.flatten.each { |name| add_property(name, options.dup, &block) }
+      end
 
-        options[:coercion_type] = options.delete(:type)
-
-        options[:features] ||= []
-        options[:features] += features.keys if block_given?
-        if options[:validates]
-          validates name, options.delete(:validates)
-        end
-
-        definition = representer_class.property(name, options, &block)
-        setup_form_definition(definition) if block_given? or options[:form]
-
-        create_accessor(name)
-        definition
+      def properties(*args, &block)
+        property(*args, &block)
       end
 
       def collection(name, options={}, &block)
         options[:collection] = true
 
         property(name, options, &block)
-      end
-
-      def properties(names, options={})
-        names.each { |name| property(name, options.dup) }
       end
 
       def setup_form_definition(definition)
@@ -67,7 +54,25 @@ module Reform
         definition.merge!(options)
       end
 
-    private
+      private
+
+      def add_property(name, options={}, &block)
+        options[:private_name] = options.delete(:as)
+        options[:coercion_type] = options.delete(:type)
+        options[:features] ||= []
+        options[:features] += features.keys if block_given?
+
+        if options[:validates]
+          validates name, options.delete(:validates)
+        end
+
+        definition = representer_class.property(name, options, &block)
+        setup_form_definition(definition) if block_given? or options[:form]
+
+        create_accessor(name)
+        definition
+      end
+
       def create_accessor(name)
         handle_reserved_names(name)
 

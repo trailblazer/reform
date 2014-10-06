@@ -31,14 +31,12 @@ class SongForm < Reform::Form
 end
 ```
 
-Or, if you prefer, specify validations separately:
+Or, if you prefer, specify validations separately. You can also add multiple properties if they
+share the same options (`properties` works too).
 
 ```ruby
 class SongForm < Reform::Form
-  property :title
-  property :length
-
-  validates :title,  presence: true
+  property :title, :length, validates: {presence: true}
   validates :length, numericality: true
 end
 ```
