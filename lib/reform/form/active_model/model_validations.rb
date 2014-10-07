@@ -29,10 +29,22 @@ module Reform::Form::ActiveModel
     private
 
       def add_validator(validator)
+        if validator.respond_to?(:attributes)
+          add_native_validator validator
+        else
+          add_custom_validator validator
+        end
+      end
+
+      def add_native_validator validator
         attributes = inverse_map_attributes(validator.attributes)
         if attributes.any?
           @form_class.validates(*attributes, {validator.kind => validator.options})
         end
+      end
+
+      def add_custom_validator validator
+        @form_class.validates(nil, {validator.kind => validator.options})
       end
 
       def inverse_map_attributes(attributes)

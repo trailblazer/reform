@@ -1,5 +1,20 @@
-## 1.1.2
+## 1.2.0
 
+### Breakage
+
+* Due to countless bugs we no longer include support for simple_form's type interrogation automatically. This allows using forms with non-AM objects. If you want full support for simple_form do as follows.
+
+    ```ruby
+    class SongForm < Reform::Form
+      include ModelReflections
+    ```
+
+    Including this module will add `#column_for_attribute` and other methods need by form builders to automatically guess the type of a property.
+
+### Changes
+
+* `Form#save` with `Composition` now returns true only if all composite models saved.
+* `Form::copy_validations_from` allows copying custom validators now.
 * `::validates_uniqueness_of` now accepts options like `:scope`. Thanks to @cveneziani for a failing test and insight.
 * `:skip_if`, `:skip_if: :all_blank`.
 

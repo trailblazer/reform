@@ -42,7 +42,7 @@ module Reform
     end
 
     def save
-      each { |model| model.save }
+      each.collect { |model| model.save }.all?
     end
 
     def nested_hash_for(attrs)

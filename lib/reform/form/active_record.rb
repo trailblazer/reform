@@ -35,17 +35,11 @@ module Reform::Form::ActiveRecord
     end
   end
 
-
+  # TODO: this is no AR thing.
   def model_for_property(name)
     return model unless is_a?(Reform::Form::Composition) # i am too lazy for proper inheritance. there should be a ActiveRecord::Composition that handles this.
 
     model_name = mapper.representable_attrs.get(name)[:on]
     model[model_name]
-  end
-
-  # Delegate column for attribute to the model to support simple_form's
-  # attribute type interrogation.
-  def column_for_attribute(name)
-    model_for_property(name).column_for_attribute(name)
   end
 end
