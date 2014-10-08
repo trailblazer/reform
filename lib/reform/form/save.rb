@@ -44,7 +44,7 @@ module Reform::Form::Save
       end
 
       representable_attrs.each do |attr|
-        attr.merge!(:as => attr[:private_name] || attr.name)
+        attr.merge!(:as => attr[:as] || attr.name)
       end
 
       super

@@ -28,7 +28,7 @@ module Reform
 
     module PropertyMethods
       def property(name, options={}, &block)
-        options[:private_name] = options.delete(:as)
+        options[:as] = options.delete(:as)
 
         options[:coercion_type] = options.delete(:type)
 

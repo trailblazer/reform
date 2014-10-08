@@ -64,7 +64,7 @@ module Reform::Form::ActiveModel
         new.tap do |mapping|
           attrs.each do |dfn|
             from = dfn.name.to_sym
-            to = [dfn[:on], (dfn[:private_name] || dfn.name)].compact.map(&:to_sym)
+            to = [dfn[:on], (dfn[:as] || dfn.name)].compact.map(&:to_sym)
             mapping.add(from, to)
           end
         end

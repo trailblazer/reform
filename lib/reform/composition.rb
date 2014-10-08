@@ -24,7 +24,7 @@ module Reform
     private
       def process_definition!(options, definition)
         options[:model] ||= []
-        options[:model] << [definition[:private_name], definition.name].compact
+        options[:model] << [definition[:as], definition.name].compact
       end
     end
   end
@@ -37,7 +37,7 @@ module Reform
       # Builder for a concrete Composition class with configurations from the form's representer.
       def process_definition!(options, definition)
         options[definition[:on]] ||= []
-        options[definition[:on]] << [definition[:private_name], definition.name].compact
+        options[definition[:on]] << [definition[:as], definition.name].compact
       end
     end
 
