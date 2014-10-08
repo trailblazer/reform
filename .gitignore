@@ -17,4 +17,3 @@ test/tmp
 test/version_tmp
 tmp
 test/dummy/log/*.log
-database.sqlite3
