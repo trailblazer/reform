@@ -2,19 +2,19 @@ require 'test_helper'
 
 class AsTest < BaseTest
   class AlbumForm < Reform::Form
-    property :name, :as => :title
+    property :title, :as => :name
 
-    property :single, :as => :hit do
+    property :hit, :as => :single do
       property :title
     end
 
-    collection :tracks, :as => :songs do
-      property :name, :as => :title
+    collection :songs, :as => :tracks do
+      property :title, :as => :name
     end
 
     property :band do
-      property :company, :as => :label do
-        property :business, :as => :name
+      property :label, :as => :company do
+        property :name, :as => :business
       end
     end
   end
