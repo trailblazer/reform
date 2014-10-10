@@ -123,6 +123,9 @@ module Reform
       end
     end
 
+    require 'reform/schema'
+    extend Schema
+
     alias_method :aliased_model, :model
 
 
