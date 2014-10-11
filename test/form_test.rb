@@ -19,6 +19,18 @@ class FormTest < MiniTest::Spec
     end
   end
 
+  # combined property/validates syntax.
+  class SongForm < Reform::Form
+    property :composer
+    property :title, validates: {presence: true}
+    properties :genre, :band, validates: {presence: true}
+  end
+  it do
+    form = SongForm.new(OpenStruct.new)
+    form.validate({})
+    form.errors.to_s.must_equal "{:title=>[\"can't be blank\"], :genre=>[\"can't be blank\"], :band=>[\"can't be blank\"]}"
+  end
+
   # ::schema
   describe "::schema" do
     let (:schema) { AlbumForm.schema }

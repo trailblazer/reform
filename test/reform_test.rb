@@ -74,8 +74,8 @@ class ReformTest < ReformSpec
     subject do
       opts = options
       Class.new(Reform::Form) do
-        properties [:name, :title], opts
-        properties [:created_at]
+        properties :name, :title, opts
+        properties :created_at
       end.new(comp)
     end
 

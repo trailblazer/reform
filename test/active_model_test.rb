@@ -100,8 +100,8 @@ class ActiveModelWithCompositionTest < MiniTest::Spec
     include Composition
     include Reform::Form::ActiveModel
 
-    property  :title,           :on => :song
-    properties [:name, :genre], :on => :artist # we need to check both ::property and ::properties here!
+    property  :title,         :on => :song
+    properties :name, :genre, :on => :artist # we need to check both ::property and ::properties here!
 
     model :hit, :on => :song
   end

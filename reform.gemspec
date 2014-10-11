@@ -29,7 +29,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "virtus"
   spec.add_development_dependency "rails"
-  spec.add_development_dependency "mocha"
 
   spec.add_development_dependency "actionpack"
 end

@@ -12,7 +12,7 @@ module Reform::Form::ActiveModel
     module ClassMethods
       private
 
-      def add_property(name, options={})
+      def property(name, options={}, &block)
         super.tap do |definition|
           add_nested_attribute_compat(name) if definition[:form] # TODO: fix that in Rails FB#1832 work.
         end

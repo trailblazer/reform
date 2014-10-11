@@ -27,13 +27,29 @@ module Reform
 
 
     module PropertyMethods
-      def property(*args, &block)
-        options = args.last.kind_of?(Hash) ? args.pop : {}
-        args.flatten.each { |name| add_property(name, options.dup, &block) }
+      def property(name, options={}, &block)
+        options[:private_name] = options.delete(:as)
+        options[:coercion_type] = options.delete(:type)
+        options[:features] ||= []
+        options[:features] += features.keys if block_given?
+
+        validates(name, options.delete(:validates).dup) if options[:validates]
+
+        definition = representer_class.property(name, options, &block)
+        setup_form_definition(definition) if block_given? or options[:form]
+
+        create_accessor(name)
+        definition
       end
 
-      def properties(*args, &block)
-        property(*args, &block)
+      def properties(*args)
+        options = args.extract_options!
+
+        if args.first.is_a? Array # TODO: REMOVE in 2.0.
+          warn "[Reform] Deprecation: Please pass a list of names instead of array to ::properties, like `properties :title, :id`."
+          args = args.first
+        end
+        args.each { |name| property(name, options.dup) }
       end
 
       def collection(name, options={}, &block)
@@ -54,24 +70,7 @@ module Reform
         definition.merge!(options)
       end
 
-      private
-
-      def add_property(name, options={}, &block)
-        options[:private_name] = options.delete(:as)
-        options[:coercion_type] = options.delete(:type)
-        options[:features] ||= []
-        options[:features] += features.keys if block_given?
-
-        if options[:validates]
-          validates name, options.delete(:validates)
-        end
-
-        definition = representer_class.property(name, options, &block)
-        setup_form_definition(definition) if block_given? or options[:form]
-
-        create_accessor(name)
-        definition
-      end
+    private
 
       def create_accessor(name)
         handle_reserved_names(name)
