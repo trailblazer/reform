@@ -26,23 +26,35 @@ You're working at a famous record label and your job is archiving all the songs,
 
 ```ruby
 class SongForm < Reform::Form
-  property :title, validates: {presence: true}
-  property :length, validates: {numericality: true}
-end
-```
+  property :title
+  property :length
 
-Or, if you prefer, specify validations separately. You can also add multiple properties if they
-share the same options (`properties` works too).
-
-```ruby
-class SongForm < Reform::Form
-  property :title, :length, validates: {presence: true}
+  validates :title, presence: true
   validates :length, numericality: true
 end
 ```
 
-To add fields to the form use the `::property` method. Also, validations no longer go into the model but sit in the form.
+Define your form's fields using `::property`. Validations no longer go into the model, but into the form.
 
+Luckily, this can be shortened as follows.
+
+```ruby
+class SongForm < Reform::Form
+  property :title, validates: {presence: true}
+  property :length, validates {numericality: true}
+end
+```
+
+Use `properties` to bulk-specify fields.
+
+```ruby
+class SongForm < Reform::Form
+  properties :title, :length, validates: {presence: true} # both required!
+  validates :length, numericality: true
+end
+```
+
+After explicitely defining your fields, you're ready to use the form.
 
 ## The API
 

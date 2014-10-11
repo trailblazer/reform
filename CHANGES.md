@@ -16,7 +16,19 @@
 * `Form#save` with `Composition` now returns true only if all composite models saved.
 * `Form::copy_validations_from` allows copying custom validators now.
 * `::validates_uniqueness_of` now accepts options like `:scope`. Thanks to @cveneziani for a failing test and insight.
+* New call style for `::properties`. Instead of an array, it's now `properties :title, :genre`.
+
+### New Stuff!!!
+
 * `:skip_if`, `:skip_if: :all_blank`.
+* You can now specify validations right in the `::property` call.
+
+    ```ruby
+    property :title, validates: {presence: true}
+    ```
+
+    Thanks to @zubin for this brillant idea!
+
 
 ## 1.1.1
 
