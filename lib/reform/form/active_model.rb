@@ -10,13 +10,14 @@ module Reform::Form::ActiveModel
     end
 
     module ClassMethods
-      def property(name, options={})
+      private
+
+      def add_property(name, options={})
         super.tap do |definition|
           add_nested_attribute_compat(name) if definition[:form] # TODO: fix that in Rails FB#1832 work.
         end
       end
 
-    private
       # The Rails FormBuilder "detects" nested attributes (which is what we want) by checking existance of a setter method.
       def add_nested_attribute_compat(name)
         define_method("#{name}_attributes=") {} # this is why i hate respond_to? in Rails.

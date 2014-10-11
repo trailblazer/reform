@@ -41,7 +41,9 @@ module Reform::Form::Scalar
 
   # TODO: change the way i hook into ::property.
   module Property
-    def property(name, options={}, &block)
+    private
+
+    def add_property(name, options={}, &block)
       if options[:scalar]
         options.merge!(:features => [Reform::Form::Scalar], populate_if_empty: String)
       end

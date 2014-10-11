@@ -26,10 +26,17 @@ You're working at a famous record label and your job is archiving all the songs,
 
 ```ruby
 class SongForm < Reform::Form
-  property :title
-  property :length
+  property :title, validates: {presence: true}
+  property :length, validates: {numericality: true}
+end
+```
 
-  validates :title,  presence: true
+Or, if you prefer, specify validations separately. You can also add multiple properties if they
+share the same options (`properties` works too).
+
+```ruby
+class SongForm < Reform::Form
+  property :title, :length, validates: {presence: true}
   validates :length, numericality: true
 end
 ```
