@@ -38,7 +38,7 @@ module Reform
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given? or options[:form]
 
-        create_accessor(name)
+        create_accessor(options[:as] || name)
         definition
       end
 
