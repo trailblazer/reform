@@ -130,6 +130,10 @@ module Reform
       end
     end
 
+    def self.clone
+      Class.new(self)
+    end
+
     require 'reform/schema'
     extend Schema
 

@@ -61,4 +61,24 @@ class FormTest < MiniTest::Spec
       properties.must_equal ["title", "hit", "title", "songs", "title", "band", "label", "name"]
     end
   end
+
+
+  describe "::dup" do
+    let (:cloned) { AlbumForm.clone }
+
+    # #dup is called in Op.inheritable_attr(:contract_class), it must be subclass of the original one.
+    it { cloned.wont_equal AlbumForm }
+    it { AlbumForm.representer_class.wont_equal cloned.representer_class }
+
+    it do
+      # currently, forms need a name for validation, even without AM.
+      cloned.singleton_class.class_eval do
+        def name
+          "Album"
+        end
+      end
+      cloned.validates :title, presence: true
+      cloned.new(OpenStruct.new).validate({})
+    end
+  end
 end
