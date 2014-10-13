@@ -20,6 +20,21 @@ module Reform::Form::Sync
     end
   end
 
+  module Setter
+    def from_hash(*)
+      clone_config!
+
+      representable_attrs.each do |dfn|
+        next unless setter = dfn[:sync]
+
+        setter_proc = lambda { |value, options| options[:form].instance_exec(value, options, &setter) }
+        dfn.merge!(:setter => setter_proc)
+      end
+
+      super
+    end
+  end
+
   # Transforms form input into what actually gets written to model.
   # output: {title: "Mint Car", hit: <Form>}
   module InputRepresenter
@@ -53,7 +68,10 @@ module Reform::Form::Sync
 
     input = input_representer.to_hash
 
-    mapper.new(aliased_model).extend(Writer).from_hash(input) # sync properties to Song.
+    # setter_module = Class.new(self.class.representer_class)
+    # setter_module.send :include, Setter
+
+    mapper.new(aliased_model).extend(Writer).extend(Setter).from_hash(input, :form => self) # sync properties to Song.
 
     model
   end

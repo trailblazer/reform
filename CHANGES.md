@@ -28,7 +28,7 @@
     ```
 
     Thanks to @zubin for this brillant idea!
-* Wanna parse JSON? Include `Reform::Form::JSON`.
+* Wanna parse JSON in `#validate`? Include `Reform::Form::JSON`.
 
 
 ## 1.1.1
