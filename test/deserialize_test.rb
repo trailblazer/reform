@@ -1,16 +1,11 @@
 require 'test_helper'
-require 'representable/json'
+require 'reform/form/json'
 
 class DeserializeTest < BaseTest
   class AlbumContract < Reform::Form
     include Reform::Form::ActiveModel::FormBuilderMethods # overrides #update!, too.
 
-    self.representer_class.class_eval do
-      include Representable::JSON
-    end
-    def deserialize_method
-      :from_json
-    end
+    include Reform::Form::JSON
 
     property :title
     validates :title, :presence => true, :length => {:minimum => 3}
