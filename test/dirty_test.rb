@@ -61,7 +61,5 @@ class DirtyTest < BaseTest
     # not present key/value in #validate is no change.
     it { form.band.label.changed?(:location).must_equal false }
     # TODO: parent form changed when child has changed!
-
-    # TODO: is that _after_ coercion?
   end
 end
