@@ -2,13 +2,14 @@ require 'test_helper'
 
 class SyncOptionTest < MiniTest::Spec
   class SongForm < Reform::Form
+    include Sync::SkipUnchanged
+    register_feature Sync::SkipUnchanged
+
     property :title
     property :image, sync: lambda { |value, *| model.image = "processed via :sync: #{value}" }#, virtual: true
     property :band do
       property :name, sync: lambda { |value, *| model.name = "band, processed: #{value}" }
     end
-
-    include Sync::SkipUnchanged
   end
 
   Song = Struct.new(:title, :image, :band)
@@ -16,18 +17,19 @@ class SyncOptionTest < MiniTest::Spec
 
   let (:song) { Song.new("Injection", Object, Band.new("Rise Against")) }
 
-  # skips when not set + SkipUnchanged.
+  # skips when not present in hash + SkipUnchanged.
   it do
     form = SongForm.new(song)
 
     form.validate("title" => "Ready To Fall")
     form.sync
 
-    song.image.must_equal Object
-    song.band.name.must_equal "Rise Against"
+    song.title.must_equal "Ready To Fall" # new!
+    song.image.must_equal Object # old
+    song.band.name.must_equal "Rise Against" # old
   end
 
-  # uses :sync when present.
+  # uses :sync when present in params hash.
   it do
     form = SongForm.new(song)
 
@@ -35,17 +37,18 @@ class SyncOptionTest < MiniTest::Spec
     form.sync
 
     song.image.must_equal "processed via :sync: Module"
+    # nested works.
     song.band.name.must_equal "band, processed: Class"
   end
 
+
+  let (:band) { Band.new("Metallica") }
+  let (:form) { BandForm.new(band) }
 
   describe ":sync allows you conditionals" do
     class BandForm < Reform::Form
       property :name, sync: lambda { |value, options| options.user_options[:form].changed?(:name) ? model.name = value : nil } # change if it hasn't changed
     end
-
-    let (:band) { Band.new("Metallica") }
-    let (:form) { BandForm.new(band) }
 
     # don't set name, didn't change.
     it do
@@ -60,6 +63,29 @@ class SyncOptionTest < MiniTest::Spec
       form.validate("name" => "Iron Maiden").must_equal true
       form.sync
       form.name.must_equal "Iron Maiden"
+    end
+  end
+
+
+  describe ":virtual wins over :sync" do
+    let (:form) { HitForm.new(song) }
+    let (:song) { Song.new("Injection", Object, Band.new("Rise Against")) }
+
+    class HitForm < Reform::Form
+      include Sync::SkipUnchanged
+      register_feature Sync::SkipUnchanged
+
+      property :image, sync: lambda { |value, *| model.image = "processed via :sync: #{value}" }
+      property :band do
+        property :name, sync: lambda { |value, *| model.name = "band, processed: #{value}" }, virtual: true
+      end
+    end
+
+    it do
+      form.validate("image" => "Funny photo of Steve Harris", "band" => {"name" => "Iron Maiden"}).must_equal true
+
+      song.image.must_equal "processed via :sync: Funny photo of Steve Harris"
+      song.band.name.must_equal "Rise Against"
     end
   end
 end
