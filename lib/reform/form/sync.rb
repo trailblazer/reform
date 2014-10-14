@@ -27,7 +27,7 @@ module Reform::Form::Sync
       representable_attrs.each do |dfn|
         next unless setter = dfn[:sync]
 
-        setter_proc = lambda { |value, options| options[:form].instance_exec(value, options, &setter) }
+        setter_proc = lambda { |value, options| options.user_options[:form].instance_exec(value, options, &setter) }
         dfn.merge!(:setter => setter_proc)
       end
 
@@ -64,9 +64,10 @@ module Reform::Form::Sync
   # reading from fields allows using readers in form for presentation
   # and writers still pass to fields in #validate????
   def sync! # semi-public.
-    input_representer = mapper.new(fields).extend(InputRepresenter)
+    input = syncable_hash
 
-    input = input_representer.to_hash
+    # if aliased_model was a proper Twin, we could do changed? stuff there.
+
 
     # setter_module = Class.new(self.class.representer_class)
     # setter_module.send :include, Setter
@@ -74,5 +75,12 @@ module Reform::Form::Sync
     mapper.new(aliased_model).extend(Writer).extend(Setter).from_hash(input, :form => self) # sync properties to Song.
 
     model
+  end
+
+private
+  def syncable_hash
+    input_representer = mapper.new(fields).extend(InputRepresenter)
+
+    input_representer.to_hash
   end
 end

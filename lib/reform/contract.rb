@@ -32,6 +32,7 @@ module Reform
         options[:coercion_type] = options.delete(:type)
         options[:features] ||= []
         options[:features] += features.keys if block_given?
+        options[:pass_options] = true
 
         validates(name, options.delete(:validates).dup) if options[:validates]
 

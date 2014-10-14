@@ -17,6 +17,7 @@
 * `Form::copy_validations_from` allows copying custom validators now.
 * `::validates_uniqueness_of` now accepts options like `:scope`. Thanks to @cveneziani for a failing test and insight.
 * New call style for `::properties`. Instead of an array, it's now `properties :title, :genre`.
+* All options are evaluated with `pass_options: true`.
 
 ### New Stuff!!!
 
@@ -29,6 +30,8 @@
 
     Thanks to @zubin for this brillant idea!
 * Wanna parse JSON in `#validate`? Include `Reform::Form::JSON`.
+* Dirty
+* :sync
 
 
 ## 1.1.1
