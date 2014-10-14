@@ -104,12 +104,12 @@ module Reform::Form::Validate
 
   class Changed
     def call(fragment, params, options)
+      # options is a Representable::Options object holding all the stakeholders. this is here becaues of pass_options: true.
       form = options.represented
-      binding = options.binding
+      name = options.binding.name
 
-      # next if options.represented
-      puts "#{form.send(binding.name)} <--> #{fragment}"
-      form.changed[binding.name] = form.send(binding.name) != fragment
+      # puts "#{form.send(name)} <--> #{fragment}"
+      form.changed[name] = form.send(name) != fragment
 
       fragment
     end

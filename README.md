@@ -828,6 +828,18 @@ class SongForm < Reform::Form
 This will capitalize the title _after_ calling `form.validate` but _before_ validation happens. Note that you can use `super` to call the original setter.
 
 
+## Dirty Tracker
+
+Every form tracks changes in `#validate` and allows to check if a particular property value has changed using `#changed?`.
+
+```ruby
+form.title => "Button Up"
+
+form.validate("title" => "Just Kiddin'")
+form.changed?(:title) #=> true
+```
+
+
 ## Undocumented Features
 
 _(Please don't read this section!)_
