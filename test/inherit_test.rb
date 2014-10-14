@@ -2,6 +2,18 @@ require 'test_helper'
 require 'representable/json'
 
 class InheritTest < BaseTest
+  class AlbumForm < Reform::Form
+    property :title
+
+    property :hit do
+      property :title
+    end
+
+    collection :songs do
+      property :title
+    end
+  end
+
   class CompilationForm < AlbumForm
 
     property :hit, :inherit => true do
