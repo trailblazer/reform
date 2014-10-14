@@ -78,9 +78,30 @@ module Reform::Form::Sync
   end
 
 private
-  def syncable_hash
+  def syncable_hash(options={})
     input_representer = mapper.new(fields).extend(InputRepresenter)
 
-    input_representer.to_hash
+    puts "to_hash with #{options.inspect}"
+    input_representer.to_hash(options)
+  end
+
+
+  module SkipUnchanged
+    def syncable_hash
+      changed_properties = changed.collect { |k,v| v ? k : nil }.compact
+
+      h=super(:include => changed_properties)
+
+      new_hash={}
+      # FIXME: use :include and use this with nested forms!
+      changed_properties.each do |p|
+        new_hash[p] = h[p]
+      end
+
+
+      puts "===== #{changed_properties.inspect}"
+      puts new_hash.inspect
+      new_hash
+    end
   end
 end

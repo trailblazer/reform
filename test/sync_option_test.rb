@@ -7,6 +7,8 @@ class SyncOptionTest < MiniTest::Spec
     property :band do
       property :name, sync: lambda { |value, *| model.name = "band, processed: #{value}" }
     end
+
+    include Sync::SkipUnchanged
   end
 
   Song = Struct.new(:title, :image, :band)
@@ -14,7 +16,7 @@ class SyncOptionTest < MiniTest::Spec
 
   let (:song) { Song.new("Injection", Object, Band.new("Rise Against")) }
 
-  # skips when not set.
+  # skips when not set + SkipUnchanged.
   it do
     form = SongForm.new(song)
 
