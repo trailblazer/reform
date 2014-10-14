@@ -18,7 +18,7 @@ class SyncOptionTest < MiniTest::Spec
   let (:song) { Song.new("Injection", Object, Band.new("Rise Against")) }
 
   # skips when not present in hash + SkipUnchanged.
-  it do
+  it("zhz") do
     form = SongForm.new(song)
 
     form.validate("title" => "Ready To Fall")

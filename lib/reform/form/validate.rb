@@ -105,7 +105,7 @@ module Reform::Form::Validate
       form = options.represented
       name = options.binding.name
 
-      # puts "#{form.send(name)} <--> #{fragment}"
+      puts "#{form.send(name)} <--> #{fragment}"
       form.changed[name] = form.send(name) != fragment
 
       fragment

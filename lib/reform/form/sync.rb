@@ -88,9 +88,11 @@ private
 
   module SkipUnchanged
     def syncable_hash
-      changed_properties = changed.collect { |k,v| v ? k : nil }.compact
-
-      h=super(:include => changed_properties)
+      unchanged_properties = changed.collect { |k,v| v ? nil : k }.compact
+      puts "''''''' #{changed.inspect}"
+      puts unchanged_properties.inspect
+      # always include nested for now, and changed!
+      return h=super(:exclude => unchanged_properties)
 
       new_hash={}
       # FIXME: use :include and use this with nested forms!
