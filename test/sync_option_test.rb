@@ -2,13 +2,16 @@ require 'test_helper'
 
 class SyncOptionTest < MiniTest::Spec
   class SongForm < Reform::Form
+    include Sync::SkipUnchanged
+    register_feature Sync::SkipUnchanged
+
     property :title
     property :image, sync: lambda { |value, *| model.image = "processed via :sync: #{value}" }#, virtual: true
     property :band do
       property :name, sync: lambda { |value, *| model.name = "band, processed: #{value}" }
     end
 
-    include Sync::SkipUnchanged
+
   end
 
   Song = Struct.new(:title, :image, :band)

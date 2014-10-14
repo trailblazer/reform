@@ -68,7 +68,6 @@ module Reform::Form::Sync
 
     # if aliased_model was a proper Twin, we could do changed? stuff there.
 
-
     # setter_module = Class.new(self.class.representer_class)
     # setter_module.send :include, Setter
 
@@ -81,14 +80,20 @@ private
   def syncable_hash(options={})
     input_representer = mapper.new(fields).extend(InputRepresenter)
 
-    puts "to_hash with #{options.inspect}"
     input_representer.to_hash(options)
   end
 
-
+  # This will skip unchanged properties in #sync. To use this for all nested form do as follows.
+  #
+  #   class SongForm < Reform::Form
+  #     feature Synd::SkipUnchanged
   module SkipUnchanged
     def syncable_hash
-      changed_properties = changed.collect { |k,v| v ? k : nil }.compact
+      # DISCUSS: we currently don't track if nested forms have changed (only their attributes). that's why i include them all here, which
+      # is additional sync work/slightly wrong. solution: allow forms to form.changed? not sure how to do that with collections.
+
+      changed_properties = changed.collect { |k,v| v ? k : nil }.compact # scalars.
+      changed_properties += mapper.representable_attrs.find_all { |dfn| dfn[:form] }.collect { |dfn| dfn.name }
 
       h=super(:include => changed_properties)
 
@@ -98,9 +103,6 @@ private
         new_hash[p] = h[p]
       end
 
-
-      puts "===== #{changed_properties.inspect}"
-      puts new_hash.inspect
       new_hash
     end
   end
