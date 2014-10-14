@@ -40,6 +40,7 @@ class ChangedTest < BaseTest
   it { form.hit.changed?(:title).must_equal false }
   it { form.hit.changed?.must_equal false }
 
+
   describe "#validate" do
     before { form.validate(
       "title" => "Five", # changed.
@@ -49,11 +50,16 @@ class ChangedTest < BaseTest
     ) }
 
     it { form.changed?(:title).must_equal true }
+
+    # it { form.changed?(:hit).must_equal false }
+
     # overridden with same value is no change.
     it { form.hit.changed?(:title).must_equal false }
     # coerced value is identical to form's => not changed.
     it { form.hit.changed?(:length).must_equal false }
 
+    # it { form.changed?(:band).must_equal true }
+    # it { form.band.changed?(:label).must_equal true }
     it { form.band.label.changed?(:name).must_equal true }
 
     # not present key/value in #validate is no change.
