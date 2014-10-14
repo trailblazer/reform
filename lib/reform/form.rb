@@ -29,5 +29,11 @@ module Reform
 
     require 'reform/form/scalar'
     extend Scalar::Property # experimental feature!
+
+
+    # DISCUSS: should that be optional? hooks into #validate, too.
+    require 'reform/form/changed'
+    register_feature Changed
+    include Changed
   end
 end

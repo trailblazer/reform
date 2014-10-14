@@ -31,6 +31,16 @@ module Reform::Form::Validate
         attr.merge!(:skip_parse => attr[:skip_if]) if attr[:skip_if]
       end
 
+
+      representable_attrs.each do |attr|
+        next if attr[:form]
+
+        attr.merge!(
+          :parse_filter => Changed.new,
+          pass_options: true
+        )
+      end
+
       super
     end
   end
@@ -88,6 +98,20 @@ module Reform::Form::Validate
         properties.each { |name| params[name].present? and return false }
         true # skip
       end
+    end
+  end
+
+
+  class Changed
+    def call(fragment, params, options)
+      form = options.represented
+      binding = options.binding
+
+      # next if options.represented
+      puts "#{form.send(binding.name)} <--> #{fragment}"
+      form.changed[binding.name] = form.send(binding.name) != fragment
+
+      fragment
     end
   end
 
