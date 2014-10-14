@@ -84,6 +84,7 @@ class SyncOptionTest < MiniTest::Spec
     it do
       form.validate("image" => "Funny photo of Steve Harris", "band" => {"name" => "Iron Maiden"}).must_equal true
 
+      form.sync
       song.image.must_equal "processed via :sync: Funny photo of Steve Harris"
       song.band.name.must_equal "Rise Against"
     end

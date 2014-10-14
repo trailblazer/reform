@@ -35,10 +35,7 @@ module Reform::Form::Validate
       representable_attrs.each do |attr|
         next if attr[:form]
 
-        attr.merge!(
-          :parse_filter => Changed.new,
-          pass_options: true
-        )
+        attr.merge!(:parse_filter => Changed.new)
       end
 
       super

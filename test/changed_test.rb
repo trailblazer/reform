@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'reform/form/coercion'
 
-class DirtyTest < BaseTest
+class ChangedTest < BaseTest
   class AlbumForm < Reform::Form
     include Coercion
 
@@ -28,8 +28,6 @@ class DirtyTest < BaseTest
     end
 
     validates :title, :presence => true
-
-
   end
 
   Label = Struct.new(:name, :location)
