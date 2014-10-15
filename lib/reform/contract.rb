@@ -1,6 +1,7 @@
 require 'forwardable'
 require 'uber/inheritable_attr'
 require 'uber/delegates'
+require 'ostruct'
 
 require 'reform/representer'
 

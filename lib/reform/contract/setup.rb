@@ -1,4 +1,3 @@
-
 module Reform
   class Contract
     module Setup
@@ -9,8 +8,9 @@ module Reform
 
       def setup_fields
         representer = mapper.new(aliased_model).extend(Setup::Representer)
+        options     = setup_options(Reform::Representer::Options[]) # handles :empty.
 
-        create_fields(representer.fields, representer.to_hash)
+        create_fields(representer.fields, representer.to_hash(options))
       end
 
       # DISCUSS: setting up the Validation (populating with values) will soon be handled with Disposable::Twin logic.
@@ -18,14 +18,16 @@ module Reform
         Fields.new(field_names, fields)
       end
 
+      module SetupOptions
+        def setup_options(options)
+          options
+        end
+      end
+      include SetupOptions
+
 
       # Mechanics for setting up initial Field values.
       module Representer
-        require 'reform/form/virtual_attributes' # FIXME: that shouldn't be here.
-
-        # include Reform::Representer::WithOptions
-        # include Reform::Form::EmptyAttributesOptions # FIXME: that shouldn't be here.
-
         def to_hash(*)
           nested_forms do |attr|
             attr.merge!(
@@ -36,9 +38,20 @@ module Reform
             )
           end
 
-          super # TODO: allow something like super(:exclude => empty_fields)
+          super
         end
       end # Representer
+
+
+      module Empty
+        def setup_options(options)
+          empty_fields = mapper.representable_attrs.find_all { |d| d[:empty] }.collect  { |d| d.name.to_sym }
+
+          puts "excluuuuuding #{empty_fields.inspect}"
+          options.exclude!(empty_fields)
+        end
+      end
+      include Empty
     end
-  end # Validation
+  end # Setup
 end

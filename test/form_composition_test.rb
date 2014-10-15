@@ -78,7 +78,7 @@ class FormCompositionTest < MiniTest::Spec
       )
     end
 
-    it "pushes data to models and calls #save when no block passed" do
+    it "xxx pushes data to models and calls #save when no block passed" do
       song.extend(Saveable)
       requester.extend(Saveable)
       band.extend(Saveable)
