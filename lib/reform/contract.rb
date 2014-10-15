@@ -34,6 +34,7 @@ module Reform
         options[:features] ||= []
         options[:features] += features.keys if block_given?
         options[:pass_options] = true
+        options[:virtual] = true if options[:empty] # TODO: check TODO and fix naming!
 
         validates(name, options.delete(:validates).dup) if options[:validates]
 

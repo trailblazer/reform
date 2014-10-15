@@ -63,18 +63,10 @@ module Reform::Form::Sync
   def sync! # semi-public.
     options = Reform::Representer::Options[:form => self] # options local for this form, only.
 
-
-    puts "1. sync_hash"
     input = sync_hash(options)
-    puts "5. ... input: #{input.inspect}"
     # if aliased_model was a proper Twin, we could do changed? stuff there.
-
     # setter_module = Class.new(self.class.representer_class)
     # setter_module.send :include, Setter
-
-
-    puts
-    puts "?????? from_hash #{input.inspect}"
     mapper.new(aliased_model).extend(Writer).extend(Setter).from_hash(input, :form => self) # sync properties to Song.
 
     model
@@ -86,7 +78,6 @@ private
     # This hash goes into the Writer that writes properties back to the model. It only contains "writeable" attributes.
     def sync_hash(options)
       input_representer = mapper.new(fields).extend(InputRepresenter)
-      puts "2. final options: #{options.inspect}"
       input_representer.to_hash(options)
     end
   end
@@ -100,12 +91,7 @@ private
         find_all { |dfn| dfn[:virtual] }.
         collect  { |dfn| dfn.name.to_sym }
 
-      puts "3. --------- #{readonly_fields.inspect}"
-      # this must happen in Options
-      puts "3b. -------- #{options[:include].inspect}"
-
       options.exclude!(readonly_fields)
-      puts "3c. @@@@@@@@@ #{options.inspect}"
 
       super
     end
@@ -125,10 +111,7 @@ private
       unchanged = scalars - changed.keys
 
       # exclude unchanged scalars, nested forms and changed scalars still go in here!
-      puts "2. excluding #{unchanged.inspect}"
       options.exclude!(unchanged.map(&:to_sym))
-      puts "2b. ::::::: #{options.inspect}"
-
       super
     end
   end

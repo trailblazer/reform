@@ -1,4 +1,8 @@
 * fields is a Twin and sorts out all the changed? stuff.
+* virtual: don't read dont write
+* empty dont read, but write
+* read_only: read, don't write
+
 
 
 

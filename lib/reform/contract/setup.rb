@@ -47,7 +47,6 @@ module Reform
         def setup_options(options)
           empty_fields = mapper.representable_attrs.find_all { |d| d[:empty] }.collect  { |d| d.name.to_sym }
 
-          puts "excluuuuuding #{empty_fields.inspect}"
           options.exclude!(empty_fields)
         end
       end
