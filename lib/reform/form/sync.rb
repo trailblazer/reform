@@ -38,11 +38,7 @@ module Reform::Form::Sync
   # Transforms form input into what actually gets written to model.
   # output: {title: "Mint Car", hit: <Form>}
   module InputRepresenter
-    include Reform::Representer::WithOptions
-    # TODO: make dynamic.
-    include Reform::Form::EmptyAttributesOptions
-    include Reform::Form::ReadonlyAttributesOptions
-
+    # receives Representer::Options hash.
     def to_hash(*)
       nested_forms do |attr|
         attr.merge!(
@@ -64,46 +60,86 @@ module Reform::Form::Sync
   # reading from fields allows using readers in form for presentation
   # and writers still pass to fields in #validate????
   def sync! # semi-public.
-    input = syncable_hash
+    options = Reform::Representer::Options[:form => self] # options local for this form, only.
 
+
+    puts "1. sync_hash"
+    input = sync_hash(options)
+    puts "5. ... input: #{input.inspect}"
     # if aliased_model was a proper Twin, we could do changed? stuff there.
 
     # setter_module = Class.new(self.class.representer_class)
     # setter_module.send :include, Setter
 
-    mapper.new(aliased_model).extend(Writer).extend(Setter).from_hash(input, :form => self) # sync properties to Song.
+
+    puts
+    puts "?????? from_hash #{input.inspect}"
+    mapper.new(aliased_model).extend(Writer).extend(Setter).from_hash(input) # sync properties to Song.
 
     model
   end
 
 private
-  def syncable_hash(options={})
-    input_representer = mapper.new(fields).extend(InputRepresenter)
+  # API: semi-public.
+  module SyncHash
+    # This hash goes into the Writer that writes properties back to the model. It only contains "writeable" attributes.
+    def sync_hash(options)
+      input_representer = mapper.new(fields).extend(InputRepresenter)
 
-    input_representer.to_hash(options)
+      # options.delete(:exclude)
+      puts "4. >>>> to_hash #{options}"
+      # options[:include] = options[:include] - [:image]
+      input_representer.to_hash(options)
+    end
   end
+  include SyncHash
+
+
+  # Excludes :virtual properties from #sync in this form.
+  module ReadOnly
+    def sync_hash(options)
+      readonly_fields = mapper.representable_attrs.
+        find_all { |dfn| dfn[:virtual] }.
+        collect  { |dfn| dfn.name.to_sym }
+
+      puts "3. --------- #{readonly_fields.inspect}"
+      # this must happen in Options
+      puts "3b. -------- #{options[:include].inspect}"
+      options[:include].delete(:image)
+
+      options.exclude!(readonly_fields)
+      puts "3c. @@@@@@@@@ #{options.inspect}"
+
+      super
+    end
+  end
+  include ReadOnly
+
 
   # This will skip unchanged properties in #sync. To use this for all nested form do as follows.
   #
   #   class SongForm < Reform::Form
   #     feature Synd::SkipUnchanged
   module SkipUnchanged
-    def syncable_hash
+    def sync_hash(options)
       # DISCUSS: we currently don't track if nested forms have changed (only their attributes). that's why i include them all here, which
       # is additional sync work/slightly wrong. solution: allow forms to form.changed? not sure how to do that with collections.
 
-      changed_properties = changed.collect { |k,v| v ? k : nil }.compact # scalars.
-      changed_properties += mapper.representable_attrs.find_all { |dfn| dfn[:form] }.collect { |dfn| dfn.name }
+      changed_properties = changed.collect { |k,v| v ? k.to_sym : nil }.compact # scalars.
+      changed_properties += mapper.representable_attrs.find_all { |dfn| dfn[:form] }.collect { |dfn| dfn.name.to_sym }
 
-      h=super(:include => changed_properties)
+      puts "2. including #{changed_properties.inspect}"
+      options.include!(changed_properties)
 
-      new_hash={}
-      # FIXME: use :include and use this with nested forms!
-      changed_properties.each do |p|
-        new_hash[p] = h[p]
-      end
+      super
 
-      new_hash
+      # new_hash={}
+      # # FIXME: use :include and use this with nested forms!
+      # changed_properties.each do |p|
+      #   new_hash[p] = h[p]
+      # end
+
+      # new_hash
     end
   end
 end

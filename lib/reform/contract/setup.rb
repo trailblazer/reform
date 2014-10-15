@@ -23,8 +23,8 @@ module Reform
       module Representer
         require 'reform/form/virtual_attributes' # FIXME: that shouldn't be here.
 
-        include Reform::Representer::WithOptions
-        include Reform::Form::EmptyAttributesOptions # FIXME: that shouldn't be here.
+        # include Reform::Representer::WithOptions
+        # include Reform::Form::EmptyAttributesOptions # FIXME: that shouldn't be here.
 
         def to_hash(*)
           nested_forms do |attr|

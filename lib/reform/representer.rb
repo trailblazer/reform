@@ -10,35 +10,26 @@ module Reform
     # self.options = {}
 
 
-    # Invokes #to_hash and/or #from_hash with #options. This provides a hook for other
-    # modules to add options for the representational process.
-    module WithOptions
-      class Options < Hash
-        def include!(names)
-          self[:include] ||= []
-          self[:include] += names
-          self
-        end
-
-        def exclude!(names)
-          self[:exclude] ||= []
-          self[:exclude] +=  names
-          self
-        end
+    class Options < ::Hash
+      def include!(names)
+        includes.push(*names) #if names.size > 0
+        self
       end
 
-      def options
-        Options.new
+      def exclude!(names)
+        excludes.push(*names) #if names.size > 0
+        self
       end
 
-      def to_hash(*)
-        super(options)
+      def excludes
+        self[:exclude] ||= []
       end
 
-      def from_hash(*)
-        super(options)
+      def includes
+        self[:include] ||= []
       end
     end
+
 
     include Representable::Hash
 

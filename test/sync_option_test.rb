@@ -65,28 +65,71 @@ class SyncOptionTest < MiniTest::Spec
       form.name.must_equal "Iron Maiden"
     end
   end
+end
 
 
-  describe ":virtual wins over :sync" do
-    let (:form) { HitForm.new(song) }
-    let (:song) { Song.new("Injection", Object, Band.new("Rise Against")) }
+# :virtual wins over :sync
+# class SyncWithVirtualTest < MiniTest::Spec
+#   Song = Struct.new(:title, :image, :band)
+#   Band = Struct.new(:name)
 
-    class HitForm < Reform::Form
-      include Sync::SkipUnchanged
-      register_feature Sync::SkipUnchanged
+#   let (:form) { HitForm.new(song) }
+#   let (:song) { Song.new("Injection", Object, Band.new("Rise Against")) }
 
-      property :image, sync: lambda { |value, *| model.image = "processed via :sync: #{value}" }
-      property :band do
-        property :name, sync: lambda { |value, *| model.name = "band, processed: #{value}" }, virtual: true
-      end
+#   class HitForm < Reform::Form
+#     include Sync::SkipUnchanged
+#     register_feature Sync::SkipUnchanged
+
+#     property :image, sync: lambda { |value, *| model.image = "processed via :sync: #{value}" }
+#     property :band do
+#       property :name, sync: lambda { |value, *| model.name = "band, processed: #{value}" }, virtual: true
+#     end
+#   end
+
+#   it "abc" do
+#     form.validate("image" => "Funny photo of Steve Harris", "band" => {"name" => "Iron Maiden"}).must_equal true
+
+#     form.sync
+#     song.image.must_equal "processed via :sync: Funny photo of Steve Harris"
+#     song.band.name.must_equal "Rise Against"
+#   end
+# end
+
+
+# :virtual is considered with SkipUnchanged
+class SkipUnchangedWithVirtualTest < MiniTest::Spec
+  Song = Struct.new(:title, :image, :band) do
+    def image=(v)
+      raise "i should not be called: #{v.inspect}"
     end
-
-    it do
-      form.validate("image" => "Funny photo of Steve Harris", "band" => {"name" => "Iron Maiden"}).must_equal true
-
-      form.sync
-      song.image.must_equal "processed via :sync: Funny photo of Steve Harris"
-      song.band.name.must_equal "Rise Against"
+  end
+  Band = Struct.new(:name) do
+    def name=(v)
+      raise "i should not be called: #{v.inspect}"
     end
+  end
+
+  let (:form) { HitForm.new(song) }
+  let (:song) { Song.new(nil, nil, Band.new) }
+
+  class HitForm < Reform::Form
+    include Sync::SkipUnchanged
+    register_feature Sync::SkipUnchanged
+
+    property :title
+    property :image, virtual: true
+    property :band do
+      property :name, virtual: true
+    end
+  end
+
+  it "hhy" do
+    puts "%%%"
+    form.validate("title" => "Full Throttle", "image" => "Funny photo of Steve Harris", "band" => {"name" => "Iron Maiden"}).must_equal true
+
+    form.sync
+    song.title.must_equal "Full Throttle"
+    song.image.must_equal nil
+    song.band.name.must_equal nil
   end
 end
