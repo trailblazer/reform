@@ -5,3 +5,4 @@ gemspec :path => '../'
 
 gem 'railties', '~> 4.0.0'
 gem 'activerecord', '~> 4.0.0'
+gem 'minitest', '~> 4.2'
