@@ -15,19 +15,6 @@ class RepresenterTest < MiniTest::Spec
   end
 end
 
-class WithOptionsTest < MiniTest::Spec
-  subject { Reform::Representer::WithOptions::Options.new }
-
-  it { subject.must_equal({}) }
-  it { subject.exclude!([:id, :title]).must_equal(:exclude => [:id, :title])   }
-  it do
-    subject.exclude!([:id, :title])
-    subject.exclude!([:id, :name])
-    subject.must_equal(:exclude => [:id, :title, :id, :name])
-  end
-  it { subject.include!([:id, :title]).must_equal(:include => [:id, :title]) }
-end
-
 class FieldsTest < MiniTest::Spec
   describe "#new" do
     it "accepts list of properties" do

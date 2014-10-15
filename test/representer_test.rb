@@ -4,8 +4,8 @@ class RepresenterOptionsTest < MiniTest::Spec
   subject { Reform::Representer::Options[] }
 
   # don't maintain empty excludes until fixed in representable.
-  it { subject.exclude!([]).must_equal({}) }
-  it { subject.include!([]).must_equal({}) }
+  it { subject.exclude!([]).must_equal({:exclude=>[]}) }
+  it { subject.include!([]).must_equal({:include=>[]}) }
 
   it { subject.exclude!([:title, :id]).must_equal({exclude: [:title, :id]}) }
   it { subject.include!([:title, :id]).must_equal({include: [:title, :id]}) }

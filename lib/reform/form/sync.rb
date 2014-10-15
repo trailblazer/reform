@@ -27,6 +27,7 @@ module Reform::Form::Sync
       representable_attrs.each do |dfn|
         next unless setter = dfn[:sync]
 
+        # evaluate the :sync block in form context (should we do that everywhere?).
         setter_proc = lambda { |value, options| options.user_options[:form].instance_exec(value, options, &setter) }
         dfn.merge!(:setter => setter_proc)
       end
@@ -74,7 +75,7 @@ module Reform::Form::Sync
 
     puts
     puts "?????? from_hash #{input.inspect}"
-    mapper.new(aliased_model).extend(Writer).extend(Setter).from_hash(input) # sync properties to Song.
+    mapper.new(aliased_model).extend(Writer).extend(Setter).from_hash(input, :form => self) # sync properties to Song.
 
     model
   end
@@ -85,10 +86,7 @@ private
     # This hash goes into the Writer that writes properties back to the model. It only contains "writeable" attributes.
     def sync_hash(options)
       input_representer = mapper.new(fields).extend(InputRepresenter)
-
-      # options.delete(:exclude)
-      puts "4. >>>> to_hash #{options}"
-      # options[:include] = options[:include] - [:image]
+      puts "2. final options: #{options.inspect}"
       input_representer.to_hash(options)
     end
   end
@@ -105,7 +103,6 @@ private
       puts "3. --------- #{readonly_fields.inspect}"
       # this must happen in Options
       puts "3b. -------- #{options[:include].inspect}"
-      options[:include].delete(:image)
 
       options.exclude!(readonly_fields)
       puts "3c. @@@@@@@@@ #{options.inspect}"
@@ -124,22 +121,15 @@ private
     def sync_hash(options)
       # DISCUSS: we currently don't track if nested forms have changed (only their attributes). that's why i include them all here, which
       # is additional sync work/slightly wrong. solution: allow forms to form.changed? not sure how to do that with collections.
+      scalars   = mapper.representable_attrs.find_all{ |dfn| !dfn[:form] }.collect { |dfn| dfn.name }
+      unchanged = scalars - changed.keys
 
-      changed_properties = changed.collect { |k,v| v ? k.to_sym : nil }.compact # scalars.
-      changed_properties += mapper.representable_attrs.find_all { |dfn| dfn[:form] }.collect { |dfn| dfn.name.to_sym }
-
-      puts "2. including #{changed_properties.inspect}"
-      options.include!(changed_properties)
+      # exclude unchanged scalars, nested forms and changed scalars still go in here!
+      puts "2. excluding #{unchanged.inspect}"
+      options.exclude!(unchanged.map(&:to_sym))
+      puts "2b. ::::::: #{options.inspect}"
 
       super
-
-      # new_hash={}
-      # # FIXME: use :include and use this with nested forms!
-      # changed_properties.each do |p|
-      #   new_hash[p] = h[p]
-      # end
-
-      # new_hash
     end
   end
 end
