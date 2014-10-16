@@ -11,7 +11,8 @@ module Reform::Form::Sync
       nested_forms do |attr|
         attr.merge!(
           :instance     => lambda { |fragment, *| fragment },
-          :deserialize => lambda { |object, *| model = object.sync! } # sync! returns the synced model.
+            # FIXME: do we allow options for #sync for nested forms?
+          :deserialize => lambda { |object, *| model = object.sync!({}) } # sync! returns the synced model.
           # representable's :setter will do collection=([..]) or property=(..) for us on the model.
         )
       end
@@ -28,7 +29,15 @@ module Reform::Form::Sync
         next unless setter = dfn[:sync]
 
         # evaluate the :sync block in form context (should we do that everywhere?).
-        setter_proc = lambda { |value, options| options.user_options[:form].instance_exec(value, options, &setter) }
+        setter_proc = lambda { |value, options|
+          # puts "~~ #{value}~ #{options.user_options.inspect}"
+
+          if options.binding[:sync] == true
+            options.user_options[options.binding.name.to_sym].call(value, options)
+            next
+          end
+
+          options.user_options[:form].instance_exec(value, options, &setter) }
         dfn.merge!(:setter => setter_proc)
       end
 
@@ -53,21 +62,24 @@ module Reform::Form::Sync
   end
 
 
-  def sync_models
-    sync!
+  def sync_models(options={})
+    sync!(options)
   end
   alias_method :sync, :sync_models
 
   # reading from fields allows using readers in form for presentation
   # and writers still pass to fields in #validate????
-  def sync! # semi-public.
-    options = Reform::Representer::Options[:form => self] # options local for this form, only.
+  def sync!(options) # semi-public.
+    options = Reform::Representer::Options[options.merge(:form => self)] # options local for this form, only.
 
     input = sync_hash(options)
     # if aliased_model was a proper Twin, we could do changed? stuff there.
     # setter_module = Class.new(self.class.representer_class)
     # setter_module.send :include, Setter
-    mapper.new(aliased_model).extend(Writer).extend(Setter).from_hash(input, :form => self) # sync properties to Song.
+
+    options.delete(:exclude) # TODO: can we use 2 options?
+
+    mapper.new(aliased_model).extend(Writer).extend(Setter).from_hash(input, options) # sync properties to Song.
 
     model
   end
