@@ -29,6 +29,27 @@ class SyncOptionTest < MiniTest::Spec
 end
 
 
+class SyncWithSyncOptionAndOptionsTest < MiniTest::Spec
+  Song = Struct.new(:title, :length)
+
+  class SongForm < Reform::Form
+    property :title, sync: true
+  end
+
+  let (:song) { Song.new }
+  let (:form) { SongForm.new(song) }
+
+  # we have access to original input value and outside parameters.
+  it "xxx" do
+    form.validate("title" => "A Poor Man's Memory")
+    length_seconds = 120
+    form.sync(title: lambda { |value, options| form.model.title = "#{value}: #{length_seconds}" })
+
+    song.title.must_equal "A Poor Man's Memory: 120"
+  end
+end
+
+
 # :virtual wins over :sync
 # class SyncWithVirtualTest < MiniTest::Spec
 #   Song = Struct.new(:title, :image, :band)
