@@ -99,11 +99,9 @@ private
   # Excludes :virtual properties from #sync in this form.
   module ReadOnly
     def sync_hash(options)
-      readonly_fields = mapper.representable_attrs.
-        find_all { |dfn| dfn[:virtual] }.
-        collect  { |dfn| dfn.name.to_sym }
+      readonly_fields = mapper.fields { |dfn| dfn[:virtual] }
 
-      options.exclude!(readonly_fields)
+      options.exclude!(readonly_fields.map(&:to_sym))
 
       super
     end
@@ -119,7 +117,7 @@ private
     def sync_hash(options)
       # DISCUSS: we currently don't track if nested forms have changed (only their attributes). that's why i include them all here, which
       # is additional sync work/slightly wrong. solution: allow forms to form.changed? not sure how to do that with collections.
-      scalars   = mapper.representable_attrs.find_all{ |dfn| !dfn[:form] }.collect { |dfn| dfn.name }
+      scalars   = mapper.fields { |dfn| !dfn[:form] }
       unchanged = scalars - changed.keys
 
       # exclude unchanged scalars, nested forms and changed scalars still go in here!

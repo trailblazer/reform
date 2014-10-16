@@ -10,7 +10,7 @@ module Reform
         representer = mapper.new(aliased_model).extend(Setup::Representer)
         options     = setup_options(Reform::Representer::Options[]) # handles :empty.
 
-        create_fields(representer.fields, representer.to_hash(options))
+        create_fields(mapper.fields, representer.to_hash(options))
       end
 
       # DISCUSS: setting up the Validation (populating with values) will soon be handled with Disposable::Twin logic.

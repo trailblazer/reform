@@ -1,20 +1,5 @@
 require 'test_helper'
 
-class RepresenterTest < MiniTest::Spec
-  class SongRepresenter < Reform::Representer
-    property :title
-    property :name
-  end
-
-  let (:rpr) { SongRepresenter.new(Object.new) }
-
-  describe "#fields" do
-    it "returns all properties as strings" do
-      rpr.fields.must_equal(["title", "name"])
-    end
-  end
-end
-
 class FieldsTest < MiniTest::Spec
   describe "#new" do
     it "accepts list of properties" do

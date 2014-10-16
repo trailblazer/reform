@@ -34,8 +34,8 @@ module Reform
     include Representable::Hash
 
     # Returns hash of all property names.
-    def fields
-      representable_attrs.map(&:name)
+    def self.fields(&block)
+      representable_attrs.find_all(&block).map(&:name)
     end
 
     def nested_forms(&block)

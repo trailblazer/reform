@@ -23,3 +23,25 @@ class RepresenterOptionsTest < MiniTest::Spec
     puts Representer.prepare(song).to_hash(include: [:genre, :id], exclude: [:id]).inspect
   end
 end
+
+
+class RepresenterTest < MiniTest::Spec
+  class SongRepresenter < Reform::Representer
+    property :title
+    property :name
+    property :genre
+  end
+
+  subject { SongRepresenter.new(Object.new) }
+
+  describe "#fields" do
+    it "returns all properties as strings" do
+      SongRepresenter.fields.must_equal(["title", "name", "genre"])
+    end
+
+    # allows block.
+    it do
+      SongRepresenter.fields { |dfn| dfn.name =~ /n/ }.must_equal ["name", "genre"]
+    end
+  end
+end
