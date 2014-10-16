@@ -28,8 +28,7 @@ module Reform::Form::Sync
       representable_attrs.each do |dfn|
         next unless setter = dfn[:sync]
 
-        # evaluate the :sync block in form context (should we do that everywhere?).
-        setter_proc = lambda { |value, options|
+        setter_proc = lambda do |value, options|
           # puts "~~ #{value}~ #{options.user_options.inspect}"
 
           if options.binding[:sync] == true
@@ -37,7 +36,10 @@ module Reform::Form::Sync
             next
           end
 
-          options.user_options[:form].instance_exec(value, options, &setter) }
+          # evaluate the :sync block in form context (should we do that everywhere?).
+          options.user_options[:form].instance_exec(value, options, &setter)
+        end
+
         dfn.merge!(:setter => setter_proc)
       end
 

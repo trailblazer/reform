@@ -15,22 +15,41 @@ module Reform::Form::Save
   end
 
   # Returns the result of that save invocation on the model.
-  def save(&block)
+  def save(options={}, &block)
     # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
     return deprecate_first_save_block_arg(&block) if block_given?
 
     sync_models # recursion
-    save!
+    save!(options)
   end
 
-  def save!
+  def save!(options={}) # FIXME.
     result = save_model
     mapper.new(fields).extend(RecursiveSave).to_hash # save! on all nested forms.  # TODO: only include nested forms here.
+
+    # FIXME
+    representer = save_dynamic_representer.new(fields) # should be done once, on class instance level.
+    names = options.keys & changed.keys.map(&:to_sym)
+    puts "$$$$$$$$$ #{names.inspect}"
+    representer.to_hash(options.merge :include => names)
+
     result
   end
 
   def save_model
     model.save # TODO: implement nested (that should really be done by Twin/AR).
+  end
+
+
+  def save_dynamic_representer
+    Class.new(mapper).apply do |dfn|
+      dfn.merge!(
+        :serialize => lambda { |object, options|
+          puts "$$ #{options.user_options.inspect}"
+          options.user_options[options.binding.name.to_sym].call(object, options) },
+        :representable => true
+      )
+    end
   end
 
 

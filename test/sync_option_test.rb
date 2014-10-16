@@ -29,23 +29,27 @@ class SyncOptionTest < MiniTest::Spec
 end
 
 
-class SyncWithSyncOptionAndOptionsTest < MiniTest::Spec
-  Song = Struct.new(:title, :length)
+class SyncWithDynamicOptionsTest < MiniTest::Spec
+  Song = Struct.new(:id, :title, :length)
 
   class SongForm < Reform::Form
+    property :id
     property :title, sync: true
+    property :length
   end
 
   let (:song) { Song.new }
   let (:form) { SongForm.new(song) }
 
   # we have access to original input value and outside parameters.
-  it "xxx" do
-    form.validate("title" => "A Poor Man's Memory")
+  it do
+    form.validate("title" => "A Poor Man's Memory", "length" => 10)
     length_seconds = 120
     form.sync(title: lambda { |value, options| form.model.title = "#{value}: #{length_seconds}" })
 
     song.title.must_equal "A Poor Man's Memory: 120"
+    song.length.must_equal 10
+    song.id.must_equal nil
   end
 end
 

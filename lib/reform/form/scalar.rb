@@ -16,7 +16,7 @@ module Reform::Form::Scalar
   def save!
   end
 
-  def sync!
+  def sync!(*)
     model.replace(fields)
     # FIXME: how to sync that, if it's not responds to replace? or what if we don't want to write (e.g. image with paperdragon)?
   end
