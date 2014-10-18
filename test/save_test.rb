@@ -134,6 +134,6 @@ class SaveWithDynamicOptionsTest < MiniTest::Spec
 
     song.title.must_equal "A Poor Man's Memory"
     song.length.must_equal nil
-    song.id.must_equal "sadf"
+    song.id.must_equal "10: 120"
   end
 end
