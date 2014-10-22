@@ -27,12 +27,11 @@ module Reform::Form::Save
     result = save_model
     mapper.new(fields).extend(RecursiveSave).to_hash # save! on all nested forms.  # TODO: only include nested forms here.
 
-    # FIXME
-    if options.size > 0
-
+    names = options.keys & changed.keys.map(&:to_sym)
+    if names.size > 0
       representer = save_dynamic_representer.new(fields) # should be done once, on class instance level.
-      names = options.keys & changed.keys.map(&:to_sym)
-      puts "$$$$$$$$$ #{names.inspect}"
+
+      # puts "$$$$$$$$$ #{names.inspect}"
       representer.to_hash(options.merge :include => names)
     end
 

@@ -52,6 +52,7 @@ class ActiveRecordTest < MiniTest::Spec
   end
 
   it "has errors on title when title is taken for the same artist and album" do
+    skip "replace ActiveModel::Validations with our own, working and reusable gem."
     Song.create(title: "Windowpane", artist_id: artist.id, album_id: album.id)
     form.validate("title" => "Windowpane", "artist_id" => artist.id, "album" => album)
     refute_empty form.errors[:title]
