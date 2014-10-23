@@ -9,8 +9,11 @@ class ValidateTest < BaseTest
         "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"}]
       }
     }
+    let (:hit) { Song.new }
+    let (:song2) { Song.new }
+    let (:song1) { Song.new }
 
-    subject { AlbumForm.new(Album.new(nil, Song.new, [Song.new, Song.new])) }
+    subject { AlbumForm.new(Album.new(nil, hit, [song1, song2])) }
 
     before { subject.validate(params) }
 
@@ -27,6 +30,11 @@ class ValidateTest < BaseTest
 
     it { subject.songs[1].must_be_kind_of Reform::Form }
     it { subject.songs[1].title.must_equal "Roxanne" }
+
+    # don't touch model.
+    it { hit.title.must_equal nil   }
+    it { song1.title.must_equal nil }
+    it { song2.title.must_equal nil }
   end
 
   # TODO: the following tests go to populate_test.rb
