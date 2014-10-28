@@ -32,6 +32,7 @@
 * Wanna parse JSON in `#validate`? Include `Reform::Form::JSON`.
 * Dirty
 * :sync
+* :save
 * `Sync::SkipUnchanged`.
 
 

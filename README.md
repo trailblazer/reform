@@ -828,6 +828,26 @@ class SongForm < Reform::Form
 This will capitalize the title _after_ calling `form.validate` but _before_ validation happens. Note that you can use `super` to call the original setter.
 
 
+## Default Values For Presentation
+
+In case you want to change a value for presentation or provide a default value, override the reader. This is only considered when the form is rendered (e.g. in `form_for`).
+
+```ruby
+class SongForm < Reform::Form
+  property :genre
+
+  def genre
+    super || 'Punkrock'
+  end
+end
+```
+
+This will now be used when rendering the view.
+
+```haml
+= f.input :genre # calls form.genre which provides default.
+```
+
 ## Dirty Tracker
 
 Every form tracks changes in `#validate` and allows to check if a particular property value has changed using `#changed?`.
