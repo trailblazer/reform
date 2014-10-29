@@ -797,9 +797,7 @@ Note that the date will be `nil` when one of the components (year/month/day) is 
 By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
 
 
-## Additional Features
-
-### Nesting Without Inline Representers
+## Nesting Without Inline Representers
 
 When nesting form, you usually use a so-called inline form doing `property :song do .. end`.
 
@@ -812,7 +810,7 @@ property :song, form: SongForm
 The nested `SongForm` is a stand-alone form class you have to provide.
 
 
-### Overriding Accessors
+## Overriding Setters For Coercion
 
 When "real" coercion is too much and you simply want to convert incoming data yourself, override the setter.
 
