@@ -16,7 +16,9 @@ class Reform::Contract::Errors < ActiveModel::Errors
 
     # TODO: merge into AM.
     errors.messages.each do |field, msgs|
-      field = (prefix+[field]).join(".").to_sym # TODO: why is that a symbol in Rails?
+      unless field.to_sym == :base
+        field = (prefix+[field]).join(".").to_sym # TODO: why is that a symbol in Rails?
+      end
 
       msgs = [msgs] if Reform.rails3_0? # DISCUSS: fix in #each?
 

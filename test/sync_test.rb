@@ -1,6 +1,9 @@
 require 'test_helper'
 
 class SyncTest < BaseTest
+
+  Band = Struct.new(:name, :label)
+
   describe "populated" do
     let (:params) {
       {
@@ -15,7 +18,7 @@ class SyncTest < BaseTest
     let (:hit) { Song.new }
     let (:song1) { Song.new }
     let (:song2) { Song.new }
-    let (:band) { Band.new(label) }
+    let (:band) { Band.new("The Police", label) }
     let (:label) { Label.new }
 
     subject { ErrorsTest::AlbumForm.new(album) }
