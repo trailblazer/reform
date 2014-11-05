@@ -1,24 +1,4 @@
 module Reform::Contract::Validate
-  module NestedValid
-    def to_hash(*)
-      nested_forms do |attr|
-        attr.merge!(
-          :serialize => lambda { |object, args|
-
-            # FIXME: merge with Validate::Writer
-            options = args.user_options.dup
-            options[:prefix] = options[:prefix].dup # TODO: implement Options#dup.
-            options[:prefix] << args.binding.name # FIXME: should be #as.
-
-            object.validate!(options) # recursively call valid?
-          },
-        )
-      end
-
-      super
-    end
-  end
-
   def validate
     options = {:errors => errs = Reform::Contract::Errors.new(self), :prefix => []}
 
@@ -28,15 +8,32 @@ module Reform::Contract::Validate
 
     errors.valid?
   end
+
   def validate!(options)
     prefix = options[:prefix]
 
     # call valid? recursively and collect nested errors.
-    mapper.new(fields).extend(NestedValid).to_hash(options) # TODO: only include nested forms here.
+    valid_representer.new(fields).to_hash(options) # TODO: only include nested forms here.
 
     valid?  # this validates on <Fields> using AM::Validations, currently.
 
     options[:errors].merge!(self.errors, prefix)
   end
 
+private
+
+  # runs form.validate! on all nested forms
+  def valid_representer
+    self.class.representer(:valid) do |dfn|
+      dfn.merge!(
+        :serialize => lambda { |form, args|
+          options = args.user_options.dup
+          options[:prefix] = options[:prefix].dup # TODO: implement Options#dup.
+          options[:prefix] << args.binding.name # FIXME: should be #as.
+
+          form.validate!(options) # recursively call valid? on nested form.
+        }
+      )
+    end
+  end
 end
