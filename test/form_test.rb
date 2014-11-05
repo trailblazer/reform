@@ -43,6 +43,8 @@ class FormTest < MiniTest::Spec
     # hit is clone.
     it { schema.representable_attrs.get(:hit).representer_module.object_id.wont_equal AlbumForm.representer_class.representable_attrs.get(:hit).representer_module.object_id }
     it { assert schema.representable_attrs.get(:hit).representer_module < Representable::Decorator }
+    # we delete :prepare from schema.
+    it { schema.representable_attrs.get(:hit)[:prepare].must_equal nil }
 
     # band:label is clone.
     # this test might look ridiculous but it is mission-critical to assert that schema is really a clone and doesn't mess up the original structure.

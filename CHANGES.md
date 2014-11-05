@@ -15,7 +15,6 @@
 
 * `Form#save` with `Composition` now returns true only if all composite models saved.
 * `Form::copy_validations_from` allows copying custom validators now.
-* `::validates_uniqueness_of` now accepts options like `:scope`. Thanks to @cveneziani for a failing test and insight.
 * New call style for `::properties`. Instead of an array, it's now `properties :title, :genre`.
 * All options are evaluated with `pass_options: true`.
 
@@ -34,7 +33,14 @@
 * :sync
 * :save
 * `Sync::SkipUnchanged`.
+* Adding `:base` errors now works. Thanks to @bethesque.
 
+    ```ruby
+    errors.add(:base, "You are too awesome!")
+    ```
+
+  This will prefix the error with `:base`.
+* Added `Form::schema` to generate a pure representer from the form's representer.
 
 ## 1.1.1
 
