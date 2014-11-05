@@ -9,10 +9,10 @@ module Reform
       # Setup#to_hash will create a nested hash of property values from the model.
       # Nested properties will be recursively wrapped in a form instance.
       def setup_representer
-        self.class.representers[:setup] ||= Class.new(mapper).each do |dfn| # only nested forms.
+        self.class.representer(:setup) do |dfn| # only nested forms.
           dfn.merge!(
             :representable => false, # don't call #to_hash, only prepare.
-            :prepare       => lambda { |model, args| args.binding[:form].new(model) }
+            :prepare       => lambda { |model, args| args.binding[:form].new(model) } # wrap nested properties in form.
           )
         end
       end

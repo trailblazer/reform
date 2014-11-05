@@ -102,7 +102,7 @@ private
   # It then configures each property so the population of the form can happen in #validate.
   # A lot of this code is simply renaming from Reform's API to representable's. # FIXME: unify that?
   def populate_representer
-    self.class.representers[:populate] ||= Class.new(mapper).each(false) do |dfn|
+    self.class.representer(:populate, false) do |dfn|
       if dfn[:form]
         dfn.merge!(
           # set parse_strategy: sync> # DISCUSS: that kills the :setter directive, which usually sucks. at least document this in :populator.
@@ -126,7 +126,7 @@ private
       dfn.merge!(:skip_if => Skip::AllBlank.new) if dfn[:skip_if] == :all_blank
       dfn.merge!(:skip_parse => dfn[:skip_if]) if dfn[:skip_if]
 
-      dfn.merge!(:parse_filter => Changed.new) unless dfn[:form]
+      dfn.merge!(:parse_filter => Changed.new) unless dfn[:form] # TODO: make changed? work for nested forms.
     end
   end
 end

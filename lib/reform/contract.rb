@@ -101,6 +101,11 @@ module Reform
     def self.representers # keeps all transformation representers for one class.
       @representers ||= {}
     end
+    def self.representer(name, only_forms=true, &block)
+      return representers[name] if representers[name] # don't run block as this representer is already setup for this form class.
+
+      representers[name] = Class.new(representer_class).each(only_forms, &block) # let user modify representer.
+    end
 
     require 'reform/contract/validate'
     include Validate
@@ -115,7 +120,7 @@ module Reform
     attr_accessor :fields
     attr_writer :errors # only used in top form. (is that true?)
 
-    def mapper
+    def mapper # FIXME: do we need this with class-level representers?
       self.class.representer_class
     end
 
