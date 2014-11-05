@@ -47,22 +47,6 @@ module Reform::Form::Sync
     end
   end
 
-  # Transforms form input into what actually gets written to model.
-  # output: {title: "Mint Car", hit: <Form>}
-  module InputRepresenter
-    # receives Representer::Options hash.
-    def to_hash(*)
-      nested_forms do |attr|
-        attr.merge!(
-          :representable  => false,
-          :prepare        => lambda { |obj, *| obj }
-        )
-      end
-
-      super
-    end
-  end
-
 
   def sync_models(options={})
     sync!(options)
@@ -87,12 +71,23 @@ module Reform::Form::Sync
   end
 
 private
+
+  # Transforms form input into what actually gets written to model.
+  # output: {title: "Mint Car", hit: <Form>}
+  def input_representer
+    self.class.representer(:input) do |dfn|
+      dfn.merge!(
+        :representable  => false,
+        :prepare        => lambda { |obj, *| obj }
+      )
+    end
+  end
+
   # API: semi-public.
   module SyncHash
     # This hash goes into the Writer that writes properties back to the model. It only contains "writeable" attributes.
     def sync_hash(options)
-      input_representer = mapper.new(fields).extend(InputRepresenter)
-      input_representer.to_hash(options)
+      input_representer.new(fields).to_hash(options)
     end
   end
   include SyncHash
