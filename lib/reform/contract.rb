@@ -98,6 +98,10 @@ module Reform
 
     require 'reform/contract/setup'
     include Setup
+    def self.representers # keeps all transformation representers for one class.
+      @representers ||= {}
+    end
+
     require 'reform/contract/validate'
     include Validate
 

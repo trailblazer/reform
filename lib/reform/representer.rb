@@ -38,10 +38,18 @@ module Reform
       representable_attrs.find_all(&block).map(&:name)
     end
 
-    def nested_forms(&block)
+    def nested_forms(&block) # TODO: remove me.
       clone_config!.
         find_all { |attr| attr[:form] }.
         each(&block)
+    end
+
+    def self.each(only_form=true, &block)
+      definitions = representable_attrs
+      definitions = representable_attrs.find_all { |attr| attr[:form] } if only_form
+
+      definitions.each(&block)
+      self
     end
 
     def self.for(options)
