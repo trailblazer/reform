@@ -1,48 +1,5 @@
 # Mechanics for writing to forms in #validate.
 module Reform::Form::Validate
-  module Update
-    # IDEA: what if Populate was a Decorator that simply knows how to setup the Form object graph, nothing more? That would decouple
-    # the population from the validation (good and bad as less customizable).
-
-    # Go through all nested forms and call form.update!(hash).
-    def from_hash(*)
-      nested_forms do |attr|
-        attr.merge!(
-          # set parse_strategy: sync> # DISCUSS: that kills the :setter directive, which usually sucks. at least document this in :populator.
-          :collection => attr[:collection], # TODO: Def#merge! doesn't consider :collection if it's already set in attr YET.
-          :parse_strategy => :sync, # just use nested objects as they are.
-
-          # :getter grabs nested forms directly from fields bypassing the reader method which could possibly be overridden for presentation.
-          :getter      => lambda { |options| fields.send(options.binding.name) },
-          :deserialize => lambda { |object, params, args| object.update!(params) },
-        )
-
-        # TODO: :populator now is just an alias for :instance. handle in ::property.
-        attr.merge!(:instance => attr[:populator]) if attr[:populator]
-
-        attr.merge!(:instance => Populator::PopulateIfEmpty.new) if attr[:populate_if_empty]
-      end
-
-      # FIXME: solve this with a dedicated Populate Decorator per Form.
-      representable_attrs.each do |attr|
-        attr.merge!(:parse_filter => Representable::Coercion::Coercer.new(attr[:coercion_type])) if attr[:coercion_type]
-
-        attr.merge!(:skip_if => Skip::AllBlank.new) if attr[:skip_if] == :all_blank
-        attr.merge!(:skip_parse => attr[:skip_if]) if attr[:skip_if]
-      end
-
-
-      representable_attrs.each do |attr|
-        next if attr[:form]
-
-        attr.merge!(:parse_filter => Changed.new)
-      end
-
-      super
-    end
-  end
-
-
   module Populator
     # This might change soon (e.g. moved into disposable).
     class PopulateIfEmpty
@@ -130,10 +87,46 @@ private
   def deserialize!(params)
     # using self here will call the form's setters like title= which might be overridden.
     # from_hash(params, parent_form: self)
-    mapper.new(self).extend(Update).send(deserialize_method, params, :parent_form => self)
+    # Go through all nested forms and call form.update!(hash).
+    populate_representer.new(self).send(deserialize_method, params, :parent_form => self)
   end
 
   def deserialize_method
     :from_hash
+  end
+
+  # IDEA: what if Populate was a Decorator that simply knows how to setup the Form object graph, nothing more? That would decouple
+  # the population from the validation (good and bad as less customizable).
+
+  # Don't get scared by this method. All this does is create a new representer class for this form.
+  # It then configures each property so the population of the form can happen in #validate.
+  # A lot of this code is simply renaming from Reform's API to representable's. # FIXME: unify that?
+  def populate_representer
+    self.class.representers[:populate] ||= Class.new(mapper).each(false) do |dfn|
+      if dfn[:form]
+        dfn.merge!(
+          # set parse_strategy: sync> # DISCUSS: that kills the :setter directive, which usually sucks. at least document this in :populator.
+          :collection => dfn[:collection], # TODO: Def#merge! doesn't consider :collection if it's already set in dfn YET.
+          :parse_strategy => :sync, # just use nested objects as they are.
+
+          # :getter grabs nested forms directly from fields bypassing the reader method which could possibly be overridden for presentation.
+          :getter      => lambda { |options| fields.send(options.binding.name) },
+          :deserialize => lambda { |object, params, args| object.update!(params) },
+        )
+
+        # TODO: :populator now is just an alias for :instance. handle in ::property.
+        dfn.merge!(:instance => dfn[:populator]) if dfn[:populator]
+
+        dfn.merge!(:instance => Populator::PopulateIfEmpty.new) if dfn[:populate_if_empty]
+      end
+
+
+      dfn.merge!(:parse_filter => Representable::Coercion::Coercer.new(dfn[:coercion_type])) if dfn[:coercion_type]
+
+      dfn.merge!(:skip_if => Skip::AllBlank.new) if dfn[:skip_if] == :all_blank
+      dfn.merge!(:skip_parse => dfn[:skip_if]) if dfn[:skip_if]
+
+      dfn.merge!(:parse_filter => Changed.new) unless dfn[:form]
+    end
   end
 end
