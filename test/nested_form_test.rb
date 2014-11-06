@@ -94,10 +94,10 @@ class NestedFormTest < MiniTest::Spec
     it "updates internal Fields" do
       data = {}
 
-      form.save do |f, nested_hash|
-        data[:title]        = f.title
-        data[:hit_title]    = f.hit.title
-        data[:first_title]  = f.songs.first.title
+      form.save do |nested_hash|
+        data[:title]        = form.title
+        data[:hit_title]    = form.hit.title
+        data[:first_title]  = form.songs.first.title
       end
 
       data.must_equal(:title=>"Second Heat", :hit_title => "Sacrifice", :first_title => "Scarified")

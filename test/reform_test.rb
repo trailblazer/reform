@@ -143,27 +143,6 @@ class ReformTest < ReformSpec
     end
 
     describe "#save with block" do
-      it "Deprecated: provides data block argument" do # TODO: remove in 1.1.
-        hash = {}
-
-        form.save do |data, map|
-          hash[:name]   = data.name
-          hash[:title]  = data.title
-        end
-
-        hash.must_equal({:name=>"Diesel Boy", :title=>nil})
-      end
-
-      it "Deprecated: provides nested symbolized hash as second block argument" do # TODO: remove in 1.1.
-        hash = {}
-
-        form.save do |data, map|
-          hash = map
-        end
-
-        hash.must_equal({"name"=>"Diesel Boy"})
-      end
-
       it do
         hash = {}
 

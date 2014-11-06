@@ -17,7 +17,7 @@ module Reform::Form::Save
   # Returns the result of that save invocation on the model.
   def save(options={}, &block)
     # DISCUSS: we should never hit @mapper here (which writes to the models) when a block is passed.
-    return deprecate_first_save_block_arg(&block) if block_given?
+    return yield to_nested_hash if block_given?
 
     sync_models # recursion
     save!(options)
@@ -25,7 +25,7 @@ module Reform::Form::Save
 
   def save!(options={}) # FIXME.
     result = save_model
-    mapper.new(fields).extend(RecursiveSave).to_hash # save! on all nested forms.  # TODO: only include nested forms here.
+    save_representer.new(fields).to_hash # save! on all nested forms.  # TODO: only include nested forms here.
 
     names = options.keys & changed.keys.map(&:to_sym)
     if names.size > 0
@@ -41,7 +41,6 @@ module Reform::Form::Save
   def save_model
     model.save # TODO: implement nested (that should really be done by Twin/AR).
   end
-
 
   def save_dynamic_representer
     # puts mapper.superclass.superclass.inspect
@@ -85,12 +84,12 @@ module Reform::Form::Save
   # them private.
 
 private
-  def deprecate_first_save_block_arg(&block)
-    if block.arity == 2
-      warn "[Reform] Deprecation Warning: The first block argument in `save { |form, hash| .. }` is deprecated and its new signature is `save { |hash| .. }`. If you need the form instance, use it in the block. Have a good day."
-      return yield(self, to_nested_hash)
+  def save_representer
+    self.class.representer(:save) do |dfn|
+      dfn.merge!(
+          :instance  => lambda { |form, *| form },
+          :serialize => lambda { |form, args| form.save! unless args.binding[:save] === false },
+        )
     end
-
-    yield to_nested_hash # new behaviour.
   end
 end

@@ -11,6 +11,8 @@
 
     Including this module will add `#column_for_attribute` and other methods need by form builders to automatically guess the type of a property.
 
+* `Form#save` no longer passed `self` to the block. You've been warned long enough. ;)
+
 ### Changes
 
 * `Form#save` with `Composition` now returns true only if all composite models saved.
