@@ -54,4 +54,44 @@ class ContractTest < BaseTest
 
     it { subject.errors.messages.must_equal({}) }
   end
+
+
+  describe "::representer" do
+    # without name will always iterate.
+    it do
+      names = []
+      AlbumContract.representer { |dfn| names << dfn.name }
+      names.must_equal ["hit", "songs", "band"]
+
+      # this doesn't cache.
+      names = []
+      AlbumContract.representer { |dfn| names << dfn.name }
+      names.must_equal ["hit", "songs", "band"]
+    end
+
+    # with name caches representer per class and runs once.
+    it do
+      names = []
+      AlbumContract.representer(:sync) { |dfn| names << dfn.name }
+      names.must_equal ["hit", "songs", "band"]
+
+      # this does cache.
+      names = []
+      AlbumContract.representer(:sync) { |dfn| names << dfn.name }
+      names.must_equal []
+    end
+
+    # it allows iterating all properties, not only nested.
+    it do
+      names = []
+      AlbumContract.representer(:save, all: true) { |dfn| names << dfn.name }
+      names.must_equal ["title", "hit", "songs", "band"]
+
+      names = []
+      AlbumContract.representer(:save, all: true) { |dfn| names << dfn.name }
+      names.must_equal []
+    end
+
+    # test :superclass?
+  end
 end
