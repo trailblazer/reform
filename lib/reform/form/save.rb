@@ -55,29 +55,9 @@ module Reform::Form::Save
   end
 
 
-  module NestedHash
-    def to_hash(*)
-      # Transform form data into a nested hash for #save.
-      nested_forms do |attr|
-        attr.merge!(
-          :serialize => lambda { |object, args| object.to_nested_hash }
-        )
-      end
-
-      representable_attrs.each do |attr|
-        attr.merge!(:as => attr[:private_name] || attr.name)
-      end
-
-      super
-    end
-  end
-
-
   require "active_support/hash_with_indifferent_access" # DISCUSS: replace?
   def to_nested_hash(*)
-    map = mapper.new(fields).extend(NestedHash)
-
-    ActiveSupport::HashWithIndifferentAccess.new(map.to_hash)
+    ActiveSupport::HashWithIndifferentAccess.new(nested_hash_representer.new(fields).to_hash)
   end
   alias_method :to_hash, :to_nested_hash
   # NOTE: it is not recommended using #to_hash and #to_nested_hash in your code, consider
@@ -90,6 +70,14 @@ private
           :instance  => lambda { |form, *| form },
           :serialize => lambda { |form, args| form.save! unless args.binding[:save] === false },
         )
+    end
+  end
+
+  def nested_hash_representer
+    self.class.representer(:nested_hash, :all => true) do |dfn|
+      dfn.merge!(:serialize => lambda { |form, args| form.to_nested_hash }) if dfn[:form]
+
+      dfn.merge!(:as => dfn[:private_name] || dfn.name)
     end
   end
 end
