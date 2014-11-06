@@ -23,7 +23,7 @@ unless ActiveModel::VERSION::MAJOR == 3 and ActiveModel::VERSION::MINOR == 0
       extend ActiveModel::ModelValidations
 
       property :title
-      property :artist_name, as: :artist
+      property :artist_name, from: :artist
       copy_validations_from Album
     end
 

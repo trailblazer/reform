@@ -98,11 +98,11 @@ class SongForm < Reform::Form
 
 Internally, this form will call `song.title` to populate the title field.
 
-If you, for whatever reasons, want to use a different public name, use `:as`.
+If you, for whatever reasons, want to use a different public name, use `:from`.
 
 ```ruby
 class SongForm < Reform::Form
-  property :name, as: :title
+  property :name, from: :title
 ```
 
 This will still call `song.title` but expose the attribute as `name`.

@@ -9,7 +9,7 @@ class FormCompositionTest < MiniTest::Spec
     include Composition
 
     property  :name,          :on =>  :requester
-    property  :requester_id,  :on => :requester, :as => :id
+    property  :requester_id,  :on => :requester, :from => :id
     properties :title, :id, :on => :song
     # property  :channel # FIXME: what about the "main model"?
     property :channel, :empty => true, :on => :song

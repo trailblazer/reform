@@ -19,6 +19,7 @@
 
 ### Changes
 
+* Renamed `:as` to `:from` to be in line with Representable/Roar, Disposable and Cells. Thanks to @bethesque for pushing this.
 * `Form#save` with `Composition` now returns true only if all composite models saved.
 * `Form::copy_validations_from` allows copying custom validators now.
 * New call style for `::properties`. Instead of an array, it's now `properties :title, :genre`.

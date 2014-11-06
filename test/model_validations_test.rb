@@ -23,7 +23,7 @@ class ModelValidationsTest < MiniTest::Spec
     extend ActiveModel::ModelValidations
 
     property :title
-    property :artist_name, as: :artist
+    property :artist_name, from: :artist
     copy_validations_from Album
   end
 
@@ -34,7 +34,7 @@ class ModelValidationsTest < MiniTest::Spec
     model :album
 
     property :title, on: :album
-    property :artist_name, as: :artist, on: :album
+    property :artist_name, from: :artist, on: :album
     property :rating, on: :album_rating
 
     copy_validations_from album: Album, album_rating: AlbumRating

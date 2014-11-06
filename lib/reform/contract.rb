@@ -29,7 +29,8 @@ module Reform
 
     module PropertyMethods
       def property(name, options={}, &block)
-        options[:private_name] = options.delete(:as)
+        deprecate_as!(options)
+        options[:private_name] = options.delete(:from)
         options[:coercion_type] = options.delete(:type)
         options[:features] ||= []
         options[:features] += features.keys if block_given?
@@ -127,6 +128,12 @@ module Reform
 
     def mapper # FIXME: do we need this with class-level representers?
       self.class.representer_class
+    end
+
+    def self.deprecate_as!(options)
+      return unless as = options.delete(:as)
+      options[:from] = as
+      warn "[Reform] The :as options got renamed to :from. See https://github.com/apotonick/reform/wiki/Migration-Guide and have a nice day."
     end
 
     def self.register_feature(mod)
