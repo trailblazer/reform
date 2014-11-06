@@ -105,6 +105,9 @@ end
 
 class PopulateWithActiveRecordTest < MiniTest::Spec
   class AlbumForm < Reform::Form
+    include Reform::Form::ActiveModel
+    include Reform::Form::ActiveModel::FormBuilderMethods
+
     property :title
 
     collection :songs, :populate_if_empty => Song do
@@ -187,6 +190,62 @@ class PopulateWithActiveRecordTest < MiniTest::Spec
       # and a new song.
       album.songs[1].title.must_equal "Check For A Pulse"
       album.songs[1].persisted?.must_equal true # TODO: with << strategy, this shouldn't be saved.
+    end
+
+    describe 'using nested_models_attributes to modify nested collection' do
+      let (:album) { Album.create(:title => 'Greatest Hits') }
+      let (:form) { AlbumForm.new(album) }
+
+      it do
+        form.validate('songs_attributes' => {'0' => {'title' => 'Tango'}})
+
+        # form populated.
+        form.songs.size.must_equal 1
+        form.songs[0].model.must_be_kind_of Song
+        form.songs[0].title.must_equal 'Tango'
+
+        # model NOT populated.
+        album.songs.must_equal []
+
+        form.save
+
+        # nested model persisted.
+        first_song = album.songs[0]
+        assert first_song.id > 0
+
+        # form populated.
+        form.songs.size.must_equal 1
+
+        # model also populated.
+        album.songs.size.must_equal 1
+        album.songs[0].title.must_equal 'Tango'
+
+        form.validate('songs_attributes' => {'0' => {'id' => first_song.id, 'title' => 'Tango nuevo'}, '1' => {'title' => 'Waltz'}})
+
+        # form populated.
+        form.songs.size.must_equal 2
+        form.songs[0].model.must_be_kind_of Song
+        form.songs[1].model.must_be_kind_of Song
+        form.songs[0].title.must_equal 'Tango nuevo'
+        form.songs[1].title.must_equal 'Waltz'
+
+        # model NOT populated.
+        album.songs.size.must_equal 1
+        album.songs[0].title.must_equal 'Tango'
+
+        form.save
+
+        # form populated.
+        form.songs.size.must_equal 2
+
+        # model also populated.
+        album.songs.size.must_equal 2
+        album.songs[0].id.must_equal first_song.id
+        album.songs[0].persisted?.must_equal true
+        album.songs[1].persisted?.must_equal true
+        album.songs[0].title.must_equal 'Tango nuevo'
+        album.songs[1].title.must_equal 'Waltz'
+      end
     end
   end
 
