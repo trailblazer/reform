@@ -1,3 +1,7 @@
+## 1.2.1
+
+* Fixed a nasty bug where `ActiveModel` forms with form builder support wouldn't deserialize properly. A million Thanks to @karolsarnacki for finding this and providing an exemplary failing test. <3
+
 ## 1.2.0
 
 ### Breakage

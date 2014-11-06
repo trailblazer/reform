@@ -98,10 +98,13 @@ module Reform
 
     require 'reform/contract/setup'
     include Setup
+
     def self.representers # keeps all transformation representers for one class.
       @representers ||= {}
     end
-    def self.representer(name, options={}, &block)
+
+    def self.representer(name=nil, options={}, &block)
+      return representer_class.each(&block) if name == nil
       return representers[name] if representers[name] # don't run block as this representer is already setup for this form class.
 
       only_forms = options[:all] ? false : true
@@ -112,7 +115,6 @@ module Reform
 
     require 'reform/contract/validate'
     include Validate
-
 
     def errors # FIXME: this is needed for Rails 3.0 compatibility.
       @errors ||= Errors.new(self)

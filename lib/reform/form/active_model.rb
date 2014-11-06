@@ -29,9 +29,7 @@ module Reform::Form::ActiveModel
       return super unless params.is_a?(Hash)
       # TODO: run this only for hash deserialization, but generically (#deserialize_hash ?).
 
-      self.class.representer(:active_model) do |dfn| # TODO: we don't need to create a representer here.
-        rename_nested_param_for!(params, dfn)
-      end
+      self.class.representer do |dfn| { rename_nested_param_for!(params, dfn) }
 
       super
     end

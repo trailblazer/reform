@@ -105,8 +105,6 @@ end
 
 class PopulateWithActiveRecordTest < MiniTest::Spec
   class AlbumForm < Reform::Form
-    include Reform::Form::ActiveModel
-    include Reform::Form::ActiveModel::FormBuilderMethods
 
     property :title
 
@@ -193,8 +191,19 @@ class PopulateWithActiveRecordTest < MiniTest::Spec
     end
 
     describe 'using nested_models_attributes to modify nested collection' do
+      class ActiveModelAlbumForm < Reform::Form
+        include Reform::Form::ActiveModel
+        include Reform::Form::ActiveModel::FormBuilderMethods
+
+        property :title
+
+        collection :songs, :populate_if_empty => Song do
+          property :title
+        end
+      end
+
       let (:album) { Album.create(:title => 'Greatest Hits') }
-      let (:form) { AlbumForm.new(album) }
+      let (:form) { ActiveModelAlbumForm.new(album) }
 
       it do
         form.validate('songs_attributes' => {'0' => {'title' => 'Tango'}})
