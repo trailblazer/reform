@@ -29,22 +29,22 @@ module Reform::Form::ActiveModel
       return super unless params.is_a?(Hash)
       # TODO: run this only for hash deserialization, but generically (#deserialize_hash ?).
 
-      mapper.new(self).nested_forms do |attr, model| # FIXME: make this simpler.
-        rename_nested_param_for!(params, attr)
+      self.class.representer(:active_model) do |dfn| # TODO: we don't need to create a representer here.
+        rename_nested_param_for!(params, dfn)
       end
 
       super
     end
 
   private
-    def rename_nested_param_for!(params, attr)
-      nested_name = "#{attr.name}_attributes"
+    def rename_nested_param_for!(params, dfn)
+      nested_name = "#{dfn.name}_attributes"
       return unless params.has_key?(nested_name)
 
-      value = params["#{attr.name}_attributes"]
-      value = value.values if attr[:collection]
+      value = params["#{dfn.name}_attributes"]
+      value = value.values if dfn[:collection]
 
-      params[attr.name] = value
+      params[dfn.name] = value
     end
   end # FormBuilderMethods
 

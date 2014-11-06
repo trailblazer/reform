@@ -38,12 +38,6 @@ module Reform
       representable_attrs.find_all(&block).map(&:name)
     end
 
-    def nested_forms(&block) # TODO: remove me.
-      clone_config!.
-        find_all { |attr| attr[:form] }.
-        each(&block)
-    end
-
     def self.each(only_form=true, &block)
       definitions = representable_attrs
       definitions = representable_attrs.find_all { |attr| attr[:form] } if only_form
@@ -67,12 +61,6 @@ module Reform
     end
 
   private
-    def clone_config!
-      # TODO: representable_attrs.clone! which does exactly what's done below.
-      attrs = Representable::Config.new
-      attrs.inherit!(representable_attrs) # since in every use case we modify Config we clone.
-      @representable_attrs = attrs
-    end
 
     # Inline forms always get saved in :extend.
     def self.build_inline(base, features, name, options, &block)
