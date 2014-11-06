@@ -19,10 +19,19 @@
 * `Form::copy_validations_from` allows copying custom validators now.
 * New call style for `::properties`. Instead of an array, it's now `properties :title, :genre`.
 * All options are evaluated with `pass_options: true`.
+* All transforming representers are now created and stored on class level, resulting in simpler code and a 85% speed-up.
 
 ### New Stuff!!!
 
-* `:skip_if`, `:skip_if: :all_blank`.
+* In `#validate`, you can ignore properties now using `:skip_if`.
+
+    ```ruby
+    property :hit, skip_if: lambda { |fragment, *| fragment["title"].blank? }
+    ```
+
+    This works for both properties and nested forms. The property will simply be ignored when deserializing, as if it had never been in the incoming hash/document.
+
+    For nested properties you can use `:skip_if: :all_blank` as a macro to ignore a nested form if all values are blank.
 * You can now specify validations right in the `::property` call.
 
     ```ruby
@@ -30,18 +39,46 @@
     ```
 
     Thanks to @zubin for this brillant idea!
-* Wanna parse JSON in `#validate`? Include `Reform::Form::JSON`.
-* Dirty
-* :sync
-* :save
-* `Sync::SkipUnchanged`.
-* Adding `:base` errors now works. Thanks to @bethesque.
+
+* Reform now tracks which attributes have changed after `#validate`. You can check that using `form.changed?(:title)`.
+* When including `Sync::SkipUnchanged`, the form won't try to assign unchanged values anymore in `#sync`. This is extremely helpful when handling file uploads and the like.
+* Both `#sync` and `#save` can be configured dynamically now.
+
+    When syncing, you can run a lambda per property.
+
+    ```ruby
+    property :title, sync: lambda { |value, options| model.set_title(value) }
+    ```
+
+    This won't run Reform's built-in sync for this property.
+
+    You can also provide the sync lambda at run-time.
+
+    ```ruby
+    form.sync(title: lambda { |value, options| form.model.title = "HOT: #{value}" })
+    ```
+
+    This block is run in the caller's context allowing you to access environment variables.
+
+    Note that the dynamic sync happens _before_ save, so the model id may unavailable.
+
+    You can do the same for saving.
+
+    ```ruby
+    form.save(title: lambda { |value, options| form.model.title = "#{form.model.id} --> #{value}" })
+    ```
+    Again, this block is run in the caller's context.
+
+    The two features are an excellent way to handle file uploads without ActiveRecord's horrible callbacks.
+
+* Adding generic `:base` errors now works. Thanks to @bethesque.
 
     ```ruby
     errors.add(:base, "You are too awesome!")
     ```
 
   This will prefix the error with `:base`.
+* Need your form to parse JSON? Include `Reform::Form::JSON`, the `#validate` method now expects a JSON string and will deserialize and populate the form from the JSON document.
 * Added `Form::schema` to generate a pure representer from the form's representer.
 
 ## 1.1.1
