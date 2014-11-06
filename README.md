@@ -869,6 +869,38 @@ form.validate("title" => "Just Kiddin'")
 form.changed?(:title) #=> true
 ```
 
+When including `Sync::SkipUnchanged`, the form won't assign unchanged values anymore in `#sync`.
+
+
+## Dynamically Syncing And Saving Properties
+
+Both `#sync` and `#save` can be configured to run a dynamical lambda per property.
+
+The `sync:` option allows to statically add a lambda to a property.
+
+```ruby
+property :title, sync: lambda { |value, options| model.set_title(value) }
+```
+
+Instead of running Reform's built-in sync for this property the block is run.
+
+You can also provide the sync lambda at run-time.
+
+```ruby
+form.sync(title: lambda { |value, options| form.model.title = "HOT: #{value}" })
+```
+
+This block is run in the caller's context allowing you to access environment variables. Note that the dynamic sync happens _before_ save, so the model id may unavailable.
+
+You can do the same for saving.
+
+```ruby
+form.save(title: lambda { |value, options| form.model.title = "#{form.model.id} --> #{value}" })
+```
+Again, this block is run in the caller's context.
+
+The two features are an excellent way to handle file uploads without ActiveRecord's horrible callbacks.
+
 
 ## Undocumented Features
 
