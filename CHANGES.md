@@ -20,6 +20,7 @@
 ### Changes
 
 * Renamed `:as` to `:from` to be in line with Representable/Roar, Disposable and Cells. Thanks to @bethesque for pushing this.
+* `:empty` is now `:virtual` and `:virtual` is `writeable: false`. It was too confusing and sucked. Thanks to @bethesque, again, for her moral assistance.
 * `Form#save` with `Composition` now returns true only if all composite models saved.
 * `Form::copy_validations_from` allows copying custom validators now.
 * New call style for `::properties`. Instead of an array, it's now `properties :title, :genre`.
@@ -85,6 +86,7 @@
   This will prefix the error with `:base`.
 * Need your form to parse JSON? Include `Reform::Form::JSON`, the `#validate` method now expects a JSON string and will deserialize and populate the form from the JSON document.
 * Added `Form::schema` to generate a pure representer from the form's representer.
+* Added `:readable` and `:writeable` option which allow to skip reading or writing to the model when `false`.
 
 ## 1.1.1
 

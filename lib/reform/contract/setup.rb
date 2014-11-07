@@ -37,14 +37,14 @@ module Reform
       include SetupOptions
 
 
-      module Empty
+      module Readable
         def setup_options(options)
-          empty_fields = mapper.representable_attrs.find_all { |d| d[:empty] }.collect  { |d| d.name.to_sym }
+          empty_fields = mapper.representable_attrs.find_all { |d| d[:_readable] == false }.collect  { |d| d.name.to_sym }
 
           options.exclude!(empty_fields)
         end
       end
-      include Empty
+      include Readable
     end
   end # Setup
 end

@@ -80,17 +80,17 @@ private
   include SyncHash
 
 
-  # Excludes :virtual properties from #sync in this form.
-  module ReadOnly
+  # Excludes :virtual and readonly properties from #sync in this form.
+  module Writeable
     def sync_hash(options)
-      readonly_fields = mapper.fields { |dfn| dfn[:virtual] }
+      readonly_fields = mapper.fields { |dfn| dfn[:_writeable] == false }
 
       options.exclude!(readonly_fields.map(&:to_sym))
 
       super
     end
   end
-  include ReadOnly
+  include Writeable
 
 
   # This will skip unchanged properties in #sync. To use this for all nested form do as follows.

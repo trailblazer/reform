@@ -35,7 +35,21 @@ module Reform
         options[:features] ||= []
         options[:features] += features.keys if block_given?
         options[:pass_options] = true
-        options[:virtual] = true if options[:empty] # TODO: check TODO and fix naming!
+
+        # readable and writeable is true as it's not == false
+
+        if reform_2_0
+          if options.delete(:virtual)
+            options[:_readable]  = false
+            options[:_writeable] = false
+          else
+            options[:_readable]  = options.delete(:readable)
+            options[:_writeable] = options.delete(:writeable)
+          end
+
+        else # TODO: remove me in 2.0.
+          deprecate_virtual_and_empty!(options)
+        end
 
         validates(name, options.delete(:validates).dup) if options[:validates]
 
@@ -130,10 +144,29 @@ module Reform
       self.class.representer_class
     end
 
-    def self.deprecate_as!(options)
+    def self.deprecate_as!(options) # TODO: remove me in 2.0.
       return unless as = options.delete(:as)
       options[:from] = as
       warn "[Reform] The :as options got renamed to :from. See https://github.com/apotonick/reform/wiki/Migration-Guide and have a nice day."
+    end
+
+    def self.deprecate_virtual_and_empty!(options) # TODO: remove me in 2.0.
+      if options.delete(:virtual)
+        warn "[Reform] The :virtual option has changed! Check https://github.com/apotonick/reform/wiki/Migration-Guide and have a good day."
+        options[:_readable] = true
+        options[:_writeable] = false
+      end
+
+      if options[:empty]
+        warn "[Reform] The :empty option has changed! Check https://github.com/apotonick/reform/wiki/Migration-Guide and have a good day."
+        options[:_readable]  = false
+        options[:_writeable] = false
+      end
+    end
+
+    inheritable_attr :reform_2_0 # TODO: remove me in 2.0.
+    def self.reform_2_0!
+      self.reform_2_0= true
     end
 
     def self.register_feature(mod)
