@@ -633,17 +633,17 @@ As with the built-in coercion, this setter is only called in `#validate`.
 Virtual fields come in handy when there's no direct mapping to a model attribute or when you plan on displaying but not processing a value.
 
 
-### Empty Fields
+### Virtual Fields
 
-Often, fields like `password_confirmation` shouldn't be retrieved from the model. Reform comes with the `:empty` option for that.
+Often, fields like `password_confirmation` should neither be read from nor written back to the model. Reform comes with the `:virtual` option to handle that case.
 
 ```ruby
 class PasswordForm < Reform::Form
   property :password
-  property :password_confirmation, :empty => true
+  property :password_confirmation, virtual: true
 ```
 
-Here, the model won't be queried for a `password_confirmation` field when creating and rendering the form. Likewise, when saving the form, the input value is not written to the decorated model. It is only readable in validations and when saving the form.
+Here, the model won't be queried for a `password_confirmation` field when creating and rendering the form. When saving the form, the input value is not written to the decorated model. It is only readable in validations and when saving the form manually.
 
 ```ruby
 form.validate("password" => "123", "password_confirmation" => "321")
@@ -660,11 +660,11 @@ form.save do |nested|
 
 ### Read-Only Fields
 
-Almost identical, the `:virtual` option makes fields read-only. Say you want to show a value, but not process it after submission, this option is your friend.
+When you want to show a value but skip processing it after submission the `:writeable` option is your friend.
 
 ```ruby
 class ProfileForm < Reform::Form
-  property :country, :virtual => true
+  property :country, :writeable => false
 ```
 
 This time reform will query the model for the value by calling `model.country`.
@@ -676,6 +676,14 @@ It is still readable in the nested hash and through the form itself.
 ```ruby
 form.save do |nested|
   nested[:country] #=> "Australia"
+```
+
+### Write-Only Fields
+
+A third alternative is to hide a field's value but write it to the database when syncing. This can be achieved using the `:readable` option.
+
+```ruby
+property :credit_card_number, :readable => false
 ```
 
 ## Validations From Models
