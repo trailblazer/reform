@@ -664,7 +664,7 @@ When you want to show a value but skip processing it after submission the `:writ
 
 ```ruby
 class ProfileForm < Reform::Form
-  property :country, :writeable => false
+  property :country, writeable: false
 ```
 
 This time reform will query the model for the value by calling `model.country`.
@@ -683,7 +683,7 @@ form.save do |nested|
 A third alternative is to hide a field's value but write it to the database when syncing. This can be achieved using the `:readable` option.
 
 ```ruby
-property :credit_card_number, :readable => false
+property :credit_card_number, readable: false
 ```
 
 ## Validations From Models
