@@ -12,8 +12,6 @@ class Reform::Contract::Errors < ActiveModel::Errors
   # end
 
   def merge!(errors, prefix)
-    prefixes = prefix.join(".")
-
     # TODO: merge into AM.
     errors.messages.each do |field, msgs|
       unless field.to_sym == :base
