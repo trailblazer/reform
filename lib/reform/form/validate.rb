@@ -75,6 +75,9 @@ module Reform::Form::Validate
     update!(params)
 
     super() # run the actual validation on self.
+
+  rescue Representable::DeserializeError
+    raise DeserializeError.new("[Reform] Deserialize error: You probably called #validate without setting up your nested models. Check https://github.com/apotonick/reform#populating-forms-for-validation on how to use populators.")
   end
 
   # Some users use this method to pre-populate a form. Not saying this is right, but we'll keep
@@ -128,5 +131,8 @@ private
 
       dfn.merge!(:parse_filter => Changed.new) unless dfn[:form] # TODO: make changed? work for nested forms.
     end
+  end
+
+  class DeserializeError < RuntimeError
   end
 end

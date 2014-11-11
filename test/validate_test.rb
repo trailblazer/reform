@@ -37,6 +37,14 @@ class ValidateTest < BaseTest
     it { song2.title.must_equal nil }
   end
 
+  describe "not populated properly raises error" do
+    it do
+      assert_raises Reform::Form::Validate::DeserializeError do
+        AlbumForm.new(Album.new).validate("hit"   => {"title" => "Roxanne"})
+      end
+    end
+  end
+
   # TODO: the following tests go to populate_test.rb
   describe "manual setup with populator" do
     let (:form) {

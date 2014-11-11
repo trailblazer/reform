@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency             "representable",  "~> 2.1.0"
   spec.add_dependency             "disposable",     "~> 0.0.5"
-  spec.add_dependency             "uber",           "~> 0.0.8"
+  spec.add_dependency             "uber",           "~> 0.0.11"
   spec.add_dependency             "activemodel"
   spec.add_development_dependency "bundler",        "~> 1.3"
   spec.add_development_dependency "rake"

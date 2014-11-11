@@ -1,3 +1,8 @@
+## 1.2.2
+
+* Use new `uber` to allow subclassing `reform_2_0!` forms.
+* Raise a better understandable deserialization error when the form is not populated properly. This error is so common that I overcame myself to add a dreaded `rescue` block in `Form#validate`.
+
 ## 1.2.1
 
 * Fixed a nasty bug where `ActiveModel` forms with form builder support wouldn't deserialize properly. A million Thanks to @karolsarnacki for finding this and providing an exemplary failing test. <3
