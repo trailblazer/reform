@@ -4,6 +4,13 @@ Decouple your models from forms. Reform gives you a form object with validations
 
 Although reform can be used in any Ruby framework, it comes with [Rails support](#rails-integration), works with [simple_form and other form gems](#formbuilder-support), allows nesting forms to implement [has_one](#nesting-forms-1-1-relations) and [has_many](#nesting-forms-1-n-relations) relationships, can [compose a form](#compositions) from multiple objects and gives you [coercion](#coercion).
 
+<a href="https://leanpub.com/trailblazer">
+![](https://raw.githubusercontent.com/apotonick/trailblazer/master/doc/trb.jpg)
+</a>
+
+Reform is part of the [Trailblazer project](https://github.com/apotonick/trailblazer). Please [buy my book](https://leanpub.com/trailblazer) to support the development (and to learn all the cool stuff about Reform).
+
+
 ## Installation
 
 Add this line to your Gemfile:
