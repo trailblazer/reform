@@ -905,7 +905,7 @@ You can also provide the sync lambda at run-time.
 form.sync(title: lambda { |value, options| form.model.title = "HOT: #{value}" })
 ```
 
-This block is run in the caller's context allowing you to access environment variables. Note that the dynamic sync happens _before_ save, so the model id may unavailable.
+This block is run in the caller's context allowing you to access environment variables. Note that the dynamic sync happens _before_ save, so the model id may be unavailable.
 
 You can do the same for saving.
 
