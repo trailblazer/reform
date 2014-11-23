@@ -48,7 +48,7 @@ Luckily, this can be shortened as follows.
 ```ruby
 class SongForm < Reform::Form
   property :title, validates: {presence: true}
-  property :length, validates {numericality: true}
+  property :length, validates: {numericality: true}
 end
 ```
 
