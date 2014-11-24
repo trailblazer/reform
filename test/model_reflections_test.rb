@@ -20,6 +20,12 @@ class ModelReflectionTest < MiniTest::Spec
     end
   end
 
+  module DefinedEnums
+    def defined_enums
+      {self.class => []}
+    end
+  end
+
   describe "#column_for_attribute" do
     let (:artist) { Artist.new }
     let (:song) { Song.new(artist: artist) }
@@ -35,6 +41,20 @@ class ModelReflectionTest < MiniTest::Spec
     end
   end
 
+  describe "#defined_enums" do
+    let (:artist) { Artist.new }
+    let (:song) { Song.new(artist: artist) }
+    let (:form) { SongForm.new(song) }
+
+    # delegate to model.
+    it do
+      song.extend(DefinedEnums)
+      artist.extend(DefinedEnums)
+
+      form.defined_enums.must_include Song
+      form.artist.defined_enums.must_include Artist
+    end
+  end
 
   class SongWithArtistForm < Reform::Form
     include Reform::Form::ActiveRecord
@@ -60,6 +80,22 @@ class ModelReflectionTest < MiniTest::Spec
 
       form.column_for_attribute(:name).must_equal "Artist: [:name]"
       form.column_for_attribute(:title).must_equal "Song: [:title]"
+    end
+  end
+
+  describe "#defined_enums with composition" do
+    let (:artist) { Artist.new }
+    let (:song) { Song.new }
+    let (:form) { SongWithArtistForm.new(artist: artist, song: song) }
+
+    # delegates to respective model.
+    it do
+      song.extend(DefinedEnums)
+      artist.extend(DefinedEnums)
+
+
+      form.defined_enums.must_include Song
+      form.defined_enums.must_include Artist
     end
   end
 end

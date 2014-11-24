@@ -14,5 +14,11 @@ module Reform::Form::ModelReflections
     model_for_property(name).column_for_attribute(name)
   end
 
+  def defined_enums
+    return model.defined_enums unless is_a?(Reform::Form::Composition)
+
+    model.each.with_object({}) { |m,h| h.merge! m.defined_enums }
+  end
+
   # this should also contain to_param and friends as this is used by the form helpers.
 end
