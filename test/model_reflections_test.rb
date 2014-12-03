@@ -16,7 +16,13 @@ class ModelReflectionTest < MiniTest::Spec
 
   module ColumnForAttribute
     def column_for_attribute(*args)
-        "#{self.class}: #{args.inspect}"
+      "#{self.class}: #{args.inspect}"
+    end
+  end
+
+  module HasAttribute
+    def has_attribute?(*args)
+      "#{self.class}: has #{args.inspect}"
     end
   end
 
@@ -38,6 +44,21 @@ class ModelReflectionTest < MiniTest::Spec
 
       form.column_for_attribute(:title).must_equal "Song: [:title]"
       form.artist.column_for_attribute(:name).must_equal "Artist: [:name]"
+    end
+  end
+
+  describe "#has_attribute?" do
+    let (:artist) { Artist.new }
+    let (:song) { Song.new(artist: artist) }
+    let (:form) { SongForm.new(song) }
+
+    # delegate to model.
+    it do
+      song.extend(HasAttribute)
+      artist.extend(HasAttribute)
+
+      form.has_attribute?(:title).must_equal "Song: has [:title]"
+      form.artist.has_attribute?(:name).must_equal "Artist: has [:name]"
     end
   end
 

@@ -14,6 +14,10 @@ module Reform::Form::ModelReflections
     model_for_property(name).column_for_attribute(name)
   end
 
+  def has_attribute?(name)
+    model_for_property(name).has_attribute?(name)
+  end
+
   def defined_enums
     return model.defined_enums unless is_a?(Reform::Form::Composition)
 
