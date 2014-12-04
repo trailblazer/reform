@@ -27,11 +27,15 @@ private
   # Transforms form input into what actually gets written to model.
   # output: {title: "Mint Car", hit: <Form>}
   def input_representer
-    self.class.representer(:input) do |dfn|
-      dfn.merge!(
-        :representable  => false,
-        :prepare        => lambda { |obj, *| obj }
-      )
+    self.class.representer(:input, :all => true) do |dfn|
+      if dfn[:form]
+        dfn.merge!(
+          :representable  => false,
+          :prepare        => lambda { |obj, *| obj },
+        )
+      else
+        dfn.merge!(:render_nil => true) # do sync nil values back to the model for scalars.
+      end
     end
   end
 

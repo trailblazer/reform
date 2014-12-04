@@ -1,3 +1,12 @@
+## 1.2.3
+
+* Make `ModelReflections` work with simple_form 3.1.0. (#176)
+* `nil` values passed into `#validate` will now be written to the model in `#sync` (#175). Formerly, only blank strings and values evaluating to true were considered when syncing. This allows blanking fields of the model as follows.
+
+    ```ruby
+    form.validate(title: nil)
+    ```
+
 ## 1.2.2
 
 * Use new `uber` to allow subclassing `reform_2_0!` forms.

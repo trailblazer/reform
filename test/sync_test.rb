@@ -39,4 +39,18 @@ class SyncTest < BaseTest
     it { song2.title.must_equal "Roxanne" }
     it { label.name.must_equal "Polydor" }
   end
+
+  describe "with incoming nil value" do
+    it do
+      album = Album.new("GI")
+      form  = ErrorsTest::AlbumForm.new(album)
+
+      form.title.must_equal "GI"
+
+      form.validate("title" => nil)
+      form.title.must_equal nil
+      form.sync
+      album.title.must_equal nil
+    end
+  end
 end

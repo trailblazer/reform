@@ -3,7 +3,7 @@
 * empty dont read, but write
 * read_only: read, don't write
 
-
+* make SkipUnchanged default?
 
 
 * `validates :title, :presence => true`
