@@ -32,6 +32,12 @@ class ModelReflectionTest < MiniTest::Spec
     end
   end
 
+  module ReflectOnAssociation
+    def reflect_on_association(*args)
+      "#{self}: has associations #{args.inspect}"
+    end
+  end
+
   describe "#column_for_attribute" do
     let (:artist) { Artist.new }
     let (:song) { Song.new(artist: artist) }
@@ -74,6 +80,18 @@ class ModelReflectionTest < MiniTest::Spec
 
       form.defined_enums.must_include Song
       form.artist.defined_enums.must_include Artist
+    end
+  end
+
+  describe ".reflect_on_association" do
+    let (:artist) { Artist.new }
+    let (:song) { Song.new(artist: artist) }
+    let (:form) { SongForm.new(song) }
+
+    # delegate to model class.
+    it do
+      song.class.extend(ReflectOnAssociation)
+      form.class.reflect_on_association(:artist).must_equal "Song: has associations [:artist]"
     end
   end
 

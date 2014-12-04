@@ -5,7 +5,16 @@
 # doesn't have to "guess" what simple_form and other form helpers need.
 module Reform::Form::ModelReflections
   def self.included(base)
+    base.extend ClassMethods
     base.register_feature self # makes it work in nested forms.
+  end
+
+  module ClassMethods
+    # Delegate reflect_on_association to the model class to support simple_form's
+    # association input.
+    def reflect_on_association(*args)
+      model_name.name.constantize.reflect_on_association(*args)
+    end
   end
 
   # Delegate column for attribute to the model to support simple_form's
