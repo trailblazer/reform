@@ -13,7 +13,7 @@ module Reform::Form::ModelReflections
     # Delegate reflect_on_association to the model class to support simple_form's
     # association input.
     def reflect_on_association(*args)
-      model_name.name.constantize.reflect_on_association(*args)
+      model_name.to_s.constantize.reflect_on_association(*args)
     end
   end
 
