@@ -164,11 +164,6 @@ module Reform
       end
     end
 
-    inheritable_attr :reform_2_0 # TODO: remove me in 2.0.
-    def self.reform_2_0!
-      self.reform_2_0= true
-    end
-
     def self.register_feature(mod)
       features[mod] = true
     end
@@ -195,6 +190,19 @@ module Reform
     extend Schema
 
     alias_method :aliased_model, :model
+
+    # TODO: remove me in 2.0.
+    module Reform20Switch
+      def self.included(base)
+        base.register_feature(Reform20Switch)
+      end
+    end
+    def self.reform_2_0!
+      include Reform20Switch
+    end
+    def self.reform_2_0
+      features[Reform20Switch]
+    end
 
 
     # Keeps values of the form fields. What's in here is to be displayed in the browser!
