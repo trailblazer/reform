@@ -310,7 +310,7 @@ When rendering this form you could use the form's accessors manually.
 Or use something like `#fields_for` in a Rails environment.
 
 ```haml
-= form_for @form |f|
+= form_for @form do |f|
   = f.text_field :title
   = f.text_field :length
 
@@ -378,7 +378,7 @@ Reform will expose the collection using the `#songs` method.
 However, `#fields_for` works just fine, again.
 
 ```haml
-= form_for @form |f|
+= form_for @form do |f|
   = f.text_field :title
 
   = f.fields_for :songs do |s|
