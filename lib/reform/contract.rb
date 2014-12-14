@@ -191,6 +191,13 @@ module Reform
 
     alias_method :aliased_model, :model
 
+    module Readonly
+      def readonly?(name)
+        self.class.representer_class.representable_attrs.get(name)[:writeable] == false
+      end
+    end
+    include Readonly
+
     # TODO: remove me in 2.0.
     module Reform20Switch
       def self.included(base)

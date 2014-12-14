@@ -1,3 +1,17 @@
+## 1.2.4
+
+* Added `Form#readonly?` to find out whether a field is set to writeable. This is helpful for simple_form to display a disabled input field.
+
+    ```ruby
+    property :title, writeable: false
+    ```
+
+    In the view, you can then use something along the following code.
+
+    ```ruby
+    f.input :title, readonly: @form.readonly?(:title)
+    ```
+
 ## 1.2.3
 
 * Make `ModelReflections` work with simple_form 3.1.0. (#176). It also provides `defined_enums` and `::reflect_on_association` now.
