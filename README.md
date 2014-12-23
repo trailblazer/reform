@@ -19,7 +19,7 @@ Add this line to your Gemfile:
 gem 'reform'
 ```
 
-## Nomenclatura
+## Nomenclature
 
 Reform comes with two base classes.
 
