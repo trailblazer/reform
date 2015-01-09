@@ -949,6 +949,7 @@ You can do this using `#options_for`.
 form.options_for(:title) # => {:readable=>true, :coercion_type=>String}
 ```
 
+Note that Reform renames some options (e.g. `:type` internally becomes `:coercion_type`). Those names are private API and might be changed without deprecation. You better test rendering logic in a unit test to make sure you're forward-compatible.
 
 ## Support
 
