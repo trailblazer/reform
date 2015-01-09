@@ -193,7 +193,11 @@ module Reform
 
     module Readonly
       def readonly?(name)
-        self.class.representer_class.representable_attrs.get(name)[:writeable] == false
+        options_for(name)[:writeable] == false
+      end
+
+      def options_for(name)
+        self.class.representer_class.representable_attrs.get(name)
       end
     end
     include Readonly

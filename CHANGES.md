@@ -1,3 +1,7 @@
+## 1.2.5
+
+* Added `Form#options_for` to have access to all property options.
+
 ## 1.2.4
 
 * Added `Form#readonly?` to find out whether a field is set to writeable. This is helpful for simple_form to display a disabled input field.

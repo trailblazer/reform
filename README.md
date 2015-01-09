@@ -935,6 +935,20 @@ class AlbumForm < Reform::Form
   end
 ```
 
+### Property Inflections
+
+When rendering a form you might need to access the options you provided to `property`.
+
+```ruby
+property :title, type: String
+```
+
+You can do this using `#options_for`.
+
+```ruby
+form.options_for(:title) # => {:readable=>true, :coercion_type=>String}
+```
+
 
 ## Support
 
