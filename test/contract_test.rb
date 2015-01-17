@@ -94,4 +94,12 @@ class ContractTest < BaseTest
 
     # test :superclass?
   end
+
+  class SongContract < Reform::Contract
+    property :title, readable: true, type: String
+  end
+
+  describe "#options_for" do
+    it { SongContract.new(OpenStruct.new).options_for(:title)[:coercion_type].must_equal String }
+  end
 end
