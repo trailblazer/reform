@@ -31,6 +31,27 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
     it { class_with_model.model_name.must_be_kind_of ActiveModel::Name }
     it { class_with_model.model_name.to_s.must_equal "Album" }
 
+    let (:class_with_isolated_model) {
+      Class.new(Reform::Form) do
+        include Reform::Form::ActiveModel
+
+        model "isolated_rails_engine/lyric", namespace: "isolated_rails_engine"
+      end
+    }
+
+    it { class_with_isolated_model.model_name.must_be_kind_of ActiveModel::Name }
+    it { class_with_isolated_model.model_name.to_s.must_equal "IsolatedRailsEngine::Lyric" }
+
+    let (:class_with_namespace_model) {
+      Class.new(Reform::Form) do
+        include Reform::Form::ActiveModel
+
+        model "normal_rails_engine/lyric"
+      end
+    }
+
+    it { class_with_namespace_model.model_name.must_be_kind_of ActiveModel::Name }
+    it { class_with_namespace_model.model_name.to_s.must_equal "NormalRailsEngine::Lyric" }
 
     let (:subclass_of_class_with_model) {
       Class.new(class_with_model)
@@ -39,6 +60,13 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
     it { subclass_of_class_with_model.model_name.must_be_kind_of ActiveModel::Name }
     it { subclass_of_class_with_model.model_name.to_s.must_equal 'Album' }
 
+    unless Reform.rails3_0?
+      it { form.class.model_name.route_key.must_equal "new_active_model_test_songs" }
+      it { class_with_model.model_name.route_key.must_equal "albums" }
+      it { class_with_isolated_model.model_name.route_key.must_equal "lyrics" }
+      it { class_with_namespace_model.model_name.route_key.must_equal "normal_rails_engine_lyrics" }
+      it { subclass_of_class_with_model.model_name.route_key.must_equal 'albums' }
+    end
 
     describe "class named Song::Form" do
       it do
