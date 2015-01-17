@@ -19,6 +19,7 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
   describe "::model_name" do
     it { form.class.model_name.must_be_kind_of ActiveModel::Name }
     it { form.class.model_name.to_s.must_equal "NewActiveModelTest::Song" }
+    it { form.class.model_name.route_key.must_equal "new_active_model_test_songs" }
 
     let (:class_with_model) {
       Class.new(Reform::Form) do
@@ -30,7 +31,31 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
 
     it { class_with_model.model_name.must_be_kind_of ActiveModel::Name }
     it { class_with_model.model_name.to_s.must_equal "Album" }
+    it { class_with_model.model_name.route_key.must_equal "albums" }
 
+    let (:class_with_isolated_model) {
+      Class.new(Reform::Form) do
+        include Reform::Form::ActiveModel
+
+        model IsolatedRailsEngine::Lyric
+      end
+    }
+
+    it { class_with_isolated_model.model_name.must_be_kind_of ActiveModel::Name }
+    it { class_with_isolated_model.model_name.to_s.must_equal "IsolatedRailsEngine::Lyric" }
+    it { class_with_isolated_model.model_name.route_key.must_equal "lyrics" }
+
+    let (:class_with_namespace_model) {
+      Class.new(Reform::Form) do
+        include Reform::Form::ActiveModel
+
+        model NormalRailsEngine::Lyric
+      end
+    }
+
+    it { class_with_namespace_model.model_name.must_be_kind_of ActiveModel::Name }
+    it { class_with_namespace_model.model_name.to_s.must_equal "NormalRailsEngine::Lyric" }
+    it { class_with_namespace_model.model_name.route_key.must_equal "normal_rails_engine_lyrics" }
 
     let (:subclass_of_class_with_model) {
       Class.new(class_with_model)
@@ -38,6 +63,7 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
 
     it { subclass_of_class_with_model.model_name.must_be_kind_of ActiveModel::Name }
     it { subclass_of_class_with_model.model_name.to_s.must_equal 'Album' }
+    it { subclass_of_class_with_model.model_name.route_key.must_equal 'albums' }
 
 
     describe "class named Song::Form" do
