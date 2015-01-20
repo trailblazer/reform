@@ -2,7 +2,7 @@
 module Reform::Form::Prepopulate
   def prepopulate!
     # TODO: representer.new(fields).from_object(fields)
-    hash = prepopulate_representer.new(fields).to_hash
+    hash = prepopulate_representer.new(fields).to_hash(:parent_form => self)
     prepopulate_representer.new(fields).from_hash(hash)
 
     recursive_prepopulate_representer.new(fields).to_hash # not sure if i leave that like this, consider private.
@@ -16,7 +16,10 @@ private
       if dfn[:form]
         dfn.merge!(
           :render_filter => lambda do |v, h, options|
-            object = options.binding[:prepopulate].call # TODO: execute in form context, pass options.
+            parent_form = options.user_options[:parent_form] # TODO: merge with Validate/populate_if_empty.
+
+            # execute in form context, pass user optioins.
+            object = parent_form.instance_exec(options.user_options, &options.binding[:prepopulate])
 
             if options.binding.array?
               object.collect { |item| options.binding[:form].new(item) }
@@ -29,7 +32,12 @@ private
           :instance => lambda { |obj, *| obj } # needed for from_hash. TODO: make that in one go.
         )
       else
-        dfn.merge!(:render_filter => lambda { |v, h, options| options.binding[:prepopulate].call }) # TODO: execute in form context, pass options.
+        dfn.merge!(:render_filter => lambda do |v, h, options|
+          parent_form = options.user_options[:parent_form] # TODO: merge with Validate/populate_if_empty.
+
+          # execute in form context, pass user optioins.
+          parent_form.instance_exec(options.user_options, &options.binding[:prepopulate])
+        end)
       end
     end
   end
