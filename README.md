@@ -12,7 +12,7 @@ Reform is part of the [Trailblazer project](https://github.com/apotonick/trailbl
 
 * Form objects, the DSL and basic API (chapter 2 and 3)
 * Basic validations and rendering forms (chapter 3)
-* Nested forms, prepopulating and validation populating (chapter 5)
+* Nested forms, prepopulating and validation populating and pre-selecting values (chapter 5)
 
 More chapters are coming!
 
