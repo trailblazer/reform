@@ -120,7 +120,6 @@ class SongForm < Reform::Form
 
 This will still call `song.title` but expose the attribute as `name`.
 
-
 ## Rendering Forms
 
 Your `@form` is now ready to be rendered, either do it yourself or use something like Rails' `#form_for`, `simple_form` or `formtastic`.
@@ -134,6 +133,7 @@ Your `@form` is now ready to be rendered, either do it yourself or use something
 
 Nested forms and collections can be easily rendered with `fields_for`, etc. Just use Reform as if it would be an ActiveModel instance in the view layer.
 
+Note that you have a mechanism to [prepopulate forms](#prepopulating-forms) for rendering.
 
 ## Validation
 
@@ -926,6 +926,29 @@ The two features are an excellent way to handle file uploads without ActiveRecor
 ## Undocumented Features
 
 _(Please don't read this section!)_
+
+
+### Prepopulating Forms
+
+When rendering a new form for an empty object, nested forms won't show up. The [Trailblazer book, chapter 5](https://leanpub.com/trailblazer), discusses this in detail.
+
+You can use the `:prepopulate` option to configure how to populate a nested form (this also works for scalar properties).
+
+```ruby
+property :song, prepopulate: ->(*) { Song.new } do
+  # ..
+end
+```
+
+This option is only executed when being instructed to do so, using the `#prepopulate!` method.
+
+```ruby
+form.prepopulate!
+```
+
+Only do this for forms that are about to get rendered, though.
+
+Collections and partial collection population is covered in chapter 5.
 
 
 ### Populator
