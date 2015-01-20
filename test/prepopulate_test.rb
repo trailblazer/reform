@@ -67,3 +67,19 @@ class PrepopulateInFormContextTest < MiniTest::Spec
   it { subject.hit.model.must_equal Song.new }
   it { subject.hit.band.model.must_equal Band.new }
 end
+
+class PrepopulateWithExistingCollectionTest < MiniTest::Spec
+  Song = Struct.new(:title)
+
+  class AlbumForm < Reform::Form
+    collection :songs, prepopulate: ->(*){ songs.map(&:model) + [Song.new] } do
+      property :title
+    end
+  end
+
+  subject { AlbumForm.new(OpenStruct.new(songs: [Song.new])).prepopulate! }
+
+  it { subject.songs.size.must_equal 2 }
+  it { subject.songs[0].model.must_equal Song.new }
+  it { subject.songs[1].model.must_equal Song.new }
+end
