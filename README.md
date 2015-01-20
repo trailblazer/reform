@@ -8,7 +8,13 @@ Although reform can be used in any Ruby framework, it comes with [Rails support]
 ![](https://raw.githubusercontent.com/apotonick/trailblazer/master/doc/trb.jpg)
 </a>
 
-Reform is part of the [Trailblazer project](https://github.com/apotonick/trailblazer). Please [buy my book](https://leanpub.com/trailblazer) to support the development (and to learn all the cool stuff about Reform).
+Reform is part of the [Trailblazer project](https://github.com/apotonick/trailblazer). Please [buy my book](https://leanpub.com/trailblazer) to support the development and learn everything about Reform. Currently the book discusses:
+
+* Form objects, the DSL and basic API (chapter 2 and 3)
+* Basic validations and rendering forms (chapter 3)
+* Nested forms, prepopulating and validation populating (chapter 5)
+
+More chapters are coming!
 
 
 ## Installation
