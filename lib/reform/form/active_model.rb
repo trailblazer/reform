@@ -96,12 +96,9 @@ module Reform::Form::ActiveModel
     end
 
     def determine_namespace(string)
-      begin
-        string.constantize.parents.detect do |n|
-          n.respond_to?(:use_relative_model_naming?) && n.use_relative_model_naming?
-        end
-      rescue NameError
-        nil
+      return nil unless Module.const_defined?(string)
+      string.constantize.parents.detect do |n|
+        n.respond_to?(:use_relative_model_naming?) && n.use_relative_model_naming?
       end
     end
   end
