@@ -80,13 +80,15 @@ module Reform::Form::ActiveModel
     end
 
     def model_name
-      if model_options
-        form_name = model_options.first.to_s.camelize
-      else
-        form_name = name.sub(/(::)?Form$/, "") # Song::Form => "Song"
-      end
+      @model_name ||= begin
+        if model_options
+          form_name = model_options.first.to_s.camelize
+        else
+          form_name = name.sub(/(::)?Form$/, "") # Song::Form => "Song"
+        end
 
-      active_model_name_for(form_name)
+        active_model_name_for(form_name)
+      end
     end
 
   private
