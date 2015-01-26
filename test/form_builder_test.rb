@@ -64,23 +64,37 @@ class FormBuilderCompatTest < BaseTest
     form.must_respond_to("label_attributes=")
   end
 
-  describe "deconstructed date parameters" do
+  describe "deconstructed datetime parameters" do
     let(:form_attributes) do
       {
         "artist_attributes" => {"name" => "Blink 182"},
         "songs_attributes" => {"0" => {"title" => "Damnit", "release_date(1i)" => release_year,
-          "release_date(2i)" => release_month, "release_date(3i)" => release_day}}
+          "release_date(2i)" => release_month, "release_date(3i)" => release_day,
+          "release_date(4i)" => release_hour, "release_date(5i)" => release_minute}}
       }
     end
     let(:release_year) { "1997" }
     let(:release_month) { "9" }
     let(:release_day) { "27" }
+    let(:release_hour) { nil }
+    let(:release_minute) { nil }
 
-    describe "with valid parameters" do
+    describe "with valid date parameters" do
       it "creates a date" do
         form.validate(form_attributes)
 
         form.songs.first.release_date.must_equal Date.new(1997, 9, 27)
+      end
+    end
+
+    describe "with valid datetime parameters" do
+      let(:release_hour) { "10" }
+      let(:release_minute) { "11" }
+
+      it "creates a datetime" do
+        form.validate(form_attributes)
+
+        form.songs.first.release_date.must_equal Time.new(1997, 9, 27, 10, 11)
       end
     end
 
