@@ -4,7 +4,7 @@ Reform::Form.class_eval do
       base.send(:register_feature, self)
     end
 
-    class DateParamsFilter
+    class DateTimeParamsFilter
       def call(params)
         date_attributes = {}
 
@@ -16,7 +16,9 @@ Reform::Form.class_eval do
             date_attributes[date_attribute] = params_to_date(
               params.delete("#{date_attribute}(1i)"),
               params.delete("#{date_attribute}(2i)"),
-              params.delete("#{date_attribute}(3i)")
+              params.delete("#{date_attribute}(3i)"),
+              params.delete("#{date_attribute}(4i)"),
+              params.delete("#{date_attribute}(5i)")
             )
           end
         end
@@ -24,21 +26,23 @@ Reform::Form.class_eval do
       end
 
     private
-      def params_to_date(year, month, day)
-        return nil if blank_date_parameter?(year, month, day)
+      def params_to_date(year, month, day, hour, minute)
+        return nil if [year, month, day].any?(&:blank?)
 
-        Date.new(year.to_i, month.to_i, day.to_i) # TODO: test fails.
-      end
-
-      def blank_date_parameter?(year, month, day)
-        year.blank? || month.blank? || day.blank?
+        if hour.blank? && minute.blank?
+          Date.new(year.to_i, month.to_i, day.to_i) # TODO: test fails.
+        else
+          args = [year, month, day, hour, minute].map(&:to_i)
+          Time.zone ? Time.zone.local(*args) :
+            Time.new(*args)
+        end
       end
     end
 
     def validate(params)
       # TODO: make it cleaner to hook into essential reform steps.
       # TODO: test with nested.
-      DateParamsFilter.new.call(params) if params.is_a?(Hash) # this currently works for hash, only.
+      params = DateTimeParamsFilter.new.call(params.dup) if params.is_a?(Hash) # this currently works for hash, only.
 
       super
     end
