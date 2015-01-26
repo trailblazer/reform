@@ -109,6 +109,15 @@ class FormBuilderCompatTest < BaseTest
         end
       end
     end
+
+
+    # doesn't modify original params.
+    it do
+      original = form_attributes.inspect
+
+      form.validate(form_attributes)
+      form_attributes.inspect.must_equal original
+    end
   end
 
   it "returns flat errors hash" do

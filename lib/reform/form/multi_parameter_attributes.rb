@@ -1,16 +1,18 @@
 Reform::Form.class_eval do
   module MultiParameterAttributes
+    # TODO: implement this with parse_filter, so we don't have to manually walk through the hash, etc.
     def self.included(base)
       base.send(:register_feature, self)
     end
 
     class DateTimeParamsFilter
       def call(params)
+        params = params.dup # DISCUSS: not sure if that slows down form processing?
         date_attributes = {}
 
         params.each do |attribute, value|
           if value.is_a?(Hash)
-            call(value) # TODO: #validate should only handle local form params.
+            params[attribute] = call(value) # TODO: #validate should only handle local form params.
           elsif matches = attribute.match(/^(\w+)\(.i\)$/)
             date_attribute = matches[1]
             date_attributes[date_attribute] = params_to_date(
@@ -41,9 +43,7 @@ Reform::Form.class_eval do
 
     def validate(params)
       # TODO: make it cleaner to hook into essential reform steps.
-      # TODO: test with nested.
-      params = DateTimeParamsFilter.new.call(params.dup) if params.is_a?(Hash) # this currently works for hash, only.
-
+      params = DateTimeParamsFilter.new.call(params) if params.is_a?(Hash) # this currently works for hash, only.
       super
     end
 
