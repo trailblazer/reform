@@ -1,4 +1,6 @@
 Reform::Form.class_eval do
+  # TODO: this must be implemented with a parse_filter that is only applied to type: Time or Datetime properties.
+  # we then simply add the converted attribute to params.
   module MultiParameterAttributes
     # TODO: implement this with parse_filter, so we don't have to manually walk through the hash, etc.
     def self.included(base)

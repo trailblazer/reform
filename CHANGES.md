@@ -1,3 +1,7 @@
+## 1.2.6
+
+* Add support for DateTime properties in forms. Until now, we were ignoring the time part. Thanks to @gdott9 for fixing this.
+
 ## 1.2.5
 
 * Added `Form#options_for` to have access to all property options.
