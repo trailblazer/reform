@@ -1,6 +1,7 @@
 ## 1.2.6
 
-* Add support for DateTime properties in forms. Until now, we were ignoring the time part. Thanks to @gdott9 for fixing this.
+* Added `:prepopulate` to fill out form properties for presentation. Note that you need to call `Form#prepopulate!` to trigger the prepopulation.
+* Added support for DateTime properties in forms. Until now, we were ignoring the time part. Thanks to @gdott9 for fixing this.
 
 ## 1.2.5
 
