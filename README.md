@@ -624,6 +624,37 @@ Coercion only happens in `#validate`.
 form.written_at #=> <DateTime "2014 September 26 00:00">
 ```
 
+### Using Virtus to Coerce an Array of IDs into Objects/Models
+
+You may at times need to coerce an array of model IDs into their corresponding models.
+
+For example, imagine a Student has_and_belongs_to_many Schools.  You may have a select box or similar form element on a StudentForm that includes a number of School id/name option pairings.  Given this setup, when the form is submitted the response params would include a list of ids, e.g. `"schools" => ["1", "3", "5", "7"]`.
+
+In this situation it is easiest to make a custom Virtus::Attribute to use for your coercion, as in the following example:
+
+```ruby
+class StudentForm < Reform::Form
+
+  include Coercion
+
+  class ArrayOfSchools < Virtus::Attribute
+    # Takes in a list of school_ids (e.g., [1,3,5,7]) and returns a list of corresponding Schools
+    def coerce(value)
+      School.find(value.reject(&:empty?))
+    end
+  end
+
+  property :schools, type: ArrayOfSchools
+end
+```
+
+You can also easily add minimum/maximum validation using this approach.
+
+```ruby
+# Ensure that at least 1 and no more than 4 schools were selected.
+validates :schools, length: {minimum: 1, maximum: 4}
+```
+
 ### Manual Coercing Values
 
 If you need to filter values manually, you can override the setter in the form.
