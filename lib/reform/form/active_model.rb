@@ -75,6 +75,11 @@ module Reform::Form::ActiveModel
     #
     #   class CoverSongForm < Reform::Form
     #     model :song
+    #
+    # or we can setup a isolated namespace model ( which defined in isolated rails egine )
+    #
+    #   class CoverSongForm < Reform::Form
+    #     model "api/v1/song", namespace: "api"
     def model(main_model, options={})
       self.model_options = [main_model, options]
     end
@@ -82,24 +87,19 @@ module Reform::Form::ActiveModel
     def model_name
       if model_options
         form_name = model_options.first.to_s.camelize
+        namespace = model_options.last[:namespace].present? ? model_options.last[:namespace].to_s.camelize.constantize : nil
       else
         form_name = name.sub(/(::)?Form$/, "") # Song::Form => "Song"
+        namespace = nil
       end
 
-      active_model_name_for(form_name)
+      active_model_name_for(form_name, namespace)
     end
 
   private
-    def active_model_name_for(string)
+    def active_model_name_for(string, namespace=nil)
       return ::ActiveModel::Name.new(OpenStruct.new(:name => string)) if Reform.rails3_0?
-      ::ActiveModel::Name.new(self, determine_namespace(string) , string)
-    end
-
-    def determine_namespace(string)
-      return nil unless Module.const_defined?(string)
-      string.constantize.parents.detect do |n|
-        n.respond_to?(:use_relative_model_naming?) && n.use_relative_model_naming?
-      end
+      ::ActiveModel::Name.new(self, namespace, string)
     end
   end
 end

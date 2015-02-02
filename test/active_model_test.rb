@@ -35,7 +35,7 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
       Class.new(Reform::Form) do
         include Reform::Form::ActiveModel
 
-        model IsolatedRailsEngine::Lyric
+        model "isolated_rails_engine/lyric", namespace: "isolated_rails_engine"
       end
     }
 
@@ -46,7 +46,7 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
       Class.new(Reform::Form) do
         include Reform::Form::ActiveModel
 
-        model NormalRailsEngine::Lyric
+        model "normal_rails_engine/lyric"
       end
     }
 
