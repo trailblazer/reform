@@ -16,10 +16,11 @@ private
       if dfn[:form]
         dfn.merge!(
           :render_filter => lambda do |v, h, options|
+            next unless callable = options.binding[:prepopulate]
             parent_form = options.user_options[:parent_form] # TODO: merge with Validate/populate_if_empty.
 
             # execute in form context, pass user optioins.
-            object = parent_form.instance_exec(options.user_options, &options.binding[:prepopulate])
+            object = parent_form.instance_exec(options.user_options, &callable)
 
             if options.binding.array?
               object.collect { |item| options.binding[:form].new(item) }

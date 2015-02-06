@@ -83,3 +83,22 @@ class PrepopulateWithExistingCollectionTest < MiniTest::Spec
   it { subject.songs[0].model.must_equal Song.new }
   it { subject.songs[1].model.must_equal Song.new }
 end
+
+# calling form.prepopulate! shouldn't crash.
+class PrepopulateWithoutConfiguration < MiniTest::Spec
+  Song = Struct.new(:title)
+
+  class AlbumForm < Reform::Form
+    collection :songs do
+      property :title
+    end
+
+    property :hit do
+      property :title
+    end
+  end
+
+  subject { AlbumForm.new(OpenStruct.new(songs: [], hit: nil)).prepopulate! }
+
+  it { subject.songs.size.must_equal 0 }
+end
