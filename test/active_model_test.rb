@@ -13,7 +13,7 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
   it { form.persisted?.must_equal true }
   it { form.to_key.must_equal [artist.id] }
   it { form.to_param.must_equal "#{artist.id}" }
-  it { form.to_model.must_equal form }
+  it { form.to_model.must_equal artist }
   it { form.id.must_equal artist.id }
 
   describe "::model_name" do
@@ -160,4 +160,17 @@ class ActiveModelWithCompositionTest < MiniTest::Spec
 
     AnotherForm.new(:song => rio).model[:song].must_equal rio
   end
+end
+
+class NamespacedFormTest < MiniTest::Spec
+  class SongForm < Reform::Form
+    include Reform::Form::ActiveModel
+
+    class Sub < SongForm; end
+  end
+
+  let (:artist) { Artist.create(:name => "Frank Zappa") }
+  let (:form) { SongForm::Sub.new(artist) }
+
+  it { form.to_model.must_equal artist }
 end
