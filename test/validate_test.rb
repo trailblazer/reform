@@ -260,9 +260,10 @@ class ValidateTest < BaseTest
     describe "invalid" do
       before { subject.validate({}).must_equal false }
 
-      it { subject.errors.messages.must_equal(
-        :songs => ["is too short (minimum is 1 character)"],
-        :hit   => ["can't be blank"]) }
+      it do
+        subject.errors.messages[:hit].must_equal(["can't be blank"])
+        subject.errors.messages[:songs].first.must_match(/\Ais too short \(minimum is 1 characters?\)\z/)
+      end
     end
 
 
