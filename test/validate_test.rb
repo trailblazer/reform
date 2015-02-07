@@ -261,7 +261,7 @@ class ValidateTest < BaseTest
       before { subject.validate({}).must_equal false }
 
       it { subject.errors.messages.must_equal(
-        :songs => ["is too short (minimum is 1 characters)"],
+        :songs => ["is too short (minimum is 1 character)"],
         :hit   => ["can't be blank"]) }
     end
 
