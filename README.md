@@ -938,6 +938,19 @@ The two features are an excellent way to handle file uploads without ActiveRecor
 
 _(Please don't read this section!)_
 
+### Skipping Properties when Validating
+
+In `#validate`, you can ignore properties now using `:skip_if` for deserialization.
+
+```ruby
+property :hit, skip_if: lambda { |fragment, *| fragment["title"].blank? }
+```
+
+This works for both properties and nested forms. The property will simply be ignored when deserializing, as if it had never been in the incoming hash/document.
+
+For nested properties you can use `:skip_if: :all_blank` as a macro to ignore a nested form if all values are blank.
+
+Note that this still runs validations for the property, though.
 
 ### Prepopulating Forms
 
