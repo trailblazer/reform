@@ -30,7 +30,7 @@ module Reform::Form::ActiveRecord
 
       @klass = record.class # this is usually done in the super-sucky #setup method.
       super(record).tap do |res|
-        form.errors.add(property, record.errors.first.last) if record.errors.present?
+        form.errors.add(property, record.errors[property].first) if record.errors[property].present?
       end
     end
   end
