@@ -641,7 +641,13 @@ end
 As with the built-in coercion, this setter is only called in `#validate`.
 
 
-## Virtual Attributes
+## Virtual Attributes (Reform 2.0)
+
+**Warning:** to enable this feature you should tell reform to use 2.0 semantics:
+```ruby
+# config/initializers/reform.rb
+Reform::Form.reform_2_0!
+```
 
 Virtual fields come in handy when there's no direct mapping to a model attribute or when you plan on displaying but not processing a value.
 
