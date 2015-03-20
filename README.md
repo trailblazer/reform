@@ -652,6 +652,10 @@ Often, fields like `password_confirmation` should neither be read from nor writt
 
 ```ruby
 class PasswordForm < Reform::Form
+  # This is needed for virtual attributes to work properly until Reform 2.0
+  # is released.
+  reform_2_0!
+
   property :password
   property :password_confirmation, virtual: true
 ```
