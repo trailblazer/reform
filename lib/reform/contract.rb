@@ -156,13 +156,13 @@ module Reform
 
     def self.deprecate_virtual_and_empty!(options) # TODO: remove me in 2.0.
       if options.delete(:virtual)
-        warn "[Reform] The :virtual option has changed! Check https://github.com/apotonick/reform/wiki/Migration-Guide and have a good day."
+        warn "[Reform] The :virtual option will be changed! Check https://github.com/apotonick/reform/wiki/Migration-Guide and have a good day."
         options[:_readable] = true
         options[:_writeable] = false
       end
 
       if options[:empty]
-        warn "[Reform] The :empty option has changed! Check https://github.com/apotonick/reform/wiki/Migration-Guide and have a good day."
+        warn "[Reform] The :empty option will be changed! Check https://github.com/apotonick/reform/wiki/Migration-Guide and have a good day."
         options[:_readable]  = false
         options[:_writeable] = false
       end
