@@ -261,6 +261,9 @@ class ValidateTest < BaseTest
       before { subject.validate({}).must_equal false }
 
       it do
+        # ensure that only hit and songs keys are present
+        subject.errors.messages.keys.sort.must_equal([:hit, :songs])
+        # validate content of hit and songs keys
         subject.errors.messages[:hit].must_equal(["can't be blank"])
         subject.errors.messages[:songs].first.must_match(/\Ais too short \(minimum is 1 characters?\)\z/)
       end
