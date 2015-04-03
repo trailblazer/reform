@@ -1,6 +1,8 @@
 language: ruby
 rvm:
-  - 2.1.4
+  - ruby-head
+  - 2.2.0
+  - 2.1.5
   - 2.0.0
   - 1.9.3
 gemfile:
@@ -8,3 +10,7 @@ gemfile:
   - gemfiles/Gemfile.rails-3.2
   - gemfiles/Gemfile.rails-3.1
   - gemfiles/Gemfile.rails-3.0
+matrix:
+  fast_finish: true
+  allow_failures:
+    - rvm: ruby-head
