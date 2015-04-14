@@ -85,7 +85,7 @@ class ModelReflectionTest < MiniTest::Spec
     # delegate to model class.
     it do
       reflection = form.class.reflect_on_association(:artist)
-      reflection.must_be_instance_of ActiveRecord::Reflection::AssociationReflection
+      reflection.must_be_kind_of ActiveRecord::Reflection::AssociationReflection
     end
   end
 
