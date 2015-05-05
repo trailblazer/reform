@@ -1,11 +1,9 @@
 require 'test_helper'
 
-class WriteableTest < MiniTest::Spec # TODO: remove me in 2.0.
+class WriteableTest < MiniTest::Spec
   Location = Struct.new(:country)
 
   class LocationForm < Reform::Form
-    reform_2_0!
-
     property :country, writeable: false
   end
 

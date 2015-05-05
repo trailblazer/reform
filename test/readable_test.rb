@@ -4,8 +4,6 @@ class ReadableTest < MiniTest::Spec
   Credentials = Struct.new(:password)
 
   class PasswordForm < Reform::Form
-    reform_2_0!
-
     property :password, readable: false
   end
 

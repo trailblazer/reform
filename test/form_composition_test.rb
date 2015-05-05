@@ -12,9 +12,9 @@ class FormCompositionTest < MiniTest::Spec
     property  :requester_id,  :on => :requester, :from => :id
     properties :title, :id, :on => :song
     # property  :channel # FIXME: what about the "main model"?
-    property :channel, :empty => true, :on => :song
+    property :channel, :virtual => true, :on => :song
     property :requester,      :on => :requester
-    property :captcha,        :on => :song, :empty => true
+    property :captcha,        :on => :song, :virtual => true
 
     validates :name, :title, :channel, :presence => true
 

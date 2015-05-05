@@ -2,8 +2,6 @@ require 'test_helper'
 
 class VirtualTest < MiniTest::Spec
   class CreditCardForm < Reform::Form
-    reform_2_0!
-
     property :credit_card_number, virtual: true # no read, no write, it's virtual.
   end
 
@@ -12,7 +10,7 @@ class VirtualTest < MiniTest::Spec
   it {
     form.validate("credit_card_number" => "123")
 
-    form.credit_card_number.must_equal "123"
+    form.credit_card_number.must_equal "123"  # this is still readable in the UI.
 
     form.sync
 
