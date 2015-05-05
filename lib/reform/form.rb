@@ -1,6 +1,7 @@
 module Reform
   class Form < Contract
     self.representer_class = Reform::Representer.for(:form_class => self)
+    self.object_representer_class = Reform::ObjectRepresenter.for(:form_class => self)
 
     require "reform/form/validate"
     include Validate # extend Contract#validate with additional behaviour.

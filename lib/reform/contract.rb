@@ -17,6 +17,20 @@ module Reform
     # this should be the only mechanism to inherit, features should be stored in this as well.
 
 
+
+
+    # DISCUSS: since i started playing with Representable::Object, which is way faster than
+    # going the Hash way, i use two schema representers here. they are identical except for
+    # the engine.
+    # it would be cool to have only one, one day.
+    inheritable_attr :object_representer_class
+    self.object_representer_class = Reform::ObjectRepresenter.for(:form_class => self)
+
+
+
+
+
+
     # each contract keeps track of its features and passes them onto its local representer_class.
     # gets inherited, features get automatically included into inline representer.
     # TODO: the representer class should handle that, e.g. in options (deep-clone when inheriting.)
@@ -55,6 +69,10 @@ module Reform
 
         definition = representer_class.property(name, options, &block)
         setup_form_definition(definition) if block_given? or options[:form]
+
+        definition = object_representer_class.property(name, options, &block)
+        setup_form_definition(definition) if block_given? or options[:form]
+
 
         create_accessor(name)
         definition
