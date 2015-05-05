@@ -74,11 +74,6 @@ module Reform
 
       def properties(*args)
         options = args.extract_options!
-
-        if args.first.is_a? Array # TODO: REMOVE in 2.0.
-          warn "[Reform] Deprecation: Please pass a list of names instead of array to ::properties, like `properties :title, :id`."
-          args = args.first
-        end
         args.each { |name| property(name, options.dup) }
       end
 
