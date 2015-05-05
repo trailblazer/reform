@@ -3,7 +3,7 @@ module Reform
     module Setup
       def initialize(model)
         @model  = model # we need this for #save.
-        @fields = setup_fields  # delegate all methods to Fields instance.
+        setup_fields!   # copy scalars to the contract instance and wrap nested objects into their contract.
       end
 
       # Setup#to_hash will create a nested hash of property values from the model.
@@ -17,15 +17,14 @@ module Reform
         end
       end
 
-      def setup_fields
-        fields = Fields.new(mapper.fields, {})
+      def setup_fields!
+        @fields = Fields.new(mapper.fields)
 
         representer = setup_representer.new(fields)
         options     = setup_options(Reform::Representer::Options[]) # handles :empty.
 
         # populate the internal @fields set with data from the model.
         representer.from_object(aliased_model, options) # FIXME: options!
-        fields
       end
 
       module SetupOptions
