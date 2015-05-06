@@ -24,7 +24,7 @@ module Reform
         options     = setup_options(Reform::Representer::Options[]) # handles :empty.
 
         # populate the internal @fields set with data from the model.
-        representer.from_object(aliased_model, options) # FIXME: options!
+        representer.from_object(aliased_model, options)
       end
 
       module SetupOptions
