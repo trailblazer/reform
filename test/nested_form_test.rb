@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class NestedFormTest < MiniTest::Spec
+  # TODO: rename ExplicitFormTest, and remove upper part.
   class AlbumForm < Reform::Form
     property :title
 
@@ -46,11 +47,6 @@ class NestedFormTest < MiniTest::Spec
   end
 
 
-  it "creates nested forms" do
-    form.hit.must_be_kind_of Reform::Form
-    form.songs.must_be_kind_of Array
-  end
-
   describe "#initialize" do
     describe "with empty object and no cardinality" do
       let(:form) { AlbumForm.new(OpenStruct.new) }
@@ -75,13 +71,6 @@ class NestedFormTest < MiniTest::Spec
     end
 
 
-  end
-
-
-  describe "rendering" do
-    it { form.title.must_equal "Blackhawks Over Los Angeles" }
-    it { form.hit.title.must_equal "Downtown" }
-    it { form.songs[0].title.must_equal "Calling" }
   end
 
   describe "#save" do
@@ -180,18 +169,5 @@ class NestedFormTest < MiniTest::Spec
       form.hit.title.must_equal ""
       form.errors[:"hit.title"].must_equal(["can't be blank"])
     }
-  end
-
-  class UnitTest < self
-    it "keeps Forms for form collection" do
-      form.send(:fields).songs.must_be_kind_of Array
-    end
-
-    describe "#validate" do
-      it "keeps Form instances" do
-        form.validate("songs"=>[{"title" => "Atwa"}])
-        form.songs.first.must_be_kind_of Reform::Form
-      end
-    end
   end
 end
