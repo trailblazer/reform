@@ -1,3 +1,13 @@
+## 2.0.0
+
+* :populator => lambda { |fragment, index, args|
+#           songs[index] or songs[index] = args.binding[:form].new(Song.new)
+#         }
+is now :populator => lambda { |fragment, index, args|
+#           songs[index] or songs.insert(index) = Song.new
+#         }
+you don't need to know about forms anymore, the twin handles that using #insert.
+
 ## 1.2.6
 
 * Added `:prepopulate` to fill out form properties for presentation. Note that you need to call `Form#prepopulate!` to trigger the prepopulation.

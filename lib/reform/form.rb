@@ -8,6 +8,21 @@ module Reform
 
     require "reform/form/validate"
     include Validate # extend Contract#validate with additional behaviour.
+
+    module Property
+      # add macro logic, e.g. for :populator.
+      def property(name, options={}, &block)
+        options[:deserializer] ||= {} # TODO: test ||=.
+
+        # TODO: make this pluggable.
+        if populator = options.delete(:populator)
+          options[:deserializer].merge!({:instance => populator, :setter => nil})
+        end
+
+        super
+      end
+    end
+    extend Property
   end
 
   # class Form_ < Contract
