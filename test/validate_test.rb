@@ -18,8 +18,6 @@ class ContractValidateTest < MiniTest::Spec
     property :name
     validates :name, presence: true
 
-
-# raise object_representer_class.default_inline_class
     collection :songs do
       property :title
       validates :title, presence: true
@@ -59,6 +57,7 @@ class ContractValidateTest < MiniTest::Spec
   end
 end
 
+
 class ValidateWithMatchingObjectGraphsTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
@@ -66,6 +65,8 @@ class ValidateWithMatchingObjectGraphsTest < MiniTest::Spec
 
   class AlbumForm < Reform::Form
     property :name
+    validates :name, presence: true
+
     collection :songs, pass_options: true,
       deserializer: {instance: lambda { |fragment, index, options|
               collection = options.binding.get
@@ -73,9 +74,11 @@ class ValidateWithMatchingObjectGraphsTest < MiniTest::Spec
       setter: nil} do
 
       property :title
+      validates :title, presence: true
 
       property :composer, deserializer: { instance: lambda { |fragment, options| (item = options.binding.get) ? item : Artist.new } } do
         property :name
+        validates :name, presence: true
       end
     end
 
@@ -92,12 +95,33 @@ class ValidateWithMatchingObjectGraphsTest < MiniTest::Spec
 
   let (:form) { AlbumForm.new(album) }
 
+  # valid.
   it do
     form.validate(
       "name"   => "Best Of",
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => "Sting"}}],
       "artist" => {"name" => "The Police"},
-    )
+    ).must_equal true
+
+    form.errors.messages.inspect.must_equal "{}"
+
+    # model has not changed, yet.
+    album.name.must_equal "The Dissent Of Man"
+    album.songs[0].title.must_equal "Broken"
+    album.songs[1].title.must_equal "Resist Stance"
+    album.songs[1].composer.name.must_equal "Greg Graffin"
+    album.artist.name.must_equal "Bad Religion"
+  end
+
+  # invalid.
+  it do
+    form.validate(
+      "name"   => "",
+      "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => ""}}],
+      "artist" => {"name" => "The Police"},
+    ).must_equal false
+
+    form.errors.messages.inspect.must_equal "{:\"songs.composer.name\"=>[\"can't be blank\"], :name=>[\"can't be blank\"]}"
   end
 end
 
