@@ -7,7 +7,51 @@ require 'reform/representer'
 
 module Reform
   # Gives you a DSL for defining the object structure and its validations.
-  class Contract # DISCUSS: make class?
+  require "disposable/twin"
+  require "disposable/twin/setup"
+  class Contract < Disposable::Twin
+    include Setup
+
+    object_representer_class.instance_eval do
+      def default_inline_class
+        Contract
+      end
+    end
+    # FIXME: THIS sucks because we're building two representers.
+    representer_class.instance_eval do
+      def default_inline_class
+        Contract
+      end
+    end
+
+    # FIXME: make AM optional.
+    require 'active_model'
+    include ActiveModel::Validations
+
+    require 'reform/contract/validate'
+    include Reform::Contract::Validate
+
+    def errors # FIXME: this is needed for Rails 3.0 compatibility.
+      @errors ||= Errors.new(self)
+    end
+
+  private
+    attr_writer :errors # only used in top form. (is that true?)
+
+    # DISCUSS: can we achieve that somehow via features in build_inline?
+    # TODO: check out if that is needed with Lotus::Validations and make it a AM feature.
+    def self.process_inline!(mod, definition)
+      _name = definition.name
+      mod.instance_eval do
+        @_name = _name
+        def name # this adds Form::name for AM::Validations and I18N. i know it's retarded.
+          @_name
+        end
+      end
+    end
+  end
+
+  class Contract_ # DISCUSS: make class?
     extend Uber::Delegates
 
     extend Uber::InheritableAttr
@@ -25,9 +69,6 @@ module Reform
     # it would be cool to have only one, one day.
     inheritable_attr :object_representer_class
     self.object_representer_class = Reform::ObjectRepresenter.for(:form_class => self)
-
-
-
 
 
 
@@ -119,7 +160,7 @@ module Reform
     attr_accessor :model
 
     require 'reform/contract/setup'
-    include Setup
+    include Reform::Contract::Setup
 
     def self.representers # keeps all transformation representers for one class.
       @representers ||= {}
@@ -136,7 +177,7 @@ module Reform
     end
 
     require 'reform/contract/validate'
-    include Validate
+    include Reform::Contract::Validate
 
     def errors # FIXME: this is needed for Rails 3.0 compatibility.
       @errors ||= Errors.new(self)

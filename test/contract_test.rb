@@ -32,30 +32,6 @@ class ContractTest < BaseTest
   subject { AlbumContract.new(album) }
 
 
-  describe "invalid" do
-    before {
-      res = subject.validate
-      res.must_equal false
-    }
-
-    it { subject.errors.messages.must_equal({:"hit.title"=>["can't be blank"], :"songs.title"=>["can't be blank"], :"band.label"=>["can't be blank"], :songs=>["is too short (minimum is 4 characters)"], :title=>["can't be blank", "is too short (minimum is 3 characters)"]}) }
-  end
-
-
-  describe "valid" do
-    let (:album) { Album.new(
-      "Keeper Of The Seven Keys",
-      nil,
-      [Song.new("Initiation"), Song.new("I'm Alive"), Song.new("A Little Time"), Song.new("Future World"),],
-      Band.new(Label.new("Noise"))
-    ) }
-
-    before { subject.validate.must_equal true }
-
-    it { subject.errors.messages.must_equal({}) }
-  end
-
-
   describe "::representer" do
     # without name will always iterate.
     it do

@@ -1,5 +1,6 @@
 require 'reform'
 require 'minitest/autorun'
+require "representable/debug"
 
 class ReformSpec < MiniTest::Spec
   let (:duran)  { Struct.new(:name).new("Duran Duran") }

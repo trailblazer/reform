@@ -10,6 +10,7 @@ module Reform
     # self.options = {}
 
 
+    # FIXME: use Disposable's Options,
     class Options < ::Hash
       def include!(names)
         includes.push(*names) #if names.size > 0
@@ -40,7 +41,7 @@ module Reform
 
     def self.each(only_form=true, &block)
       definitions = representable_attrs
-      definitions = representable_attrs.find_all { |attr| attr[:form] } if only_form
+      definitions = representable_attrs.find_all { |attr| attr[:twin] } if only_form
 
       definitions.each(&block)
       self
