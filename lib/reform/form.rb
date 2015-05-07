@@ -16,13 +16,36 @@ module Reform
 
         # TODO: make this pluggable.
         if populator = options.delete(:populator)
-          options[:deserializer].merge!({:instance => populator, :setter => nil})
+          options[:deserializer].merge!({:instance => Populator.new(populator, self), :setter => nil})
         end
 
         super
       end
     end
     extend Property
+
+
+    # TODO: move somewhere else!
+    # Implements the :populator option.
+    #
+    #  populator: -> (fragment, model, options)
+    #  populator: -> (fragment, collection, index, options)
+    #
+    # For collections, the entire collection and the currently deserialised index is passed in.
+    class Populator
+      include Uber::Callable
+
+      def initialize(user_proc, context)
+        @user_proc = user_proc # the actual `populator: ->{}` block from the user, via ::property.
+        @context   = context # TODO: execute lambda via Uber:::Option and in form context.
+      end
+
+      def call(form, fragment, *args)
+        options = args.last
+
+        @user_proc.call(fragment, options.binding.get, *args)
+      end
+    end
   end
 
   # class Form_ < Contract

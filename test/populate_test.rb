@@ -10,20 +10,21 @@ class PopulatorTest < MiniTest::Spec
     validates :name, presence: true
 
     collection :songs, pass_options: true,
-      populator: lambda { |fragment, index, options|
-        collection = options.binding.get
+      populator: lambda { |fragment, collection, index, options|
+        # collection = options.binding.get # we don't need this anymore as this comes in for free!
         (item = collection[index]) ? item : collection.insert(index, Song.new) } do
 
       property :title
       validates :title, presence: true
 
-      property :composer, populator: lambda { |fragment, options| (item = options.binding.get) ? item : Artist.new } do
+      property :composer, populator: lambda { |fragment, model, *|  model || Artist.new } do
         property :name
         validates :name, presence: true
       end
     end
 
-    property :artist, populator: lambda { |fragment, options| (item = options.binding.get) ? item : Artist.new } do
+    # property :artist, populator: lambda { |fragment, options| (item = options.binding.get) ? item : Artist.new } do
+    property :artist, populator: lambda { |fragment, model, *| model || Artist.new } do
       property :name
     end
   end
