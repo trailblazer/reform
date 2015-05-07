@@ -5,6 +5,9 @@ module Reform
         Form
       end
     end
+
+    require "reform/form/validate"
+    include Validate # extend Contract#validate with additional behaviour.
   end
 
   # class Form_ < Contract

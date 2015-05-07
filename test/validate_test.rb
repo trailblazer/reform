@@ -66,15 +66,20 @@ class ValidateWithMatchingObjectGraphsTest < MiniTest::Spec
 
   class AlbumForm < Reform::Form
     property :name
-    collection :songs do
+    collection :songs, pass_options: true,
+      deserializer: {instance: lambda { |fragment, index, options|
+              collection = options.binding.get
+              (item = collection[index]) ? item : collection.insert(index, Song.new) },
+      setter: nil} do
+
       property :title
 
-      property :composer do
+      property :composer, deserializer: { instance: lambda { |fragment, options| (item = options.binding.get) ? item : Artist.new } } do
         property :name
       end
     end
 
-    property :artist do
+    property :artist, deserializer: { instance: lambda { |fragment, options| (item = options.binding.get) ? item : Artist.new } } do
       property :name
     end
   end

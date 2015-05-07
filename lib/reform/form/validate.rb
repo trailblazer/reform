@@ -76,8 +76,8 @@ module Reform::Form::Validate
 
     super() # run the actual validation on self.
 
-  rescue Representable::DeserializeError
-    raise DeserializeError.new("[Reform] Deserialize error: You probably called #validate without setting up your nested models. Check https://github.com/apotonick/reform#populating-forms-for-validation on how to use populators.")
+  # rescue Representable::DeserializeError
+  #   raise DeserializeError.new("[Reform] Deserialize error: You probably called #validate without setting up your nested models. Check https://github.com/apotonick/reform#populating-forms-for-validation on how to use populators.")
   end
 
   # Some users use this method to pre-populate a form. Not saying this is right, but we'll keep
@@ -88,6 +88,23 @@ module Reform::Form::Validate
 
 private
   def deserialize!(params)
+    require "disposable/twin/schema"
+    deserializer = Disposable::Twin::Schema.from(self.class.object_representer_class,
+        :include    => [Representable::Hash::AllowSymbols, Representable::Hash], # FIXME: how do we get this info?
+        :superclass => Representable::Decorator)
+
+      # pp deserializer.representable_attrs.get(:songs).representer_module.representable_attrs.
+
+      deserializer.new(self).
+        # extend(Representable::Debug).
+        from_hash(params)
+
+      return
+      # use the deserializer as an external instance to operate on the Twin API,
+      # e.g. adding new items in collections using #<< etc.
+
+
+
     # using self here will call the form's setters like title= which might be overridden.
     # from_hash(params, parent_form: self)
     # Go through all nested forms and call form.update!(hash).
