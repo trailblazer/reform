@@ -58,7 +58,7 @@ class ContractValidateTest < MiniTest::Spec
 end
 
 
-class ValidateWithMatchingObjectGraphsTest < MiniTest::Spec
+class ValidateWithDeserializerOptionTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)
@@ -105,6 +105,14 @@ class ValidateWithMatchingObjectGraphsTest < MiniTest::Spec
 
     form.errors.messages.inspect.must_equal "{}"
 
+    # form has updated.
+    form.name.must_equal "Best Of"
+    form.songs[0].title.must_equal "Fallout"
+    form.songs[1].title.must_equal "Roxanne"
+    form.songs[1].composer.name.must_equal "Sting"
+    form.artist.name.must_equal "The Police"
+
+
     # model has not changed, yet.
     album.name.must_equal "The Dissent Of Man"
     album.songs[0].title.must_equal "Broken"
@@ -123,46 +131,39 @@ class ValidateWithMatchingObjectGraphsTest < MiniTest::Spec
 
     form.errors.messages.inspect.must_equal "{:\"songs.composer.name\"=>[\"can't be blank\"], :name=>[\"can't be blank\"]}"
   end
+
+  # adding to collection via :instance.
+  # valid.
+  it do
+    form.validate(
+      "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"}, {"title" => "Rime Of The Ancient Mariner"}],
+    ).must_equal true
+
+    form.errors.messages.inspect.must_equal "{}"
+
+    # form has updated.
+    form.name.must_equal "The Dissent Of Man"
+    form.songs[0].title.must_equal "Fallout"
+    form.songs[1].title.must_equal "Roxanne"
+    form.songs[1].composer.name.must_equal "Greg Graffin"
+    form.songs[1].title.must_equal "Roxanne"
+    form.songs[2].title.must_equal "Rime Of The Ancient Mariner" # new song added.
+    form.songs.size.must_equal 3
+    form.artist.name.must_equal "Bad Religion"
+
+
+    # model has not changed, yet.
+    album.name.must_equal "The Dissent Of Man"
+    album.songs[0].title.must_equal "Broken"
+    album.songs[1].title.must_equal "Resist Stance"
+    album.songs[1].composer.name.must_equal "Greg Graffin"
+    album.songs.size.must_equal 2
+    album.artist.name.must_equal "Bad Religion"
+  end
 end
 
 
 # class ValidateTest < BaseTest
-#   describe "populated: incoming matches existing object graph" do
-#     let (:params) {
-#       {
-#         "title" => "Best Of",
-#         "hit"   => {"title" => "Roxanne"},
-#         "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"}]
-#       }
-#     }
-#     let (:hit) { Song.new }
-#     let (:song2) { Song.new }
-#     let (:song1) { Song.new }
-
-#     subject { AlbumForm.new(Album.new(nil, hit, [song1, song2])) }
-
-#     before { subject.validate(params) }
-
-#     it { subject.title.must_equal "Best Of" }
-
-#     it { subject.hit.must_be_kind_of Reform::Form }
-#     it { subject.hit.title.must_equal "Roxanne" }
-
-#     it { subject.songs.must_be_kind_of Array }
-#     it { subject.songs.size.must_equal 2 }
-
-#     it { subject.songs[0].must_be_kind_of Reform::Form }
-#     it { subject.songs[0].title.must_equal "Fallout" }
-
-#     it { subject.songs[1].must_be_kind_of Reform::Form }
-#     it { subject.songs[1].title.must_equal "Roxanne" }
-
-#     # don't touch model.
-#     it { hit.title.must_equal nil   }
-#     it { song1.title.must_equal nil }
-#     it { song2.title.must_equal nil }
-#   end
-
 #   describe "not populated properly raises error" do
 #     it do
 #       assert_raises Reform::Form::Validate::DeserializeError do
