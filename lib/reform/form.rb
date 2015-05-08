@@ -15,6 +15,11 @@ module Reform
         options[:deserializer] ||= {} # TODO: test ||=.
 
         # TODO: make this pluggable.
+        # DISCUSS: Populators should be a representable concept?
+        if populator = options.delete(:populate_if_empty)
+          options.merge!({populator: Populator::IfEmpty.new(populator, self)})
+        end
+
         if populator = options.delete(:populator)
           options[:deserializer].merge!({instance: Populator.new(populator, self)})
           options[:deserializer].merge!({setter: nil}) if options[:collection]
@@ -46,7 +51,33 @@ module Reform
 
         @user_proc.call(fragment, options.binding.get, *args)
       end
-    end
+
+
+      class IfEmpty < Populator
+        def call(fragment, model, *args)
+          options = args.last
+
+          if options.binding.array? # FIXME: ifs suck.
+            index = args.first
+            item = model[index] and return item
+
+            model.insert(index, run!(fragment, options))
+          else
+            run!(fragment, options)
+          end
+        end
+
+      private
+        # FIXME: replace this with Uber:::V.
+        def run!(fragment, options)
+          if @user_proc.is_a?(Proc)
+            @context.instance_exec(fragment, options.user_options, &@user_proc) # call user block.
+          else
+            @user_proc.new
+          end
+        end
+      end
+    end # Populator
   end
 
   # class Form_ < Contract

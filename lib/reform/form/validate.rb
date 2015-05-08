@@ -1,46 +1,5 @@
 # Mechanics for writing to forms in #validate.
 module Reform::Form::Validate
-  module Populator
-    # This might change soon (e.g. moved into disposable).
-    class PopulateIfEmpty
-      include Uber::Callable
-
-      def call(fields, fragment, *args)
-        index   = args.first
-        options = args.last
-        binding = options.binding
-        form    = binding.get
-
-        parent_form =  options.user_options[:parent_form]
-
-        # FIXME: test those cases!!!
-        return form[index] if binding.array? and form and form[index] # TODO: this should be handled by the Binding.
-        return form if !binding.array? and form
-        # only get here when above form is nil.
-
-
-        if binding[:populate_if_empty].is_a?(Proc)
-          model = parent_form.instance_exec(fragment, options.user_options, &binding[:populate_if_empty]) # call user block.
-        else
-          model = binding[:populate_if_empty].new
-        end
-
-        form  = binding[:form].new(model) # free service: wrap model with Form. this usually happens in #setup.
-
-        if binding.array?
-          # TODO: please extract this into Disposable.
-          fields = fields.send(:fields)
-
-          fields.send("#{binding.setter}", []) unless fields.send("#{binding.getter}") # DISCUSS: why do I have to initialize this here?
-          fields.send("#{binding.getter}")[index] = form
-        else
-          fields.send("#{binding.setter}", form) # :setter is currently overwritten by :parse_strategy.
-        end
-      end
-    end # PopulateIfEmpty
-  end
-
-
   module Skip
     class AllBlank
       include Uber::Callable
