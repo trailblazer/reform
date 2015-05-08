@@ -16,7 +16,8 @@ module Reform
 
         # TODO: make this pluggable.
         if populator = options.delete(:populator)
-          options[:deserializer].merge!({:instance => Populator.new(populator, self), :setter => nil})
+          options[:deserializer].merge!({instance: Populator.new(populator, self)})
+          options[:deserializer].merge!({setter: nil}) if options[:collection]
         end
 
         super

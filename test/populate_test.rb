@@ -17,7 +17,9 @@ class PopulatorTest < MiniTest::Spec
       property :title
       validates :title, presence: true
 
-      property :composer, populator: lambda { |fragment, model, *|  model || Artist.new } do
+      property :composer, populator: lambda { |fragment, model, *|
+
+       model || Artist.new } do
         property :name
         validates :name, presence: true
       end
@@ -37,22 +39,31 @@ class PopulatorTest < MiniTest::Spec
 
   let (:form) { AlbumForm.new(album) }
 
+  # adding to collection via :populator.
   # valid.
   it do
     form.validate(
-      "name"   => "Best Of",
-      "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => "Sting"}}],
-      "artist" => {"name" => "The Police"},
+      "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"},
+        {"title" => "Rime Of The Ancient Mariner"}, # new song.
+        {"title" => "Re-Education", "composer" => {"name" => "Rise Against"}}], # new song with new composer.
     ).must_equal true
 
     form.errors.messages.inspect.must_equal "{}"
 
+    require "pp"
+    pp form
+
     # form has updated.
-    form.name.must_equal "Best Of"
+    form.name.must_equal "The Dissent Of Man"
     form.songs[0].title.must_equal "Fallout"
     form.songs[1].title.must_equal "Roxanne"
-    form.songs[1].composer.name.must_equal "Sting"
-    form.artist.name.must_equal "The Police"
+    form.songs[1].composer.name.must_equal "Greg Graffin"
+    form.songs[1].title.must_equal "Roxanne"
+    form.songs[2].title.must_equal "Rime Of The Ancient Mariner" # new song added.
+    form.songs[3].title.must_equal "Re-Education"
+    form.songs[3].composer.name.must_equal "Rise Against"
+    form.songs.size.must_equal 4
+    form.artist.name.must_equal "Bad Religion"
 
 
     # model has not changed, yet.
@@ -60,6 +71,32 @@ class PopulatorTest < MiniTest::Spec
     album.songs[0].title.must_equal "Broken"
     album.songs[1].title.must_equal "Resist Stance"
     album.songs[1].composer.name.must_equal "Greg Graffin"
+    album.songs.size.must_equal 2
     album.artist.name.must_equal "Bad Religion"
   end
+
+
+  # class PopulateIfEmptyTest < self
+  #   class AlbumForm < Reform::Form
+  #     property :name
+  #     validates :name, presence: true
+
+  #     collection :songs, pass_options: true,
+  #       populate_if_empty: Song do
+
+  #       property :title
+  #       validates :title, presence: true
+
+  #       property :composer, populator: lambda { |fragment, model, *|  model || Artist.new } do
+  #         property :name
+  #         validates :name, presence: true
+  #       end
+  #     end
+
+  #     # property :artist, populator: lambda { |fragment, options| (item = options.binding.get) ? item : Artist.new } do
+  #     property :artist, populator: lambda { |fragment, model, *| model || Artist.new } do
+  #       property :name
+  #     end
+  #   end
+  # end
 end
