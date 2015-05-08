@@ -1,18 +1,55 @@
 require 'test_helper'
 
 class FeatureInheritanceTest < BaseTest
-  class AlbumForm < Reform::Form
-    # include Reform::Form::ActiveModel
-    # include Coercion
-    # include MultiParameterAttributes
+  Song  = Struct.new(:title, :album, :composer)
+  Album = Struct.new(:name, :songs, :artist)
+  Artist = Struct.new(:name)
 
-    property :band do
-      property :label do
-      end
+  module Date
+    def date
+      "May 16"
+    end
+
+    def self.included(base)
+      base.object_representer_class.representable_attrs.features << self # TODO: register_feature
     end
   end
 
-  subject { AlbumForm.new(Album.new(nil, nil, nil, Band.new(Label.new))) }
+  # module Name
+  #   def name
+  #     "Violins"
+  #   end
+  # end
+
+  class AlbumForm < Reform::Form
+    feature Date # feature.
+    property :name
+
+    collection :songs do
+      property :title
+
+      property :composer do
+        property :name
+      end
+    end
+
+    property :artist do
+      property :name
+    end
+  end
+
+  let (:song)               { Song.new("Broken") }
+  let (:song_with_composer) { Song.new("Resist Stance", nil, composer) }
+  let (:composer)           { Artist.new("Greg Graffin") }
+  let (:artist)             { Artist.new("Bad Religion") }
+  let (:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
+
+  let (:form) { AlbumForm.new(album) }
+
+  it do
+    form.date.must_equal "May 16"
+    form.songs[0].date.must_equal "May 16"
+  end
 
   # it { subject.class.include?(Reform::Form::ActiveModel) }
   # it { subject.class.include?(Reform::Form::Coercion) }

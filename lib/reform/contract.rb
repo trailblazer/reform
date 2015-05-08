@@ -59,8 +59,8 @@ module Reform
     # each contract keeps track of its features and passes them onto its local representer_class.
     # gets inherited, features get automatically included into inline representer.
     # TODO: the representer class should handle that, e.g. in options (deep-clone when inheriting.)
-    inheritable_attr :features
-    self.features = {}
+    # inheritable_attr :features
+    # self.features = {}
 
 
     RESERVED_METHODS = [:model, :aliased_model, :fields, :mapper] # TODO: refactor that so we don't need that.
@@ -84,9 +84,7 @@ module Reform
       warn "[Reform] The :as options got renamed to :from. See https://github.com/apotonick/reform/wiki/Migration-Guide and have a nice day."
     end
 
-    def self.register_feature(mod)
-      features[mod] = true
-    end
+
 
     # allows including representers from Representable, Roar or disposable.
     def self.inherit_module!(representer) # called from Representable::included.

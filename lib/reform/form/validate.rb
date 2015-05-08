@@ -52,8 +52,6 @@ private
         :include    => [Representable::Hash::AllowSymbols, Representable::Hash], # FIXME: how do we get this info?
         :superclass => Representable::Decorator)
 
-      # pp deserializer.representable_attrs.get(:songs).representer_module.representable_attrs.
-
       deserializer.new(self).
         # extend(Representable::Debug).
         from_hash(params)
@@ -94,9 +92,6 @@ private
         )
 
         # TODO: :populator now is just an alias for :instance. handle in ::property.
-        dfn.merge!(:instance => dfn[:populator]) if dfn[:populator]
-
-        dfn.merge!(:instance => Populator::PopulateIfEmpty.new) if dfn[:populate_if_empty]
       end
 
 
