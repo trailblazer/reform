@@ -3,16 +3,14 @@ require 'uber/inheritable_attr'
 require 'uber/delegates'
 require 'ostruct'
 
-require 'reform/representer'
-
 module Reform
   # Gives you a DSL for defining the object structure and its validations.
   require "disposable/twin"
   require "disposable/twin/setup"
   class Contract < Disposable::Twin
-    include Setup
+    feature Setup
 
-    object_representer_class.instance_eval do
+    twin_representer_class.instance_eval do
       def default_inline_class
         Contract
       end

@@ -1,6 +1,6 @@
 module Reform
   class Form < Contract
-    object_representer_class.instance_eval do
+    twin_representer_class.instance_eval do
       def default_inline_class
         Form
       end
