@@ -31,10 +31,20 @@ module Reform
           options[:deserializer].merge!({setter: nil}) if options[:collection]
         end
 
+
+        # TODO: shouldn't that go into validate?
+        if proc = options.delete(:skip_if)
+          proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
+          options[:deserializer].merge!(skip_parse: proc)
+        end
+
+
         super
       end
     end
     extend Property
+
+
 
 
     # TODO: move somewhere else!

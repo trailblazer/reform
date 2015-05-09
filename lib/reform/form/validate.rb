@@ -6,7 +6,8 @@ module Reform::Form::Validate
 
       def call(form, params, options)
         # TODO: hahahahahaha.
-        properties = options.binding.representer_module.representer_class.representable_attrs[:definitions].keys
+        # FIXME: this is a bit ridiculous.
+        properties = options.binding[:twin].representer_class.representable_attrs[:definitions].keys
 
         properties.each { |name| params[name].present? and return false }
         true # skip
@@ -70,10 +71,6 @@ private
     populate_representer.new(self).send(deserialize_method, params, :parent_form => self)
   end
 
-  def deserialize_method
-    :from_hash
-  end
-
   # IDEA: what if Populate was a Decorator that simply knows how to setup the Form object graph, nothing more? That would decouple
   # the population from the validation (good and bad as less customizable).
 
@@ -93,12 +90,6 @@ private
 
         # TODO: :populator now is just an alias for :instance. handle in ::property.
       end
-
-
-      dfn.merge!(:parse_filter => Representable::Coercion::Coercer.new(dfn[:coercion_type])) if dfn[:coercion_type]
-
-      dfn.merge!(:skip_if => Skip::AllBlank.new) if dfn[:skip_if] == :all_blank
-      dfn.merge!(:skip_parse => dfn[:skip_if]) if dfn[:skip_if]
 
       dfn.merge!(:parse_filter => Changed.new) unless dfn[:form] # TODO: make changed? work for nested forms.
     end
