@@ -1,3 +1,9 @@
+# 2.0
+
+* make Coercible optional (include it to activate)
+
+
+
 * fields is a Twin and sorts out all the changed? stuff.
 * virtual: don't read dont write
 * empty dont read, but write

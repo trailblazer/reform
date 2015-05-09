@@ -9,20 +9,17 @@ class CoercionTest < BaseTest
   end
 
   class Form < Reform::Form
-    include Coercion
+    # include Coercion
 
     property :released_at, :type => DateTime
 
     property :hit do
-      # include Coercion
       property :length, :type => Integer
       property :good,   :type => Virtus::Attribute::Boolean
     end
 
     property :band do
-      include Coercion
       property :label do
-        include Coercion
         property :value, :type => Irreversible
       end
     end

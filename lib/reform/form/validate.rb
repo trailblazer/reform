@@ -48,8 +48,10 @@ module Reform::Form::Validate
 private
   def deserialize!(params)
     require "disposable/twin/schema"
+    require "reform/form/coercion" # DISCUSS: make optional?
+
     deserializer = Disposable::Twin::Schema.from(self.class.twin_representer_class,
-        :include    => [Representable::Hash::AllowSymbols, Representable::Hash], # FIXME: how do we get this info?
+        :include    => [Representable::Hash::AllowSymbols, Representable::Hash, Representable::Coercion], # FIXME: how do we get this info?
         :superclass => Representable::Decorator)
 
       deserializer.new(self).
