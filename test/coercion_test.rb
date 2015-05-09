@@ -66,7 +66,4 @@ class CoercionTest < BaseTest
   end
 
   # save
-
-
-
 end

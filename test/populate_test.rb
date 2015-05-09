@@ -9,7 +9,7 @@ class PopulatorTest < MiniTest::Spec
     property :name
     validates :name, presence: true
 
-    collection :songs, pass_options: true,
+    collection :songs,
       populator: lambda { |fragment, collection, index, options|
         # collection = options.binding.get # we don't need this anymore as this comes in for free!
         (item = collection[index]) ? item : collection.insert(index, Song.new) } do
@@ -78,7 +78,7 @@ class PopulatorTest < MiniTest::Spec
       property :name
       validates :name, presence: true
 
-      collection :songs, pass_options: true,
+      collection :songs,
         populate_if_empty: Song do # class name works.
 
         property :title
