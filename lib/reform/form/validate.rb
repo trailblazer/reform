@@ -83,8 +83,6 @@ private
       if dfn[:form]
         dfn.merge!(
           # set parse_strategy: sync> # DISCUSS: that kills the :setter directive, which usually sucks. at least document this in :populator.
-          :collection => dfn[:collection], # TODO: Def#merge! doesn't consider :collection if it's already set in dfn YET.
-          :parse_strategy => :sync, # just use nested objects as they are.
 
           # :getter grabs nested forms directly from fields bypassing the reader method which could possibly be overridden for presentation.
           :getter      => lambda { |options| fields.send(options.binding.name) },

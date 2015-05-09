@@ -22,6 +22,11 @@ module Reform
       end
     end
 
+    def self.property(name, options={}, &block)
+      options.merge!(pass_options: true)
+      super
+    end
+
     # FIXME: make AM optional.
     require 'active_model'
     include ActiveModel::Validations

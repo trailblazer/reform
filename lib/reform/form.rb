@@ -16,6 +16,12 @@ module Reform
 
         # TODO: make this pluggable.
         # DISCUSS: Populators should be a representable concept?
+
+        # if populator = options.delete(:populate_if_empty)
+        if options[:deserializer] == {} # FIXME: hmm. not a fan of this: only add when no other option given?
+          options.merge!({populator: Populator::Sync.new(self)})
+        end
+
         if populator = options.delete(:populate_if_empty)
           options.merge!({populator: Populator::IfEmpty.new(populator, self)})
         end
@@ -32,6 +38,7 @@ module Reform
 
 
     # TODO: move somewhere else!
+    # TODO: make inheritable? and also, there's a lot of noise. shorten.
     # Implements the :populator option.
     #
     #  populator: -> (fragment, model, options)
@@ -74,6 +81,23 @@ module Reform
             @context.instance_exec(fragment, options.user_options, &@user_proc) # call user block.
           else
             @user_proc.new
+          end
+        end
+      end
+
+      class Sync
+        def initialize(context)
+          # @context = context
+        end
+
+        def call(fragment, model, *args)
+          options = args.last
+
+          if options.binding.array? # FIXME: ifs suck.
+            index = args.first
+            return model[index]
+          else
+            model
           end
         end
       end
