@@ -5,11 +5,28 @@ task :default => [:test]
 Rake::TestTask.new(:test) do |test|
   test.libs << 'test'
   test.test_files = FileList['test/*_test.rb']
+
+  test.test_files = ["test/changed_test.rb",
+  "test/coercion_test.rb",
+  "test/feature_test.rb",
+
+  # "test/form_test.rb",
+
+  "test/populate_test.rb",
+
+  "test/readable_test.rb","test/setup_test.rb","test/skip_if_test.rb",
+
+  "test/validate_test.rb","test/writeable_test.rb","test/virtual_test.rb",]
+
+
+
   test.verbose = true
 end
 
 Rake::TestTask.new(:test_rails) do |test|
   test.libs << 'test'
   test.test_files = FileList['test/rails/*_test.rb']
+
+
   test.verbose = true
 end
