@@ -17,18 +17,13 @@ module Reform
         # TODO: make this pluggable.
         # DISCUSS: Populators should be a representable concept?
 
-        # if populator = options.delete(:populate_if_empty)
-        if options[:deserializer] == {} # FIXME: hmm. not a fan of this: only add when no other option given?
-          options.merge!({populator: Populator::Sync.new(self)})
-        end
-
         if populator = options.delete(:populate_if_empty)
           options.merge!({populator: Populator::IfEmpty.new(populator, self)})
         end
 
         if populator = options.delete(:populator)
           options[:deserializer].merge!({instance: Populator.new(populator, self)})
-          options[:deserializer].merge!({setter: nil}) if options[:collection]
+          options[:deserializer].merge!({setter: nil}) if options[:collection] # collections don't need to get re-assigned, they don't change.
         end
 
 
@@ -38,6 +33,11 @@ module Reform
           options[:deserializer].merge!(skip_parse: proc)
         end
 
+
+        # default:
+        if options[:deserializer] == {} and block_given? # FIXME: hmm. not a fan of this: only add when no other option given?
+          options[:deserializer].merge!({instance: Populator.new(Populator::Sync.new(self), self), setter: nil})
+        end
 
         super
       end
@@ -112,6 +112,10 @@ module Reform
         end
       end
     end # Populator
+
+
+    require "disposable/twin/changed"
+    feature Disposable::Twin::Changed
   end
 
   # class Form_ < Contract
@@ -142,8 +146,4 @@ module Reform
 
 
   #   # DISCUSS: should that be optional? hooks into #validate, too.
-  #   require "reform/form/changed"
-  #   register_feature Changed
-  #   include Changed
-  # end
 end

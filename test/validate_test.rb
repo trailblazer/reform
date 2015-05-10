@@ -94,6 +94,9 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
 
   # valid.
   it do
+    object_ids = {song: form.songs[0].object_id, song_with_composer: form.songs[1].object_id,
+      artist: form.artist.object_id, composer: form.songs[1].composer.object_id}
+
     form.validate(
       "name"   => "Best Of",
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => "Sting"}}],
@@ -108,6 +111,12 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
     form.songs[1].title.must_equal "Roxanne"
     form.songs[1].composer.name.must_equal "Sting"
     form.artist.name.must_equal "The Police"
+
+    # objects are still the same.
+    form.songs[0].object_id.must_equal object_ids[:song]
+    form.songs[1].object_id.must_equal object_ids[:song_with_composer]
+    form.songs[1].composer.object_id.must_equal object_ids[:composer]
+    form.artist.object_id.must_equal object_ids[:artist]
 
 
     # model has not changed, yet.

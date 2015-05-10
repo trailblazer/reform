@@ -42,6 +42,7 @@ module Reform::Form::Validate
 
   # Some users use this method to pre-populate a form. Not saying this is right, but we'll keep
   # this method here.
+  # DISCUSS: this is only called once, on the top-level form.
   def update!(params)
     deserialize!(params)
   end
@@ -90,8 +91,6 @@ private
 
         # TODO: :populator now is just an alias for :instance. handle in ::property.
       end
-
-      dfn.merge!(:parse_filter => Changed.new) unless dfn[:form] # TODO: make changed? work for nested forms.
     end
   end
 
