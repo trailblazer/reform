@@ -35,7 +35,8 @@ module Reform
 
 
         # default:
-        if options[:deserializer] == {} and block_given? # FIXME: hmm. not a fan of this: only add when no other option given?
+        # FIXME: this is, of course, ridiculous and needs a better structuring.
+        if (options[:deserializer] == {} or options[:deserializer].keys == [:skip_parse]) and block_given? # FIXME: hmm. not a fan of this: only add when no other option given?
           options[:deserializer].merge!({instance: Populator.new(Populator::Sync.new(self), self), setter: nil})
         end
 
