@@ -11,14 +11,14 @@ class ReadableTest < MiniTest::Spec
   let (:form) { PasswordForm.new(cred) }
 
   it {
-    form.password.must_equal nil
+    form.password.must_equal nil # password not read.
 
     form.validate("password" => "123")
 
     form.password.must_equal "123"
 
     form.sync
-    cred.password.must_equal "123"
+    cred.password.must_equal "123" # password written.
 
     hash = {}
     form.save do |nested|

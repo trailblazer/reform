@@ -1,6 +1,7 @@
 # 2.0
 
 * make Coercible optional (include it to activate)
+* all options Uber:::Value with :method support
 
 
 

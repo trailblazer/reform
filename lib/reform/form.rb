@@ -12,6 +12,10 @@ module Reform
     module Property
       # add macro logic, e.g. for :populator.
       def property(name, options={}, &block)
+        if options[:virtual]
+          options[:writeable] = options[:readable] = false # DISCUSS: isn't that like an #option in Twin?
+        end
+
         options[:deserializer] ||= {} # TODO: test ||=.
 
         # TODO: make this pluggable.
@@ -117,6 +121,9 @@ module Reform
 
     require "disposable/twin/changed"
     feature Disposable::Twin::Changed
+
+    require "disposable/twin/sync"
+    feature Disposable::Twin::Sync
   end
 
   # class Form_ < Contract
