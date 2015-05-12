@@ -1,13 +1,16 @@
 require 'test_helper'
 
 class SyncOptionTest < MiniTest::Spec
-  Band = Struct.new(:name)
-  let (:band) { Band.new("Metallica") }
-  let (:form) { BandForm.new(band) }
+  Song  = Struct.new(:title, :album, :composer)
+  Album = Struct.new(:name, :songs, :artist)
+  Artist = Struct.new(:name)
+
+  let (:band) { Artist.new("Metallica") }
+  let (:form) { BandTwin.new(band) }
 
   # access to :form!
   describe ":sync allows you conditionals" do
-    class BandForm < Reform::Form
+    class BandTwin < Disposable::Twin
       property :name, sync: lambda { |value, options| options.user_options[:form].changed?(:name) ? model.name = value : nil } # change if it hasn't changed
     end
 
@@ -32,14 +35,14 @@ end
 class SyncWithDynamicOptionsTest < MiniTest::Spec
   Song = Struct.new(:id, :title, :length)
 
-  class SongForm < Reform::Form
+  class SongTwin < Disposable::Twin
     property :id
     property :title, sync: true
     property :length
   end
 
   let (:song) { Song.new }
-  let (:form) { SongForm.new(song) }
+  let (:form) { SongTwin.new(song) }
 
   # we have access to original input value and outside parameters.
   it do
@@ -59,10 +62,10 @@ end
 #   Song = Struct.new(:title, :image, :band)
 #   Band = Struct.new(:name)
 
-#   let (:form) { HitForm.new(song) }
+#   let (:form) { HitTwin.new(song) }
 #   let (:song) { Song.new("Injection", Object, Band.new("Rise Against")) }
 
-#   class HitForm < Reform::Form
+#   class HitTwin < Reform::Twin
 #     include Sync::SkipUnchanged
 #     register_feature Sync::SkipUnchanged
 

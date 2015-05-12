@@ -5,6 +5,11 @@
 
 
 
+# NOTES
+* use the same test setup everywhere (album -> songs -> composer)
+* copy things in tests
+* one test file per "feature": sync_test, sync_option_test.
+
 * fields is a Twin and sorts out all the changed? stuff.
 * virtual: don't read dont write
 * empty dont read, but write

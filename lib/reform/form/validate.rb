@@ -60,38 +60,10 @@ private
         # extend(Representable::Debug).
         from_hash(params)
 
-      return
       # use the deserializer as an external instance to operate on the Twin API,
       # e.g. adding new items in collections using #<< etc.
 
-
-
-    # using self here will call the form's setters like title= which might be overridden.
-    # from_hash(params, parent_form: self)
-    # Go through all nested forms and call form.update!(hash).
-    populate_representer.new(self).send(deserialize_method, params, :parent_form => self)
-  end
-
-  # IDEA: what if Populate was a Decorator that simply knows how to setup the Form object graph, nothing more? That would decouple
-  # the population from the validation (good and bad as less customizable).
-
-  # Don't get scared by this method. All this does is create a new representer class for this form.
-  # It then configures each property so the population of the form can happen in #validate.
-  # A lot of this code is simply renaming from Reform's API to representable's. # FIXME: unify that?
-  def populate_representer
-    self.class.representer(:populate, :all => true) do |dfn|
-      if dfn[:form]
-        dfn.merge!(
-          # set parse_strategy: sync> # DISCUSS: that kills the :setter directive, which usually sucks. at least document this in :populator.
-
-          # :getter grabs nested forms directly from fields bypassing the reader method which could possibly be overridden for presentation.
-          :getter      => lambda { |options| fields.send(options.binding.name) },
-          :deserialize => lambda { |object, params, args| object.update!(params) },
-        )
-
-        # TODO: :populator now is just an alias for :instance. handle in ::property.
-      end
-    end
+    # DISCUSS: using self here will call the form's setters like title= which might be overridden.
   end
 
   class DeserializeError < RuntimeError
