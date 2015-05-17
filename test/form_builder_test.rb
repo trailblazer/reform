@@ -1,37 +1,37 @@
 require 'test_helper'
 
 class FormBuilderCompatTest < BaseTest
-  let (:form_class) {
-    Class.new(Reform::Form) do
-      include Reform::Form::ActiveModel::FormBuilderMethods
+  class AlbumForm < Reform::Form
+    feature Reform::Form::ActiveModel::FormBuilderMethods
 
-      property :artist do
+    property :artist do
+      property :name
+      validates :name, :presence => true
+    end
+
+    collection :songs do
+      feature Reform::Form::ActiveModel::FormBuilderMethods
+      property :title
+      property :release_date, :multi_params => true
+      validates :title, :presence => true
+    end
+
+    class LabelForm < Reform::Form
+      property :name
+    end
+
+    property :label, :form => LabelForm
+
+    property :band do
+      property :label do
         property :name
-        validates :name, :presence => true
-      end
-
-      collection :songs do
-        property :title
-        property :release_date, :multi_params => true
-        validates :title, :presence => true
-      end
-
-      class LabelForm < Reform::Form
-        property :name
-      end
-
-      property :label, :form => LabelForm
-
-      property :band do
-        property :label do
-          property :name
-        end
       end
     end
-  }
+  end
+
 
   let (:song) { OpenStruct.new }
-  let (:form) { form_class.new(OpenStruct.new(
+  let (:form) { AlbumForm.new(OpenStruct.new(
     :artist => Artist.new(:name => "Propagandhi"),
     :songs  => [song],
     :label  => OpenStruct.new,
@@ -40,9 +40,10 @@ class FormBuilderCompatTest < BaseTest
     )) }
 
   it "respects _attributes params hash" do
-    form.validate("artist_attributes" => {"name" => "Blink 182"},
-      "songs_attributes" => {"0" => {"title" => "Damnit"}},
-      "band_attributes"  => {"label_attributes" => {"name" => "Epitaph"}})
+    form.validate(
+      "artist_attributes" => {"name" => "Blink 182"},
+      "songs_attributes"  => {"0" => {"title" => "Damnit"}},
+      "band_attributes"   => {"label_attributes" => {"name" => "Epitaph"}})
 
     form.artist.name.must_equal "Blink 182"
     form.songs.first.title.must_equal "Damnit"

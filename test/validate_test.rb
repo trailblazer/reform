@@ -166,7 +166,7 @@ class ValidateWithDeserializerOptionTest < MiniTest::Spec
   let (:form) { AlbumForm.new(album) }
 
   # valid.
-  it do
+  it("xxx") do
     form.validate(
       "name"   => "Best Of",
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => "Sting"}}],

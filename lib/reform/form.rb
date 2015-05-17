@@ -22,12 +22,12 @@ module Reform
         # DISCUSS: Populators should be a representable concept?
 
         if populator = options.delete(:populate_if_empty)
-          options.merge!({populator: Populator::IfEmpty.new(populator, self)})
+          options.merge!({populator: Populator::IfEmpty.new(populator)})
         end
 
         if populator = options.delete(:populator)
-          options[:deserializer].merge!({instance: Populator.new(populator, self)})
-          options[:deserializer].merge!({setter: nil}) if options[:collection] # collections don't need to get re-assigned, they don't change.
+          options[:deserializer].merge!({instance: Populator.new(populator)})
+          options[:deserializer].merge!({setter: nil}) #if options[:collection] # collections don't need to get re-assigned, they don't change.
         end
 
 
@@ -41,7 +41,7 @@ module Reform
         # default:
         # FIXME: this is, of course, ridiculous and needs a better structuring.
         if (options[:deserializer] == {} or options[:deserializer].keys == [:skip_parse]) and block_given? # FIXME: hmm. not a fan of this: only add when no other option given?
-          options[:deserializer].merge!({instance: Populator.new(Populator::Sync.new(self), self), setter: nil})
+          options[:deserializer].merge!({instance: Populator.new(Populator::Sync.new), setter: nil})
         end
 
         super
@@ -56,22 +56,32 @@ module Reform
     # TODO: make inheritable? and also, there's a lot of noise. shorten.
     # Implements the :populator option.
     #
-    #  populator: -> (fragment, model, options)
-    #  populator: -> (fragment, collection, index, options)
+    #  populator: -> (fragment, twin, options)
+    #  populator: -> (fragment, collection[twin], index, options)
     #
     # For collections, the entire collection and the currently deserialised index is passed in.
     class Populator
       include Uber::Callable
 
-      def initialize(user_proc, context)
+      def initialize(user_proc)
         @user_proc = user_proc # the actual `populator: ->{}` block from the user, via ::property.
-        @context   = context # TODO: execute lambda via Uber:::Option and in form context.
       end
 
       def call(form, fragment, *args)
         options = args.last
 
-        @user_proc.call(fragment, options.binding.get, *args)
+        # FIXME: use U:::Value.
+        twin = form.instance_exec(fragment, options.binding.get, *args, &@user_proc) if @user_proc.is_a?(Proc)
+        twin = @user_proc.call(form, fragment, options.binding.get, *args)
+
+        # this kinda sucks. the proc may call self.composer = Artist.new, but there's no way we can
+        # return the twin instead of the model from the #composer= setter.
+        twin = options.binding.get unless options.binding.array?
+
+        # DICSUSS: do we need this?
+        raise "[Reform] Your :populator did not return a Reform::Form instance." if options.binding[:twin] && !twin.is_a?(Reform::Form)
+
+        twin
       end
 
 
@@ -101,10 +111,6 @@ module Reform
       end
 
       class Sync
-        def initialize(context)
-          # @context = context
-        end
-
         def call(fragment, model, *args)
           options = args.last
 

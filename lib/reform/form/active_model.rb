@@ -3,18 +3,16 @@ require 'reform/form/active_model/model_validations'
 module Reform::Form::ActiveModel
   module FormBuilderMethods # TODO: rename to FormBuilderCompat.
     def self.included(base)
-      base.class_eval do
-        extend ClassMethods # ::model_name
-        register_feature FormBuilderMethods
-      end
+      base.extend ClassMethods # ::model_name
     end
 
     module ClassMethods
-      private
+    private
 
+      # TODO: add that shit in Form#present, not by overriding ::property.
       def property(name, options={}, &block)
         super.tap do |definition|
-          add_nested_attribute_compat(name) if definition[:form] # TODO: fix that in Rails FB#1832 work.
+          add_nested_attribute_compat(name) if definition[:twin] # TODO: fix that in Rails FB#1832 work.
         end
       end
 
@@ -25,12 +23,10 @@ module Reform::Form::ActiveModel
     end
 
     # Modify the incoming Rails params hash to be representable compliant.
-    def update!(params)
-      return super unless params.is_a?(Hash)
-      # TODO: run this only for hash deserialization, but generically (#deserialize_hash ?).
+    def deserialize!(params)
+      # this only happens in a Hash environment. other engines have to overwrite this method.
 
       self.class.representer { |dfn| rename_nested_param_for!(params, dfn) }
-
       super
     end
 

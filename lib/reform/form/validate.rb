@@ -52,9 +52,26 @@ private
     require "disposable/twin/schema"
     require "reform/form/coercion" # DISCUSS: make optional?
 
+    # NOTE: it is completely up to the form user how they want to deserialize (e.g. using an external JSON-API representer).
+
     deserializer = Disposable::Twin::Schema.from(self.class.twin_representer_class,
         :include    => [Representable::Hash::AllowSymbols, Representable::Hash, Representable::Coercion], # FIXME: how do we get this info?
         :superclass => Representable::Decorator)
+
+    deserializer.representable_attrs.each do |dfn|
+      next unless dfn[:_inline] # FIXME: we have to standardize that!
+
+      # FIXME: collides with Schema?
+      dfn.merge!(
+        ____________deserialize: lambda { |decorator, params, options|
+          puts "calling validate on #{decorator.represented}..... #{params}"
+          decorator.represented.validate(params)
+
+          decorator.represented
+        }
+      )
+      puts dfn.inspect
+    end
 
       deserializer.new(self).
         # extend(Representable::Debug).
