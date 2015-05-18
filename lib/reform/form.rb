@@ -22,10 +22,9 @@ module Reform
         # DISCUSS: Populators should be a representable concept?
 
         if populator = options.delete(:populate_if_empty)
-          options.merge!({populator: Populator::IfEmpty.new(populator)})
-        end
-
-        if populator = options.delete(:populator)
+          options[:deserializer].merge!({instance: Populator::IfEmpty.new(populator)})
+          options[:deserializer].merge!({setter: nil})
+        elsif populator = options.delete(:populator)
           options[:deserializer].merge!({instance: Populator.new(populator)})
           options[:deserializer].merge!({setter: nil}) #if options[:collection] # collections don't need to get re-assigned, they don't change.
         end
@@ -40,8 +39,8 @@ module Reform
 
         # default:
         # FIXME: this is, of course, ridiculous and needs a better structuring.
-        if (options[:deserializer] == {} or options[:deserializer].keys == [:skip_parse]) and block_given? # FIXME: hmm. not a fan of this: only add when no other option given?
-          options[:deserializer].merge!({instance: Populator.new(Populator::Sync.new), setter: nil})
+        if (options[:deserializer] == {} || options[:deserializer].keys == [:skip_parse]) && block_given? # FIXME: hmm. not a fan of this: only add when no other option given?
+          options[:deserializer].merge!({instance: Populator::Sync.new(nil), setter: nil})
         end
 
         super
@@ -70,9 +69,8 @@ module Reform
       def call(form, fragment, *args)
         options = args.last
 
-        # FIXME: use U:::Value.
-        twin = form.instance_exec(fragment, options.binding.get, *args, &@user_proc) if @user_proc.is_a?(Proc)
-        twin = @user_proc.call(form, fragment, options.binding.get, *args)
+        # FIXME: the optional index parameter SUCKS.
+        twin = call!(form, fragment, options.binding.get, *args)
 
         # this kinda sucks. the proc may call self.composer = Artist.new, but there's no way we can
         # return the twin instead of the model from the #composer= setter.
@@ -84,12 +82,21 @@ module Reform
         twin
       end
 
+    private
+      # DISCUSS: this signature could change soon.
+      # FIXME: the optional index parameter SUCKS.
+      def call!(form, fragment, model, *args)
+        # FIXME: use U:::Value.
+        form.instance_exec(fragment, model, *args, &@user_proc)
+      end
+
 
       class IfEmpty < Populator
-        def call(fragment, model, *args)
+        # FIXME: the optional index parameter SUCKS.
+        def call!(form, fragment, model, *args)
           options = args.last
 
-          if options.binding.array? # FIXME: ifs suck.
+          res= if options.binding.array? # FIXME: ifs suck.
             index = args.first
             item = model[index] and return item
 
@@ -97,21 +104,27 @@ module Reform
           else
             run!(fragment, options)
           end
+
+          puts "@@@@@ #{res.inspect}"
+
+          res
         end
 
       private
         # FIXME: replace this with Uber:::V.
         def run!(fragment, options)
+          raise "i have to set attribute here"
           if @user_proc.is_a?(Proc)
             @context.instance_exec(fragment, options.user_options, &@user_proc) # call user block.
           else
+            raise "i have to set attribute here"
             @user_proc.new
           end
         end
       end
 
-      class Sync
-        def call(fragment, model, *args)
+      class Sync < Populator
+        def call!(form, fragment, model, *args)
           options = args.last
 
           if options.binding.array? # FIXME: ifs suck.
@@ -131,33 +144,4 @@ module Reform
     require "disposable/twin/sync"
     feature Disposable::Twin::Sync
   end
-
-  # class Form_ < Contract
-  #   self.representer_class = Reform::Representer.for(:form_class => self)
-  #   self.object_representer_class = Reform::ObjectRepresenter.for(:form_class => self)
-
-  #   require "reform/form/validate"
-  #   include Validate # extend Contract#validate with additional behaviour.
-  #   require "reform/form/sync"
-  #   include Sync
-  #   require "reform/form/save"
-  #   include Save
-  #   require "reform/form/prepopulate"
-  #   include Prepopulate
-
-  #   require "reform/form/multi_parameter_attributes"
-  #   include MultiParameterAttributes # TODO: make features dynamic.
-
-  # private
-  #   def aliased_model
-  #     # TODO: cache the Expose.from class!
-  #     Reform::Expose.from(mapper).new(:model => model)
-  #   end
-
-
-  #   require "reform/form/scalar"
-  #   extend Scalar::Property # experimental feature!
-
-
-  #   # DISCUSS: should that be optional? hooks into #validate, too.
 end

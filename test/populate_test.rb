@@ -17,7 +17,7 @@ class PopulatorTest < MiniTest::Spec
       property :title
       validates :title, presence: true
 
-      property :composer, populator: lambda { |fragment, model, *| model || self.composer= Artist.new } do
+      property :composer, populator: lambda { |fragment, model, options| model || self.composer= Artist.new } do
         property :name
         validates :name, presence: true
       end
@@ -127,7 +127,7 @@ class PopulateIfEmptyTest < MiniTest::Spec
 
   let (:form) { AlbumForm.new(album) }
 
-  it do
+  it "blaaa" do
     form.validate(
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"},
         {"title" => "Rime Of The Ancient Mariner"}, # new song.
