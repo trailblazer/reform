@@ -960,12 +960,14 @@ Note that this still runs validations for the property, though.
 
 ### Prepopulating Forms
 
+Docs: http://trailblazerb.org/gems/reform/prepopulator.html
+
 When rendering a new form for an empty object, nested forms won't show up. The [Trailblazer book, chapter 5](https://leanpub.com/trailblazer), discusses this in detail.
 
-You can use the `:prepopulate` option to configure how to populate a nested form (this also works for scalar properties).
+You can use the `:prepopulator` option to configure how to populate a nested form (this also works for scalar properties).
 
 ```ruby
-property :song, prepopulate: ->(*) { Song.new } do
+property :song, prepopulator: ->(form, options) { self.song = Song.new } do
   # ..
 end
 ```
@@ -975,6 +977,8 @@ This option is only executed when being instructed to do so, using the `#prepopu
 ```ruby
 form.prepopulate!
 ```
+
+You can also pass options to `#prepopulate`.
 
 Only do this for forms that are about to get rendered, though.
 
