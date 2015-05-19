@@ -12,7 +12,7 @@ Rake::TestTask.new(:test) do |test|
 
   "test/contract_test.rb",
 
-  "test/populate_test.rb", "test/prepopulate_test.rb",
+  "test/populate_test.rb", "test/prepopulator_test.rb",
 
   "test/readable_test.rb","test/setup_test.rb","test/skip_if_test.rb",
 
