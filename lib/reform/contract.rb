@@ -9,6 +9,7 @@ module Reform
   require "disposable/twin/setup"
   class Contract < Disposable::Twin
     feature Setup
+    extend Uber::Delegates
 
     twin_representer_class.instance_eval do
       def default_inline_class
@@ -30,6 +31,12 @@ module Reform
       end
 
       super
+    end
+
+    # FIXME: test me.
+    def self.properties(*args)
+      options = args.extract_options!
+      args.each { |name| property(name, options.dup) }
     end
 
     # FIXME: make AM optional.
@@ -65,10 +72,7 @@ module Reform
     RESERVED_METHODS = [:model] # TODO: refactor that so we don't need that.
 
 
-      def properties(*args)
-        options = args.extract_options!
-        args.each { |name| property(name, options.dup) }
-      end
+
 
       def handle_reserved_names(name)
         raise "[Reform] the property name '#{name}' is reserved, please consider something else using :as." if RESERVED_METHODS.include?(name)
