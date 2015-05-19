@@ -73,3 +73,36 @@ class PrepopulateWithoutConfiguration < MiniTest::Spec
 
   it { subject.songs.size.must_equal 0 }
 end
+
+
+class ManualPrepopulatorOverridingTest < MiniTest::Spec
+  Song = Struct.new(:title, :band, :length)
+  Band = Struct.new(:name)
+
+  class AlbumForm < Reform::Form
+    property :title
+    property :length
+
+    property :hit do
+      property :title
+
+      property :band do
+        property :name
+      end
+    end
+
+    def prepopulate!(options)
+      self.hit = Song.new(options[:title])
+      super
+    end
+  end
+
+  # you can simply override Form#prepopulate!
+  it do
+    form = AlbumForm.new(OpenStruct.new(length: 1)).prepopulate!(title: "Potemkin City Limits")
+
+    form.length.must_equal 1
+    form.hit.model.must_equal Song.new("Potemkin City Limits")
+    form.hit.title.must_equal "Potemkin City Limits"
+  end
+end
