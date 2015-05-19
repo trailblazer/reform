@@ -11,12 +11,12 @@ class PrepopulatorTest < MiniTest::Spec
     property :hit, prepopulator: ->(model, options) { self.hit = Song.new(options[:title]) } do # use user options.
       property :title
 
-      property :band, prepopulator: ->(*){ self.band = my_band } do                             # invoke your own code.
+      property :band, prepopulator: ->(model, options){ self.band = my_band(options[:title]) } do                             # invoke your own code.
         property :name
       end
 
-      def my_band
-        Band.new
+      def my_band(name)
+        Band.new(title)
       end
     end
 
@@ -41,7 +41,8 @@ class PrepopulatorTest < MiniTest::Spec
     form.songs[1].model.must_equal Song.new
     form.songs[1].model.must_equal Song.new
     # prepopulate works more than 1 level, recursive.
-    form.hit.band.model.must_equal Band.new
+    # it also passes options properly down there.
+    form.hit.band.model.must_equal Band.new("Potemkin City Limits")
   end
 
   # add to existing collection.
