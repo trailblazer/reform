@@ -8,6 +8,8 @@ is now :populator => lambda { |fragment, index, args|
 #         }
 you don't need to know about forms anymore, the twin handles that using #insert.
 
+:as removed.
+
 ## 1.2.6
 
 * Added `:prepopulate` to fill out form properties for presentation. Note that you need to call `Form#prepopulate!` to trigger the prepopulation.
