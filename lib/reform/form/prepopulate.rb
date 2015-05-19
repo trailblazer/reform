@@ -1,45 +1,20 @@
 # this will soon be handled in Disposable.
 module Reform::Form::Prepopulate
   def prepopulate!
-    # TODO: representer.new(fields).from_object(fields)
-    hash = prepopulate_representer.new(fields).to_hash(:parent_form => self)
-    prepopulate_representer.new(fields).from_hash(hash)
+    prepopulate_representer.new(self).to_object
 
-    recursive_prepopulate_representer.new(fields).to_hash # not sure if i leave that like this, consider private.
+    # recursive_prepopulate_representer.new(self).to_hash # not sure if i leave that like this, consider private.
     self
   end
+
 private
   def prepopulate_representer
-    self.class.representer(:prepopulate, :all => true) do |dfn|
-      next unless block = dfn[:prepopulate] or dfn[:form]
+    self.class.representer(:prepopulator, all: true, superclass: self.class.object_representer_class) do |dfn|
+      next unless block = dfn[:prepopulator] or dfn[:twin]
 
-      if dfn[:form]
         dfn.merge!(
-          :render_filter => lambda do |v, h, options|
-            next unless callable = options.binding[:prepopulate]
-            parent_form = options.user_options[:parent_form] # TODO: merge with Validate/populate_if_empty.
-
-            # execute in form context, pass user optioins.
-            object = parent_form.instance_exec(options.user_options, &callable)
-
-            if options.binding.array?
-              object.collect { |item| options.binding[:form].new(item) }
-            else
-              options.binding[:form].new(object)
-            end
-          end,
-          :representable  => false,
-
-          :instance => lambda { |obj, *| obj } # needed for from_hash. TODO: make that in one go.
-        )
-      else
-        dfn.merge!(:render_filter => lambda do |v, h, options|
-          parent_form = options.user_options[:parent_form] # TODO: merge with Validate/populate_if_empty.
-
-          # execute in form context, pass user optioins.
-          parent_form.instance_exec(options.user_options, &options.binding[:prepopulate])
-        end)
-      end
+          writer: Prepopulator.new(block),
+        ) if block
     end
   end
 
@@ -52,4 +27,12 @@ private
     end
   end
 
+
+  class Prepopulator < Reform::Form::Populator
+  private
+    def handle_fail(twin, options)
+      # TODO: implement,
+      # e.g. collections may return [] instead of one twin.
+    end
+  end
 end

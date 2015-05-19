@@ -25,7 +25,7 @@ class Reform::Form::Populator
     twin = options.binding.get unless options.binding.array?
 
     # since Populator#call is invoked as :instance, we always need to return a twin/form here.
-    raise "[Reform] Your :populator did not return a Reform::Form instance." if options.binding[:twin] && !twin.is_a?(Reform::Form)
+    handle_fail(twin, options)
 
     twin
   end
@@ -36,6 +36,10 @@ private
   def call!(form, fragment, model, *args)
     # FIXME: use U:::Value.
     form.instance_exec(fragment, model, *args, &@user_proc)
+  end
+
+  def handle_fail(twin, options)
+    raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options.binding.name}`." if options.binding[:twin] && !twin.is_a?(Reform::Form)
   end
 
 
