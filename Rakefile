@@ -10,7 +10,7 @@ Rake::TestTask.new(:test) do |test|
   "test/coercion_test.rb",
   "test/feature_test.rb",
 
-  # "test/form_test.rb",
+  "test/contract_test.rb",
 
   "test/populate_test.rb",
 
