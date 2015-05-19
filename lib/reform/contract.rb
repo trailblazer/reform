@@ -55,18 +55,9 @@ module Reform
   end
 
   class Contract_ # DISCUSS: make class?
-    extend Uber::Delegates
-
     extend Uber::InheritableAttr
 
-    # each contract keeps track of its features and passes them onto its local representer_class.
-    # gets inherited, features get automatically included into inline representer.
-    # TODO: the representer class should handle that, e.g. in options (deep-clone when inheriting.)
-    # inheritable_attr :features
-    # self.features = {}
-
-
-    RESERVED_METHODS = [:model, :aliased_model, :fields, :mapper] # TODO: refactor that so we don't need that.
+    RESERVED_METHODS = [:model] # TODO: refactor that so we don't need that.
 
 
       def properties(*args)
@@ -109,8 +100,6 @@ module Reform
 
     require 'reform/schema'
     extend Schema
-
-    alias_method :aliased_model, :model
   end
 end
 
