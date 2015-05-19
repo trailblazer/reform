@@ -107,27 +107,32 @@ class PopulateIfEmptyTest < MiniTest::Spec
     validates :name, presence: true
 
     collection :songs,
-      populate_if_empty: Song do # class name works.
+      populate_if_empty: Song do                                                # class name works.
 
       property :title
       validates :title, presence: true
 
-      property :composer, populate_if_empty: lambda { |*| Artist.new } do # lambda works, too.
+      property :composer, populate_if_empty: lambda { |*| Artist.new } do       # lambda works, too.
         property :name
         validates :name, presence: true
       end
     end
 
-    # TODO: test arguments in block.
-    # TODO: test context of block.
-    property :artist, populate_if_empty: lambda { |fragment, *| Artist.new } do
+    property :artist, populate_if_empty: lambda { |*args| create_artist(*args) } do # and lambdas are executed in form instance context.
       property :name
+    end
+
+    class Sting < Artist
+      attr_accessor :args
+    end
+    def create_artist(*args)
+      Sting.new.tap { |artist| artist.args=(args) }
     end
   end
 
   let (:form) { AlbumForm.new(album) }
 
-  it "blaaa" do
+  it do
     form.validate(
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"},
         {"title" => "Rime Of The Ancient Mariner"}, # new song.
@@ -157,4 +162,19 @@ class PopulateIfEmptyTest < MiniTest::Spec
     album.songs.size.must_equal 2
     album.artist.name.must_equal "Bad Religion"
   end
+
+  # trigger artist populator. lambda calling form instance method.
+  it do
+    form = AlbumForm.new(album = Album.new)
+    form.validate("artist" => {"name" => "From Autumn To Ashes"})
+
+    form.artist.name.must_equal "From Autumn To Ashes"
+    # test lambda was executed in form context.
+    form.artist.model.must_be_instance_of AlbumForm::Sting
+    # test lambda block arguments.
+    form.artist.model.args.to_s.must_equal "[{\"name\"=>\"From Autumn To Ashes\"}, {}]"
+
+    album.artist.must_equal nil
+  end
+
 end

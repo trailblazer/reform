@@ -9,6 +9,8 @@ module Reform
     require "reform/form/validate"
     include Validate # extend Contract#validate with additional behaviour.
 
+    require "reform/form/populator"
+
     module Property
       # add macro logic, e.g. for :populator.
       def property(name, options={}, &block)
@@ -20,6 +22,11 @@ module Reform
 
         # TODO: make this pluggable.
         # DISCUSS: Populators should be a representable concept?
+
+        # Populators
+        # * they assign created data, no :setter (hence the name).
+        # * they (ab)use :instance, this is why they need to return a twin form.
+        # * they are only used in the deserializer.
 
         if populator = options.delete(:populate_if_empty)
           options[:deserializer].merge!({instance: Populator::IfEmpty.new(populator)})
@@ -51,88 +58,7 @@ module Reform
 
 
 
-    # TODO: move somewhere else!
-    # TODO: make inheritable? and also, there's a lot of noise. shorten.
-    # Implements the :populator option.
-    #
-    #  populator: -> (fragment, twin, options)
-    #  populator: -> (fragment, collection[twin], index, options)
-    #
-    # For collections, the entire collection and the currently deserialised index is passed in.
-    class Populator
-      include Uber::Callable
 
-      def initialize(user_proc)
-        @user_proc = user_proc # the actual `populator: ->{}` block from the user, via ::property.
-      end
-
-      def call(form, fragment, *args)
-        options = args.last
-
-        # FIXME: the optional index parameter SUCKS.
-        twin = call!(form, fragment, options.binding.get, *args)
-
-        # this kinda sucks. the proc may call self.composer = Artist.new, but there's no way we can
-        # return the twin instead of the model from the #composer= setter.
-        twin = options.binding.get unless options.binding.array?
-
-        # since Populator#call is invoked as :instance, we always need to return a twin/form here.
-        raise "[Reform] Your :populator did not return a Reform::Form instance." if options.binding[:twin] && !twin.is_a?(Reform::Form)
-
-        twin
-      end
-
-    private
-      # DISCUSS: this signature could change soon.
-      # FIXME: the optional index parameter SUCKS.
-      def call!(form, fragment, model, *args)
-        # FIXME: use U:::Value.
-        form.instance_exec(fragment, model, *args, &@user_proc)
-      end
-
-
-      class IfEmpty < Populator
-        # FIXME: the optional index parameter SUCKS.
-        def call!(form, fragment, model, *args)
-          options = args.last
-
-          if options.binding.array? # FIXME: ifs suck.
-            index = args.first
-            item = model[index] and return item
-
-            model.insert(index, run!(fragment, options))
-          else
-            return if model
-
-            form.send(options.binding.setter, run!(fragment, options))
-          end
-        end
-
-      private
-        # FIXME: replace this with Uber:::V.
-        def run!(fragment, options)
-          # raise "i have to set attribute here"
-          if @user_proc.is_a?(Proc)
-            model = @context.instance_exec(fragment, options.user_options, &@user_proc) # call user block.
-          else
-            model = @user_proc.new
-          end
-        end
-      end
-
-      class Sync < Populator
-        def call!(form, fragment, model, *args)
-          options = args.last
-
-          if options.binding.array? # FIXME: ifs suck.
-            index = args.first
-            return model[index]
-          else
-            model
-          end
-        end
-      end
-    end # Populator
 
 
     require "disposable/twin/changed"
