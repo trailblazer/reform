@@ -118,14 +118,14 @@ class PopulateIfEmptyTest < MiniTest::Spec
       end
     end
 
-    property :artist, populate_if_empty: lambda { |*args| create_artist(*args) } do # and lambdas are executed in form instance context.
+    property :artist, populate_if_empty: lambda { |*args| create_artist(args) } do # and lambdas are executed in form instance context.
       property :name
     end
 
     class Sting < Artist
       attr_accessor :args
     end
-    def create_artist(*args)
+    def create_artist(args)
       Sting.new.tap { |artist| artist.args=(args) }
     end
   end

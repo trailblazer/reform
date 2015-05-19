@@ -11,7 +11,7 @@ class Reform::Form::Populator
 
   def initialize(user_proc)
     @user_proc = user_proc # the actual `populator: ->{}` block from the user, via ::property.
-    @value = Uber::Options::Value.new(user_proc) # we can now process Callable, procs, :symbol.
+    @value     = Uber::Options::Value.new(user_proc) # we can now process Callable, procs, :symbol.
   end
 
   def call(form, fragment, *args)
@@ -58,11 +58,9 @@ private
 
   private
     def run!(form, fragment, options)
-      if @user_proc.is_a?(Proc)
-        @value.evaluate(form, fragment, options.user_options)
-      else
-        model = @user_proc.new
-      end
+      return @user_proc.new if @user_proc.is_a?(Class) # ok, :populate_if_empty does not allow Callable, but everything else.
+
+      @value.evaluate(form, fragment, options.user_options)
     end
   end
 
