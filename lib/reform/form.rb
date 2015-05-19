@@ -76,7 +76,7 @@ module Reform
         # return the twin instead of the model from the #composer= setter.
         twin = options.binding.get unless options.binding.array?
 
-        # DICSUSS: do we need this?
+        # since Populator#call is invoked as :instance, we always need to return a twin/form here.
         raise "[Reform] Your :populator did not return a Reform::Form instance." if options.binding[:twin] && !twin.is_a?(Reform::Form)
 
         twin
@@ -96,29 +96,26 @@ module Reform
         def call!(form, fragment, model, *args)
           options = args.last
 
-          res= if options.binding.array? # FIXME: ifs suck.
+          if options.binding.array? # FIXME: ifs suck.
             index = args.first
             item = model[index] and return item
 
             model.insert(index, run!(fragment, options))
           else
-            run!(fragment, options)
+            return if model
+
+            form.send(options.binding.setter, run!(fragment, options))
           end
-
-          puts "@@@@@ #{res.inspect}"
-
-          res
         end
 
       private
         # FIXME: replace this with Uber:::V.
         def run!(fragment, options)
-          raise "i have to set attribute here"
+          # raise "i have to set attribute here"
           if @user_proc.is_a?(Proc)
-            @context.instance_exec(fragment, options.user_options, &@user_proc) # call user block.
+            model = @context.instance_exec(fragment, options.user_options, &@user_proc) # call user block.
           else
-            raise "i have to set attribute here"
-            @user_proc.new
+            model = @user_proc.new
           end
         end
       end
