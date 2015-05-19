@@ -29,7 +29,5 @@ end
 Rake::TestTask.new(:test_rails) do |test|
   test.libs << 'test'
   test.test_files = FileList['test/rails/*_test.rb']
-
-
   test.verbose = true
 end

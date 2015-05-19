@@ -63,14 +63,13 @@ private
 
       # FIXME: collides with Schema?
       dfn.merge!(
-        ____________deserialize: lambda { |decorator, params, options|
+        deserialize: lambda { |decorator, params, options|
           puts "calling validate on #{decorator.represented}..... #{params}"
           decorator.represented.validate(params)
 
           decorator.represented
         }
       )
-      puts dfn.inspect
     end
 
       deserializer.new(self).

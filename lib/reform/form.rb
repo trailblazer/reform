@@ -56,10 +56,7 @@ module Reform
     extend Property
 
 
-
-
-
-
+    require "reform/form/multi_parameter_attributes"
 
     require "disposable/twin/changed"
     feature Disposable::Twin::Changed

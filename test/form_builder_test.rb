@@ -4,6 +4,8 @@ class FormBuilderCompatTest < BaseTest
   class AlbumForm < Reform::Form
     feature Reform::Form::ActiveModel::FormBuilderMethods
 
+    feature Reform::Form::MultiParameterAttributes
+
     property :artist do
       property :name
       validates :name, :presence => true
@@ -20,7 +22,7 @@ class FormBuilderCompatTest < BaseTest
       property :name
     end
 
-    property :label, :form => LabelForm
+    property :label, form: LabelForm
 
     property :band do
       property :label do
