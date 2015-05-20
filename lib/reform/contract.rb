@@ -58,8 +58,11 @@ module Reform
     def self.process_inline!(mod, definition)
       _name = definition.name
       mod.instance_eval do
-        @_name = _name
+        @_name = _name.singularize.camelize
         def name # this adds Form::name for AM::Validations and I18N. i know it's retarded.
+          # something weird happens here: somewhere in Rails, this creates a constant (e.g. User). if this name doesn't represent a valid
+          # constant, the reloading in dev will fail with weird messages. i'm not sure if we should just get rid of Rails validations etc.
+          # or if i should look into this?
           @_name
         end
       end
@@ -72,10 +75,15 @@ module Reform
         options_for(name)[:_writeable] == false
       end
       def options_for(name)
-        self.class.object_representer_class.representable_attrs.get(name)
+       self.class.object_representer_class.representable_attrs.get(name)
       end
     end
     include Readonly
+
+
+    def self.clone # TODO: test.
+      Class.new(self)
+    end
   end
 
   class Contract_ # DISCUSS: make class?
