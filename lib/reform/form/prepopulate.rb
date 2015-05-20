@@ -33,7 +33,7 @@ private
   private
     def call!(form, fragment, model, options)
       # FIXME: use U:::Value.
-      form.instance_exec(model, options.user_options, &@user_proc) # pass user_options, we got access to everything.
+      form.instance_exec(options.user_options, &@user_proc) # pass user_options, we got access to everything.
     end
 
     def handle_fail(twin, options)

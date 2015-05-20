@@ -967,7 +967,7 @@ When rendering a new form for an empty object, nested forms won't show up. The [
 You can use the `:prepopulator` option to configure how to populate a nested form (this also works for scalar properties).
 
 ```ruby
-property :song, prepopulator: ->(form, options) { self.song = Song.new } do
+property :song, prepopulator: ->(options) { self.song = Song.new } do
   # ..
 end
 ```
