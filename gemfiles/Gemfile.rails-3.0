@@ -5,3 +5,4 @@ gemspec :path => '../'
 
 gem 'railties', '~> 3.0.11'
 gem 'activerecord', '~> 3.0.11'
+gem "disposable", github: "apotonick/disposable"
