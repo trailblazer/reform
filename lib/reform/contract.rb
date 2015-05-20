@@ -64,6 +64,18 @@ module Reform
         end
       end
     end
+
+
+    # DISCUSS: separate file?
+    module Readonly
+      def readonly?(name)
+        options_for(name)[:_writeable] == false
+      end
+      def options_for(name)
+        self.class.object_representer_class.representable_attrs.get(name)
+      end
+    end
+    include Readonly
   end
 
   class Contract_ # DISCUSS: make class?
