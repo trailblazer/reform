@@ -24,7 +24,7 @@ class PrepopulatorTest < MiniTest::Spec
       if model == nil
         self.songs = [Song.new, Song.new]
       else
-        model.insert(songs.size, Song.new)
+        model << Song.new # full Twin::Collection API available.
       end  } do
         property :title
     end
