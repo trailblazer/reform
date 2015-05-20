@@ -1,7 +1,6 @@
 require 'forwardable'
 require 'uber/inheritable_attr'
 require 'uber/delegates'
-require 'ostruct'
 
 module Reform
   # Gives you a DSL for defining the object structure and its validations.
@@ -90,23 +89,9 @@ module Reform
     extend Uber::InheritableAttr
 
     RESERVED_METHODS = [:model] # TODO: refactor that so we don't need that.
-
-
-
-
       def handle_reserved_names(name)
         raise "[Reform] the property name '#{name}' is reserved, please consider something else using :as." if RESERVED_METHODS.include?(name)
       end
-
-
-
-    attr_accessor :model
-    def self.deprecate_as!(options) # TODO: remove me in 2.0.
-      return unless as = options.delete(:as)
-      options[:from] = as
-      warn "[Reform] The :as options got renamed to :from. See https://github.com/apotonick/reform/wiki/Migration-Guide and have a nice day."
-    end
-
 
 
     # allows including representers from Representable, Roar or disposable.
@@ -121,10 +106,6 @@ module Reform
         property(*args) and next unless dfn.representer_module
         property(*args) { include dfn.representer_module } # nested.
       end
-    end
-
-    def self.clone
-      Class.new(self)
     end
 
     require 'reform/schema'
