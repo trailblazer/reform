@@ -16,7 +16,9 @@ Rake::TestTask.new(:test) do |test|
 
   "test/readable_test.rb","test/setup_test.rb","test/skip_if_test.rb",
 
-  "test/validate_test.rb","test/writeable_test.rb","test/virtual_test.rb",
+  "test/validate_test.rb", "test/save_test.rb",
+
+  "test/writeable_test.rb","test/virtual_test.rb",
 
   "test/form_builder_test.rb", "test/active_model_test.rb",
 

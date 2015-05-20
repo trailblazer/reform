@@ -64,6 +64,9 @@ module Reform
     require "disposable/twin/sync"
     feature Disposable::Twin::Sync
 
+    require "disposable/twin/save"
+    feature Disposable::Twin::Save
+
     require "reform/form/prepopulate"
     include Prepopulate
   end
