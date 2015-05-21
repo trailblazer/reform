@@ -74,8 +74,11 @@ module Reform
         options_for(name)[:_writeable] == false
       end
       def options_for(name)
-       self.class.object_representer_class.representable_attrs.get(name)
+       self.class.options_for(name)
       end
+    end
+    def self.options_for(name)
+      object_representer_class.representable_attrs.get(name)
     end
     include Readonly
 

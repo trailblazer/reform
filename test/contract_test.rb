@@ -38,4 +38,9 @@ class ContractTest < MiniTest::Spec
   it do
     form.artist.must_be_instance_of ArtistForm
   end
+
+  describe "#options_for" do
+    it { AlbumForm.options_for(:name).inspect.must_match "#<Representable::Definition ==>name @options" }
+    it { AlbumForm.new(album).options_for(:name).inspect.must_match "#<Representable::Definition ==>name @options" }
+  end
 end
