@@ -78,7 +78,7 @@ module Reform
       end
     end
     def self.options_for(name)
-      object_representer_class.representable_attrs.get(name)
+      twin_representer_class.representable_attrs.get(name)
     end
     include Readonly
 
