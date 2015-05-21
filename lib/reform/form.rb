@@ -14,9 +14,15 @@ module Reform
     module Property
       # add macro logic, e.g. for :populator.
       def property(name, options={}, &block)
-        if options[:virtual]
+        puts "@@@@@ original property:#{name}> #{options.inspect}"
+        if options.delete(:virtual)
           options[:writeable] = options[:readable] = false # DISCUSS: isn't that like an #option in Twin?
         end
+
+        definition = super # let representable sort out inheriting of properties, and so on.
+
+
+
 
         options[:deserializer] ||= {} # TODO: test ||=.
 
@@ -27,6 +33,8 @@ module Reform
         # * they assign created data, no :setter (hence the name).
         # * they (ab)use :instance, this is why they need to return a twin form.
         # * they are only used in the deserializer.
+
+
 
         if populator = options.delete(:populate_if_empty)
           options[:deserializer].merge!({instance: Populator::IfEmpty.new(populator)})
@@ -50,7 +58,14 @@ module Reform
           options[:deserializer].merge!({instance: Populator::Sync.new(nil), setter: nil})
         end
 
-        super
+
+
+
+        definition.merge!(options)
+
+        puts "[#{definition.object_id}] @@@definition after setup:#{name}@@ #{definition.inspect}"
+
+        definition
       end
     end
     extend Property
