@@ -22,7 +22,8 @@ Rake::TestTask.new(:test) do |test|
 
   "test/form_builder_test.rb", "test/active_model_test.rb",
 
-  "test/readonly_test.rb"
+  "test/readonly_test.rb",
+  "test/inherit_test.rb"
 ]
 
 
