@@ -781,8 +781,6 @@ Reform provides the following `Mongoid` specific features. They're mixed in auto
 
  * Uniqueness validations. Use `validates_uniqueness_of` in your form.
 
-As mentioned in the [Rails Integration](https://github.com/apotonick/reform#rails-integration) section some Rails 4 setups do not properly load.
-
 You may want to include the module manually then.
 
 ```ruby
