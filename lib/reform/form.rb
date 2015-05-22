@@ -14,17 +14,15 @@ module Reform
     module Property
       # add macro logic, e.g. for :populator.
       def property(name, options={}, &block)
-        puts "@@@@@ original property:#{name}> #{options.inspect}"
         if options.delete(:virtual)
           options[:writeable] = options[:readable] = false # DISCUSS: isn't that like an #option in Twin?
         end
 
         definition = super # let representable sort out inheriting of properties, and so on.
+        definition.merge!(deserializer: {}) unless definition[:deserializer] # always keep :deserializer per property.
 
 
-
-
-        options[:deserializer] ||= {} # TODO: test ||=.
+        deserializer_options = definition[:deserializer]
 
         # TODO: make this pluggable.
         # DISCUSS: Populators should be a representable concept?
@@ -37,33 +35,26 @@ module Reform
 
 
         if populator = options.delete(:populate_if_empty)
-          options[:deserializer].merge!({instance: Populator::IfEmpty.new(populator)})
-          options[:deserializer].merge!({setter: nil})
+          deserializer_options.merge!({instance: Populator::IfEmpty.new(populator)})
+          deserializer_options.merge!({setter: nil})
         elsif populator = options.delete(:populator)
-          options[:deserializer].merge!({instance: Populator.new(populator)})
-          options[:deserializer].merge!({setter: nil}) #if options[:collection] # collections don't need to get re-assigned, they don't change.
+          deserializer_options.merge!({instance: Populator.new(populator)})
+          deserializer_options.merge!({setter: nil}) #if options[:collection] # collections don't need to get re-assigned, they don't change.
         end
 
 
         # TODO: shouldn't that go into validate?
         if proc = options.delete(:skip_if)
           proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
-          options[:deserializer].merge!(skip_parse: proc)
+          deserializer_options.merge!(skip_parse: proc)
         end
-
 
         # default:
+        # add Sync populator to nested forms.
         # FIXME: this is, of course, ridiculous and needs a better structuring.
-        if (options[:deserializer] == {} || options[:deserializer].keys == [:skip_parse]) && block_given? # FIXME: hmm. not a fan of this: only add when no other option given?
-          options[:deserializer].merge!({instance: Populator::Sync.new(nil), setter: nil})
+        if (deserializer_options == {} || deserializer_options.keys == [:skip_parse]) && block_given? && !options[:inherit] # FIXME: hmm. not a fan of this: only add when no other option given?
+          deserializer_options.merge!({instance: Populator::Sync.new(nil), setter: nil})
         end
-
-
-
-
-        definition.merge!(options)
-
-        puts "[#{definition.object_id}] @@@definition after setup:#{name}@@ #{definition.inspect}"
 
         definition
       end
