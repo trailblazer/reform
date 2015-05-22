@@ -83,7 +83,7 @@ module Reform
     include Readonly
 
 
-    def self.clone # TODO: test.
+    def self.clone # TODO: test. THIS IS ONLY FOR Trailblazer when contract gets cloned in suboperation.
       Class.new(self)
     end
   end
