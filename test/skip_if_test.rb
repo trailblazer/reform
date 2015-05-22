@@ -10,9 +10,12 @@ class SkipIfTest < BaseTest
       validates :title, presence: true
     end
 
-    collection :songs, skip_if: lambda { |fragment, *| fragment["title"].nil? },
-      populate_if_empty: BaseTest::Song do
+    collection :songs, skip_if: :skip_song?, populate_if_empty: BaseTest::Song do
       property :title
+    end
+
+    def skip_song?(fragment, options)
+      fragment["title"].nil?
     end
   end
 
