@@ -2,10 +2,9 @@ require 'test_helper'
 require 'representable/json'
 
 class InheritTest < BaseTest
-  puts
-  puts
   class AlbumForm < Reform::Form
-    property :title, deserializer: {instance: "Instance"} # allow direct configuration of :deserializer.
+    property :title, deserializer: {instance: "Instance"}, skip_if: "skip_if in AlbumForm" # allow direct configuration of :deserializer.
+    # puts "[#{options_for(:title)[:deserializer].object_id}] ALB@@@@@ #{options_for(:title)[:deserializer].inspect}"
 
     property :hit, populator: "Populator" do
       property :title
@@ -17,6 +16,9 @@ class InheritTest < BaseTest
 
     property :artist, populate_if_empty: lambda {} do
 
+      def artist_id
+        1
+      end
     end
   end
 
@@ -24,7 +26,8 @@ class InheritTest < BaseTest
   puts "inherit"
 
   class CompilationForm < AlbumForm
-
+    property :title, inherit: true, skip_if: "skip_if from CompilationForm"
+    puts "[#{options_for(:title)[:deserializer].object_id}] COM@@@@@ #{options_for(:title)[:deserializer].inspect}"
     # property :hit, :inherit => true do
     #   property :rating
     #   validates :title, :rating, :presence => true
@@ -68,8 +71,13 @@ class InheritTest < BaseTest
 require "pp"
 
   it "xxx" do
+    # sub hashes like :deserializer must be properly cloned when inheriting.
+    AlbumForm.options_for(:title)[:deserializer].object_id.wont_equal CompilationForm.options_for(:title)[:deserializer].object_id
+
     # don't overwrite direct deserializer: {} configuration.
     AlbumForm.options_for(:title)[:deserializer][:instance].must_equal "Instance"
+    AlbumForm.options_for(:title)[:deserializer][:skip_parse].must_equal "skip_if in AlbumForm"
+
     AlbumForm.options_for(:hit)[:deserializer][:instance].inspect.must_match /Reform::Form::Populator:.+ @user_proc="Populator"/
     # AlbumForm.options_for(:hit)[:deserializer][:instance].inspect.must_be_instance_with Reform::Form::Populator, user_proc: "Populator"
 
@@ -80,6 +88,8 @@ require "pp"
     AlbumForm.options_for(:artist)[:deserializer][:instance].must_be_instance_of Reform::Form::Populator::IfEmpty
 
 
+
+    CompilationForm.options_for(:title)[:deserializer][:skip_parse].must_equal "skip_if from CompilationForm"
     # pp CompilationForm.options_for(:songs)
     CompilationForm.options_for(:songs)[:deserializer][:instance].must_be_instance_of Reform::Form::Populator::IfEmpty
 
@@ -88,6 +98,11 @@ require "pp"
     # completely overwrite inherited.
     CompilationForm.options_for(:hit)[:deserializer][:instance].must_be_instance_of Reform::Form::Populator::Sync # reset to default.
     CompilationForm.options_for(:hit)[:deserializer][:skip_parse].must_equal "SkipParse"
+
+
+    # inherit: true with block will still inherit the original class.
+    AlbumForm.new(OpenStruct.new(artist: OpenStruct.new)).artist.artist_id.must_equal 1
+    CompilationForm.new(OpenStruct.new(artist: OpenStruct.new)).artist.artist_id.must_equal 1
   end
 end
 
