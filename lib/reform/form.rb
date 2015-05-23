@@ -18,8 +18,12 @@ module Reform
           options[:writeable] = options[:readable] = false # DISCUSS: isn't that like an #option in Twin?
         end
 
+        if deserializer = options[:deserializer] # this means someone is explicitly specifying :deserializer.
+          options[:deserializer] = Representable::Cloneable::Hash[deserializer]
+        end
+
         definition = super # let representable sort out inheriting of properties, and so on.
-        definition.merge!(deserializer: {}) unless definition[:deserializer] # always keep :deserializer per property.
+        definition.merge!(deserializer: Representable::Cloneable::Hash.new) unless definition[:deserializer] # always keep :deserializer per property.
 
 
         deserializer_options = definition[:deserializer]
