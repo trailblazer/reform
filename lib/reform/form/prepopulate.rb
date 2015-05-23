@@ -2,9 +2,9 @@
 # prepopulator: ->(model, user_options)
 module Reform::Form::Prepopulate
   def prepopulate!(options={})
-    prepopulator_representer.new(self).to_object(options)
+    prepopulator_representer.new(self).to_object(options) # call #prepopulate! on local properties.
 
-    recursive_prepopulator_representer.new(self).to_object(options) # call #prepopulate! on nested forms.
+    recursive_prepopulator_representer.new(self).to_object(options) # THEN call #prepopulate! on nested forms.
     self
   end
 
@@ -32,6 +32,8 @@ private
   class Prepopulator < Reform::Form::Populator
   private
     def call!(form, fragment, model, options)
+      return @value.evaluate(form, options)
+
       # FIXME: use U:::Value.
       form.instance_exec(options, &@user_proc) # pass user_options, we got access to everything.
     end

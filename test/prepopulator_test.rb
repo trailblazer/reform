@@ -20,13 +20,17 @@ class PrepopulatorTest < MiniTest::Spec
       end
     end
 
-    collection :songs, prepopulator: ->(options) {
+    collection :songs, prepopulator: :prepopulate_songs! do
+        property :title
+    end
+
+  private
+    def prepopulate_songs!(options)
       if songs == nil
         self.songs = [Song.new, Song.new]
       else
         songs << Song.new # full Twin::Collection API available.
-      end  } do
-        property :title
+      end
     end
   end
 
