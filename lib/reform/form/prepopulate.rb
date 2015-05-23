@@ -32,10 +32,7 @@ private
   class Prepopulator < Reform::Form::Populator
   private
     def call!(form, fragment, model, options)
-      return @value.evaluate(form, options)
-
-      # FIXME: use U:::Value.
-      form.instance_exec(options, &@user_proc) # pass user_options, we got access to everything.
+      @value.evaluate(form, options)
     end
 
     def handle_fail(twin, options)
