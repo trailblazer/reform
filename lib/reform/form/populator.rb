@@ -62,7 +62,7 @@ private
 
   private
     def run!(form, fragment, options)
-      return @user_proc.new if @user_proc.is_a?(Class) # ok, :populate_if_empty does not allow Callable, but everything else.
+      return @user_proc.new if @user_proc.is_a?(Class) # handle populate_if_empty: Class. this excludes using Callables, though.
 
       @value.evaluate(form, fragment, options.user_options)
     end

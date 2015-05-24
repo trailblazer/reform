@@ -104,7 +104,6 @@ class PopulateIfEmptyTest < MiniTest::Spec
 
   class AlbumForm < Reform::Form
     property :name
-    validates :name, presence: true
 
     collection :songs,
       populate_if_empty: Song do                                                # class name works.
@@ -112,16 +111,22 @@ class PopulateIfEmptyTest < MiniTest::Spec
       property :title
       validates :title, presence: true
 
-      property :composer, populate_if_empty: lambda { |*| Artist.new } do       # lambda works, too.
+      property :composer, populate_if_empty: :populate_composer! do # lambda works, too. in form context.
         property :name
         validates :name, presence: true
       end
+
+    private
+      def populate_composer!(fragment, options)
+        Artist.new
+      end
     end
 
-    property :artist, populate_if_empty: lambda { |*args| create_artist(args) } do # and lambdas are executed in form instance context.
+    property :artist, populate_if_empty: lambda { |*args| create_artist(args) } do # methods work, too.
       property :name
     end
 
+  private
     class Sting < Artist
       attr_accessor :args
     end
