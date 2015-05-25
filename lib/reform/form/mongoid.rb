@@ -18,8 +18,22 @@ module Reform::Form::Mongoid
     end
   end
 
-  class UniquenessValidator < ::Mongoid::Validatable::UniquenessValidator
+
+  def self.mongoid_namespace
+    if mongoid_is_4_or_more?
+      'Validatable'
+    else
+      'Validations'
+    end
+  end
+
+  def self.mongoid_is_4_or_more?
+    Mongoid::VERSION.split('.').first >= '4'
+  end
+
+  UniquenessValidator = Class.new("::Mongoid::#{mongoid_namespace}::UniquenessValidator".constantize) do
     include Reform::Form::ORM::UniquenessValidator
   end
+
 
 end
