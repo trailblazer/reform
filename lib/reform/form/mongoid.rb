@@ -28,7 +28,7 @@ module Reform::Form::Mongoid
   end
 
   def self.mongoid_is_4_or_more?
-    Mongoid::VERSION.split('.').first >= '4'
+    Mongoid::VERSION.split('.').first.to_i >= 4
   end
 
   UniquenessValidator = Class.new("::Mongoid::#{mongoid_namespace}::UniquenessValidator".constantize) do
