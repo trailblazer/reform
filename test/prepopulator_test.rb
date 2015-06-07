@@ -8,10 +8,10 @@ class PrepopulatorTest < MiniTest::Spec
     property :title, prepopulator: ->(*){ self.title = "Another Day At Work" }                  # normal assignment.
     property :length
 
-    property :hit, prepopulator: ->(options) { self.hit = Song.new(options.user_options[:title]) } do # use user options.
+    property :hit, prepopulator: ->(options) { self.hit = Song.new(options[:title]) } do # use user options.
       property :title
 
-      property :band, prepopulator: ->(options){ self.band = my_band(options.user_options[:title]) } do                             # invoke your own code.
+      property :band, prepopulator: ->(options){ self.band = my_band(options[:title]) } do                             # invoke your own code.
         property :name
       end
 

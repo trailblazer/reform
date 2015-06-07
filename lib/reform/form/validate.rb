@@ -42,9 +42,11 @@ private
 
     # NOTE: it is completely up to the form user how they want to deserialize (e.g. using an external JSON-API representer).
 
-    deserializer = Disposable::Twin::Schema.from(self.class.representer_class,
+    deserializer = Disposable::Twin::Schema.from(self.class,
+        representer_from: ->(decorator)  { decorator.representer_class },
         :include    => [Representable::Hash::AllowSymbols, Representable::Hash, Representable::Coercion], # FIXME: how do we get this info?
-        :superclass => Representable::Decorator)
+        :superclass => Representable::Decorator,
+        :options_from => :deserializer)
 
     deserializer.representable_attrs.each do |dfn|
       next unless dfn[:_inline] # FIXME: we have to standardize that!

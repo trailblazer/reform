@@ -1,6 +1,6 @@
 module Reform
   class Form < Contract
-    twin_representer_class.instance_eval do
+    representer_class.instance_eval do
       def default_inline_class
         Form
       end
@@ -50,15 +50,19 @@ module Reform
         # TODO: shouldn't that go into validate?
         if proc = options.delete(:skip_if)
           proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
+
           deserializer_options.merge!(skip_parse: proc)
+          puts "@@@@@!!!! #{deserializer_options.inspect}"
         end
 
         # default:
         # add Sync populator to nested forms.
         # FIXME: this is, of course, ridiculous and needs a better structuring.
         if (deserializer_options == {} || deserializer_options.keys == [:skip_parse]) && block_given? && !options[:inherit] # FIXME: hmm. not a fan of this: only add when no other option given?
-          deserializer_options.merge!({instance: Populator::Sync.new(nil), setter: nil})
+          deserializer_options.merge!(instance: Populator::Sync.new(nil), setter: nil)
         end
+
+        deserializer_options.merge!(writeable: true)
 
         definition
       end

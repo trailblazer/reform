@@ -25,8 +25,10 @@ module Reform::Form::ActiveModel
     # Modify the incoming Rails params hash to be representable compliant.
     def deserialize!(params)
       # this only happens in a Hash environment. other engines have to overwrite this method.
+      schema.each do |dfn|
+        rename_nested_param_for!(params, dfn)
+      end
 
-      self.class.representer { |dfn| rename_nested_param_for!(params, dfn) }
       super
     end
 
