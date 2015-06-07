@@ -16,18 +16,6 @@ module Reform::Form::Validate
   end
 
 
-  class Changed
-    def call(fragment, params, options)
-      # options is a Representable::Options object holding all the stakeholders. this is here becaues of pass_options: true.
-      form = options.represented
-      name = options.binding.name
-
-      form.changed[name] = form.send(name) != fragment
-
-      fragment
-    end
-  end
-
   # 1. Populate the form object graph so that each incoming object has a representative form object.
   # 2. Deserialize. This is wrong and should be done in 1.
   # 3. Validate the form object graph.
@@ -54,7 +42,7 @@ private
 
     # NOTE: it is completely up to the form user how they want to deserialize (e.g. using an external JSON-API representer).
 
-    deserializer = Disposable::Twin::Schema.from(self.class.twin_representer_class,
+    deserializer = Disposable::Twin::Schema.from(self.class.representer_class,
         :include    => [Representable::Hash::AllowSymbols, Representable::Hash, Representable::Coercion], # FIXME: how do we get this info?
         :superclass => Representable::Decorator)
 
