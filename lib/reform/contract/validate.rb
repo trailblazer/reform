@@ -12,8 +12,7 @@ module Reform::Contract::Validate
   def validate!(options)
     prefix = options[:prefix]
 
-    # call valid? recursively and collect nested errors.
-    valid_representer.new(self).to_object(options) # TODO: only include nested forms here.
+    validate_nested!(options) # call valid? recursively and collect nested errors.
 
     valid?  # this validates on <Fields> using AM::Validations, currently.
 
@@ -23,18 +22,15 @@ module Reform::Contract::Validate
 private
 
   # runs form.validate! on all nested forms
-  def valid_representer
-    self.class.representer(:valid, :superclass => self.class.object_representer_class) do |dfn|
-      dfn.merge!(
-        :representable => true, # :extend is not set, but :twin is.
-        :serialize => lambda { |form, args|
-          options = args.user_options.dup
-          options[:prefix] = options[:prefix].dup # TODO: implement Options#dup.
-          options[:prefix] << args.binding.name # FIXME: should be #as.
+  def validate_nested!(options)
+    schema.each(twin: true) do |dfn|
+      property_options = options.dup
 
-          form.validate!(options) # recursively call valid? on nested form.
-        }
-      )
+      property_options[:prefix] = options[:prefix].dup # TODO: implement Options#dup.
+      property_options[:prefix] << dfn.name
+
+      # recursively call valid? on nested form.
+      Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form| form.validate!(property_options) }
     end
   end
 end

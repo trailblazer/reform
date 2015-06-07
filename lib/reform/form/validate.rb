@@ -45,7 +45,7 @@ private
     deserializer = Disposable::Twin::Schema.from(self.class,
         include:    [Representable::Hash::AllowSymbols, Representable::Hash, Representable::Coercion], # FIXME: how do we get this info?
         superclass: Representable::Decorator,
-        representer_from: lambda { |inline| inline.twin_representer_class },
+        representer_from: lambda { |inline| inline.representer_class },
         options_from: :deserializer
         )
 

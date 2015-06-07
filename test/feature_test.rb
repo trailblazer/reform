@@ -11,7 +11,7 @@ class FeatureInheritanceTest < BaseTest
     end
 
     def self.included(base)
-      base.object_representer_class.representable_attrs.features << self # TODO: register_feature
+      base.representer_class.representable_attrs.features << self # TODO: register_feature
     end
   end
 

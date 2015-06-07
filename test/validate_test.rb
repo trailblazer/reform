@@ -154,6 +154,7 @@ class ValidateWithDeserializerOptionTest < MiniTest::Spec
 
     property :artist, deserializer: { instance: lambda { |fragment, options| (item = options.binding.get) ? item : Artist.new } } do
       property :name
+      validates :name, presence: true
     end
   end
 
@@ -196,10 +197,10 @@ class ValidateWithDeserializerOptionTest < MiniTest::Spec
     form.validate(
       "name"   => "",
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => ""}}],
-      "artist" => {"name" => "The Police"},
+      "artist" => {"name" => ""},
     ).must_equal false
 
-    form.errors.messages.inspect.must_equal "{:\"songs.composer.name\"=>[\"can't be blank\"], :name=>[\"can't be blank\"]}"
+    form.errors.messages.inspect.must_equal "{:\"songs.composer.name\"=>[\"can't be blank\"], :\"artist.name\"=>[\"can't be blank\"], :name=>[\"can't be blank\"]}"
   end
 
   # adding to collection via :instance.

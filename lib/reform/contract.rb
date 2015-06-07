@@ -10,7 +10,7 @@ module Reform
     feature Setup
     extend Uber::Delegates
 
-    twin_representer_class.instance_eval do
+    representer_class.instance_eval do
       def default_inline_class
         Contract
       end
@@ -71,14 +71,14 @@ module Reform
     # DISCUSS: separate file?
     module Readonly
       def readonly?(name)
-        options_for(name)[:_writeable] == false
+        options_for(name)[:writeable] == false
       end
       def options_for(name)
        self.class.options_for(name)
       end
     end
     def self.options_for(name)
-      twin_representer_class.representable_attrs.get(name)
+      representer_class.representable_attrs.get(name)
     end
     include Readonly
 
