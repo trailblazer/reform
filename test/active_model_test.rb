@@ -1,5 +1,20 @@
 require 'test_helper'
 
+module IsolatedRailsEngine
+  def self.use_relative_model_naming?
+    true
+  end
+
+  class Lyric < ActiveRecord::Base
+  end
+end
+
+module NormalRailsEngine
+  class Lyric < ActiveRecord::Base
+  end
+end
+
+
 class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
   class SongForm < Reform::Form
     include Reform::Form::ActiveModel

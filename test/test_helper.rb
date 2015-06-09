@@ -20,19 +20,6 @@ class Album < ActiveRecord::Base
   has_many :songs
 end
 
-module IsolatedRailsEngine
-  def self.use_relative_model_naming?
-    true
-  end
-
-  class Lyric < ActiveRecord::Base
-  end
-end
-
-module NormalRailsEngine
-  class Lyric < ActiveRecord::Base
-  end
-end
 
 ActiveRecord::Base.establish_connection(
   :adapter => "sqlite3",
