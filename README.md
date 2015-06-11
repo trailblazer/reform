@@ -67,7 +67,7 @@ class SongForm < Reform::Form
 end
 ```
 
-After explicitely defining your fields, you're ready to use the form.
+After explicitly defining your fields, you're ready to use the form.
 
 ## The API
 
@@ -179,7 +179,7 @@ Sometimes, you need to do stuff manually.
 
 ## Saving Forms Manually
 
-Calling `#save` with a block doesn't do anything but providing you a nested hash with all the validated input. This allows you to implement the saving yourself.
+Calling `#save` with a block doesn't do anything but provide you with a nested hash with all the validated input. This allows you to implement the saving yourself.
 
 The block parameter is a nested hash of the form input.
 
@@ -516,7 +516,7 @@ After you configured your composition in the form, reform hides the fact that yo
 
 When using `#save' without a block reform will use writer methods on the different objects to push validated data to the properties.
 
-Here's how the block parameters look like.
+Here's what the block parameters look like.
 
 ```ruby
 @form.save do |nested|
