@@ -103,6 +103,28 @@ class SaveTest < BaseTest
     it { label.saved?.must_equal nil }
   end
 
+  describe "virtual: true" do
+    Reform::Form.reform_2_0!
+
+    let(:form) do
+      Class.new(Reform::Form) do
+        property :some_unexisted_attribute, virtual: true
+
+        # Unexpectedly adding "writealbe: false" helps (despite the reform_2_0!)
+        # property :some_unexisted_attribute, virtual: true, writeable: false
+      end
+    end
+    let(:params) { { some_unexisted_attribute: 42} }
+
+    subject { form.new(hit) }
+
+    it "does not assign virtual attributes" do
+      subject.validate(params)
+      subject.save do |attributes|
+        assert_equal(attributes, {})
+      end
+    end
+  end
 
   # #save returns result (this goes into disposable soon).
   it { subject.save.must_equal true }
