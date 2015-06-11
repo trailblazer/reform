@@ -26,6 +26,10 @@ module Reform
 
     RESERVED_METHODS = [:model, :aliased_model, :fields, :mapper] # TODO: refactor that so we don't need that.
 
+    # This method is used so a form builder (specifically Formtastic) can infer the input fields
+    def form_object_fields
+      fields.to_h.keys
+    end
 
     module PropertyMethods
       def property(name, options={}, &block)
