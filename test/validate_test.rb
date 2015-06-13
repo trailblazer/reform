@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'action_controller'
 
 class ValidateTest < BaseTest
   describe "populated" do
@@ -234,7 +235,32 @@ class ValidateTest < BaseTest
     it { subject.hit.title.must_equal "Roxanne" }
   end
 
+  describe 'collection :empty => true' do
+    let (:album) { Album.new }
+    let (:params) do
+      hash = { "transient_labels_attributes"=>{"0"=>{"name"=>"name #1"},
+                                       "1"=>{"name"=>"name #2"}}}
+      ActionController::Parameters.new(hash)
+    end
 
+    subject { Class.new(Reform::Form) do
+      include Reform::Form::ActiveModel
+      include Reform::Form::ActiveModel::FormBuilderMethods
+
+      model :album
+
+      collection :transient_labels, :empty => true, :populator => lambda { |fragment, i, args|
+        args.binding[:form].new(Label.new(fragment[:name]))
+      } do
+        property :name
+      end
+    end.new(album) }
+
+    it "works" do
+      subject.validate(params)
+      subject.transient_labels.wont_be_nil
+    end
+  end
 
   # test cardinalities.
   describe "with empty collection and cardinality" do
