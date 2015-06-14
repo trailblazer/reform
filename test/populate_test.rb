@@ -183,3 +183,44 @@ class PopulateIfEmptyTest < MiniTest::Spec
   end
 
 end
+
+
+# delete songs while deserializing.
+class PopulateIfEmptyWithDeletionTest < MiniTest::Spec
+  Song  = Struct.new(:title, :album, :composer)
+  Album = Struct.new(:name, :songs, :artist)
+
+  let (:song)  { Song.new("Broken") }
+  let (:song2) { Song.new("Resist Stance") }
+  let (:album) { Album.new("The Dissent Of Man", [song, song2]) }
+
+
+  class AlbumForm < Reform::Form
+    property :name
+
+    collection :songs,
+      populate_if_empty: Song, skip_if: :delete_song! do
+
+      property :title
+      validates :title, presence: true
+    end
+
+    def delete_song!(fragment, *)
+      songs.delete(songs[0]) and return true if fragment["title"] == "Broken, delete me!"
+      false
+    end
+  end
+
+  let (:form) { AlbumForm.new(album) }
+
+  it do
+    form.validate(
+      "songs"  => [{"title" => "Broken, delete me!"}, {"title" => "Roxanne"}]
+    ).must_equal true
+
+    form.errors.messages.inspect.must_equal "{}"
+
+    form.songs.size.must_equal 1
+    form.songs[0].title.must_equal "Roxanne"
+  end
+end

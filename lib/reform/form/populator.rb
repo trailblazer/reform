@@ -50,7 +50,7 @@ private
 
       if options.binding.array? # FIXME: ifs suck.
         index = args.first
-        item = twin[index] and return item
+        item = twin.original[index] and return item
 
         twin.insert(index, run!(form, fragment, options)) # form.songs.insert(Song.new)
       else
