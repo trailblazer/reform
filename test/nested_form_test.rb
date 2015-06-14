@@ -182,6 +182,49 @@ class NestedFormTest < MiniTest::Spec
     }
   end
 
+
+  class NestedFormWithCompositionTest < MiniTest::Spec
+    class InvitationForm < Reform::Form
+      include Composition
+      model :invitation
+      property :relationship, on: :invitation
+      property :name,         on: :recipient
+      property :email,        on: :recipient
+      validates_presence_of :relationship, :name, :email
+    end
+
+    # We have a form where we want to create/send multiple invitations at once
+    class InvitationsForm < Reform::Form
+      collection :invitations, form: InvitationForm
+    end
+
+    let(:recipient )  { OpenStruct.new }
+    let(:invitation)  { OpenStruct.new(recipient: OpenStruct.new) }
+    let(:invitations) { OpenStruct.new(invitations: [invitation]) }
+    let(:form) { InvitationsForm.new(invitations) }
+
+    it 'using InvitationForm directly works' do
+      form = InvitationForm.new(invitation: invitation, recipient: recipient)
+      form.validate({relationship: 'daughter', name: 'Daughter', email: 'daughter@name.com'}.with_indifferent_access).must_equal true
+      form.errors.messages.must_equal({})
+      form.save # sync to mapped objects
+      invitation.relationship.must_equal 'daughter'
+      recipient.name.must_equal 'Daughter'
+      recipient.email.must_equal 'daughter@name.com'
+    end
+
+    it 'but how do we get it to work through InvitationsForm??' do
+      # Fails with: relationship delegated to invitation.relationship, but invitation is nil
+      # How do we get invitation to *not* be nil?
+      form = InvitationsForm.new(invitations)
+      form.validate({invitations: [
+        {relationship: 'daughter', name: 'Daughter', email: 'daughter@name.com'}
+      ]}.with_indifferent_access).must_equal true
+      # …
+    end
+  end
+
+
   class UnitTest < self
     it "keeps Forms for form collection" do
       form.send(:fields).songs.must_be_kind_of Array
