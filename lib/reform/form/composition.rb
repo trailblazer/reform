@@ -50,6 +50,10 @@ module Reform::Form::Composition
     mapper.new(fields).to_hash(*args) # do not map names, yet. this happens in #to_nested_hash
   end
 
+  def to_model
+    self
+  end
+
 private
   def aliased_model # we don't need an Expose as we save the Composition instance in the constructor.
     model

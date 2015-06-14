@@ -54,8 +54,11 @@ module Reform::Form::ActiveModel
 
       delegates :model, *[:persisted?, :to_key, :to_param, :id] # Uber::Delegates
 
-      def to_model # this is called somewhere in FormBuilder and ActionController.
-        self
+      unless method_defined?(:to_model)
+        def to_model # this is called somewhere in FormBuilder and ActionController.
+          # For namespaced forms (PersonForm::Special), we need to return the model name.
+          model
+        end
       end
     end
   end
