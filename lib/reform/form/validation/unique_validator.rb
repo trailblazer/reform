@@ -1,14 +1,13 @@
 class Reform::Form::UniqueValidator < ActiveModel::EachValidator
   def validate_each(form, attribute, value)
-    if form.model.persisted?
-      if form.model.class.where("#{attribute} = ? AND id <> ?", value, form.model.id).size > 0
-        form.errors.add attribute, "#{attribute} must be unique."
-      end
-    else
-      if form.model.class.where("#{attribute} = ?", value).size > 0
-        form.errors.add attribute, "#{attribute} must be unique."
-      end
-    end
+    # search for models with attribute equals to form field value
+    query = form.model.class.where(attribute => value)
+
+    # if model persisted, excluded own model from query
+    query = query.merge(form.model.class.where("id <> ?", form.model.id)) if form.model.persisted?
+
+    # if any models found, add error on attribute
+    form.errors.add(attribute, "#{attribute} must be unique.") if query.any?
   end
 end
 
