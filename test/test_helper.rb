@@ -20,7 +20,6 @@ class Album < ActiveRecord::Base
   has_many :songs
 end
 
-
 ActiveRecord::Base.establish_connection(
   :adapter => "sqlite3",
   :database => "#{Dir.pwd}/database.sqlite3"
