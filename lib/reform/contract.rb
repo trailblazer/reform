@@ -7,6 +7,9 @@ module Reform
   require "disposable/twin"
   require "disposable/twin/setup"
   class Contract < Disposable::Twin
+    require "disposable/twin/composition" # Expose.
+    include Expose
+
     feature Setup
     extend Uber::Delegates
 
