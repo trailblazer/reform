@@ -52,7 +52,6 @@ module Reform
           proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
 
           deserializer_options.merge!(skip_parse: proc)
-          puts "@@@@@!!!! #{deserializer_options.inspect}"
         end
 
         # default:
@@ -62,7 +61,8 @@ module Reform
           deserializer_options.merge!(instance: Populator::Sync.new(nil), setter: nil)
         end
 
-        deserializer_options.merge!(writeable: true)
+        # per default, everything should be writeable for the deserializer (we're only writing on the form). however, allow turning it off.
+        deserializer_options.merge!(writeable: true) unless deserializer_options.has_key?(:writeable)
 
         definition
       end

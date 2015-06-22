@@ -231,6 +231,21 @@ class ValidateWithDeserializerOptionTest < MiniTest::Spec
     album.songs.size.must_equal 2
     album.artist.name.must_equal "Bad Religion"
   end
+
+
+  # allow writeable: false even in the deserializer.
+  class SongForm < Reform::Form
+    property :title, deserializer: {writeable: false}
+  end
+
+  it do
+    form = SongForm.new(song = Song.new)
+    form.validate("title" => "Ignore me!")
+    form.title.must_equal nil
+    form.title = "Unopened"
+    form.sync # only the deserializer is marked as not-writeable.
+    song.title.must_equal "Unopened"
+  end
 end
 
 
