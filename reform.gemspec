@@ -1,4 +1,3 @@
-# coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'reform/version'
@@ -8,8 +7,8 @@ Gem::Specification.new do |spec|
   spec.version       = Reform::VERSION
   spec.authors       = ["Nick Sutterer", "Garrett Heinlen"]
   spec.email         = ["apotonick@gmail.com", "heinleng@gmail.com"]
-  spec.description   = %q{Freeing your AR models from form logic.}
-  spec.summary       = %q{Decouples your models from form by giving you form objects with validation, presentation, workflows and security.}
+  spec.description   = %q{Form object decoupled from models.}
+  spec.summary       = %q{Form object decoupled from models with validation, population and presentation.}
   spec.homepage      = "https://github.com/apotonick/reform"
   spec.license       = "MIT"
 
@@ -19,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency             "representable",  ">= 2.2.2"
-  spec.add_dependency             "disposable",     "~> 0.0.8"
+  spec.add_dependency             "disposable",     "~> 0.1.0"
   spec.add_dependency             "uber",           "~> 0.0.11"
   spec.add_dependency             "activemodel"
 
