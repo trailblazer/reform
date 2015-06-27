@@ -59,7 +59,7 @@ This will also work as an editing form with an existing album.
 
 ```ruby
 def edit
-  @form = SongForm.new(Song.find(1))
+  @form = AlbumForm.new(Album.find(1))
 end
 ```
 
@@ -129,7 +129,6 @@ The block parameter is a nested hash of the form input.
 ```ruby
   @form.save do |hash|
     hash      #=> {title: "Greatest Hits"}
-
     Album.create(hash)
   end
 ```

@@ -77,6 +77,7 @@ module Reform
 
     require "disposable/twin/sync"
     feature Disposable::Twin::Sync
+    feature Disposable::Twin::Sync::SkipGetter
 
     require "disposable/twin/save"
     feature Disposable::Twin::Save

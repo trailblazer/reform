@@ -11,6 +11,8 @@ module Reform
     include Expose
 
     feature Setup
+    feature Setup::SkipSetter
+
     extend Uber::Delegates
 
     representer_class.instance_eval do
