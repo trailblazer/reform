@@ -1,73 +1,34 @@
 # Reform
 
-Decouple your models from forms. Reform gives you a form object with validations and nested setup of models. It is completely framework-agnostic and doesn't care about your database.
+_Form objects decoupled from your models._
+
+Reform gives you a form object with validations and nested setup of models. It is completely framework-agnostic and doesn't care about your database.
 
 Although reform can be used in any Ruby framework, it comes with [Rails support](#rails-integration), works with [simple_form and other form gems](#formbuilder-support), allows nesting forms to implement [has_one](#nesting-forms-1-1-relations) and [has_many](#nesting-forms-1-n-relations) relationships, can [compose a form](#compositions) from multiple objects and gives you [coercion](#coercion).
 
-<a href="https://leanpub.com/trailblazer">
-![](https://raw.githubusercontent.com/apotonick/trailblazer/master/doc/trb.jpg)
-</a>
+## This is not Reform 1.x!
 
-Reform is part of the [Trailblazer project](https://github.com/apotonick/trailblazer). Please [buy my book](https://leanpub.com/trailblazer) to support the development and learn everything about Reform. Currently the book discusses:
-
-* Form objects, the DSL and basic API (chapter 2 and 3)
-* Basic validations and rendering forms (chapter 3)
-* Nested forms, prepopulating and validation populating and pre-selecting values (chapter 5)
-
-More chapters are coming!
+Temporary note: This is the README and API for Reform 2. On the public API, only a few tiny things have changed. When in trouble, join us on the IRC (Freenode) #trailblazer channel.
 
 
-## Installation
+## Disposable
 
-Add this line to your Gemfile:
-
-```ruby
-gem 'reform'
-```
-
-## Nomenclature
-
-Reform comes with two base classes.
-
-* `Form` is what made you come here - it gives you a form class to handle all validations, wrap models, allow rendering with Rails form helpers, simplifies saving of models, and more.
-* `Contract` gives you a sub-set of `Form`: [this class](#contracts) is meant for API validation where already populated models get validated without having to maintain validations in the model classes.
+Every form in Reform is a _twin_. Twins are non-persistent domain objects from the [Disposable gem](https://github.com/apotonick/disposable). All features of Disposable, like renaming fields, change tracking, etc. are available in Reform, too.
 
 
 ## Defining Forms
 
-You're working at a famous record label and your job is archiving all the songs, albums and artists. You start with a form to populate your `songs` table.
+Forms are defined in separate classes. Often, these classes partially map to a model.
 
 ```ruby
-class SongForm < Reform::Form
+class AlbumForm < Reform::Form
   property :title
-  property :length
-
   validates :title, presence: true
-  validates :length, numericality: true
 end
 ```
 
-Define your form's fields using `::property`. Validations no longer go into the model, but into the form.
+Fields are declared using `::property`. Validations work exactly as you know it from Rails or other frameworks. Note that validations no longer got into the model.
 
-Luckily, this can be shortened as follows.
-
-```ruby
-class SongForm < Reform::Form
-  property :title, validates: {presence: true}
-  property :length, validates: {numericality: true}
-end
-```
-
-Use `properties` to bulk-specify fields.
-
-```ruby
-class SongForm < Reform::Form
-  properties :title, :length, validates: {presence: true} # both required!
-  validates :length, numericality: true
-end
-```
-
-After explicitly defining your fields, you're ready to use the form.
 
 ## The API
 
@@ -75,50 +36,34 @@ Forms have a ridiculously simple API with only a handful of public methods.
 
 1. `#initialize` always requires a model that the form represents.
 2. `#validate(params)` updates the form's fields with the input data (only the form, _not_ the model) and then runs all validations. The return value is the boolean result of the validations.
-3. `#errors` returns validation messages in a classy ActiveModel style.
+3. `#errors` returns validation messages in a classic ActiveModel style.
 4. `#sync` writes form data back to the model. This will only use setter methods on the model(s).
 5. `#save` (optional) will call `#save` on the model and nested models. Note that this implies a `#sync` call.
+6. `#present!` (optional) will run pre-population hooks to "fill out" your form before rendering.
 
 In addition to the main API, forms expose accessors to the defined properties. This is used for rendering or manual operations.
 
 
 ## Setup
 
-In your controller you'd create a form instance and pass in the models you want to work on.
+In your controller or operation you create a form instance and pass in the models you want to work on.
 
 ```ruby
-class SongsController
+class AlbumsController
   def new
-    @form = SongForm.new(Song.new)
+    @form = AlbumForm.new(Album.new)
   end
 ```
 
-You can also setup the form for editing existing items.
+This will also work as an editing form with an existing album.
 
 ```ruby
-class SongsController
-  def edit
-    @form = SongForm.new(Song.find(1))
-  end
+def edit
+  @form = SongForm.new(Song.find(1))
+end
 ```
 
-Reform will read property values from the model in setup. Given the following form class.
-
-```ruby
-class SongForm < Reform::Form
-  property :title
-```
-
-Internally, this form will call `song.title` to populate the title field.
-
-If you, for whatever reasons, want to use a different public name, use `:from`.
-
-```ruby
-class SongForm < Reform::Form
-  property :name, from: :title
-```
-
-This will still call `song.title` but expose the attribute as `name`.
+Reform will read property values from the model in setup. In our example, the `AlbumForm` will call `album.title` to populate the `title` field.
 
 ## Rendering Forms
 
@@ -126,18 +71,17 @@ Your `@form` is now ready to be rendered, either do it yourself or use something
 
 ```haml
 = form_for @form do |f|
-
-  = f.input :name
   = f.input :title
 ```
 
-Nested forms and collections can be easily rendered with `fields_for`, etc. Just use Reform as if it would be an ActiveModel instance in the view layer.
+Nested forms and collections can be easily rendered with `fields_for`, etc. Note that you no longer pass the model to the form builder, but the Reform instance.
 
-Note that you have a mechanism to [prepopulate forms](#prepopulating-forms) for rendering.
+Optionally, you might want to use the [#present!](#present) method to pre-populate fields and prepare the form for rendering.
+
 
 ## Validation
 
-After a form submission, you want to validate the input.
+After form submission, you need to validate the input.
 
 ```ruby
 class SongsController
@@ -168,14 +112,13 @@ It's then up to you what to do with the updated models - they're still unsaved.
 The easiest way to save the data is to call `#save` on the form.
 
 ```ruby
-    @form.save  #=> populates song with incoming data
-                #   by calling @form.song.title= and @form.song.length=.
+    @form.save  #=> populates album with incoming data
+                #   by calling @form.album.title=.
 ```
 
-This will sync the data to the model and then call `song.save`.
+This will sync the data to the model and then call `album.save`.
 
-Sometimes, you need to do stuff manually.
-
+Sometimes, you need to do saving manually.
 
 ## Saving Forms Manually
 
@@ -185,21 +128,204 @@ The block parameter is a nested hash of the form input.
 
 ```ruby
   @form.save do |hash|
-    hash      #=> {title: "Rio", length: "366"}
+    hash      #=> {title: "Greatest Hits"}
 
-    Song.create(hash)
+    Album.create(hash)
   end
 ```
 
 You can always access the form's model. This is helpful when you were using populators to set up objects when validating.
 
 ```ruby
-  @form.save do |nested|
+  @form.save do |hash|
     album = @form.model
 
-    album.update_attributes(nested[:album])
+    album.update_attributes(hash[:album])
   end
 ```
+
+
+## Nesting
+
+Reform provides support for nested objects. Let's say the `Album` model keeps some associations.
+
+```ruby
+class Album < ActiveRecord::Base
+  has_one  :artist
+  has_many :songs
+end
+```
+
+The implementation details do not really matter here, as long as your album exposes readers and writes like `Album#artist` and `Album#songs`, this allows you to define nested forms.
+
+
+```ruby
+class AlbumForm < Reform::Form
+  property :title
+  validates :title, presence: true
+
+  property :artist do
+    property :full_name
+    validates :full_name, presence: true
+  end
+
+  collection :songs do
+    property :name
+  end
+end
+```
+
+You can also reuse an existing form from elsewhere using `:form`.
+
+```ruby
+property :artist, form: ArtistForm
+```
+
+## Nested Setup
+
+Reform will wrap defined nested objects in their own forms. This happens automatically when instantiating the form.
+
+```ruby
+album.songs #=> [<Song name:"Run To The Hills">]
+
+form = AlbumForm.new(album)
+form.songs[0] #=> <SongForm model: <Song name:"Run To The Hills">>
+form.songs[0].name #=> "Run To The Hills"
+```
+
+### Nested Rendering
+
+When rendering a nested form you can use the form's readers to access the nested forms.
+
+```haml
+= text_field :title,         @form.title
+= text_field "artist[name]", @form.artist.name
+```
+
+Or use something like `#fields_for` in a Rails environment.
+
+```haml
+= form_for @form do |f|
+  = f.text_field :title
+
+  = f.fields_for :artist do |a|
+    = a.text_field :name
+```
+
+## Nested Processing
+
+`validate` will assign values to the nested forms. `sync` and `save` work analogue to the non-nested form, just in a recursive way.
+
+The block form of `#save` would give you the following data.
+
+```ruby
+@form.save do |nested|
+  nested #=> {title:  "Greatest Hits",
+         #    artist: {name: "Duran Duran"},
+         #    songs: [{title: "Hungry Like The Wolf"},
+         #            {title: "Last Chance On The Stairways"}]
+         #   }
+  end
+```
+
+The manual saving with block is not encouraged. You should rather check the Disposable docs to find out how to implement your manual tweak with the official API.
+
+
+## Populating Forms for Validation
+
+With a complex nested setup it can sometimes be painful to setup the model object graph.
+
+Let's assume you rendered the following form.
+
+```ruby
+@form = AlbumForm.new(Album.new(songs: [Song.new, Song.new]))
+```
+
+This will render two nested forms to create new songs.
+
+In `validate`, you're supposed to setup the very same object graph, again. Reform has no way of remembering what the object setup was like a request ago.
+
+So, the following code will fail.
+
+```ruby
+@form = AlbumForm.new(Album.new).validate(params[:album])
+```
+
+However, you can advise Reform to setup the correct objects for you.
+
+```ruby
+class AlbumForm < Reform::Form
+  # ...
+
+  collection :songs, populate_if_empty: Song do
+    # ..
+  end
+```
+
+This works for both `property` and `collection` and instantiates `Song` objects where they're missing when calling `#validate`.
+
+If you want to create the objects yourself, because you're smarter than Reform, do it with a lambda.
+
+```ruby
+class AlbumForm < Reform::Form
+  # ...
+
+  collection :songs, populate_if_empty: lambda { |fragment, args| Song.new } do
+    # ..
+  end
+```
+
+
+
+<a href="https://leanpub.com/trailblazer">
+![](https://raw.githubusercontent.com/apotonick/trailblazer/master/doc/trb.jpg)
+</a>
+
+Reform is part of the [Trailblazer project](https://github.com/apotonick/trailblazer). Please [buy my book](https://leanpub.com/trailblazer) to support the development and learn everything about Reform. Currently the book discusses:
+
+* Form objects, the DSL and basic API (chapter 2 and 3)
+* Basic validations and rendering forms (chapter 3)
+* Nested forms, prepopulating and validation populating and pre-selecting values (chapter 5)
+
+More chapters are coming!
+
+
+## Installation
+
+Add this line to your Gemfile:
+
+```ruby
+gem 'reform'
+```
+
+## Nomenclature
+
+Reform comes with two base classes.
+
+* `Form` is what made you come here - it gives you a form class to handle all validations, wrap models, allow rendering with Rails form helpers, simplifies saving of models, and more.
+* `Contract` gives you a sub-set of `Form`: [this class](#contracts) is meant for API validation where already populated models get validated without having to maintain validations in the model classes.
+
+
+
+Luckily, this can be shortened as follows.
+
+```ruby
+class SongForm < Reform::Form
+  property :title, validates: {presence: true}
+  property :length, validates: {numericality: true}
+end
+```
+
+Use `properties` to bulk-specify fields.
+
+```ruby
+class SongForm < Reform::Form
+  properties :title, :length, validates: {presence: true} # both required!
+  validates :length, numericality: true
+end
+```
+
+
 
 If the form wraps multiple models, via [composition](#compositions), you can access them like this:
 
@@ -259,153 +385,11 @@ end
 
 Contracts help you to make your data layer a dumb persistance tier. My [upcoming book discusses that in detail](http://nicksda.apotomo.de).
 
-
-## Nesting Forms: 1-1 Relations
-
-Songs have artists to compose them. Let's say your `Song` model would implement that as follows.
-
-```ruby
-class Song < ActiveRecord::Base
-  has_one :artist
-end
-```
-
-The edit form should allow changing data for artist and song.
-
-```ruby
-class SongForm < Reform::Form
-  property :title
-  property :length
-
-  property :artist do
-    property :name
-
-    validates :name, presence: true
-  end
-
-  #validates :title, ...
-end
-```
-
-See how simple nesting forms is? By passing a block to `::property` you can define another form nested into your main form.
-
-
-### has_one: Setup
-
-This setup's only requirement is having a working `Song#artist` reader.
-
-```ruby
-class SongsController
-  def edit
-    song = Song.find(1)
-    song.artist #=> <0x999#Artist title="Duran Duran">
-
-    @form = SongForm.new(song)
-  end
-```
-
-### has_one: Rendering
-
-When rendering this form you could use the form's accessors manually.
-
-```haml
-= text_field :title,         @form.title
-= text_field "artist[name]", @form.artist.name
-```
-
-Or use something like `#fields_for` in a Rails environment.
-
-```haml
-= form_for @form do |f|
-  = f.text_field :title
-  = f.text_field :length
-
-  = f.fields_for :artist do |a|
-    = a.text_field :name
-```
-
-### has_one: Processing
-
-The block form of `#save` would give you the following data.
-
-```ruby
-@form.save do |nested|
-
-  nested #=> {title:  "Hungry Like The Wolf",
-         #    artist: {name: "Duran Duran"}}
-end
-```
-
-Supposed you use reform's automatic save without a block, the following assignments would be made.
-
-```ruby
-form.song.title       = "Hungry Like The Wolf"
-form.song.artist.name = "Duran Duran"
-form.song.save
-```
-
-## Nesting Forms: 1-n Relations
-
-Reform also gives you nested collections.
-
-Let's have Albums with songs!
-
-```ruby
-class Album < ActiveRecord::Base
-  has_many :songs
-end
-```
-
-The form might look like this.
-
-```ruby
-class AlbumForm < Reform::Form
-  property :title
-
-  collection :songs do
-    property :title
-
-    validates :title, presence: true
-  end
-end
 ```
 
 This basically works like a nested `property` that iterates over a collection of songs.
 
-### has_many: Rendering
 
-Reform will expose the collection using the `#songs` method.
-
-```haml
-= text_field :title,         @form.title
-= text_field "songs[0][title]", @form.songs[0].title
-```
-
-However, `#fields_for` works just fine, again.
-
-```haml
-= form_for @form do |f|
-  = f.text_field :title
-
-  = f.fields_for :songs do |s|
-    = s.text_field :title
-```
-
-### has_many: Processing
-
-The block form of `#save` will expose the data structures already discussed.
-
-```ruby
-@form.save do |nested|
-
-  nested #=> {title: "Rio"
-         #   songs: [{title: "Hungry Like The Wolf"},
-         #          {title: "Last Chance On The Stairways"}]
-end
-```
-
-
-## Nesting Configuration
 
 ### Turning Off Autosave
 
@@ -423,49 +407,7 @@ class AlbumForm < Reform::Form
 The `:save` options set to false won't save models.
 
 
-### Populating Forms For Validation
 
-With a complex nested setup it can sometimes be painful to setup the model object graph.
-
-Let's assume you rendered the following form.
-
-```ruby
-@form = AlbumForm.new(Album.new(songs: [Song.new, Song.new]))
-```
-
-This will render two nested forms to create new songs.
-
-When **validating**, you're supposed to setup the very same object graph, again. Reform has no way of remembering what the object setup was like a request ago.
-
-So, the following code will fail.
-
-```ruby
-@form = AlbumForm.new(Album.new).validate(params[:album])
-```
-
-However, you can advise Reform to setup the correct objects for you.
-
-```ruby
-class AlbumForm < Reform::Form
-  # ...
-
-  collection :songs, populate_if_empty: Song do
-    # ..
-  end
-```
-
-This works for both `property` and `collection` and instantiates `Song` objects where they're missing when calling `#validate`.
-
-If you want to create the objects yourself, because you're smarter than Reform, do it with a lambda.
-
-```ruby
-class AlbumForm < Reform::Form
-  # ...
-
-  collection :songs, populate_if_empty: lambda { |fragment, args| Song.new } do
-    # ..
-  end
-```
 
 
 ## Compositions

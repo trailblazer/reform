@@ -1,3 +1,3 @@
 module Reform
-  VERSION = "1.2.6"
+  VERSION = "2.0.0"
 end
