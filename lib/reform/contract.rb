@@ -20,12 +20,6 @@ module Reform
         Contract
       end
     end
-    # FIXME: THIS sucks because we're building two representers.
-    representer_class.instance_eval do
-      def default_inline_class
-        Contract
-      end
-    end
 
     def self.property(name, options={}, &block)
       if twin = options.delete(:form)
