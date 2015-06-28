@@ -859,6 +859,30 @@ form.changed?(:title) #=> true
 When including `Sync::SkipUnchanged`, the form won't assign unchanged values anymore in `#sync`.
 
 
+## Deserializing and Population
+
+A form object is just a twin. In `validate`, a representer is used to deserialize the incoming hash and populate the form twin graph. This means, you can use any representer you like and process data like JSON or XML, too.
+
+Representers can be inferred from the contract automatically using `Disposable::Schema`. You may then extend your representer with hypermedia, etc. in order to render documents. Check out the Trailblazer book (chapter Hypermedia APIs) for a full explanation.
+
+You can even write your own deserializer code in case you dislike Representable.
+
+```ruby
+class AlbumForm < Reform::Form
+  # ..
+
+  def deserialize!(document)
+    hash = YAML.parse(document)
+
+    self.title  = hash[:title]
+    self.artist = Artist.new if hash[:artist]
+  end
+end
+```
+
+The decoupling of deserializer and form object is one of the main reasons I wrote Reform 2.
+
+
 ## Undocumented Features
 
 _(Please don't read this section!)_
@@ -941,7 +965,6 @@ If you run into any trouble chat with us on irc.freenode.org#trailblazer.
 ## Maintainers
 
 [Nick Sutterer](https://github.com/apotonick)
-
 [Garrett Heinlen](https://github.com/gogogarrett)
 
 
