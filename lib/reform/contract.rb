@@ -93,14 +93,6 @@ module Reform
   end
 
   class Contract_ # DISCUSS: make class?
-    extend Uber::InheritableAttr
-
-    RESERVED_METHODS = [:model] # TODO: refactor that so we don't need that.
-      def handle_reserved_names(name)
-        raise "[Reform] the property name '#{name}' is reserved, please consider something else using :as." if RESERVED_METHODS.include?(name)
-      end
-
-
     # allows including representers from Representable, Roar or disposable.
     def self.inherit_module!(representer) # called from Representable::included.
       # representer_class.inherit_module!(representer)
