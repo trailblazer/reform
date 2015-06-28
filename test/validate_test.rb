@@ -126,6 +126,21 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
     album.songs[1].composer.name.must_equal "Greg Graffin"
     album.artist.name.must_equal "Bad Religion"
   end
+
+  # with symbols.
+  it do
+    form.validate(
+      name:   "Best Of",
+      songs:  [{title: "The X-Creep"}, {title: "Trudging", composer: {name: "SNFU"}}],
+      artist: {name: "The Police"},
+    ).must_equal true
+
+    form.name.must_equal "Best Of"
+    form.songs[0].title.must_equal "The X-Creep"
+    form.songs[1].title.must_equal "Trudging"
+    form.songs[1].composer.name.must_equal "SNFU"
+    form.artist.name.must_equal "The Police"
+  end
 end
 
 class ValidateWithDeserializerOptionTest < MiniTest::Spec
@@ -248,7 +263,6 @@ class ValidateWithDeserializerOptionTest < MiniTest::Spec
   end
 end
 
-
 #   # not sure if we should catch that in Reform or rather do that in disposable. this is https://github.com/apotonick/reform/pull/104
 #   # describe ":populator with :empty" do
 #   #   let (:form) {
@@ -323,18 +337,7 @@ end
 #   end
 
 
-#   describe "with symbols" do
-#     let (:album) { OpenStruct.new(:band => OpenStruct.new(:label => OpenStruct.new(:name => "Epitaph"))) }
-#     subject { ErrorsTest::AlbumForm.new(album) }
-#     let (:params) { {:band => {:label => {:name => "Stiff"}}, :title => "House Of Fun"} }
 
-#     before {
-#       subject.validate(params).must_equal true
-#     }
-
-#     it { subject.band.label.name.must_equal "Stiff" }
-#     it { subject.title.must_equal "House Of Fun" }
-#   end
 
 
 #   # providing manual validator method allows accessing form's API.

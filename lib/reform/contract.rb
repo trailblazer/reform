@@ -34,6 +34,10 @@ module Reform
         options[:twin] = twin
       end
 
+      if validates_options = options[:validates]
+        validates name, validates_options
+      end
+
       super
     end
 

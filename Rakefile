@@ -27,7 +27,8 @@ Rake::TestTask.new(:test) do |test|
   "test/uniqueness_test.rb",
   "test/from_test.rb",
   "test/composition_test.rb",
-  "test/form_option_test.rb"
+  "test/form_option_test.rb",
+  "test/form_test.rb"
 ]
 
 
