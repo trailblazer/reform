@@ -256,8 +256,6 @@ However, you can advise Reform to setup the correct objects for you.
 
 ```ruby
 class AlbumForm < Reform::Form
-  # ...
-
   collection :songs, populate_if_empty: Song do
     # ..
   end
@@ -269,8 +267,6 @@ If you want to create the objects yourself, because you're smarter than Reform, 
 
 ```ruby
 class AlbumForm < Reform::Form
-  # ...
-
   collection :songs, populate_if_empty: lambda { |fragment, args| Song.new } do
     # ..
   end
@@ -616,13 +612,7 @@ end
 As with the built-in coercion, this setter is only called in `#validate`.
 
 
-## Virtual Attributes (Reform 2.0)
-
-**Warning:** to enable this feature you should tell reform to use 2.0 semantics:
-```ruby
-# config/initializers/reform.rb
-Reform::Form.reform_2_0!
-```
+## Virtual Attributes
 
 Virtual fields come in handy when there's no direct mapping to a model attribute or when you plan on displaying but not processing a value.
 
@@ -835,22 +825,6 @@ property :song, form: SongForm
 The nested `SongForm` is a stand-alone form class you have to provide.
 
 
-## Overriding Setters For Coercion
-
-When "real" coercion is too much and you simply want to convert incoming data yourself, override the setter.
-
-```ruby
-class SongForm < Reform::Form
-  property :title
-
-  def title=(v)
-    super(v.upcase)
-  end
-```
-
-This will capitalize the title _after_ calling `form.validate` but _before_ validation happens. Note that you can use `super` to call the original setter.
-
-
 ## Default Values For Presentation
 
 In case you want to change a value for presentation or provide a default value, override the reader. This is only considered when the form is rendered (e.g. in `form_for`).
@@ -883,36 +857,6 @@ form.changed?(:title) #=> true
 ```
 
 When including `Sync::SkipUnchanged`, the form won't assign unchanged values anymore in `#sync`.
-
-
-## Dynamically Syncing And Saving Properties
-
-Both `#sync` and `#save` can be configured to run a dynamical lambda per property.
-
-The `sync:` option allows to statically add a lambda to a property.
-
-```ruby
-property :title, sync: lambda { |value, options| model.set_title(value) }
-```
-
-Instead of running Reform's built-in sync for this property the block is run.
-
-You can also provide the sync lambda at run-time.
-
-```ruby
-form.sync(title: lambda { |value, options| form.model.title = "HOT: #{value}" })
-```
-
-This block is run in the caller's context allowing you to access environment variables. Note that the dynamic sync happens _before_ save, so the model id may be unavailable.
-
-You can do the same for saving.
-
-```ruby
-form.save(title: lambda { |value, options| form.model.title = "#{form.model.id} --> #{value}" })
-```
-Again, this block is run in the caller's context.
-
-The two features are an excellent way to handle file uploads without ActiveRecord's horrible callbacks.
 
 
 ## Undocumented Features
