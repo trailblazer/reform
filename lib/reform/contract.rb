@@ -27,7 +27,7 @@ module Reform
       end
 
       if validates_options = options[:validates]
-        validates name, validates_options
+        validates name, validates_options.dup # .dup for RAils 3.x because it's retarded.
       end
 
       super
@@ -36,7 +36,7 @@ module Reform
     # FIXME: test me.
     def self.properties(*args)
       options = args.extract_options!
-      args.each { |name| property(name, options.dup) }
+      args.each { |name| property(name, options) }
     end
 
     # FIXME: make AM optional.
