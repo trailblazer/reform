@@ -25,7 +25,8 @@ Rake::TestTask.new(:test) do |test|
   "test/readonly_test.rb",
   "test/inherit_test.rb",
   "test/uniqueness_test.rb",
-  "test/from_test.rb"
+  "test/from_test.rb",
+  "test/composition_test.rb"
 ]
 
 

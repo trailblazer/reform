@@ -8,7 +8,8 @@ is now :populator => lambda { |fragment, index, args|
 #         }
 you don't need to know about forms anymore, the twin handles that using #insert.
 
-:as removed.
+* `:as` option removed. Use `:from`.
+* With `Composition` included, `Form#model` would give you a composition object. You can grab that using `Form#mapper` now.
 
 ## 1.2.6
 

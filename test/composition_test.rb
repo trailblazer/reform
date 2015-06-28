@@ -38,7 +38,7 @@ class FormCompositionTest < MiniTest::Spec
   it { form.captcha.must_equal nil }
 
   # #model just returns <Composition>.
-  it { form.model.must_be_kind_of Reform::Composition }
+  it { form.mapper.must_be_kind_of Disposable::Composition }
 
   # #model[] -> composed models
   it { form.model[:requester].must_equal requester }
@@ -72,8 +72,8 @@ class FormCompositionTest < MiniTest::Spec
       end
 
       hash.must_equal({
-        :song=>{:title=>"Greyhound", :id=>1, :channel => "JJJ", :captcha=>"wonderful", :band=>{"title"=>"Duran^2"}},
-        :requester=>{:name=>"Frenzal Rhomb", :id=>2, :requester => "MCP"}
+        :song=>{"title"=>"Greyhound", "id"=>1, "channel" => "JJJ", "captcha"=>"wonderful", "band"=>{"title"=>"Duran^2"}},
+        :requester=>{"name"=>"Frenzal Rhomb", "id"=>2, "requester" => "MCP"}
         }
       )
     end
@@ -141,5 +141,5 @@ class FormCompositionCollectionTest < MiniTest::Spec
   let (:form)   { LibraryForm.new(library: library) }
   let (:library) { Library.new(2) }
 
-  it { form.save do |hash| hash.must_equal({:library=>{:books=>[{"id"=>1, "name"=>"My book"}]}}) end }
+  it { form.save do |hash| hash.must_equal({:library=>{"books"=>[{"id"=>1, "name"=>"My book"}]}}) end }
 end

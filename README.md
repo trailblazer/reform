@@ -232,6 +232,8 @@ The manual saving with block is not encouraged. You should rather check the Disp
 
 ## Populating Forms for Validation
 
+This topic is thorougly covered in the [Trailblazer book](https://leanpub.com/trailblazer) in chapters _Nested Forms_ and _Mastering Forms_.
+
 With a complex nested setup it can sometimes be painful to setup the model object graph.
 
 Let's assume you rendered the following form.
@@ -274,7 +276,45 @@ class AlbumForm < Reform::Form
   end
 ```
 
+Reform also allows to completely override population using the `:populator` options. This is [documented here](http://trailblazerb.org/gems/reform/populators.html), and also in the Trailblazer book.
 
+## Installation
+
+Add this line to your Gemfile:
+
+```ruby
+gem 'reform'
+```
+
+
+## Compositions
+
+Reform allows to map multiple models to one form. The [complete documentation](https://github.com/apotonick/disposable#composition) is here, however, this is how it works.
+
+```ruby
+class AlbumTwin < Reform::Form
+  include Composition
+
+  property :id,    on: :album
+  property :title, on: :album
+  property :songs, on: :cd
+  property :cd_id, on: :cd, from: :id
+end
+```
+When initializing a composition, you have to pass a hash that contains the composees.
+
+```ruby
+AlbumForm.new(album: album, cd: CD.find(1))
+```
+
+=> rendering
+=> sync with block
+
+## Hash Fields
+
+Reform can also handle deeply nested hash fields from serialized hash columns. This is [documented here](https://github.com/apotonick/disposable#struct).
+
+=> Example
 
 <a href="https://leanpub.com/trailblazer">
 ![](https://raw.githubusercontent.com/apotonick/trailblazer/master/doc/trb.jpg)
@@ -289,13 +329,7 @@ Reform is part of the [Trailblazer project](https://github.com/apotonick/trailbl
 More chapters are coming!
 
 
-## Installation
 
-Add this line to your Gemfile:
-
-```ruby
-gem 'reform'
-```
 
 ## Nomenclature
 
