@@ -28,8 +28,6 @@ module Reform
     end
 
     def self.property(name, options={}, &block)
-      options.merge!(pass_options: true)
-
       if twin = options.delete(:form)
         options[:twin] = twin
       end
