@@ -95,6 +95,9 @@ module Reform
     def self.clone # TODO: test. THIS IS ONLY FOR Trailblazer when contract gets cloned in suboperation.
       Class.new(self)
     end
+
+    require 'reform/schema'
+    extend Reform::Schema
   end
 
   class Contract_ # DISCUSS: make class?
@@ -119,9 +122,6 @@ module Reform
         property(*args) { include dfn.representer_module } # nested.
       end
     end
-
-    require 'reform/schema'
-    extend Schema
   end
 end
 
