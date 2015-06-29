@@ -1,3 +1,5 @@
+require "disposable/twin/schema"
+
 module Reform
   class Form < Contract
     representer_class.instance_eval do

@@ -28,7 +28,8 @@ Rake::TestTask.new(:test) do |test|
   "test/from_test.rb",
   "test/composition_test.rb",
   "test/form_option_test.rb",
-  "test/form_test.rb"
+  "test/form_test.rb",
+  "test/deserialize_test.rb"
 ]
 
 

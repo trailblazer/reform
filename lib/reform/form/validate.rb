@@ -56,7 +56,6 @@ private
   # Default deserializer for hash.
   # This is input-specific, e.g. Hash, JSON, or XML.
   def deserializer # called on top-level, only, for now.
-    require "disposable/twin/schema"
     require "reform/form/coercion" # DISCUSS: make optional?
 
     deserializer = Disposable::Twin::Schema.from(self.class,

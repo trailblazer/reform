@@ -13,7 +13,7 @@ module Reform::Contract::Validate
     prefix = options[:prefix]
 
     validate_nested!(options) # call valid? recursively and collect nested errors.
-puts "calling valid?"
+
     valid?  # this validates on <Fields> using AM::Validations, currently.
 
     options[:errors].merge!(self.errors, prefix)
