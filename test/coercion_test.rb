@@ -9,7 +9,7 @@ class CoercionTest < BaseTest
   end
 
   class Form < Reform::Form
-    # include Coercion
+    feature Coercion
 
     property :released_at, :type => DateTime
 

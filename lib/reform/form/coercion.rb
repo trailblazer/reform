@@ -1,5 +1,5 @@
-require 'representable/coercion'
+require "disposable/twin/coercion"
 
-# TODO: make optional.
-module Reform::Form::Coercion
+Reform::Form.class_eval do
+  Coercion = Disposable::Twin::Coercion
 end

@@ -88,7 +88,7 @@ module Reform
       Class.new(self)
     end
 
-    require 'reform/schema'
+    require "reform/schema"
     extend Reform::Schema
   end
 

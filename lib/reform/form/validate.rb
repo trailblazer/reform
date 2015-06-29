@@ -60,10 +60,8 @@ private
   # Default deserializer for hash.
   # This is input-specific, e.g. Hash, JSON, or XML.
   def deserializer # called on top-level, only, for now.
-    require "reform/form/coercion" # DISCUSS: make optional?
-
     deserializer = Disposable::Twin::Schema.from(self.class,
-      include:          [Representable::Hash::AllowSymbols, Representable::Hash, Representable::Coercion], # FIXME: how do we get this info?
+      include:          [Representable::Hash::AllowSymbols, Representable::Hash],
       superclass:       Representable::Decorator,
       representer_from: lambda { |inline| inline.representer_class },
       options_from:     :deserializer
