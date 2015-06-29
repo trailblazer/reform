@@ -25,7 +25,7 @@ class DeserializeTest < MiniTest::Spec
         )
       end
     end
-    feature Json
+    include Json
 
 
     property :title
@@ -47,14 +47,35 @@ class DeserializeTest < MiniTest::Spec
     form.artist.name.must_equal "Mute"
     form.artist.model.object_id.must_equal artist_id
   end
+end
+
+
+class ValidateWithBlockTest < MiniTest::Spec
+  Song  = Struct.new(:title, :album, :composer)
+  Album = Struct.new(:title, :artist)
+  Artist = Struct.new(:name)
+
+  class AlbumForm < Reform::Form
+    property :title
+    property :artist, populate_if_empty: Artist do
+      property :name
+    end
+  end
 
   it do
-    form = JsonAlbumForm.new(Album.new("Best Of", Artist.new("A-ha")))
-    json = {title: "Apocalypse Soon", artist: {name: "Mute"}}.to_json
+    album = Album.new
+    form  = AlbumForm.new(album)
+    json  = {title: "Apocalypse Soon", artist: {name: "Mute"}}.to_json
 
-    form.validate(json)
+    deserializer = Disposable::Twin::Schema.from(AlbumForm,
+      include:          [Representable::JSON],
+      superclass:       Representable::Decorator,
+      representer_from: lambda { |inline| inline.representer_class },
+      options_from:     :deserializer
+    )
 
-    form.title.must_equal "Apocalypse Soon"
-    form.artist.name.must_equal "Mute"
+    form.validate(json) do |params|
+      deserializer.new(form).from_json(params)
+    end
   end
 end

@@ -22,7 +22,8 @@ module Reform::Form::Validate
   def validate(params)
     deprecate_update!(params)
 
-    deserialize(params)
+    # allow an external deserializer.
+    block_given? ? yield(params) : deserialize(params)
 
     super() # run the actual validation on self.
   # rescue Representable::DeserializeError
@@ -52,9 +53,7 @@ private
   def deserialize(params)
     params = deserialize!(params)
 
-    deserializer.new(self).
-        # extend(Representable::Debug).
-        from_hash(params)
+    deserializer.new(self).from_hash(params)
   end
 
   # Default deserializer for hash.
