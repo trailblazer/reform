@@ -20,10 +20,11 @@ module Reform::Form::Validate
   # 2. Deserialize. This is wrong and should be done in 1.
   # 3. Validate the form object graph.
   def validate(params)
-    update!(params)
+    deprecate_update!(params)
+
+    deserialize(params)
 
     super() # run the actual validation on self.
-
   # rescue Representable::DeserializeError
   #   raise DeserializeError.new("[Reform] Deserialize error: You probably called #validate without setting up your nested models. Check https://github.com/apotonick/reform#populating-forms-for-validation on how to use populators.")
   end
@@ -31,8 +32,10 @@ module Reform::Form::Validate
   # Some users use this method to pre-populate a form. Not saying this is right, but we'll keep
   # this method here.
   # DISCUSS: this is only called once, on the top-level form.
-  def update!(params)
-    deserialize(params)
+  def deprecate_update!(params)
+    return unless self.class.instance_methods(false).include?(:update!)
+    warn "[Reform] Form#update! is deprecated and will be removed in Reform 2.1. Please use #present! or pre-populator."
+    update!(params)
   end
 
   def deserialize(params)
@@ -71,11 +74,9 @@ private
       # Representer#each and #apply have to be unified.
       dfn.merge!(
         deserialize: lambda { |decorator, params, options|
-           # todo :should be #deserialize_params!
           params = decorator.represented.deserialize!(params) # let them set up params. # FIXME: we could also get a new deserializer here.
 
-          decorator.from_hash(params)
-          # options.binding.deserialize_method.inspect
+          decorator.from_hash(params) # options.binding.deserialize_method.inspect
         }
       )
     end

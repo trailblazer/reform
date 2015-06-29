@@ -11,6 +11,7 @@ you don't need to know about forms anymore, the twin handles that using #insert.
 
 * `:as` option removed. Use `:from`.
 * With `Composition` included, `Form#model` would give you a composition object. You can grab that using `Form#mapper` now.
+* `Form#update!` is deprecated. It still works but will remind you to override `#present!` or use pre-populators as [described here](http://trailblazerb.org/gems/reform/prepopulator.html) and in the Trailblazer book, chapter "Nested Forms".
 
 ## 1.2.6
 
