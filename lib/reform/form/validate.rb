@@ -29,6 +29,17 @@ module Reform::Form::Validate
   #   raise DeserializeError.new("[Reform] Deserialize error: You probably called #validate without setting up your nested models. Check https://github.com/apotonick/reform#populating-forms-for-validation on how to use populators.")
   end
 
+  # Meant to return params processable by the representer. This is the hook for munching date fields, etc.
+  def deserialize!(params)
+    # NOTE: it is completely up to the form user how they want to deserialize (e.g. using an external JSON-API representer).
+      # use the deserializer as an external instance to operate on the Twin API,
+      # e.g. adding new items in collections using #<< etc.
+    # DISCUSS: using self here will call the form's setters like title= which might be overridden.
+    params
+  end
+
+
+private
   # Some users use this method to pre-populate a form. Not saying this is right, but we'll keep
   # this method here.
   # DISCUSS: this is only called once, on the top-level form.
@@ -46,16 +57,6 @@ module Reform::Form::Validate
         from_hash(params)
   end
 
-  # Meant to return params processable by the representer. This is the hook for munching date fields, etc.
-  def deserialize!(params)
-    # NOTE: it is completely up to the form user how they want to deserialize (e.g. using an external JSON-API representer).
-      # use the deserializer as an external instance to operate on the Twin API,
-      # e.g. adding new items in collections using #<< etc.
-    # DISCUSS: using self here will call the form's setters like title= which might be overridden.
-    params
-  end
-
-private
   # Default deserializer for hash.
   # This is input-specific, e.g. Hash, JSON, or XML.
   def deserializer # called on top-level, only, for now.
