@@ -76,6 +76,9 @@ class ValidateWithBlockTest < MiniTest::Spec
 
     form.validate(json) do |params|
       deserializer.new(form).from_json(params)
-    end
+    end.must_equal true # with block must return result, too.
+
+    form.title.must_equal "Apocalypse Soon"
+    form.artist.name.must_equal "Mute"
   end
 end
