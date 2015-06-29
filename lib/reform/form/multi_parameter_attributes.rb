@@ -38,8 +38,7 @@ module Reform::Form::MultiParameterAttributes
 
   # this hooks into the format-specific #deserialize! method.
   def deserialize!(params)
-    params = DateTimeParamsFilter.new.call(params) if params.is_a?(Hash) # this currently works for hash, only.
-    super
+    super DateTimeParamsFilter.new.call(params) # if params.is_a?(Hash) # this currently works for hash, only.
   end
 
   # module BuildDefinition

@@ -29,7 +29,7 @@ module Reform::Form::ActiveModel
         rename_nested_param_for!(params, dfn)
       end
 
-      super
+      super(params)
     end
 
   private

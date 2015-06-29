@@ -32,45 +32,58 @@ module Reform::Form::Validate
   # this method here.
   # DISCUSS: this is only called once, on the top-level form.
   def update!(params)
-    deserialize!(params)
+    deserialize(params)
+  end
+
+  def deserialize(params)
+    params = deserialize!(params)
+
+    deserializer.new(self).
+        # extend(Representable::Debug).
+        from_hash(params)
+  end
+
+  # Meant to return params processable by the representer. This is the hook for munching date fields, etc.
+  def deserialize!(params)
+    # NOTE: it is completely up to the form user how they want to deserialize (e.g. using an external JSON-API representer).
+      # use the deserializer as an external instance to operate on the Twin API,
+      # e.g. adding new items in collections using #<< etc.
+    # DISCUSS: using self here will call the form's setters like title= which might be overridden.
+    params
   end
 
 private
-  def deserialize!(params)
+  # Default deserializer for hash.
+  # This is input-specific, e.g. Hash, JSON, or XML.
+  def deserializer # called on top-level, only, for now.
     require "disposable/twin/schema"
     require "reform/form/coercion" # DISCUSS: make optional?
 
-    # NOTE: it is completely up to the form user how they want to deserialize (e.g. using an external JSON-API representer).
-
     deserializer = Disposable::Twin::Schema.from(self.class,
-        include:    [Representable::Hash::AllowSymbols, Representable::Hash, Representable::Coercion], # FIXME: how do we get this info?
-        superclass: Representable::Decorator,
-        representer_from: lambda { |inline| inline.representer_class },
-        options_from: :deserializer
-        )
+      include:          [Representable::Hash::AllowSymbols, Representable::Hash, Representable::Coercion], # FIXME: how do we get this info?
+      superclass:       Representable::Decorator,
+      representer_from: lambda { |inline| inline.representer_class },
+      options_from:     :deserializer
+    )
 
-    deserializer.representable_attrs.each do |dfn|
-      next unless dfn[:_inline] # FIXME: we have to standardize that!
+    deserializer.apply do |dfn|
+      next unless dfn[:twin]
 
-      # FIXME: collides with Schema?
+      # Representer#each and #apply have to be unified.
       dfn.merge!(
         deserialize: lambda { |decorator, params, options|
-          decorator.represented.validate(params)
+           # todo :should be #deserialize_params!
+          params = decorator.represented.deserialize!(params) # let them set up params. # FIXME: we could also get a new deserializer here.
 
-          decorator.represented
+          decorator.from_hash(params)
+          # options.binding.deserialize_method.inspect
         }
       )
     end
 
-      deserializer.new(self).
-        # extend(Representable::Debug).
-        from_hash(params)
-
-      # use the deserializer as an external instance to operate on the Twin API,
-      # e.g. adding new items in collections using #<< etc.
-
-    # DISCUSS: using self here will call the form's setters like title= which might be overridden.
+    deserializer
   end
+
 
   class DeserializeError < RuntimeError
   end

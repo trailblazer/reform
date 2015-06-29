@@ -27,6 +27,10 @@ class FormBuilderCompatTest < BaseTest
     property :band do
       property :label do
         property :name
+
+        property :location do
+          property :postcode
+        end
       end
     end
   end
@@ -36,20 +40,21 @@ class FormBuilderCompatTest < BaseTest
   let (:form) { AlbumForm.new(OpenStruct.new(
     :artist => Artist.new(:name => "Propagandhi"),
     :songs  => [song],
-    :label  => OpenStruct.new,
+    :label  => Label.new,
 
-    :band => Band.new(Label.new)
+    :band => Band.new(OpenStruct.new(location: OpenStruct.new))
     )) }
 
-  it "respects _attributes params hash" do
+  it "xxxrespects _attributes params hash" do
     form.validate(
       "artist_attributes" => {"name" => "Blink 182"},
       "songs_attributes"  => {"0" => {"title" => "Damnit"}},
-      "band_attributes"   => {"label_attributes" => {"name" => "Epitaph"}})
+      "band_attributes"   => {"label_attributes" => {"name" => "Epitaph", "location_attributes" => {"postcode" => 2481}}})
 
     form.artist.name.must_equal "Blink 182"
     form.songs.first.title.must_equal "Damnit"
     form.band.label.name.must_equal "Epitaph"
+    form.band.label.location.postcode.must_equal 2481
   end
 
   it "allows nested collection and property to be missing" do
