@@ -527,6 +527,8 @@ end
 
 Note that you can also override properties [using inheritance](#inheritance) in Reform.
 
+When using coercion, make sure the including form already contains the `Coercion` module.
+
 
 ## Inheritance
 

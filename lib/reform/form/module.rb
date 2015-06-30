@@ -1,5 +1,6 @@
 # Include this in every module that gets further included.
-module Reform::Form::Module # Schema
+# TODO: this could be implemented in Declarable, as we can use that everywhere.
+module Reform::Form::Module
   def self.included(base)
     base.extend ClassMethods
     base.extend Included
