@@ -40,7 +40,7 @@ Forms have a ridiculously simple API with only a handful of public methods.
 3. `#errors` returns validation messages in a classic ActiveModel style.
 4. `#sync` writes form data back to the model. This will only use setter methods on the model(s).
 5. `#save` (optional) will call `#save` on the model and nested models. Note that this implies a `#sync` call.
-6. `#present!` (optional) will run pre-population hooks to "fill out" your form before rendering.
+6. `#prepopulate!` (optional) will run pre-population hooks to "fill out" your form before rendering.
 
 In addition to the main API, forms expose accessors to the defined properties. This is used for rendering or manual operations.
 
@@ -77,7 +77,7 @@ Your `@form` is now ready to be rendered, either do it yourself or use something
 
 Nested forms and collections can be easily rendered with `fields_for`, etc. Note that you no longer pass the model to the form builder, but the Reform instance.
 
-Optionally, you might want to use the [#present!](#present) method to pre-populate fields and prepare the form for rendering.
+Optionally, you might want to use the `#prepopulate!` method to pre-populate fields and prepare the form for rendering.
 
 
 ## Validation
