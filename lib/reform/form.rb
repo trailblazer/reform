@@ -16,10 +16,6 @@ module Reform
     module Property
       # add macro logic, e.g. for :populator.
       def property(name, options={}, &block)
-        if options.delete(:virtual)
-          options[:writeable] = options[:readable] = false # DISCUSS: isn't that like an #option in Twin?
-        end
-
         if deserializer = options[:deserializer] # this means someone is explicitly specifying :deserializer.
           options[:deserializer] = Representable::Cloneable::Hash[deserializer]
         end

@@ -10,6 +10,7 @@ Although reform can be used in any Ruby framework, it comes with [Rails support]
 
 Temporary note: This is the README and API for Reform 2. On the public API, only a few tiny things have changed. When in trouble, join us on the IRC (Freenode) #trailblazer channel.
 
+[Full documentation for Reform](http://trailblazerb.org/gems/reform) is available online, or support us and grab the [Trailblazer book](https://leanpub.com/trailblazer).
 
 ## Disposable
 

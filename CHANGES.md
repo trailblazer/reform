@@ -1,6 +1,7 @@
 ## 2.0.0
 
 * The `::reform_2_0!` is no longer there. Guess why.
+* Again: `:empty` doesn't exist anymore. You can choose from `:readable`, `:writeable` and `:virtual`.
 * :populator => lambda { |fragment, index, args|
 #           songs[index] or songs[index] = args.binding[:form].new(Song.new)
 #         }

@@ -1,39 +1,10 @@
 require 'test_helper'
 
+# TODO: this test should be removed.
 class ReformTest < ReformSpec
   let (:comp) { OpenStruct.new(:name => "Duran Duran", :title => "Rio") }
 
   let (:form) { SongForm.new(comp) }
-
-
-  describe "::property" do
-    it "doesn't allow reserved names" do
-      assert_raises RuntimeError do
-        Class.new(Reform::Form) do
-          property :model
-        end
-      end
-    end
-  end
-
-
-  describe "::properties" do
-    let (:options) { {:type => String} }
-
-    subject do
-      opts = options
-      Class.new(Reform::Form) do
-        properties :name, :title, opts
-        properties :created_at
-      end.new(comp)
-    end
-
-    it { subject.name.must_equal       "Duran Duran" }
-    it { subject.title.must_equal      "Rio" }
-    it { subject.created_at.must_equal nil }
-    # don't overwrite options.
-    it { subject; options.must_equal({:type => String}) }
-  end
 
   class SongForm < Reform::Form
     property :name
