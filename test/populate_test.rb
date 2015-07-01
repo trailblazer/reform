@@ -138,6 +138,8 @@ class PopulateIfEmptyTest < MiniTest::Spec
   let (:form) { AlbumForm.new(album) }
 
   it do
+    form.songs.size.must_equal 2
+
     form.validate(
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"},
         {"title" => "Rime Of The Ancient Mariner"}, # new song.
@@ -181,7 +183,6 @@ class PopulateIfEmptyTest < MiniTest::Spec
 
     album.artist.must_equal nil
   end
-
 end
 
 
