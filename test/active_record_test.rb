@@ -205,7 +205,7 @@ class PopulateWithActiveRecordTest < MiniTest::Spec
       let (:album) { Album.create(:title => 'Greatest Hits') }
       let (:form) { ActiveModelAlbumForm.new(album) }
 
-      it do
+      it "xxx"do
         form.validate('songs_attributes' => {'0' => {'title' => 'Tango'}})
 
         # form populated.
@@ -229,6 +229,8 @@ class PopulateWithActiveRecordTest < MiniTest::Spec
         album.songs.size.must_equal 1
         album.songs[0].title.must_equal 'Tango'
 
+        # DISCUSS: IfEmpty uses twin.original[index] for syncing. in our case, this is empty, so it will add Tango again.
+        form = ActiveModelAlbumForm.new(album)
         form.validate('songs_attributes' => {'0' => {'id' => first_song.id, 'title' => 'Tango nuevo'}, '1' => {'title' => 'Waltz'}})
 
         # form populated.
@@ -257,42 +259,6 @@ class PopulateWithActiveRecordTest < MiniTest::Spec
       end
     end
   end
-
-  # it do
-  #   a=Album.new
-  #   a.songs << Song.new(title: "Old What's His Name") # Song does not get persisted.
-
-  #   a.songs[1] = Song.new(title: "Permanent Rust")
-
-  #   puts "@@@"
-  #   puts a.songs.inspect
-
-  #   puts "---"
-  #   a.save
-  #   puts a.songs.inspect
-
-  #   b = a.songs.first
-
-  #   a.songs = [Song.new(title:"Biomag")]
-  #   puts "\\\\"
-  #   a.save
-  #   a.reload
-  #   puts a.songs.inspect
-
-  #   b.reload
-  #   puts "#{b.inspect}, #{b.persisted?}"
-
-
-  #   a.songs = [a.songs.first, Song.new(title: "Count Down")]
-  #   b = a.songs.first
-  #   puts ":::::"
-  #   a.save
-  #   a.reload
-  #   puts a.songs.inspect
-
-  #   b.reload
-  #   puts "#{b.inspect}, #{b.persisted?}"
-  # end
 end
 
 
