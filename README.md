@@ -723,8 +723,10 @@ Rails and Reform work together out-of-the-box.
 
 However, you should know about two things.
 
-1. In case you explicitely _don't_ want to have automatic support for `ActiveRecord` and form builder: `require reform/form`, only.
+1. In case you explicitely _don't_ want to have automatic support for `ActiveRecord` or `Mongoid` and form builder: `require reform/form`, only.
 2. In some setups around Rails 4 the `Form::ActiveRecord` module is not loaded properly, usually triggering a `NoMethodError` saying `undefined method 'model'`. If that happened to you, `require 'reform/rails'` manually at the bottom of your `config/application.rb`.
+3. Mongoid form gets loaded with the gem if `Mongoid` constant is defined.
+
 
 ## ActiveRecord Compatibility
 
@@ -739,6 +741,19 @@ You may want to include the module manually then.
 ```ruby
 class SongForm < Reform::Form
   include Reform::Form::ActiveRecord
+```
+
+## Mongoid Compatibility
+
+Reform provides the following `Mongoid` specific features. They're mixed in automatically in a Rails/Mongoid setup.
+
+ * Uniqueness validations. Use `validates_uniqueness_of` in your form.
+
+You may want to include the module manually then.
+
+```ruby
+class SongForm < Reform::Form
+  include Reform::Form::Mongoid
 ```
 
 

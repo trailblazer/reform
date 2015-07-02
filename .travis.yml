@@ -4,6 +4,8 @@ rvm:
   - 2.1.5
   - 2.0.0
   - 1.9.3
+services:
+  - mongodb
 gemfile:
   - gemfiles/Gemfile.rails-4.0
   - gemfiles/Gemfile.rails-3.2
