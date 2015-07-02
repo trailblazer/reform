@@ -3,7 +3,7 @@ module Reform::Form::Mongoid
     base.class_eval do
       register_feature Reform::Form::Mongoid
       include Reform::Form::ActiveModel
-      include Reform::Form::ORM::Base
+      include Reform::Form::ORM
       extend ClassMethods
     end
   end
@@ -34,6 +34,4 @@ module Reform::Form::Mongoid
   UniquenessValidator = Class.new("::Mongoid::#{mongoid_namespace}::UniquenessValidator".constantize) do
     include Reform::Form::ORM::UniquenessValidator
   end
-
-
 end

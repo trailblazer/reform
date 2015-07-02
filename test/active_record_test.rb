@@ -42,9 +42,6 @@ class ActiveRecordTest < MiniTest::Spec
 
   it { form.class.i18n_scope.must_equal :activerecord }
 
-  it "allows accessing the database" do
-  end
-
   # uniqueness
   it "has no errors on title when title is unique for the same artist and album" do
     form.validate("title" => "The Gargoyle", "artist_id" => artist.id, "album" => album.id, "created_at" => "November 6, 1966")

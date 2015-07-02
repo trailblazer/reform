@@ -3,7 +3,7 @@ module Reform::Form::ActiveRecord
     base.class_eval do
       register_feature Reform::Form::ActiveRecord
       include Reform::Form::ActiveModel
-      include Reform::Form::ORM::Base
+      include Reform::Form::ORM
       extend ClassMethods
     end
   end
