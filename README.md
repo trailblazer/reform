@@ -756,6 +756,11 @@ class SongForm < Reform::Form
   include Reform::Form::Mongoid
 ```
 
+## Uniqueness Validation
+
+Both ActiveRecord and Mongoid modules will support "native" uniqueness support from the model class when you use `validates_uniqueness_of`. They will provide options like `:scope`, etc.
+
+You're encouraged to use Reform's non-writing `unique: true` validation, though. [Learn more](http://trailblazerb.org/gems/reform/validation.html)
 
 ## ActiveModel Compliance
 
