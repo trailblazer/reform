@@ -18,6 +18,10 @@ module Reform::Contract::Validate
     options[:errors].merge!(errors, prefix)
   end
 
+  def errors
+    @errors ||= errors_for_validate
+  end
+
 private
 
   # runs form.validate! on all nested forms
