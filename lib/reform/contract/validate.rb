@@ -34,9 +34,4 @@ private
       Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form| form.validate!(property_options) }
     end
   end
-
-  # Builder.
-  def errors_for_validate
-    Reform::Contract::Errors.new(self)
-  end
 end

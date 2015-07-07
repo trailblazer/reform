@@ -39,14 +39,17 @@ module Reform
       args.each { |name| property(name, options) }
     end
 
-    # FIXME: make AM optional.
-    require 'active_model'
-    include ActiveModel::Validations
-
     require 'reform/contract/validate'
-    include Reform::Contract::Validate
+    # FIXME: currently, this is included in AM::Validations, so we can override AM's #validate, etc. FIXME: don't include AM but use composition.
+    # include Reform::Contract::Validate
 
-    require 'reform/contract/errors'
+
+    module ValidatesWarning
+      def validates(*)
+        raise "[Reform] Please include either Reform::Form::ActiveModel::Validations or Reform::Form::Lotus in your form class."
+      end
+    end
+    extend ValidatesWarning
 
   private
     # DISCUSS: can we achieve that somehow via features in build_inline?

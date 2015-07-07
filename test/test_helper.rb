@@ -62,3 +62,8 @@ MiniTest::Spec.class_eval do
     end
   end
 end
+
+require "reform/form/active_model/validations"
+Reform::Contract.class_eval do
+  include Reform::Form::ActiveModel::Validations
+end
