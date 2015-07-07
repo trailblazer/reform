@@ -1,8 +1,10 @@
 require "lotus/validations"
 
+# Implements ::validates and friends, and #valid?.
 module Reform::Form::Lotus
   class Errors < Lotus::Validations::Errors
     def merge!(errors, prefix)
+      puts "@@@@@ #{errors.messages.inspect}"
       errors.errors.each do |err|
         field = (prefix+[err.attribute]).join(".")
         add(field, err) # TODO: use namespace feature in Lotus here!
@@ -17,15 +19,12 @@ module Reform::Form::Lotus
     def messages
       self
     end
-
-
   end
 
 
   def self.included(base)
     # base.send(:include, Lotus::Validations)
     base.extend(ClassMethods)
-    # base.send(:include, Reform::Contract::Validate)
   end
 
 

@@ -6,6 +6,8 @@ module Reform::Form::ActiveModel
   #
   # Note: The preferred way for validations should be Lotus::Validations, as ActiveModel::Validation's implementation is
   # old, very complex given that it needs to do a simple thing, and it's using globals like @errors.
+  #
+  # Implements ::validates and friends, and #valid?.
   module Validations
     def self.included(includer)
       includer.instance_eval do
@@ -39,7 +41,7 @@ module Reform::Form::ActiveModel
     end
 
 
-    def valid?
+    def valid?(errors=self.errors)
       validator = self.class.validator.new(self)
       validator.valid? # run the Validations object's validator with the form as context. this won't pollute anything in the form.
 
