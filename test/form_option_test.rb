@@ -6,7 +6,7 @@ class FormOptionTest < MiniTest::Spec
 
   class SongForm < Reform::Form
     property :title
-    validates_presence_of :title
+    validates :title, presence: true
   end
 
   class AlbumForm < Reform::Form

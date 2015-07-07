@@ -101,7 +101,7 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate("songs"=>[{"title" => ""}], "band"=>{"label"=>{:name => "Fat Wreck"}}) }
 
     it { @result.must_equal false }
-    it( "xxxx") { form.errors.messages.must_equal({:"songs.title"=>["can't be blank"]}) }
+    it { form.errors.messages.must_equal({:"songs.title"=>["can't be blank"]}) }
   end
 
 
@@ -113,10 +113,11 @@ class ErrorsTest < MiniTest::Spec
   end
 
   describe "#validate with nested form using :base invalid" do
-    before { @result = form.validate("songs"=>[{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}}) }
-
-    it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:base=>["You are a bad person"]}) }
+    it "xxx" do
+      result = form.validate("songs"=>[{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}})
+      result.must_equal false
+      form.errors.messages.must_equal({:base=>["You are a bad person"]})
+    end
   end
 
   describe "correct #validate" do

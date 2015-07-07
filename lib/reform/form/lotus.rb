@@ -34,6 +34,11 @@ module Reform::Form::Lotus
       validations.add(name, options)
     end
 
+    def validate(name, *)
+      # DISCUSS: lotus does not support that?
+      # validations.add(name, options)
+    end
+
     def validations
       @validations ||= Lotus::Validations::ValidationSet.new
     end
