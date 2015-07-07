@@ -99,5 +99,10 @@ module Reform::Form::ActiveModel
       return ::ActiveModel::Name.new(OpenStruct.new(:name => string)) if Reform.rails3_0?
       ::ActiveModel::Name.new(self, namespace, string)
     end
+  end # ClassMethods
+
+
+  def model_name(*args)
+    self.class.model_name(*args)
   end
 end

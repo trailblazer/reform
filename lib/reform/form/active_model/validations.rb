@@ -32,12 +32,12 @@ module Reform::Form::ActiveModel
     class Validator
       include ActiveModel::Validations
 
-      def initialize(target)
-        @target = target
+      def initialize(form)
+        @form = form
       end
 
       def method_missing(method_name, *args, &block)
-        @target.send(method_name, *args, &block)
+        @form.send(method_name, *args, &block)
       end
 
       def self.name # FIXME: this is only needed for i18n, it seems.

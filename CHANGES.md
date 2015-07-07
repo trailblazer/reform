@@ -14,6 +14,8 @@ you don't need to know about forms anymore, the twin handles that using #insert.
 * With `Composition` included, `Form#model` would give you a composition object. You can grab that using `Form#mapper` now.
 * `Form#update!` is deprecated. It still works but will remind you to override `#present!` or use pre-populators as [described here](http://trailblazerb.org/gems/reform/prepopulator.html) and in the Trailblazer book, chapter "Nested Forms".
 
+* Forms do not `include ActiveModel::Validations` anymore. This has polluted the entire gem and is not encapsulated in `Validator`. Consider using Lotus Validations instead.
+
 ## 1.2.6
 
 * Added `:prepopulate` to fill out form properties for presentation. Note that you need to call `Form#prepopulate!` to trigger the prepopulation.

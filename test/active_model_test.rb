@@ -25,11 +25,14 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
   let (:artist) { Artist.create(:name => "Frank Zappa") }
   let (:form) { SongForm.new(artist) }
 
-  it { form.persisted?.must_equal true }
-  it { form.to_key.must_equal [artist.id] }
-  it { form.to_param.must_equal "#{artist.id}" }
-  it { form.to_model.must_equal form }
-  it { form.id.must_equal artist.id }
+  it do
+    form.persisted?.must_equal true
+    form.to_key.must_equal [artist.id]
+    form.to_param.must_equal "#{artist.id}"
+    form.to_model.must_equal form
+    form.id.must_equal artist.id
+    form.model_name.must_equal form.class.model_name
+  end
 
   describe "::model_name" do
     it { form.class.model_name.must_be_kind_of ActiveModel::Name }
@@ -75,13 +78,11 @@ class NewActiveModelTest < MiniTest::Spec # TODO: move to test/rails/
     it { subclass_of_class_with_model.model_name.must_be_kind_of ActiveModel::Name }
     it { subclass_of_class_with_model.model_name.to_s.must_equal 'Album' }
 
-    unless Reform.rails3_0?
-      it { form.class.model_name.route_key.must_equal "new_active_model_test_songs" }
-      it { class_with_model.model_name.route_key.must_equal "albums" }
-      it { class_with_isolated_model.model_name.route_key.must_equal "lyrics" }
-      it { class_with_namespace_model.model_name.route_key.must_equal "normal_rails_engine_lyrics" }
-      it { subclass_of_class_with_model.model_name.route_key.must_equal 'albums' }
-    end
+    it { form.class.model_name.route_key.must_equal "new_active_model_test_songs" }
+    it { class_with_model.model_name.route_key.must_equal "albums" }
+    it { class_with_isolated_model.model_name.route_key.must_equal "lyrics" }
+    it { class_with_namespace_model.model_name.route_key.must_equal "normal_rails_engine_lyrics" }
+    it { subclass_of_class_with_model.model_name.route_key.must_equal 'albums' }
 
     describe "class named Song::Form" do
       it do
