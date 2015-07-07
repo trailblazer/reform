@@ -283,7 +283,9 @@ Add this line to your Gemfile:
 gem 'reform'
 ```
 
-Since Reform 2.0 you need to specify what validation backend you want to use (unless you're in a Rails environment where ActiveModel will be used).
+Reform works fine with Rails 3.1-4.2. However, inheritance of validations with `ActiveModel::Validations` is broken in Rails 3.2 and 4.0.
+
+Since Reform 2.0 you need to specify which **validation backend** you want to use (unless you're in a Rails environment where ActiveModel will be used).
 
 To use ActiveModel (not recommended as it doesn't support removing validations).
 
@@ -293,8 +295,6 @@ Reform::Form.class_eval do
   include Reform::Form::ActiveModel::Validations
 end
 ```
-
-Note: Inheritance of validations with `ActiveModel::Validations` is broken in Rails 3.2 and 4.0. It works fine with 3.1, 4.1 and 4.2.
 
 To use Lotus validations (recommended).
 

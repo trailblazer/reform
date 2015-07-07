@@ -15,6 +15,7 @@ you don't need to know about forms anymore, the twin handles that using #insert.
 * `Form#update!` is deprecated. It still works but will remind you to override `#present!` or use pre-populators as [described here](http://trailblazerb.org/gems/reform/prepopulator.html) and in the Trailblazer book, chapter "Nested Forms".
 
 * Forms do not `include ActiveModel::Validations` anymore. This has polluted the entire gem and is not encapsulated in `Validator`. Consider using Lotus Validations instead.
+* Validation inheritance with `ActiveModel::Validations` is broken with Rails 3.2 and 4.0. Update Rails or use the `Lotus` validations.
 
 ## 1.2.6
 
