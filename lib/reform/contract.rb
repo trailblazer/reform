@@ -41,7 +41,7 @@ module Reform
 
     require 'reform/contract/validate'
     # FIXME: currently, this is included in AM::Validations, so we can override AM's #validate, etc. FIXME: don't include AM but use composition.
-    # include Reform::Contract::Validate
+    include Reform::Contract::Validate
 
 
     module ValidatesWarning

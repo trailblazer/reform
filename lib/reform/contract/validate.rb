@@ -1,9 +1,7 @@
 module Reform::Contract::Validate
   def validate
-    options = {errors: errs = errors_for_validate, prefix: []}
+    options = {errors: errors, prefix: []}
     validate!(options)
-
-    @errors = errs # if the AM valid? API wouldn't use a "global" variable this would be better. # valid?(errors) would be great.
 
     @errors.empty?
   end
@@ -11,6 +9,7 @@ module Reform::Contract::Validate
   def validate!(options)
     validate_nested!(options) # call valid? recursively and collect nested errors.
 
+    # TODO: pass in errors here!
     valid?  # calls AM/Lotus validators. In AM, this writes to the "global" @errors, which, of course, sucks.
 
     options[:errors].merge!(errors, options[:prefix])

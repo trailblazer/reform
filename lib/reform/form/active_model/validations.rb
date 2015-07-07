@@ -8,8 +8,6 @@ module Reform::Form::ActiveModel
   # old, very complex given that it needs to do a simple thing, and it's using globals like @errors.
   module Validations
     def self.included(includer)
-      includer.send(:include, Reform::Contract::Validate)
-
       includer.instance_eval do
         extend Uber::InheritableAttr
         inheritable_attr :validator
@@ -40,15 +38,18 @@ module Reform::Form::ActiveModel
       end
     end
 
+
     def valid?
       validator = self.class.validator.new(self)
       validator.valid? # run the Validations object's validator with the form as context. this won't pollute anything in the form.
 
-      form_errors = errors.messages # errors that might have been added manually via errors.add.
-      @errors = validator.errors
-      form_errors.each { |k, v| @errors.add(k, *v) }
 
-      @errors.empty?
+      #errors.merge!(validator.errors, "")
+      validator.errors.each do |name, error| # TODO: handle with proper merge, or something. validator.errors is ALWAYS AM::Errors.
+        errors.add(name, error)
+      end
+
+      errors.empty?
     end
   end
 end
