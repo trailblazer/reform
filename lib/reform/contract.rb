@@ -27,7 +27,7 @@ module Reform
       end
 
       if validates_options = options[:validates]
-        validates name, validates_options.dup # .dup for RAils 3.x because it's retarded.
+        validates name, validates_options.dup # .dup for RAils 3.x.
       end
 
       super

@@ -61,6 +61,10 @@ MiniTest::Spec.class_eval do
       @saved
     end
   end
+
+  def self.rails4_0?
+    ::ActiveModel::VERSION::MAJOR == 4 and ::ActiveModel::VERSION::MINOR == 0
+  end
 end
 
 require "reform/form/active_model/validations"

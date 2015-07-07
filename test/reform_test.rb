@@ -132,18 +132,21 @@ class ReformTest < ReformSpec
   end
 
 
-  describe "inheritance" do
-    class HitForm < SongForm
-      property :position
-      validates :position, :presence => true
-    end
+  unless rails4_0?
+    describe "inheritance" do
+      class HitForm < SongForm
+        property :position
+        validates :position, :presence => true
 
-    let (:form) { HitForm.new(OpenStruct.new()) }
-    it do
-      form.validate({"title" => "The Body"})
-      form.title.must_equal "The Body"
-      form.position.must_equal nil
-      form.errors.messages.must_equal({:name=>["can't be blank"], :position=>["can't be blank"]})
+      end
+
+      let (:form) { HitForm.new(OpenStruct.new()) }
+      it do
+        form.validate({"title" => "The Body"})
+        form.title.must_equal "The Body"
+        form.position.must_equal nil
+        form.errors.messages.must_equal({:name=>["can't be blank"], :position=>["can't be blank"]})
+      end
     end
   end
 end
