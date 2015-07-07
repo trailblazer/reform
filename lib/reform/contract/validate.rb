@@ -1,12 +1,11 @@
 module Reform::Contract::Validate
   def validate
-    options = {:errors => errs = Reform::Contract::Errors.new(self), :prefix => []}
-
+    options = {errors: errs = errors_for_validate, prefix: []}
     validate!(options)
 
-    @errors = errs # if the AM valid? API wouldn't use a "global" variable this would be better.
+    @errors = errs # if the AM valid? API wouldn't use a "global" variable this would be better. # FIXME: why can't we pass this directly into validate!
 
-    errors.valid?
+    @errors.valid?
   end
 
   def validate!(options)
@@ -16,7 +15,7 @@ module Reform::Contract::Validate
 
     valid?  # this validates on <Fields> using AM::Validations, currently.
 
-    options[:errors].merge!(self.errors, prefix)
+    options[:errors].merge!(errors, prefix)
   end
 
 private
@@ -32,5 +31,10 @@ private
       # recursively call valid? on nested form.
       Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form| form.validate!(property_options) }
     end
+  end
+
+  # Builder.
+  def errors_for_validate
+    Reform::Contract::Errors.new(self)
   end
 end
