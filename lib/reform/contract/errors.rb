@@ -5,14 +5,7 @@ class Reform::Contract::Errors < ActiveModel::Errors
     self
   end
 
-  # def each
-  #   messages.each_key do |attribute|
-  #     self[attribute].each { |error| yield attribute, Array.wrap(error) }
-  #   end
-  # end
-
   def merge!(errors, prefix)
-    # TODO: merge into AM.
     errors.messages.each do |field, msgs|
       unless field.to_sym == :base
         field = (prefix+[field]).join(".").to_sym # TODO: why is that a symbol in Rails?

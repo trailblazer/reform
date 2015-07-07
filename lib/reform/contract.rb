@@ -46,6 +46,7 @@ module Reform
     require 'reform/contract/validate'
     include Reform::Contract::Validate
 
+    require 'reform/contract/errors'
     def errors # FIXME: this is needed for Rails 3.0 compatibility.
       @errors ||= Errors.new(self)
     end
@@ -92,5 +93,3 @@ module Reform
     extend Reform::Schema
   end
 end
-
-require 'reform/contract/errors'
