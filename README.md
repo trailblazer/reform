@@ -283,6 +283,28 @@ Add this line to your Gemfile:
 gem 'reform'
 ```
 
+Since Reform 2.0 you need to specify what validation backend you want to use (unless you're in a Rails environment where ActiveModel will be used).
+
+To use ActiveModel (not recommended as it doesn't support removing validations).
+
+```ruby
+require "reform/form/active_model/validations"
+Reform::Form.class_eval do
+  include Reform::Form::ActiveModel::Validations
+end
+```
+
+To use Lotus validations (recommended).
+
+```ruby
+require "reform/form/lotus"
+Reform::Form.class_eval do
+  include Reform::Form::Lotus
+end
+```
+
+Put this in an initializer or on top of your script.
+
 
 ## Compositions
 
