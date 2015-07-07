@@ -132,7 +132,7 @@ class ReformTest < ReformSpec
   end
 
 
-  unless rails4_0?
+  unless (rails4_0? or rails3_2?)
     describe "inheritance" do
       class HitForm < SongForm
         property :position

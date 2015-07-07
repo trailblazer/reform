@@ -294,7 +294,7 @@ Reform::Form.class_eval do
 end
 ```
 
-Note: Inheritance of validations with `ActiveModel::Validations` is broken in Rails 4.0. It works fine with 3.1, 3.2, 4.1 and 4.2.
+Note: Inheritance of validations with `ActiveModel::Validations` is broken in Rails 3.2 and 4.0. It works fine with 3.1, 4.1 and 4.2.
 
 To use Lotus validations (recommended).
 
