@@ -44,7 +44,7 @@ class ContractValidateTest < MiniTest::Spec
     album.name = nil
 
     form.validate.must_equal false
-    form.errors.messages.inspect.must_equal "{:\"songs.composer.name\"=>[\"can't be blank\"], :name=>[\"can't be blank\"]}"
+    form.errors.messages.inspect.must_equal "{:name=>[\"can't be blank\"], :\"songs.composer.name\"=>[\"can't be blank\"]}"
   end
 end
 
@@ -206,7 +206,7 @@ class ValidateWithDeserializerOptionTest < MiniTest::Spec
       "artist" => {"name" => ""},
     ).must_equal false
 
-    form.errors.messages.inspect.must_equal "{:\"songs.composer.name\"=>[\"can't be blank\"], :\"artist.name\"=>[\"can't be blank\"], :name=>[\"can't be blank\"]}"
+    form.errors.messages.inspect.must_equal "{:name=>[\"can't be blank\"], :\"songs.composer.name\"=>[\"can't be blank\"], :\"artist.name\"=>[\"can't be blank\"]}"
   end
 
   # adding to collection via :instance.
