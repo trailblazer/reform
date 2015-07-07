@@ -5,7 +5,7 @@ module Reform::Contract::Validate
 
     @errors = errs # if the AM valid? API wouldn't use a "global" variable this would be better. # FIXME: why can't we pass this directly into validate!
 
-    @errors.valid?
+    @errors.empty?
   end
 
   def validate!(options)
