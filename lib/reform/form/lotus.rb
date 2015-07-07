@@ -49,7 +49,7 @@ module Reform::Form::Lotus
     validator.validate
   end
 
-  def errors_for_validate
+  def build_errors
     Errors.new
   end
 end

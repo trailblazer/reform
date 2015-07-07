@@ -22,8 +22,7 @@ module Reform::Form::ActiveModel
       end
     end
 
-    # Builder.
-    def errors_for_validate
+    def build_errors
       Reform::Contract::Errors.new(self)
     end
 

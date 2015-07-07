@@ -1,13 +1,13 @@
 module Reform::Contract::Validate
   def validate
-    validate!(errs=errors_for_validate, [])
+    validate!(errs=build_errors, [])
 
     @errors = errs
     errors.empty?
   end
 
   def validate!(errors, prefix)
-    validate_nested!(nested_errors = errors_for_validate, prefix) # call valid? recursively and collect nested errors.
+    validate_nested!(nested_errors = build_errors, prefix) # call valid? recursively and collect nested errors.
 
     valid?  # calls AM/Lotus validators and invokes self.errors=.
 
@@ -16,7 +16,7 @@ module Reform::Contract::Validate
   end
 
   def errors
-    @errors ||= errors_for_validate
+    @errors ||= build_errors
   end
 
 private
