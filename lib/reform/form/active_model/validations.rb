@@ -12,8 +12,8 @@ module Reform::Form::ActiveModel
 
       includer.instance_eval do
         extend Uber::InheritableAttr
-        inheritable_attr :validations
-        self.validations = Class.new(Validations)
+        inheritable_attr :validator
+        self.validator = Class.new(Validator)
       end
     end
 
@@ -24,21 +24,21 @@ module Reform::Form::ActiveModel
 
     module ClassMethods
       def validates(*args)
-        validations.validates(*args)
+        validator.validates(*args)
       end
       def validate(*args)
-        validations.validate(*args)
+        validator.validate(*args)
       end
       def validate_with(*args)
-        validations.validate_with(*args)
+        validator.validate_with(*args)
       end
       def validates_with(*args)
-        validations.validates_with(*args)
+        validator.validates_with(*args)
       end
     end
 
 
-    class Validations < SimpleDelegator
+    class Validator < SimpleDelegator
       include ActiveModel::Validations
 
       def self.name
@@ -51,11 +51,11 @@ module Reform::Form::ActiveModel
     end
 
     def valid?
-      validations = self.class.validations.new(self)
-      validations.valid? # run the Validations object's validations with the form as context. this won't pollute anything in the form.
+      validator = self.class.validator.new(self)
+      validator.valid? # run the Validations object's validator with the form as context. this won't pollute anything in the form.
 
       form_errors = errors.messages # errors that might have been added manually via errors.add.
-      @errors = validations.errors
+      @errors = validator.errors
       form_errors.each { |k, v| @errors.add(k, *v) }
 
       @errors.empty?
