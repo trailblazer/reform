@@ -31,5 +31,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rails"
   spec.add_development_dependency "mongoid"
 
+  spec.add_development_dependency "lotus-validations"
   spec.add_development_dependency "actionpack"
 end
