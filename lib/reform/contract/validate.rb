@@ -1,18 +1,18 @@
 module Reform::Contract::Validate
   def validate
-    options = {errors: errors, prefix: []}
-    validate!(options)
+    validate!(errors, [])
 
-    @errors.empty?
+    errors.empty?
   end
 
-  def validate!(options)
-    validate_nested!(options) # call valid? recursively and collect nested errors.
+  def validate!(errors, prefix)
+    validate_nested!(nested_errors = errors_for_validate, prefix) # call valid? recursively and collect nested errors.
 
-    # TODO: pass in errors here!
-    valid?  # calls AM/Lotus validators. In AM, this writes to the "global" @errors, which, of course, sucks.
+    valid?  # calls AM/Lotus validators.
 
-    options[:errors].merge!(errors, options[:prefix])
+    errors.merge!(self.errors, prefix) # local errors.
+    errors.merge!(nested_errors, []) #
+    puts "---------> #{nested_errors.send(:errors).inspect}"
   end
 
   def errors
@@ -22,15 +22,13 @@ module Reform::Contract::Validate
 private
 
   # runs form.validate! on all nested forms
-  def validate_nested!(options)
+  def validate_nested!(errors, prefix)
     schema.each(twin: true) do |dfn|
-      property_options = options.dup
-
-      property_options[:prefix] = options[:prefix].dup # TODO: implement Options#dup.
-      property_options[:prefix] << dfn.name
+      prefixes = prefix.dup # TODO: implement Options#dup.
+      prefixes << dfn.name
 
       # recursively call valid? on nested form.
-      Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form| form.validate!(property_options) }
+      Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form| form.validate!(errors, prefixes) }
     end
   end
 end

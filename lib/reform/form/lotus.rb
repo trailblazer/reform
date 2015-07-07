@@ -4,9 +4,8 @@ require "lotus/validations"
 module Reform::Form::Lotus
   class Errors < Lotus::Validations::Errors
     def merge!(errors, prefix)
-      puts "@@@@@ #{errors.messages.inspect}"
-      errors.errors.each do |err|
-        field = (prefix+[err.attribute]).join(".")
+      errors.instance_variable_get(:@errors).each do |name, err|
+        field = (prefix+[name]).join(".")
         add(field, err) # TODO: use namespace feature in Lotus here!
       end
       #   next if messages[field] and messages[field].include?(msg)

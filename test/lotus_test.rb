@@ -13,25 +13,25 @@ class LotusValidationsTest < MiniTest::Spec
       validates :title, :presence => true
     end
 
-    collection :songs do
-      property :title
-      validates :title, :presence => true
-    end
+    # collection :songs do
+    #   property :title
+    #   validates :title, :presence => true
+    # end
 
-    property :band do # yepp, people do crazy stuff like that.
-      property :name
-      property :label do
-        property :name
-        validates :name, :presence => true
-      end
-      # TODO: make band a required object.
+    # property :band do # yepp, people do crazy stuff like that.
+    #   property :name
+    #   property :label do
+    #     property :name
+    #     validates :name, :presence => true
+    #   end
+    #   # TODO: make band a required object.
 
-      validate :validate_musical_taste
+    #   validate :validate_musical_taste
 
-      def validate_musical_taste
-        errors.add(:base, "You are a bad person") if name == 'Nickelback'
-      end
-    end
+    #   def validate_musical_taste
+    #     errors.add(:base, "You are a bad person") if name == 'Nickelback'
+    #   end
+    # end
 
     validates :title, :presence => true
   end

@@ -41,7 +41,7 @@ module Reform::Form::ActiveModel
     end
 
 
-    def valid?(errors=self.errors)
+    def valid?
       validator = self.class.validator.new(self)
       validator.valid? # run the Validations object's validator with the form as context. this won't pollute anything in the form.
 
