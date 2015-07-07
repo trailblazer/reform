@@ -1,18 +1,18 @@
 module Reform::Contract::Validate
   def validate
-    validate!(errors, [])
+    validate!(errs=errors_for_validate, [])
 
+    @errors = errs
     errors.empty?
   end
 
   def validate!(errors, prefix)
     validate_nested!(nested_errors = errors_for_validate, prefix) # call valid? recursively and collect nested errors.
 
-    valid?  # calls AM/Lotus validators.
+    valid?  # calls AM/Lotus validators and invokes self.errors=.
 
     errors.merge!(self.errors, prefix) # local errors.
     errors.merge!(nested_errors, []) #
-    puts "---------> #{nested_errors.send(:errors).inspect}"
   end
 
   def errors
@@ -22,13 +22,10 @@ module Reform::Contract::Validate
 private
 
   # runs form.validate! on all nested forms
-  def validate_nested!(errors, prefix)
+  def validate_nested!(errors, prefixes)
     schema.each(twin: true) do |dfn|
-      prefixes = prefix.dup # TODO: implement Options#dup.
-      prefixes << dfn.name
-
       # recursively call valid? on nested form.
-      Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form| form.validate!(errors, prefixes) }
+      Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form| form.validate!(errors, prefixes+[dfn.name]) }
     end
   end
 end

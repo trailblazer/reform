@@ -6,7 +6,7 @@ module Reform::Form::Lotus
     def merge!(errors, prefix)
       errors.instance_variable_get(:@errors).each do |name, err|
         field = (prefix+[name]).join(".")
-        add(field, err) # TODO: use namespace feature in Lotus here!
+        add(field, *err) # TODO: use namespace feature in Lotus here!
       end
       #   next if messages[field] and messages[field].include?(msg)
     end
