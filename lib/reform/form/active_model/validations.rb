@@ -27,10 +27,20 @@ module Reform::Form::ActiveModel
     end
 
 
-    class Validator < SimpleDelegator
+    # Validators is the validatable object. On the class level, we define validations,
+    # on instance, it exposes #valid?.
+    class Validator
       include ActiveModel::Validations
 
-      def self.name
+      def initialize(target)
+        @target = target
+      end
+
+      def method_missing(method_name, *args, &block)
+        @target.send(method_name, *args, &block)
+      end
+
+      def self.name # FIXME: this is only needed for i18n, it seems.
         "ba"
       end
 

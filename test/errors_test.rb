@@ -22,9 +22,10 @@ class ErrorsTest < MiniTest::Spec
       end
       # TODO: make band a required object.
 
-      validate :validate_musical_taste
+      validate :music_taste_ok?
 
-      def validate_musical_taste
+    private
+      def music_taste_ok?
         errors.add(:base, "You are a bad person") if name == 'Nickelback'
       end
     end
