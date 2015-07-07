@@ -4,7 +4,7 @@ module Reform::Contract::Validate
 
     validate!(options)
 
-    self.errors = errs # if the AM valid? API wouldn't use a "global" variable this would be better.
+    @errors = errs # if the AM valid? API wouldn't use a "global" variable this would be better.
 
     errors.valid?
   end

@@ -47,13 +47,8 @@ module Reform
     include Reform::Contract::Validate
 
     require 'reform/contract/errors'
-    def errors # FIXME: this is needed for Rails 3.0 compatibility.
-      @errors ||= Errors.new(self)
-    end
 
   private
-    attr_writer :errors # only used in top form. (is that true?)
-
     # DISCUSS: can we achieve that somehow via features in build_inline?
     # TODO: check out if that is needed with Lotus::Validations and make it a AM feature.
     def self.process_inline!(mod, definition)
