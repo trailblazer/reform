@@ -11,3 +11,8 @@ class Reform::Form::UniqueValidator < ActiveModel::EachValidator
   end
 end
 
+# FIXME: ActiveModel loads validators via const_get(#{name}Validator). this magic forces us to
+# make the new :unique validator available here.
+Reform::Form::ActiveModel::Validations::Validator.class_eval do
+  UniqueValidator = Reform::Form::UniqueValidator
+end
