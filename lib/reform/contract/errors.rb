@@ -1,17 +1,10 @@
 # The Errors class is planned to replace AM::Errors. It provides proper nested error messages.
 class Reform::Contract::Errors < ActiveModel::Errors
-  def messages
-    return super unless Reform.rails3_0?
-    self
-  end
-
   def merge!(errors, prefix)
     errors.messages.each do |field, msgs|
       unless field.to_sym == :base
         field = (prefix+[field]).join(".").to_sym # TODO: why is that a symbol in Rails?
       end
-
-      msgs = [msgs] if Reform.rails3_0? # DISCUSS: fix in #each?
 
       msgs.each do |msg|
         next if messages[field] and messages[field].include?(msg)
@@ -21,7 +14,7 @@ class Reform::Contract::Errors < ActiveModel::Errors
   end
 
   def valid? # TODO: test me in unit test.
-    blank?
+    empty?
   end
 
   def to_s
