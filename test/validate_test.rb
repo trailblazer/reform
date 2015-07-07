@@ -1,14 +1,5 @@
 require 'test_helper'
 
-# tests: -------
-# Contract
-#   validate
-#   errors
-
-# Form
-#   validate
-#   errors
-
 class ContractValidateTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
