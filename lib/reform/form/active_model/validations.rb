@@ -30,6 +30,8 @@ module Reform::Form::ActiveModel
     # Validators is the validatable object. On the class level, we define validations,
     # on instance, it exposes #valid?.
     class Validator
+      # current i18n scope: :activemodel.
+
       include ActiveModel::Validations
       # extend ActiveModel::Naming
 
