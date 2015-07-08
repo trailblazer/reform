@@ -17,6 +17,10 @@ you don't need to know about forms anymore, the twin handles that using #insert.
 * Forms do not `include ActiveModel::Validations` anymore. This has polluted the entire gem and is not encapsulated in `Validator`. Consider using Lotus Validations instead.
 * Validation inheritance with `ActiveModel::Validations` is broken with Rails 3.2 and 4.0. Update Rails or use the `Lotus` validations.
 
+## 2.0.0.rc3
+
+* Fix an annoying bug coming from Rails autoloader with validations and `model_name`.
+
 ## 1.2.6
 
 * Added `:prepopulate` to fill out form properties for presentation. Note that you need to call `Form#prepopulate!` to trigger the prepopulation.
