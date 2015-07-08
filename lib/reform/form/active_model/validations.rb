@@ -31,6 +31,7 @@ module Reform::Form::ActiveModel
     # on instance, it exposes #valid?.
     class Validator
       include ActiveModel::Validations
+      # extend ActiveModel::Naming
 
       def initialize(form)
         @form = form
@@ -40,8 +41,11 @@ module Reform::Form::ActiveModel
         @form.send(method_name, *args, &block)
       end
 
-      def self.name # FIXME: this is only needed for i18n, it seems.
-        "ba"
+      # def self.model_name # FIXME: this is only needed for i18n, it seems.
+      #   "Reform::Form"
+      # end
+      def self.model_name
+        ActiveModel::Name.new(Reform::Form)
       end
 
       def self.clone
