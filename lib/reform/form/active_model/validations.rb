@@ -47,6 +47,7 @@ module Reform::Form::ActiveModel
       def self.model_name
         ActiveModel::Name.new(Reform::Form)
       end
+      # we can also do self.name and return "reform/form" but then run into "wrong constant name reform/form" from the autoloader. wtf?
 
       def self.clone
         Class.new(self)
