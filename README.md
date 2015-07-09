@@ -123,7 +123,7 @@ Sometimes, you need to do saving manually.
 
 ## Saving Forms Manually
 
-Calling `#save` with a block doesn't do anything but provide you with a nested hash with all the validated input. This allows you to implement the saving yourself.
+Calling `#save` with a block will provide a nested hash of the form's properties and values. This does **not call `#save` on the models** and allows you to implement the saving yourself.
 
 The block parameter is a nested hash of the form input.
 
