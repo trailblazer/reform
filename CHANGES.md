@@ -2,18 +2,25 @@
 
 * The `::reform_2_0!` is no longer there. Guess why.
 * Again: `:empty` doesn't exist anymore. You can choose from `:readable`, `:writeable` and `:virtual`.
-* :populator => lambda { |fragment, index, args|
-#           songs[index] or songs[index] = args.binding[:form].new(Song.new)
-#         }
-is now :populator => lambda { |fragment, index, args|
-#           songs[index] or songs.insert(index) = Song.new
-#         }
-you don't need to know about forms anymore, the twin handles that using #insert.
+* When using `:populator` the API to work against the form has changed.
+    ```ruby
+    populator: lambda { |fragment, index, args|
+      songs[index] or songs[index] = args.binding[:form].new(Song.new)
+    }
+    ```
+
+   is now
+
+   ```ruby
+   populator: lambda { |fragment, index, args|
+     songs[index] or songs.insert(index) = Song.new
+   }
+   ```
+    You don't need to know about forms anymore, the twin handles that using the [Twin](https://github.com/apotonick/disposable) API..
 
 * `:as` option removed. Use `:from`.
 * With `Composition` included, `Form#model` would give you a composition object. You can grab that using `Form#mapper` now.
 * `Form#update!` is deprecated. It still works but will remind you to override `#present!` or use pre-populators as [described here](http://trailblazerb.org/gems/reform/prepopulator.html) and in the Trailblazer book, chapter "Nested Forms".
-
 * Forms do not `include ActiveModel::Validations` anymore. This has polluted the entire gem and is not encapsulated in `Validator`. Consider using Lotus Validations instead.
 * Validation inheritance with `ActiveModel::Validations` is broken with Rails 3.2 and 4.0. Update Rails or use the `Lotus` validations.
 
