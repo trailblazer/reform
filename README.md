@@ -830,7 +830,7 @@ If you want full support for `simple_form` do as follows.
 
 ```ruby
 class SongForm < Reform::Form
-  include ModelReflections
+  include ActiveModel::ModelReflections
 ```
 
 Including this module will add `#column_for_attribute` and other methods need by form builders to automatically guess the type of a property.

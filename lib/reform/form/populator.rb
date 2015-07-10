@@ -1,5 +1,3 @@
-# TODO: move somewhere else!
-# TODO: make inheritable? and also, there's a lot of noise. shorten.
 # Implements the :populator option.
 #
 #  populator: -> (fragment, twin, options)
