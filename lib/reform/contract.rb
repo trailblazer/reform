@@ -1,19 +1,18 @@
-require 'forwardable'
-require 'uber/inheritable_attr'
-require 'uber/delegates'
+require "uber/inheritable_attr"
+require "disposable/twin"
+require "disposable/twin/setup"
+require "disposable/twin/default"
 
 module Reform
-  # Gives you a DSL for defining the object structure and its validations.
-  require "disposable/twin"
-  require "disposable/twin/setup"
+  # Define your form structure and its validations. Instantiate it with a model,
+  # and then +validate+ this object graph.
   class Contract < Disposable::Twin
     require "disposable/twin/composition" # Expose.
     include Expose
 
     feature Setup
     feature Setup::SkipSetter
-
-    extend Uber::Delegates
+    feature Default
 
     representer_class.instance_eval do
       def default_inline_class
@@ -76,6 +75,7 @@ module Reform
        self.class.options_for(name)
       end
     end
+
     def self.options_for(name)
       representer_class.representable_attrs.get(name)
     end

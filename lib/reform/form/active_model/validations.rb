@@ -1,5 +1,6 @@
 require "active_model"
 require "reform/contract/errors"
+require "uber/delegates"
 
 module Reform::Form::ActiveModel
   # AM::Validations for your form.
