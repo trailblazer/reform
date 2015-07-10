@@ -113,8 +113,12 @@ It's then up to you what to do with the updated models - they're still unsaved.
 The easiest way to save the data is to call `#save` on the form.
 
 ```ruby
-    @form.save  #=> populates album with incoming data
-                #   by calling @form.album.title=.
+if @form.validate(params[:song])
+  @form.save  #=> populates album with incoming data
+              #   by calling @form.album.title=.
+else
+  # handle validation errors.
+end
 ```
 
 This will sync the data to the model and then call `album.save`.
