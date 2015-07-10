@@ -12,7 +12,7 @@ module Reform::Contract::Validate
     valid?  # calls AM/Lotus validators and invokes self.errors=.
 
     errors.merge!(self.errors, prefix) # local errors.
-    errors.merge!(nested_errors, []) #
+    errors.merge!(nested_errors, [])
   end
 
   def errors
