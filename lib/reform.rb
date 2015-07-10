@@ -4,13 +4,13 @@ module Reform
   end
 end
 
-require 'reform/contract'
-require 'reform/form'
-require 'reform/form/composition'
-require 'reform/form/active_model'
-require 'reform/form/module'
+require "reform/contract"
+require "reform/form"
+require "reform/form/composition"
+require "reform/form/active_model"
+require "reform/form/module"
 
 
-if defined?(Rails) # DISCUSS: is everyone ok with this?
-  require 'reform/rails'
+if defined?(Rails)
+  require "reform/rails"
 end

@@ -9,12 +9,13 @@ module Reform
     end
 
     require "reform/form/validate"
-    include Validate # extend Contract#validate with additional behaviour.
+    include Validate # override Contract#validate with additional behaviour.
 
     require "reform/form/populator"
 
     module Property
-      # add macro logic, e.g. for :populator.
+      # Add macro logic, e.g. for :populator.
+      # TODO: This will be re-structured once Declarative allows it.
       def property(name, options={}, &block)
         if deserializer = options[:deserializer] # this means someone is explicitly specifying :deserializer.
           options[:deserializer] = Representable::Cloneable::Hash[deserializer]
@@ -23,25 +24,18 @@ module Reform
         definition = super # let representable sort out inheriting of properties, and so on.
         definition.merge!(deserializer: Representable::Cloneable::Hash.new) unless definition[:deserializer] # always keep :deserializer per property.
 
-
         deserializer_options = definition[:deserializer]
-
-        # TODO: make this pluggable.
-        # DISCUSS: Populators should be a representable concept?
 
         # Populators
         # * they assign created data, no :setter (hence the name).
         # * they (ab)use :instance, this is why they need to return a twin form.
         # * they are only used in the deserializer.
-
-
-
         if populator = options.delete(:populate_if_empty)
           deserializer_options.merge!({instance: Populator::IfEmpty.new(populator)})
           deserializer_options.merge!({setter: nil})
         elsif populator = options.delete(:populator)
           deserializer_options.merge!({instance: Populator.new(populator)})
-          deserializer_options.merge!({setter: nil}) #if options[:collection] # collections don't need to get re-assigned, they don't change.
+          deserializer_options.merge!({setter: nil})
         end
 
 
