@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'reform/form/json'
 
 class DeserializeTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)

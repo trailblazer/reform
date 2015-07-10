@@ -1,5 +1,3 @@
 require "disposable/twin/coercion"
 
-Reform::Form.class_eval do
-  Coercion = Disposable::Twin::Coercion
-end
+Reform::Form::Coercion = Disposable::Twin::Coercion
