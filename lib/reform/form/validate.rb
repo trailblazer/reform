@@ -5,8 +5,7 @@ module Reform::Form::Validate
       include Uber::Callable
 
       def call(form, params, options)
-        # TODO: hahahahahaha.
-        # FIXME: this is a bit ridiculous.
+        # TODO: Schema should provide property names as plain list.
         properties = options.binding[:twin].representer_class.representable_attrs[:definitions].keys
 
         properties.each { |name| params[name].present? and return false }
@@ -46,7 +45,7 @@ private
   # DISCUSS: this is only called once, on the top-level form.
   def deprecate_update!(params)
     return unless self.class.instance_methods(false).include?(:update!)
-    warn "[Reform] Form#update! is deprecated and will be removed in Reform 2.1. Please use #present! or pre-populator."
+    warn "[Reform] Form#update! is deprecated and will be removed in Reform 2.1. Please use #prepopulate!"
     update!(params)
   end
 
@@ -68,7 +67,6 @@ private
 
     deserializer.apply do |dfn|
       next unless dfn[:twin]
-
       # Representer#each and #apply have to be unified.
       dfn.merge!(
         deserialize: lambda { |decorator, params, options|
