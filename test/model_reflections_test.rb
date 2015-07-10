@@ -4,7 +4,7 @@ require 'test_helper'
 class ModelReflectionTest < MiniTest::Spec
   class SongForm < Reform::Form
     include Reform::Form::ActiveRecord
-    include Reform::Form::ModelReflections
+    include Reform::Form::ActiveModel::ModelReflections
 
     model :song
 
