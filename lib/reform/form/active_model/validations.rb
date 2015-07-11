@@ -27,6 +27,16 @@ module Reform::Form::ActiveModel
           def human_attribute_name(name)
             validator.human_attribute_name(name)
           end
+
+          # Rails 3.1.
+          def lookup_ancestors
+            validator.lookup_ancestors
+          end
+
+          # Rails 3.1.
+          def i18n_scope
+            validator.i18n_scope
+          end
         end
       end
     end
