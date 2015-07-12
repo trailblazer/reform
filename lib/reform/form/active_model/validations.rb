@@ -23,20 +23,8 @@ module Reform::Form::ActiveModel
           extend Uber::Delegates
           delegates :validator, :validates, :validate, :validates_with, :validate_with
 
-          # Hooray! Delegate back to Reform's Validator class which contains AM::Validations.
-          def human_attribute_name(name)
-            validator.human_attribute_name(name)
-          end
-
-          # Rails 3.1.
-          def lookup_ancestors
-            validator.lookup_ancestors
-          end
-
-          # Rails 3.1.
-          def i18n_scope
-            validator.i18n_scope
-          end
+          # Hooray! Delegate translation back to Reform's Validator class which contains AM::Validations.
+          delegates :validator, :human_attribute_name, :lookup_ancestors, :i18n_scope # Rails 3.1.
         end
       end
     end
