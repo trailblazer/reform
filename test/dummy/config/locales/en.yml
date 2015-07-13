@@ -10,7 +10,7 @@ en:
     - Fri
     - Sat
     abbr_month_names:
-    - 
+    -
     - Jan
     - Feb
     - Mar
@@ -36,7 +36,7 @@ en:
       long: "%B %d, %Y"
       short: "%b %d"
     month_names:
-    - 
+    -
     - January
     - February
     - March
@@ -203,3 +203,14 @@ en:
       long: "%B %d, %Y %H:%M"
       short: "%d %b %H:%M"
     pm: pm
+
+
+  # custom validation error messages
+
+  activemodel:
+    errors:
+      models:
+        song:
+          attributes:
+            title:
+              custom_error_message: Custom Error Message
