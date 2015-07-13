@@ -50,23 +50,6 @@ module Reform
     extend ValidatesWarning
 
   private
-    # DISCUSS: can we achieve that somehow via features in build_inline?
-    # TODO: check out if that is needed with Lotus::Validations and make it a AM feature.
-    def self.process_inline!(mod, definition)
-      _name = definition.name
-      mod.instance_eval do
-        @_name = _name.singularize.camelize
-        # this adds Form::name for AM::Validations and I18N.
-        # i have a feeling that this is also needed for Rails autoloader, which is scary.
-        # beside that, it is a nice way for debugging to find out which anonymous form class you're working on:
-        #   anonymous_nested_form.class.name
-        def name
-          @_name
-        end
-      end
-    end
-
-
     # DISCUSS: separate file?
     module Readonly
       def readonly?(name)

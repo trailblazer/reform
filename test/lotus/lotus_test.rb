@@ -15,6 +15,10 @@ class LotusTest < Minitest::Spec
 
     property :title
     validates :title, presence: true
+
+    property :songs do
+      property :name
+    end
   end
 
   it do
