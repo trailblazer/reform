@@ -25,6 +25,8 @@ module Reform
         options[:twin] = twin
       end
 
+      options[:pass_options] = true
+
       if validates_options = options[:validates]
         validates name, validates_options.dup # .dup for RAils 3.x.
       end
