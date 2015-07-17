@@ -28,7 +28,7 @@ class AlbumForm < Reform::Form
 end
 ```
 
-Fields are declared using `::property`. Validations work exactly as you know it from Rails or other frameworks. Note that validations no longer got into the model.
+Fields are declared using `::property`. Validations work exactly as you know it from Rails or other frameworks. Note that validations no longer go into the model.
 
 
 ## The API
