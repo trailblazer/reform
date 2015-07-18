@@ -1,6 +1,6 @@
 ## 2.0.1
 
-* Fix `ActiveModel::Validations` where translations in custom validations would error. This is now handled by delegating back to the `Valiator` object in Reform.
+* Fix `ActiveModel::Validations` where translations in custom validations would error. This is now handled by delegating back to the `Validator` object in Reform.
 
 ## 2.0.0
 
