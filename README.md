@@ -28,7 +28,7 @@ class AlbumForm < Reform::Form
 end
 ```
 
-Fields are declared using `::property`. Validations work exactly as you know it from Rails or other frameworks. Note that validations no longer got into the model.
+Fields are declared using `::property`. Validations work exactly as you know it from Rails or other frameworks. Note that validations no longer go into the model.
 
 
 ## The API
@@ -802,7 +802,7 @@ class SongForm < Reform::Form
 end
 ```
 
-If you're not happy with the `model_name` result, configure it manually.
+If you're not happy with the `model_name` result, configure it manually via `::model`.
 
 ```ruby
 class CoverSongForm < Reform::Form
@@ -811,6 +811,8 @@ class CoverSongForm < Reform::Form
   model :song
 end
 ```
+
+`::model` will configure ActiveModel's naming logic. With `Composition`, this configures the main model of the form and should be called once.
 
 This is especially helpful when your framework tries to render `cover_song_path` although you want to go with `song_path`.
 
@@ -853,7 +855,21 @@ class SongForm < Reform::Form
 
 ## Multiparameter Dates
 
-Composed multi-parameter dates as created by the Rails date helper are processed automatically. As soon as Reform detects an incoming `release_date(i1)` or the like it is gonna be converted into a date.
+Composed multi-parameter dates as created by the Rails date helper are processed automatically when `multi_params: true` is set for the date property and the `MultiParameterAttributes` feature is included. As soon as Reform detects an incoming `release_date(i1)` or the like it is gonna be converted into a date.
+
+```ruby
+class AlbumForm < Reform::Form
+  feature Reform::Form::ActiveModel::FormBuilderMethods
+  feature Reform::Form::MultiParameterAttributes
+
+  collection :songs do
+    feature Reform::Form::ActiveModel::FormBuilderMethods
+    property :title
+    property :release_date, :multi_params => true
+    validates :title, :presence => true
+  end
+end
+```
 
 Note that the date will be `nil` when one of the components (year/month/day) is missing.
 

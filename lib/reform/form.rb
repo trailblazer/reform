@@ -49,7 +49,7 @@ module Reform
         # default:
         # add Sync populator to nested forms.
         # FIXME: this is, of course, ridiculous and needs a better structuring.
-        if (deserializer_options == {} || deserializer_options.keys == [:skip_parse]) && block_given? && !options[:inherit] # FIXME: hmm. not a fan of this: only add when no other option given?
+        if (deserializer_options == {} || deserializer_options.keys == [:skip_parse]) && definition[:twin] && !options[:inherit] # FIXME: hmm. not a fan of this: only add when no other option given?
           deserializer_options.merge!(instance: Populator::Sync.new(nil), setter: nil)
         end
 
