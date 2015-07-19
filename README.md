@@ -802,7 +802,7 @@ class SongForm < Reform::Form
 end
 ```
 
-If you're not happy with the `model_name` result, configure it manually.
+If you're not happy with the `model_name` result, configure it manually via `::model`.
 
 ```ruby
 class CoverSongForm < Reform::Form
@@ -811,6 +811,8 @@ class CoverSongForm < Reform::Form
   model :song
 end
 ```
+
+`::model` will configure ActiveModel's naming logic. With `Composition`, this configures the main model of the form and should be called once.
 
 This is especially helpful when your framework tries to render `cover_song_path` although you want to go with `song_path`.
 
