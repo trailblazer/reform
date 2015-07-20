@@ -142,4 +142,12 @@ class ErrorsTest < MiniTest::Spec
     # to_s is aliased to messages
     it { form.errors.to_s.must_equal "{:\"songs.title\"=>[\"can't be blank\"], :\"band.label.name\"=>[\"can't be blank\"]}" }
   end
+
+  describe "repeated validations" do
+    it do
+      form.validate("title" => "")
+      form.valid?
+      form.errors.messages.must_equal({:title=>["can't be blank"], :"band.label.name"=>["can't be blank"]})
+    end
+  end
 end
