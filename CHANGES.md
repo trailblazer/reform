@@ -1,3 +1,7 @@
+## 2.0.2
+
+* Fix `unique: true` validation in combination with `Composition`.
+
 ## 2.0.1
 
 * Fix `ActiveModel::Validations` where translations in custom validations would error. This is now handled by delegating back to the `Validator` object in Reform.
