@@ -57,7 +57,7 @@ module Reform::Form::ActiveModel
       end
 
       def self.model_name
-        ActiveModel::Name.new(Reform::Form)
+        ActiveModel::Name.new(Song)
       end
       # we can also do self.name and return "reform/form" but then run into "wrong constant name reform/form" from the autoloader. wtf?
 
