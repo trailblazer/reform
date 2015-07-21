@@ -132,6 +132,15 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
     form.songs[1].composer.name.must_equal "SNFU"
     form.artist.name.must_equal "The Police"
   end
+
+  # throws exception when no populators.
+  it do
+    album = Album.new("The Dissent Of Man", [])
+
+    assert_raises do
+      AlbumForm.new(album).validate(songs: {title: "Resist-Stance"})
+    end
+  end
 end
 
 class ValidateWithDeserializerOptionTest < MiniTest::Spec
