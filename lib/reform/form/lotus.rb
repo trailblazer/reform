@@ -42,14 +42,15 @@ module Reform::Form::Lotus
     end
   end
 
+  def build_errors
+    Errors.new
+  end
+
+  private
 
   def valid?
     # DISCUSS: by using @fields here, we avoid setters being called. win!
     validator = Lotus::Validations::Validator.new(self.class.validations, @fields, errors)
     validator.validate
-  end
-
-  def build_errors
-    Errors.new
   end
 end
