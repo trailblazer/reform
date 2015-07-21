@@ -75,3 +75,6 @@ require "reform/form/active_model/validations"
 Reform::Contract.class_eval do
   include Reform::Form::ActiveModel::Validations
 end
+
+I18n.load_path << Dir['test/dummy/config/locales/*.yml']
+I18n.backend.load_translations
