@@ -16,6 +16,12 @@ Temporary note: This is the README and API for Reform 2. On the public API, only
 
 Every form in Reform is a _twin_. Twins are non-persistent domain objects from the [Disposable gem](https://github.com/apotonick/disposable). All features of Disposable, like renaming fields, change tracking, etc. are available in Reform, too.
 
+## ActiveModel
+
+**WARNING: Reform will soon drop support for ActiveModel validations.**
+
+This is mostly to save my mental integrity. The amount of problems we have in Reform with ActiveModel's poor object design and lack of interfaces and encapsulation does not outweigh its benefit anymore. Please consider using Lotus::Validations instead, which will soon be mature enough to replace this dinosaur.
+
 
 ## Defining Forms
 
