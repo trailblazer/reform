@@ -1,3 +1,7 @@
+## Unrelased
+
+* Added `validates accept: true` validation as a replacement for `validates acceptance: true`. This validation will not write anything to model. Validation implementation is courtesy of Rails team, thanks!
+
 ## 2.0.3
 
 * `Form#valid?` is private now. Sorry for the inconvenience, but this has never been documented as public. Reason is that the only entry point for validation is `#validate` to give the form as less public API as possible and minimize misunderstandings.

@@ -797,6 +797,10 @@ Both ActiveRecord and Mongoid modules will support "native" uniqueness support f
 
 You're encouraged to use Reform's non-writing `unique: true` validation, though. [Learn more](http://trailblazerb.org/gems/reform/validation.html)
 
+## Acceptance Validation
+
+You're encouraged to use Reform's non-writing `accept: true` validation as a replacement for ActiveRecord's `acceptance: true`.
+
 ## ActiveModel Compliance
 
 Forms in Reform can easily be made ActiveModel-compliant.
