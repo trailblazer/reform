@@ -1,6 +1,7 @@
 ## 2.0.2
 
 * Fix `unique: true` validation in combination with `Composition`.
+* Use newest Disposable 0.1.8 which does not set `:pass_options` anymore.
 
 ## 2.0.1
 
