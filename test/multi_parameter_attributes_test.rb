@@ -20,11 +20,8 @@ class ReformTest < ReformSpec
 
     it "handles invalid Time input" do
       date_of_birth_params = { "date_of_birth(1i)"=>"1950", "date_of_birth(2i)"=>"99", "date_of_birth(3i)"=>"1" }
-      assert_raises ArgumentError do
-        form.validate(date_of_birth_params)
-      end
-      # form.validate(date_of_birth_params)
-      # form.date_of_birth.must_equal nil
+      form.validate(date_of_birth_params)
+      form.date_of_birth.must_equal nil
     end
   end
 
@@ -48,11 +45,8 @@ class ReformTest < ReformSpec
     it "handles invalid Time input" do
       start_time_params = { "start_time(1i)"=>"2000", "start_time(2i)"=>"99", "start_time(3i)"=>"1", "start_time(4i)"=>"12", "start_time(5i)"=>"00" }
       form.validate(start_time_params)
-      assert_raises ArgumentError do
-        form.validate(start_time_params)
-      end
-      # form.validate(start_time_params)
-      # form.start_time.must_equal nil
+      form.validate(start_time_params)
+      form.start_time.must_equal nil
     end
   end
 

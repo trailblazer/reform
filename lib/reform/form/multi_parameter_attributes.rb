@@ -26,12 +26,16 @@ module Reform::Form::MultiParameterAttributes
     def params_to_date(year, month, day, hour, minute)
       return nil if [year, month, day].any?(&:blank?)
 
-      if hour.blank? && minute.blank?
-        Date.new(year.to_i, month.to_i, day.to_i) # TODO: test fails.
-      else
-        args = [year, month, day, hour, minute].map(&:to_i)
-        Time.zone ? Time.zone.local(*args) :
-          Time.new(*args)
+      begin
+        if hour.blank? && minute.blank?
+          Date.new(year.to_i, month.to_i, day.to_i) # TODO: test fails.
+        else
+          args = [year, month, day, hour, minute].map(&:to_i)
+          Time.zone ? Time.zone.local(*args) :
+            Time.new(*args)
+        end
+      rescue ArgumentError
+        nil
       end
     end
   end
