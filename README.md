@@ -20,7 +20,7 @@ Every form in Reform is a _twin_. Twins are non-persistent domain objects from t
 
 **WARNING: Reform will soon drop support for ActiveModel validations.**
 
-This is mostly to save my mental integrity. The amount of problems we have in Reform with ActiveModel's poor object design and lack of interfaces and encapsulation does not outweigh its benefit anymore. Please consider using Lotus::Validations instead, which will soon be mature enough to replace this dinosaur.
+This is mostly to save my mental integrity. The amount of problems we have in Reform with ActiveModel's poor object design, its lack of interfaces and encapsulation do outweigh the benefits. Please consider using Lotus::Validations instead, which will soon be mature enough to replace this dinosaur.
 
 
 ## Defining Forms
