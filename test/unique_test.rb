@@ -1,9 +1,11 @@
 require "test_helper"
 
 require "reform/form/validation/unique_validator.rb"
+require "reform/form/active_record"
 
 class UniquenessValidatorOnCreateTest < MiniTest::Spec
   class SongForm < Reform::Form
+    include ActiveRecord
     property :title
     validates :title, unique: true
   end
@@ -21,8 +23,10 @@ class UniquenessValidatorOnCreateTest < MiniTest::Spec
   end
 end
 
+
 class UniquenessValidatorOnUpdateTest < MiniTest::Spec
   class SongForm < Reform::Form
+    include ActiveRecord
     property :title
     validates :title, unique: true
   end
@@ -37,5 +41,24 @@ class UniquenessValidatorOnUpdateTest < MiniTest::Spec
 
     form = SongForm.new(@song)
     form.validate("title" => "How Many Tears").must_equal true
+  end
+end
+
+
+class UniqueWithCompositionTest < MiniTest::Spec
+  class SongForm < Reform::Form
+    include ActiveRecord
+    include Composition
+
+    property :title, on: :song
+    validates :title, unique: true
+  end
+
+  it do
+    Song.delete_all
+
+    form = SongForm.new(song: Song.new)
+    form.validate("title" => "How Many Tears").must_equal true
+    form.save
   end
 end
