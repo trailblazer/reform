@@ -801,6 +801,13 @@ You're encouraged to use Reform's non-writing `unique: true` validation, though.
 
 You're encouraged to use Reform's non-writing `accept: true` validation as a replacement for ActiveRecord's `acceptance: true`.
 
+```ruby
+class SongForm < Reform::Form
+  property :terms, virtual: true
+  validates :terms, accept: true
+end
+```
+
 ## ActiveModel Compliance
 
 Forms in Reform can easily be made ActiveModel-compliant.
