@@ -61,8 +61,13 @@ module Reform::Form::ActiveModel
         form_name = model_options.first.to_s.camelize
         namespace = model_options.last[:namespace].present? ? model_options.last[:namespace].to_s.camelize.constantize : nil
       else
-        form_name = name.sub(/(::)?Form$/, "") # Song::Form => "Song"
-        namespace = nil
+        if name
+          form_name = name.sub(/(::)?Form$/, "") # Song::Form => "Song"
+          namespace = nil
+        else # anonymous forms. let's drop AM and forget about all this.
+          form_name = "reform"
+          namespace = nil
+        end
       end
 
       active_model_name_for(form_name, namespace)
