@@ -19,7 +19,7 @@ class UniquenessValidatorOnCreateTest < MiniTest::Spec
 
     form = SongForm.new(Song.new)
     form.validate("title" => "How Many Tears").must_equal false
-    form.errors.to_s.must_equal "{:title=>[\"title must be unique.\"]}"
+    form.errors.to_s.must_equal "{:title=>[\"has already been taken\"]}"
   end
 end
 

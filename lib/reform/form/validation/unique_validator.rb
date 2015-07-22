@@ -10,7 +10,7 @@ class Reform::Form::UniqueValidator < ActiveModel::EachValidator
     query = query.merge(model.class.where("id <> ?", model.id)) if model.persisted?
 
     # if any models found, add error on attribute
-    form.errors.add(attribute, "#{attribute} must be unique.") if query.any?
+    form.errors.add(attribute, :taken) if query.any?
   end
 end
 

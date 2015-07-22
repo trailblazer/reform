@@ -1,7 +1,9 @@
 ---
 en:
   # custom validation error messages
-
+  errors:
+    messages:
+      taken: has already been taken
   activemodel:
     errors:
       models:
@@ -9,3 +11,4 @@ en:
           attributes:
             title:
               custom_error_message: Custom Error Message
+              taken: has already been taken
