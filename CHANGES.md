@@ -3,6 +3,7 @@
 * `Form#valid?` is private now. Sorry for the inconvenience, but this has never been documented as public. Reason is that the only entry point for validation is `#validate` to give the form as less public API as possible and minimize misunderstandings.
 
     The idea is that you set up the object graph before/while `#validate` and then invoke the validators once.
+* Fixed AM to find proper i18n for error messages. This happens by injecting the form's `model_name` into the `Validator` object in ActiveModel.
 
 ## 2.0.2
 
