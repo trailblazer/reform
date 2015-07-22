@@ -44,25 +44,29 @@ module Reform::Form::ActiveModel
     # on instance, it exposes #valid?.
     class Validator
       # current i18n scope: :activemodel.
-
       include ActiveModel::Validations
-      # extend ActiveModel::Naming
 
-      def initialize(form)
+      class << self
+        def model_name
+          @_active_model_sucks || ActiveModel::Name.new(Reform::Form, nil, "Reform::Form")
+        end
+
+        def model_name=(name)
+          @_active_model_sucks = name
+        end
+
+        def clone
+          Class.new(self)
+        end
+      end
+
+      def initialize(form, name)
         @form = form
+        self.class.model_name = name # one of the many reasons why i will drop support for AM::V in 2.1.
       end
 
       def method_missing(method_name, *args, &block)
         @form.send(method_name, *args, &block)
-      end
-
-      def self.model_name
-        ActiveModel::Name.new(Song)
-      end
-      # we can also do self.name and return "reform/form" but then run into "wrong constant name reform/form" from the autoloader. wtf?
-
-      def self.clone
-        Class.new(self)
       end
     end
 
@@ -71,7 +75,10 @@ module Reform::Form::ActiveModel
     # Needs to be implemented by every validation backend and implements the
     # actual validation. See Reform::Form::Lotus, too!
     def valid?
-      validator = self.class.validator.new(self)
+      # we always pass the model_name into the validator now, so AM:V can do its magic. problem is that
+      # AM does validator.class.model_name so we have to hack the dynamic model name into the
+      # Validator class.
+      validator = self.class.validator.new(self, model_name)
       validator.valid? # run the Validations object's validator with the form as context. this won't pollute anything in the form.
 
 
