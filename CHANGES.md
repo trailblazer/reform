@@ -1,3 +1,9 @@
+## 2.0.3
+
+* `Form#valid?` is private now. Sorry for the inconvenience, but this has never been documented as public. Reason is that the only entry point for validation is `#validate` to give the form as less public API as possible and minimize misunderstandings.
+
+    The idea is that you set up the object graph before/while `#validate` and then invoke the validators once.
+
 ## 2.0.2
 
 * Fix `unique: true` validation in combination with `Composition`.
