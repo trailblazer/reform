@@ -137,7 +137,7 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
   it do
     album = Album.new("The Dissent Of Man", [])
 
-    assert_raises do
+    assert_raises RuntimeError do
       AlbumForm.new(album).validate(songs: {title: "Resist-Stance"})
     end
   end
