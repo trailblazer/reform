@@ -66,6 +66,8 @@ module Reform::Form::ActiveModel
       end
     end
 
+    private
+
     # Needs to be implemented by every validation backend and implements the
     # actual validation. See Reform::Form::Lotus, too!
     def valid?
