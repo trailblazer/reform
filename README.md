@@ -2,6 +2,7 @@
 
 [![Build
 Status](https://travis-ci.org/apotonick/reform.svg)](https://travis-ci.org/apotonick/reform)
+[![Gem Version](https://badge.fury.io/rb/reform.svg)](http://badge.fury.io/rb/reform)
 
 _Form objects decoupled from your models._
 
