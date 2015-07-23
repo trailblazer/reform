@@ -1,5 +1,8 @@
 # Reform
 
+[![Build
+Status](https://travis-ci.org/apotonick/reform.svg)](https://travis-ci.org/apotonick/reform)
+
 _Form objects decoupled from your models._
 
 Reform gives you a form object with validations and nested setup of models. It is completely framework-agnostic and doesn't care about your database.
