@@ -20,6 +20,10 @@ module Reform::Form::ActiveRecord
     end
   end
 
+  def to_nested_hash(*)
+    super.with_indifferent_access
+  end
+
   class UniquenessValidator < ::ActiveRecord::Validations::UniquenessValidator
     include Reform::Form::ORM::UniquenessValidator
   end

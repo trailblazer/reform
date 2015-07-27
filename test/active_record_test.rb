@@ -96,6 +96,15 @@ class ActiveRecordTest < MiniTest::Spec
       form.save {}
       Artist.where(:name => "Bad Religion").size.must_equal 0
     end
+
+    it "can access block params using string or hash key" do
+      Artist.delete_all
+      form.validate("artist" => {"name" => "Paul Gilbert"}, "title" => "The Gargoyle", "created_at" => "November 6, 1966")
+      form.save do |params|
+        params[:title].must_equal 'The Gargoyle'
+        params['title'].must_equal 'The Gargoyle'
+      end
+    end
   end
 end
 
