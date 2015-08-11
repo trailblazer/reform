@@ -1,3 +1,7 @@
+## 2.0.4
+
+* `#sync` and `#save` with block now provide `HashWithIndifferentAccess` in Rails.
+
 ## 2.0.3
 
 * `Form#valid?` is private now. Sorry for the inconvenience, but this has never been documented as public. Reason is that the only entry point for validation is `#validate` to give the form as less public API as possible and minimize misunderstandings.
