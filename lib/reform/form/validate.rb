@@ -62,19 +62,17 @@ private
       include:          [Representable::Hash::AllowSymbols, Representable::Hash],
       superclass:       Representable::Decorator,
       representer_from: lambda { |inline| inline.representer_class },
-      options_from:     :deserializer
-    )
-
-    deserializer.apply do |dfn|
-      next unless dfn[:twin]
-      # Representer#each and #apply have to be unified.
+      options_from:     :deserializer,
+      exclude_options:  [:default], # Reform must not copy Disposable/Reform-only options that might confuse representable.
+    ) do |dfn|
+      # next unless dfn[:twin]
       dfn.merge!(
         deserialize: lambda { |decorator, params, options|
           params = decorator.represented.deserialize!(params) # let them set up params. # FIXME: we could also get a new deserializer here.
 
           decorator.from_hash(params) # options.binding.deserialize_method.inspect
         }
-      )
+      ) if dfn[:twin]
     end
 
     deserializer
