@@ -37,7 +37,7 @@ module Reform
     # FIXME: test me.
     def self.properties(*args)
       options = args.extract_options!
-      args.each { |name| property(name, options) }
+      args.each { |name| property(name, options.dup) }
     end
 
     require 'reform/contract/validate'
