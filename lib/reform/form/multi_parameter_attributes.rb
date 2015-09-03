@@ -24,14 +24,17 @@ module Reform::Form::MultiParameterAttributes
 
   private
     def params_to_date(year, month, day, hour, minute)
-      if [year, month, day].any?(&:blank?) || !Date.valid_date?(*[year, month, day].map(&:to_i))
+      date_fields = [year, month, day].map!(&:to_i)
+      time_fields = [hour, minute].map!(&:to_i)
+
+      if date_fields.any?(&:zero?) || !Date.valid_date?(*date_fields)
         return nil
       end
 
       if hour.blank? && minute.blank?
-        Date.new(year.to_i, month.to_i, day.to_i)
+        Date.new(*date_fields)
       else
-        args = [year, month, day, hour, minute].map(&:to_i)
+        args = date_fields + time_fields
         Time.zone ? Time.zone.local(*args) :
           Time.new(*args)
       end
