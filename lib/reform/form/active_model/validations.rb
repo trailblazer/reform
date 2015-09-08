@@ -65,6 +65,10 @@ module Reform::Form::ActiveModel
         self.class.model_name = name # one of the many reasons why i will drop support for AM::V in 2.1.
       end
 
+      def format # FIXME: for some weird reason, Object#format is reserved and form.send(:format) crashes with ArgumentError: too few arguments.
+        @form.format
+      end
+
       def method_missing(method_name, *args, &block)
         @form.send(method_name, *args, &block)
       end

@@ -1,3 +1,7 @@
+## 2.0.5
+
+* In `ActiveModel::Validator` the `method_missing` would crash with a property called `format`.
+
 ## 2.0.4
 
 * `#sync` and `#save` with block now provide `HashWithIndifferentAccess` in Rails.
