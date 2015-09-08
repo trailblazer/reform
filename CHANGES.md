@@ -1,6 +1,6 @@
 ## 2.0.5
 
-* In `ActiveModel::Validator` the `method_missing` would crash with a property called `format`.
+* `ActiveModel::Validator#format` crashed with a property called `format`.
 
 ## 2.0.4
 
