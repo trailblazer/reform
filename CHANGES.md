@@ -1,6 +1,6 @@
 ## 2.0.5
 
-* `ActiveModel::Validator#format` crashed with a property called `format`.
+* `ActiveModel::Validator` now delegates all methods properly to the form. It used to crashed with properties called `format` or other private `Object` methods.
 
 ## 2.0.4
 

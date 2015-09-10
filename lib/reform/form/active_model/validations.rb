@@ -15,9 +15,8 @@ module Reform::Form::ActiveModel
     def self.included(includer)
       includer.instance_eval do
         include Reform::Form::ActiveModel
-        extend Uber::InheritableAttr
         inheritable_attr :validator
-        self.validator = Class.new(Validator)
+        self.validator = Class.new(Validator) # the actual validations happen in this instance.
 
         class << self
           extend Uber::Delegates
@@ -40,9 +39,10 @@ module Reform::Form::ActiveModel
     end
 
 
-    # Validators is the validatable object. On the class level, we define validations,
+    # Validator is the validatable object. On the class level, we define validations,
     # on instance, it exposes #valid?.
-    class Validator
+    require "delegate"
+    class Validator < SimpleDelegator
       # current i18n scope: :activemodel.
       include ActiveModel::Validations
 
@@ -61,16 +61,12 @@ module Reform::Form::ActiveModel
       end
 
       def initialize(form, name)
-        @form = form
+        super(form)
         self.class.model_name = name # one of the many reasons why i will drop support for AM::V in 2.1.
       end
 
-      def format # FIXME: for some weird reason, Object#format is reserved and form.send(:format) crashes with ArgumentError: too few arguments.
-        @form.format
-      end
-
-      def method_missing(method_name, *args, &block)
-        @form.send(method_name, *args, &block)
+      def method_missing(m, *args, &block)
+        __getobj__.send(m, *args, &block) # send all methods to the form.
       end
     end
 
