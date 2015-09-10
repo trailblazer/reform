@@ -131,4 +131,8 @@ class ModelReflectionTest < MiniTest::Spec
       form.defined_enums.must_include Artist
     end
   end
+
+  describe "::validators_on" do
+    it { assert SongWithArtistForm.validators_on }
+  end
 end

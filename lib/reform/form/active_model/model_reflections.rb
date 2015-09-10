@@ -16,6 +16,11 @@ class Reform::Form < Reform::Contract
       def reflect_on_association(*args)
         model_name.to_s.constantize.reflect_on_association(*args)
       end
+
+      # this is needed in simpleform to infer required fields.
+      def validators_on(*args)
+        validator.validators_on(*args)
+      end
     end
 
     # Delegate column for attribute to the model to support simple_form's
