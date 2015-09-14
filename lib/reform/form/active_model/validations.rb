@@ -5,12 +5,7 @@ require "uber/delegates"
 module Reform::Form::ActiveModel
   # AM::Validations for your form.
   #
-  # Note: The preferred way for validations should be Lotus::Validations, as ActiveModel::Validation's
-  # implementation is old, very complex given that it needs to do a simple thing, is using
-  # globals like @errors, and relies and more than 100 methods to be mixed into your form.
-  #
-  # Implements ::validates and friends, and #valid?.
-  #
+  # Provides ::validates, ::validate, #validate, and #valid?.
   module Validations
     def self.included(includer)
       includer.instance_eval do
@@ -66,7 +61,7 @@ module Reform::Form::ActiveModel
       end
 
       def method_missing(m, *args, &block)
-        __getobj__.send(m, *args, &block) # send all methods to the form.
+        __getobj__.send(m, *args, &block) # send all methods to the form, even privates.
       end
     end
 
@@ -80,7 +75,6 @@ module Reform::Form::ActiveModel
       # Validator class.
       validator = self.class.validator.new(self, model_name)
       validator.valid? # run the Validations object's validator with the form as context. this won't pollute anything in the form.
-
 
       #errors.merge!(validator.errors, "")
       validator.errors.each do |name, error| # TODO: handle with proper merge, or something. validator.errors is ALWAYS AM::Errors.
