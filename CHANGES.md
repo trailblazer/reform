@@ -1,6 +1,8 @@
 ## 2.0.5
 
 * `ActiveModel::Validator` now delegates all methods properly to the form. It used to crashed with properties called `format` or other private `Object` methods.
+* Simpleform will now properly display fields as required, or not (by introducion `ModelReflections::validators_on`).
+* The `:default` option is not copied into the deserializer anymore from the schema. This requires disposable 0.1.11.
 
 ## 2.0.4
 
