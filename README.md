@@ -1,9 +1,9 @@
 # Reform
 
+[![Gitter Chat](https://badges.gitter.im/trailblazer/chat.svg)](https://gitter.im/trailblazer/chat)
 [![Build
 Status](https://travis-ci.org/apotonick/reform.svg)](https://travis-ci.org/apotonick/reform)
 [![Gem Version](https://badge.fury.io/rb/reform.svg)](http://badge.fury.io/rb/reform)
-
 _Form objects decoupled from your models._
 
 Reform gives you a form object with validations and nested setup of models. It is completely framework-agnostic and doesn't care about your database.
@@ -12,21 +12,15 @@ Although reform can be used in any Ruby framework, it comes with [Rails support]
 
 ## This is not Reform 1.x!
 
-Temporary note: This is the README and API for Reform 2. On the public API, only a few tiny things have changed. When in trouble, join us on the IRC (Freenode) #trailblazer channel.
+Temporary note: This is the README and API for Reform 2. On the public API, only a few tiny things have changed. Here are the [Reform 1.2 docs](https://github.com/apotonick/reform/blob/v1.2.6/README.md).
+
+Anyway, please upgrade and _please report problems and do not assume that we will magically find out what needs to get fixed._ When in trouble, join us on [Gitter](https://gitter.im/trailblazer/chat).
 
 [Full documentation for Reform](http://trailblazerb.org/gems/reform) is available online, or support us and grab the [Trailblazer book](https://leanpub.com/trailblazer).
 
 ## Disposable
 
 Every form in Reform is a _twin_. Twins are non-persistent domain objects from the [Disposable gem](https://github.com/apotonick/disposable). All features of Disposable, like renaming fields, change tracking, etc. are available in Reform, too.
-
-<!--
-## ActiveModel
-
-**WARNING: Reform will soon drop support for ActiveModel validations.**
-
-This is mostly to save my mental integrity. The amount of problems we have in Reform with ActiveModel's poor object design, its lack of interfaces and encapsulation do outweigh the benefits. Please consider using Lotus::Validations instead, which will soon be mature enough to replace this dinosaur.
--->
 
 ## Defining Forms
 
