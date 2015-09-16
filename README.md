@@ -4,6 +4,7 @@
 [![Build
 Status](https://travis-ci.org/apotonick/reform.svg)](https://travis-ci.org/apotonick/reform)
 [![Gem Version](https://badge.fury.io/rb/reform.svg)](http://badge.fury.io/rb/reform)
+
 _Form objects decoupled from your models._
 
 Reform gives you a form object with validations and nested setup of models. It is completely framework-agnostic and doesn't care about your database.
@@ -14,7 +15,7 @@ Although reform can be used in any Ruby framework, it comes with [Rails support]
 
 Temporary note: This is the README and API for Reform 2. On the public API, only a few tiny things have changed. Here are the [Reform 1.2 docs](https://github.com/apotonick/reform/blob/v1.2.6/README.md).
 
-Anyway, please upgrade and _please report problems and do not assume that we will magically find out what needs to get fixed._ When in trouble, join us on [Gitter](https://gitter.im/trailblazer/chat).
+Anyway, please upgrade and _report problems_ and do not simply assume that we will magically find out what needs to get fixed. When in trouble, join us on [Gitter](https://gitter.im/trailblazer/chat).
 
 [Full documentation for Reform](http://trailblazerb.org/gems/reform) is available online, or support us and grab the [Trailblazer book](https://leanpub.com/trailblazer).
 
