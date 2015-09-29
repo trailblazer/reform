@@ -50,6 +50,7 @@ private
   end
 
   def deserialize(params)
+    puts "deserialize called for #{self}!"
     params = deserialize!(params)
 
     deserializer.new(self).from_hash(params)
@@ -65,12 +66,11 @@ private
       options_from:     :deserializer,
       exclude_options:  [:default], # Reform must not copy Disposable/Reform-only options that might confuse representable.
     ) do |dfn|
-      # next unless dfn[:twin]
-      dfn.merge!(
-        deserialize: lambda { |decorator, params, options|
-          params = decorator.represented.deserialize!(params) # let them set up params. # FIXME: we could also get a new deserializer here.
+      dfn.delete!(:populator) # FIXME: exclude
 
-          decorator.from_hash(params) # options.binding.deserialize_method.inspect
+      dfn.merge!(
+        deserialize: lambda { |form, params, options|
+          form.send(:deserialize, params)
         }
       ) if dfn[:twin]
     end
