@@ -18,6 +18,8 @@ class Reform::Form::Populator
     # FIXME: the optional index parameter SUCKS.
     twin = call!(form, fragment, options.binding.get, *args)
 
+    return twin if twin == Representable::Pipeline::Stop
+
     # this kinda sucks. the proc may call self.composer = Artist.new, but there's no way we can
     # return the twin instead of the model from the #composer= setter.
     twin = options.binding.get unless options.binding.array?
