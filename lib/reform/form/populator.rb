@@ -13,7 +13,8 @@ class Reform::Form::Populator
   end
 
   def call(options)
-    twin = call!(options.merge(model: options[:binding].get))
+    model = options[:binding].get
+    twin  = call!(options.merge(model: model, collection: model))
 
     return twin if twin == Representable::Pipeline::Stop
 
@@ -28,22 +29,25 @@ class Reform::Form::Populator
   end
 
 private
-  # DISCUSS: this signature could change soon.
-  # FIXME: the optional index parameter SUCKS.
   def call!(options)
-    # TODO: deprecate old API.
-    args = []
-    args <<  options[:index] if  options[:index]
-    args << options[:representable_options]
     # FIXME: use U:::Value.
-
-    # FIXME: deprecate old style positional arguments.
-
-    options[:binding].represented.instance_exec(options[:fragment], options[:model], *args, &@user_proc)
+    form = options[:binding].represented
+    deprecate_positional_args(form, @user_proc, options) do
+      form.instance_exec(options, &@user_proc)
+    end
   end
 
   def handle_fail(twin, options)
     raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options[:binding].name}`." if options[:binding][:twin] && !twin.is_a?(Reform::Form)
+  end
+
+  def deprecate_positional_args(form, proc, options)
+    return yield if proc.arity == 1
+    warn "[Reform] Positional arguments for :populator and friends are deprecated. Please use ->(options) and enjoy the rest of your day."
+    args = []
+    args <<  options[:index] if  options[:index]
+    args << options[:representable_options]
+    form.instance_exec(options[:fragment], options[:model], *args, &proc)
   end
 
 
