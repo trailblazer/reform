@@ -30,22 +30,42 @@ module Reform
         # * they assign created data, no :setter (hence the name).
         # * they (ab)use :instance, this is why they need to return a twin form.
         # * they are only used in the deserializer.
-        standard_pipeline = [Representable::SkipParse, Representable::Instance, Representable::Deserialize]
 
-        if definition.array?
-          pipeline = ->(*) { [Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]] }
+
+        if definition.typed?
+          standard_pipeline = [Representable::SkipParse, Representable::Instance, Representable::Deserialize]
+
+          if definition.array?
+            pipeline = ->(*) { [Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]] }
+          else
+            pipeline = ->(*) { [Representable::StopOnNotFound, *standard_pipeline] }
+          end
+
+
         else
-          pipeline = ->(*) { [Representable::StopOnNotFound, *standard_pipeline] }
+          standard_pipeline = [Representable::SkipParse, Representable::Setter]
+
+          if definition.array?
+            pipeline = ->(*) { [Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]] }
+          else
+            pipeline = ->(*) { [Representable::StopOnNotFound, *standard_pipeline] }
+          end
         end
+
+        # the parsing pipeline is now super slim:
+        # nested form:       StopOnNotFound, SkipParse, Instance, Deserialize
+        # nested collection: StopOnNotFound, [SkipParse, Instance, Deserialize]
+        # scalar:            StopOnNotFound, SkipParse, Setter
+        # scalar collection: StopOnNotFound, [SkipParse, Setter]
+        deserializer_options.merge!(parse_pipeline: pipeline) # TODO: test that Default, etc are NOT RUN.
+
 
         if populator = options.delete(:populate_if_empty)
           deserializer_options.merge!(
-            parse_pipeline: pipeline,
             instance:       Populator::IfEmpty.new(populator)
           )
         elsif populator = options.delete(:populator)
           deserializer_options.merge!({
-            parse_pipeline: pipeline,
             instance:       Populator.new(populator),
             })
         end
@@ -55,7 +75,6 @@ module Reform
         if (!deserializer_options[:instance] && definition[:twin] && !options[:inherit])
           deserializer_options.merge!(
             instance: Populator::Sync.new(nil),
-            parse_pipeline: pipeline,
           )
         end
 
