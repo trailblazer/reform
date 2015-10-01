@@ -41,9 +41,10 @@ private
     raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options[:binding].name}`." if options[:binding][:twin] && !twin.is_a?(Reform::Form)
   end
 
-  def deprecate_positional_args(form, proc, options)
-    return yield if proc.arity == 1
-    warn "[Reform] Positional arguments for :populator and friends are deprecated. Please use ->(options) and enjoy the rest of your day."
+  def deprecate_positional_args(form, proc, options) # TODO: remove in 2.2.
+    arity = proc.is_a?(Symbol) ? form.method(proc).arity : proc.arity
+    return yield if arity == 1
+    warn "[Reform] Positional arguments for :populator and friends are deprecated. Please use ->(options) and enjoy the rest of your day. Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21"
     args = []
     args <<  options[:index] if  options[:index]
     args << options[:representable_options]
@@ -57,14 +58,14 @@ private
 
       form = binding.represented
 
-      if binding.array? # FIXME: ifs suck.
+      if binding.array?
         item = twin.original[index] and return item
 
-        twin.insert(index, run!(form, fragment, options[:representable_options])) # form.songs.insert(Song.new)
+        twin.insert(index, run!(form, fragment, options)) # form.songs.insert(Song.new)
       else
         return if twin
 
-        form.send(binding.setter, run!(form, fragment, options[:representable_options])) # form.artist=(Artist.new)
+        form.send(binding.setter, run!(form, fragment, options)) # form.artist=(Artist.new)
       end
     end
 
@@ -72,8 +73,19 @@ private
     def run!(form, fragment, options)
       return @user_proc.new if @user_proc.is_a?(Class) # handle populate_if_empty: Class. this excludes using Callables, though.
 
-      @value.evaluate(form, fragment, options.user_options)
+      deprecate_positional_args(form, @user_proc, options) do
+        @value.evaluate(form, options)
+      end
     end
+
+    def deprecate_positional_args(form, proc, options) # TODO: remove in 2.2.
+      arity = proc.is_a?(Symbol) ? form.method(proc).arity : proc.arity
+      return yield if arity == 1
+      warn "[Reform] Positional arguments for :prepopulate and friends are deprecated. Please use ->(options) and enjoy the rest of your day. Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21"
+
+      @value.evaluate(form, options[:fragment], options[:representable_options].user_options)
+    end
+
   end
 
   # Sync (default) blindly grabs the corresponding form twin and returns it. This might imply that nil is returned,
