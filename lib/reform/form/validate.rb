@@ -51,9 +51,7 @@ private
       representer_from: lambda { |inline| inline.representer_class },
       options_from:     :deserializer,
       exclude_options:  [:default, :populator], # Reform must not copy Disposable/Reform-only options that might confuse representable.
-    ) do |dfn|
-      dfn.merge!(deserialize: ->(form, params, *) { form.send(:deserialize, params) }) if dfn[:twin]
-    end
+    )
 
     deserializer
   end

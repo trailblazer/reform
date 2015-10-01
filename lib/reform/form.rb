@@ -13,6 +13,10 @@ module Reform
 
     require "reform/form/populator"
 
+    # called after populator: form.deserialize(params)
+    # as this only included in the typed pipeline, it's not applied for scalars.
+    Deserialize = ->(options) { options[:result].deserialize(options[:fragment]) } # TODO: (result:, fragment:, **o) once we drop 2.0.
+
     module Property
       # Add macro logic, e.g. for :populator.
       # TODO: This will be re-structured once Declarative allows it.
@@ -33,7 +37,7 @@ module Reform
 
 
         if definition.typed?
-          standard_pipeline = [Representable::SkipParse, Representable::Instance, Representable::Deserialize]
+          standard_pipeline = [Representable::SkipParse, Representable::Instance, Deserialize]
 
           if definition.array?
             pipeline = ->(*) { [Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]] }
