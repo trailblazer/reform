@@ -12,17 +12,14 @@ class Reform::Form::Populator
     @value     = Uber::Options::Value.new(user_proc) # we can now process Callable, procs, :symbol.
   end
 
-  def call(form, fragment, *args)
-    options = args.last
-
-    # FIXME: the optional index parameter SUCKS.
-    twin = call!(form, fragment, options.binding.get, *args)
+  def call(options)
+    twin = call!(options.merge(model: options[:binding].get))
 
     return twin if twin == Representable::Pipeline::Stop
 
     # this kinda sucks. the proc may call self.composer = Artist.new, but there's no way we can
     # return the twin instead of the model from the #composer= setter.
-    twin = options.binding.get unless options.binding.array?
+    twin = options[:binding].get unless options[:binding].array?
 
     # since Populator#call is invoked as :instance, we always need to return a twin/form here.
     handle_fail(twin, options)
@@ -33,30 +30,37 @@ class Reform::Form::Populator
 private
   # DISCUSS: this signature could change soon.
   # FIXME: the optional index parameter SUCKS.
-  def call!(form, fragment, model, *args)
+  def call!(options)
+    # TODO: deprecate old API.
+    args = []
+    args <<  options[:index] if  options[:index]
+    args << options[:representable_options]
     # FIXME: use U:::Value.
-    form.instance_exec(fragment, model, *args, &@user_proc)
+
+    # FIXME: deprecate old style positional arguments.
+
+    options[:binding].represented.instance_exec(options[:fragment], options[:model], *args, &@user_proc)
   end
 
   def handle_fail(twin, options)
-    raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options.binding.name}`." if options.binding[:twin] && !twin.is_a?(Reform::Form)
+    raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options[:binding].name}`." if options[:binding][:twin] && !twin.is_a?(Reform::Form)
   end
 
 
   class IfEmpty < self # Populator
-    # FIXME: the optional index parameter SUCKS.
-    def call!(form, fragment, twin, *args)
-      options = args.last
+    def call!(options)
+      binding, twin, index, fragment = options[:binding], options[:model], options[:index], options[:fragment] # TODO: remove once we drop 2.0.
 
-      if options.binding.array? # FIXME: ifs suck.
-        index = args.first
+      form = binding.represented
+
+      if binding.array? # FIXME: ifs suck.
         item = twin.original[index] and return item
 
-        twin.insert(index, run!(form, fragment, options)) # form.songs.insert(Song.new)
+        twin.insert(index, run!(form, fragment, options[:representable_options])) # form.songs.insert(Song.new)
       else
         return if twin
 
-        form.send(options.binding.setter, run!(form, fragment, options)) # form.artist=(Artist.new)
+        form.send(binding.setter, run!(form, fragment, options[:representable_options])) # form.artist=(Artist.new)
       end
     end
 
@@ -71,14 +75,11 @@ private
   # Sync (default) blindly grabs the corresponding form twin and returns it. This might imply that nil is returned,
   # and in turn #validate! is called on nil.
   class Sync < self
-    def call!(form, fragment, model, *args)
-      options = args.last
-
-      if options.binding.array?
-        index = args.first
-        return model[index]
+    def call!(options)
+      if options[:binding].array?
+        return options[:model][options[:index]]
       else
-        model
+        options[:model]
       end
     end
   end

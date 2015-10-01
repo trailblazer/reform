@@ -32,12 +32,32 @@ module Reform
 
         # Populators
         # * they assign created data, no :setter (hence the name).
-        # * they (ab)use :instance, this is why they need to return a twin form.
         # * they are only used in the deserializer.
+
+        populator = Populator::Sync.new(nil)
+        if block = definition[:populate_if_empty]
+          populator = Populator::IfEmpty.new(block)
+        elsif block = definition[:populator]
+          populator = Populator.new(block)
+        # elsif !options[:inherit]
+        #   populator = Populator::Sync.new(nil)
+        end
+
+
+        # default:
+        # add Sync populator to nested forms.
+        # if (!deserializer_options[:instance] && )
+        #   deserializer_options.merge!(
+        #     instance: ,
+        #   )
+        # end
+
+
+
 
 
         if definition.typed?
-          standard_pipeline = [Representable::SkipParse, Representable::Instance, Deserialize]
+          standard_pipeline = [Representable::SkipParse, populator, Deserialize]
 
           if definition.array?
             pipeline = ->(*) { [Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]] }
@@ -64,26 +84,10 @@ module Reform
         deserializer_options.merge!(parse_pipeline: pipeline) # TODO: test that Default, etc are NOT RUN.
 
 
-        if populator = options.delete(:populate_if_empty)
-          deserializer_options.merge!(
-            instance:       Populator::IfEmpty.new(populator)
-          )
-        elsif populator = options.delete(:populator)
-          deserializer_options.merge!({
-            instance:       Populator.new(populator),
-            })
-        end
 
-        # default:
-        # add Sync populator to nested forms.
-        if (!deserializer_options[:instance] && definition[:twin] && !options[:inherit])
-          deserializer_options.merge!(
-            instance: Populator::Sync.new(nil),
-          )
-        end
 
         # TODO: shouldn't that go into validate?
-        if proc = options.delete(:skip_if)
+        if proc = definition[:skip_if]
           proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
           deserializer_options.merge!(skip_parse: proc)
         end
