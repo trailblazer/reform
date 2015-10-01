@@ -39,23 +39,9 @@ module Reform
           populator = Populator::IfEmpty.new(block)
         elsif block = definition[:populator]
           populator = Populator.new(block)
-        # elsif !options[:inherit]
-        #   populator = Populator::Sync.new(nil)
         end
 
-
-        # default:
-        # add Sync populator to nested forms.
-        # if (!deserializer_options[:instance] && )
-        #   deserializer_options.merge!(
-        #     instance: ,
-        #   )
-        # end
-
-
-
-
-
+        # DISCUSS: allow populators for scalars, too?
         if definition.typed?
           standard_pipeline = [Representable::SkipParse, populator, Deserialize]
 
