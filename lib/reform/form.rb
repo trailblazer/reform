@@ -37,7 +37,8 @@ module Reform
         populator = Populator::Sync.new(nil)
         if block = definition[:populate_if_empty]
           populator = Populator::IfEmpty.new(block)
-        elsif block = definition[:populator]
+        end
+        if block = definition[:populator] # populator wins over populate_if_empty when :inherit
           populator = Populator.new(block)
         end
 
