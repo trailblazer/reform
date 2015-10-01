@@ -23,8 +23,6 @@ module Reform::Form::Validate
     block_given? ? yield(params) : deserialize(params)
 
     super() # run the actual validation on self.
-  # rescue Representable::DeserializeError
-  #   raise DeserializeError.new("[Reform] Deserialize error: You probably called #validate without setting up your nested models. Check https://github.com/apotonick/reform#populating-forms-for-validation on how to use populators.")
   end
 
   def deserialize(params)
