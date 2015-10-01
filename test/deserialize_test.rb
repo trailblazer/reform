@@ -22,9 +22,7 @@ class DeserializeTest < MiniTest::Spec
           superclass:       Representable::Decorator,
           representer_from: lambda { |inline| inline.representer_class },
           options_from:     :deserializer
-        ) do |dfn|
-          dfn.merge!(deserialize: ->(form, params, *) { form.send(:deserialize, params) }) if dfn[:twin]
-        end
+        )
       end
     end
     include Json
@@ -74,9 +72,7 @@ class ValidateWithBlockTest < MiniTest::Spec
       superclass:       Representable::Decorator,
       representer_from: lambda { |inline| inline.representer_class },
       options_from:     :deserializer
-    ) do |dfn|
-      dfn.merge!(deserialize: ->(form, params, *) { form.send(:deserialize, params) }) if dfn[:twin]
-    end
+    )
 
     form.validate(json) do |params|
       deserializer.new(form).from_json(params)
