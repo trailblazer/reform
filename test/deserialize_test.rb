@@ -1,4 +1,5 @@
 require 'test_helper'
+require "representable/json"
 
 class DeserializeTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
@@ -21,7 +22,9 @@ class DeserializeTest < MiniTest::Spec
           superclass:       Representable::Decorator,
           representer_from: lambda { |inline| inline.representer_class },
           options_from:     :deserializer
-        )
+        ) do |dfn|
+          dfn.merge!(deserialize: ->(form, params, *) { form.send(:deserialize, params) }) if dfn[:twin]
+        end
       end
     end
     include Json
@@ -34,7 +37,7 @@ class DeserializeTest < MiniTest::Spec
   end
 
   let (:artist) { Artist.new("A-ha") }
-  it do
+  it "xxx" do
     artist_id = artist.object_id
 
     form = JsonAlbumForm.new(Album.new("Best Of", artist))
@@ -71,7 +74,9 @@ class ValidateWithBlockTest < MiniTest::Spec
       superclass:       Representable::Decorator,
       representer_from: lambda { |inline| inline.representer_class },
       options_from:     :deserializer
-    )
+    ) do |dfn|
+      dfn.merge!(deserialize: ->(form, params, *) { form.send(:deserialize, params) }) if dfn[:twin]
+    end
 
     form.validate(json) do |params|
       deserializer.new(form).from_json(params)
