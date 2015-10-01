@@ -1,15 +1,14 @@
 require "test_helper"
 
-require "roar/json/hal"
 
-class ExperimentalPopulatorTest < MiniTest::Spec
+class DeprecationRemoveMePopulatorTest < MiniTest::Spec
   Album = Struct.new(:songs)
   Song  = Struct.new(:title)
 
 
   class AlbumForm < Reform::Form
-    collection :songs, populator: ->(options) { return Representable::Pipeline::Stop if options[:fragment][:title]=="Good"
-      songs[options[:index]]
+    collection :songs, populator: ->(fragment, collection, index, *) { return Representable::Pipeline::Stop if fragment[:title]=="Good"
+      songs[index]
               } do
       property :title
     end
