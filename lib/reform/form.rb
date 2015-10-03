@@ -49,9 +49,9 @@ module Reform
           standard_pipeline = [Representable::SkipParse, external_populator, Deserialize]
 
           if definition.array?
-            pipeline =  [Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
+            pipeline =  [Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
           else
-            pipeline =  [Representable::StopOnNotFound, *standard_pipeline]
+            pipeline =  [Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
           end
 
 
@@ -59,9 +59,9 @@ module Reform
           standard_pipeline = [Representable::SkipParse, Representable::Setter]
 
           if definition.array?
-            pipeline =  [Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
+            pipeline =  [Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
           else
-            pipeline =  [Representable::StopOnNotFound, *standard_pipeline]
+            pipeline =  [Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
           end
         end
 
@@ -78,7 +78,7 @@ module Reform
         # TODO: shouldn't that go into validate?
         if proc = definition[:skip_if]
           proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
-          deserializer_options.merge!(skip_parse: proc)
+          deserializer_options.merge!(skip_parse: proc) # TODO: same with skip_parse ==> External
         end
 
         # per default, everything should be writeable for the deserializer (we're only writing on the form). however, allow turning it off.
