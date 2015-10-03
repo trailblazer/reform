@@ -4,24 +4,23 @@ require "representable/json"
 class DeserializeTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:title, :artist)
-  Artist = Struct.new(:name)
+  Artist = Struct.new(:name, :callname)
 
   class JsonAlbumForm < Reform::Form
     module Json
       def deserialize(params)
-        # params = deserialize!(params) # DON'T call those hash hooks.
-
         deserializer.new(self).
         # extend(Representable::Debug).
           from_json(params)
       end
 
       def deserializer
-        deserializer = Disposable::Twin::Schema.from(self.class,
+        Disposable::Twin::Schema.from(self.class,
           include:          [Representable::JSON],
           superclass:       Representable::Decorator,
           representer_from: lambda { |inline| inline.representer_class },
-          options_from:     :deserializer
+          options_from:     :deserializer,
+          exclude_options:  [:populator]
         )
       end
     end
@@ -34,8 +33,9 @@ class DeserializeTest < MiniTest::Spec
     end
   end
 
+
   let (:artist) { Artist.new("A-ha") }
-  it "xxx" do
+  it do
     artist_id = artist.object_id
 
     form = JsonAlbumForm.new(Album.new("Best Of", artist))
@@ -46,6 +46,30 @@ class DeserializeTest < MiniTest::Spec
     form.title.must_equal "Apocalypse Soon"
     form.artist.name.must_equal "Mute"
     form.artist.model.object_id.must_equal artist_id
+  end
+
+
+  class CompilationForm < Reform::Form
+    property :artist, populator: ->(options) { self.artist = Artist.new(nil, options[:fragment].to_s) } do
+      property :name
+    end
+
+    def deserializer
+      Disposable::Twin::Schema.from(JsonAlbumForm, # infer from another form, but apply to CompilationForm!
+        include:          [Representable::Hash],
+        superclass:       Representable::Decorator,
+        representer_from: lambda { |inline| inline.representer_class },
+        options_from:     :deserializer,
+        exclude_options:  [:populator]
+      )
+    end
+  end
+
+  it "uses deserializer inferred from JsonAlbumForm but deserializes/populates to CompilationForm" do
+    form = CompilationForm.new(Album.new)
+    puts form.deserializer.representable_attrs.get(:artist).inspect
+    form.validate("artist"=> {"name" => "Horowitz"}) # the deserializer doesn't know symbols.
+    form.artist.model.must_equal Artist.new("Horowitz", %{{"name" => "Horowitz"}})
   end
 end
 
