@@ -1,7 +1,7 @@
 # Implements the :populator option.
 #
-#  populator: -> (fragment, twin, options)
-#  populator: -> (fragment, collection[twin], index, options)
+#  populator: -> (fragment:, model:, :binding)
+#  populator: -> (fragment:, collection:, index:, binding:)
 #
 # For collections, the entire collection and the currently deserialised index is passed in.
 class Reform::Form::Populator
@@ -22,7 +22,7 @@ class Reform::Form::Populator
     # return the twin instead of the model from the #composer= setter.
     twin = options[:binding].get unless options[:binding].array?
 
-    # since Populator#call is invoked as :instance, we always need to return a twin/form here.
+    # we always need to return a twin/form here so we can call nested.deserialize().
     handle_fail(twin, options)
 
     twin
@@ -55,7 +55,6 @@ private
   class IfEmpty < self # Populator
     def call!(options)
       binding, twin, index, fragment = options[:binding], options[:model], options[:index], options[:fragment] # TODO: remove once we drop 2.0.
-
       form = binding.represented
 
       if binding.array?
@@ -74,7 +73,7 @@ private
       return @user_proc.new if @user_proc.is_a?(Class) # handle populate_if_empty: Class. this excludes using Callables, though.
 
       deprecate_positional_args(form, @user_proc, options) do
-        @value.evaluate(form, options)
+        @value.(form, options)
       end
     end
 
@@ -83,7 +82,7 @@ private
       return yield if arity == 1
       warn "[Reform] Positional arguments for :prepopulate and friends are deprecated. Please use ->(options) and enjoy the rest of your day. Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21"
 
-      @value.evaluate(form, options[:fragment], options[:representable_options].user_options)
+      @value.(form, options[:fragment], options[:representable_options].user_options)
     end
 
   end
@@ -97,6 +96,15 @@ private
       else
         options[:model]
       end
+    end
+  end
+
+  # This function is added to the pipeline the deserializer uses. It marks that this
+  # property has a populator and simply delegates the entire logic to the form.
+  class External
+    def call(options)
+      options[:binding].represented.schema.representable_attrs.
+        get(options[:binding].name)[:internal_populator].(options)
     end
   end
 end

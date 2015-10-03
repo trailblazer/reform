@@ -34,22 +34,24 @@ module Reform
         # * they assign created data, no :setter (hence the name).
         # * they are only used in the deserializer.
 
-        populator = Populator::Sync.new(nil)
+        internal_populator = Populator::Sync.new(nil)
         if block = definition[:populate_if_empty]
-          populator = Populator::IfEmpty.new(block)
+          internal_populator = Populator::IfEmpty.new(block)
         end
         if block = definition[:populator] # populator wins over populate_if_empty when :inherit
-          populator = Populator.new(block)
+          internal_populator = Populator.new(block)
         end
+        definition.merge!(internal_populator: internal_populator)
+        external_populator = Populator::External.new
 
         # DISCUSS: allow populators for scalars, too?
         if definition.typed?
-          standard_pipeline = [Representable::SkipParse, populator, Deserialize]
+          standard_pipeline = [Representable::SkipParse, external_populator, Deserialize]
 
           if definition.array?
-            pipeline = ->(*) { [Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]] }
+            pipeline =  [Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
           else
-            pipeline = ->(*) { [Representable::StopOnNotFound, *standard_pipeline] }
+            pipeline =  [Representable::StopOnNotFound, *standard_pipeline]
           end
 
 
@@ -57,9 +59,9 @@ module Reform
           standard_pipeline = [Representable::SkipParse, Representable::Setter]
 
           if definition.array?
-            pipeline = ->(*) { [Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]] }
+            pipeline =  [Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
           else
-            pipeline = ->(*) { [Representable::StopOnNotFound, *standard_pipeline] }
+            pipeline =  [Representable::StopOnNotFound, *standard_pipeline]
           end
         end
 
@@ -68,7 +70,7 @@ module Reform
         # nested collection: StopOnNotFound, [SkipParse, Instance, Deserialize]
         # scalar:            StopOnNotFound, SkipParse, Setter
         # scalar collection: StopOnNotFound, [SkipParse, Setter]
-        deserializer_options.merge!(parse_pipeline: pipeline) # TODO: test that Default, etc are NOT RUN.
+        deserializer_options.merge!(parse_pipeline: ->(*) { pipeline }) # TODO: test that Default, etc are NOT RUN.
 
 
 
