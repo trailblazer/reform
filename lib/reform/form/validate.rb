@@ -15,9 +15,6 @@ module Reform::Form::Validate
   end
 
 
-  # 1. Populate the form object graph so that each incoming object has a representative form object.
-  # 2. Deserialize. This is wrong and should be done in 1.
-  # 3. Validate the form object graph.
   def validate(params)
     # allow an external deserializer.
     block_given? ? yield(params) : deserialize(params)

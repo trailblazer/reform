@@ -48,28 +48,29 @@ class DeserializeTest < MiniTest::Spec
     form.artist.model.object_id.must_equal artist_id
   end
 
+  describe "infering the deserializer from another form should NOT copy its populators" do
+    class CompilationForm < Reform::Form
+      property :artist, populator: ->(options) { self.artist = Artist.new(nil, options[:fragment].to_s) } do
+        property :name
+      end
 
-  class CompilationForm < Reform::Form
-    property :artist, populator: ->(options) { self.artist = Artist.new(nil, options[:fragment].to_s) } do
-      property :name
+      def deserializer
+        Disposable::Twin::Schema.from(JsonAlbumForm, # infer from another form, but apply to CompilationForm!
+          include:          [Representable::Hash],
+          superclass:       Representable::Decorator,
+          representer_from: lambda { |inline| inline.representer_class },
+          options_from:     :deserializer,
+          exclude_options:  [:populator]
+        )
+      end
     end
 
-    def deserializer
-      Disposable::Twin::Schema.from(JsonAlbumForm, # infer from another form, but apply to CompilationForm!
-        include:          [Representable::Hash],
-        superclass:       Representable::Decorator,
-        representer_from: lambda { |inline| inline.representer_class },
-        options_from:     :deserializer,
-        exclude_options:  [:populator]
-      )
+    it "uses deserializer inferred from JsonAlbumForm but deserializes/populates to CompilationForm" do
+      form = CompilationForm.new(Album.new)
+      form.validate("artist"=> {"name" => "Horowitz"}) # the deserializer doesn't know symbols.
+      form.sync
+      form.artist.model.must_equal Artist.new("Horowitz", %{{"name"=>"Horowitz"}})
     end
-  end
-
-  it "uses deserializer inferred from JsonAlbumForm but deserializes/populates to CompilationForm" do
-    form = CompilationForm.new(Album.new)
-    puts form.deserializer.representable_attrs.get(:artist).inspect
-    form.validate("artist"=> {"name" => "Horowitz"}) # the deserializer doesn't know symbols.
-    form.artist.model.must_equal Artist.new("Horowitz", %{{"name" => "Horowitz"}})
   end
 end
 
