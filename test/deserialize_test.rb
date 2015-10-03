@@ -55,16 +55,11 @@ class DeserializeTest < MiniTest::Spec
       end
 
       def deserializer
-        Disposable::Twin::Schema.from(JsonAlbumForm, # infer from another form, but apply to CompilationForm!
-          include:          [Representable::Hash],
-          superclass:       Representable::Decorator,
-          representer_from: lambda { |inline| inline.representer_class },
-          options_from:     :deserializer,
-          exclude_options:  [:populator]
-        )
+        super(JsonAlbumForm, include: [Representable::Hash])
       end
     end
 
+    # also tests the Form#deserializer API. # FIXME.
     it "uses deserializer inferred from JsonAlbumForm but deserializes/populates to CompilationForm" do
       form = CompilationForm.new(Album.new)
       form.validate("artist"=> {"name" => "Horowitz"}) # the deserializer doesn't know symbols.
