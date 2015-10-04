@@ -4,9 +4,10 @@ module Reform::Form::Validate
     class AllBlank
       include Uber::Callable
 
-      def call(form, params, options)
+      def call(form, options)
+        params = options[:fragment]
         # TODO: Schema should provide property names as plain list.
-        properties = options.binding[:twin].representer_class.representable_attrs[:definitions].keys
+        properties = options[:binding][:twin].representer_class.representable_attrs[:definitions].keys
 
         properties.each { |name| params[name].present? and return false }
         true # skip
