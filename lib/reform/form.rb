@@ -15,7 +15,7 @@ module Reform
 
     # called after populator: form.deserialize(params)
     # as this only included in the typed pipeline, it's not applied for scalars.
-    Deserialize = ->(options) { options[:result].deserialize(options[:fragment]) } # TODO: (result:, fragment:, **o) once we drop 2.0.
+    Deserialize = ->(input, options) { input.deserialize(options[:fragment]) } # TODO: (result:, fragment:, **o) once we drop 2.0.
 
     module Property
       # Add macro logic, e.g. for :populator.
@@ -31,9 +31,6 @@ module Reform
         deserializer_options = definition[:deserializer]
 
         # Populators
-        # * they assign created data, no :setter (hence the name).
-        # * they are only used in the deserializer.
-
         internal_populator = Populator::Sync.new(nil)
         if block = definition[:populate_if_empty]
           internal_populator = Populator::IfEmpty.new(block)
@@ -44,9 +41,11 @@ module Reform
         definition.merge!(internal_populator: internal_populator)
         external_populator = Populator::External.new
 
+
+
         # DISCUSS: allow populators for scalars, too?
         if definition.typed?
-          standard_pipeline = [Representable::SkipParse, external_populator, Deserialize]
+          standard_pipeline = [Representable::SkipParse, Representable::AssignFragment, external_populator, Deserialize]
 
           if definition.array?
             pipeline =  [Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
@@ -65,21 +64,13 @@ module Reform
           end
         end
 
-        # the parsing pipeline is now super slim:
-        # nested form:       StopOnNotFound, SkipParse, Instance, Deserialize
-        # nested collection: StopOnNotFound, [SkipParse, Instance, Deserialize]
-        # scalar:            StopOnNotFound, SkipParse, Setter
-        # scalar collection: StopOnNotFound, [SkipParse, Setter]
         deserializer_options.merge!(parse_pipeline: ->(*) { pipeline }) # TODO: test that Default, etc are NOT RUN.
 
-
-
-
-        # TODO: shouldn't that go into validate?
         if proc = definition[:skip_if]
           proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
           deserializer_options.merge!(skip_parse: proc) # TODO: same with skip_parse ==> External
         end
+
 
         # per default, everything should be writeable for the deserializer (we're only writing on the form). however, allow turning it off.
         deserializer_options.merge!(writeable: true) unless deserializer_options.has_key?(:writeable)

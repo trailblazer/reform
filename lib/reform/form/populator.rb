@@ -12,7 +12,7 @@ class Reform::Form::Populator
     @value     = Uber::Options::Value.new(user_proc) # we can now process Callable, procs, :symbol.
   end
 
-  def call(options)
+  def call(input, options)
     model = options[:binding].get
     twin  = call!(options.merge(model: model, collection: model))
 
@@ -102,9 +102,9 @@ private
   # This function is added to the pipeline the deserializer uses. It marks that this
   # property has a populator and simply delegates the entire logic to the form.
   class External
-    def call(options)
+    def call(input, options)
       options[:binding].represented.schema.representable_attrs.
-        get(options[:binding].name)[:internal_populator].(options)
+        get(options[:binding].name)[:internal_populator].(input, options)
     end
   end
 end

@@ -5,7 +5,7 @@ module Reform::Form::Validate
       include Uber::Callable
 
       def call(form, options)
-        params = options[:fragment]
+        params = options[:input]
         # TODO: Schema should provide property names as plain list.
         properties = options[:binding][:twin].representer_class.representable_attrs[:definitions].keys
 
