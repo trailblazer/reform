@@ -75,28 +75,28 @@ require "pp"
     AlbumForm.options_for(:title)[:deserializer].object_id.wont_equal CompilationForm.options_for(:title)[:deserializer].object_id
 
     # don't overwrite direct deserializer: {} configuration.
-    AlbumForm.options_for(:title)[:deserializer][:instance].must_equal "Instance"
+    AlbumForm.options_for(:title)[:internal_populator].must_be_instance_of Reform::Form::Populator::Sync
     AlbumForm.options_for(:title)[:deserializer][:skip_parse].must_equal "skip_if in AlbumForm"
 
-    AlbumForm.options_for(:hit)[:deserializer][:instance].inspect.must_match /Reform::Form::Populator:.+ @user_proc="Populator"/
+    AlbumForm.options_for(:hit)[:internal_populator].inspect.must_match /Reform::Form::Populator:.+ @user_proc="Populator"/
     # AlbumForm.options_for(:hit)[:deserializer][:instance].inspect.must_be_instance_with Reform::Form::Populator, user_proc: "Populator"
 
 
-    AlbumForm.options_for(:songs)[:deserializer][:instance].must_be_instance_of Reform::Form::Populator::IfEmpty
+    AlbumForm.options_for(:songs)[:internal_populator].must_be_instance_of Reform::Form::Populator::IfEmpty
     AlbumForm.options_for(:songs)[:deserializer][:skip_parse].must_be_instance_of Reform::Form::Validate::Skip::AllBlank
 
-    AlbumForm.options_for(:artist)[:deserializer][:instance].must_be_instance_of Reform::Form::Populator::IfEmpty
+    AlbumForm.options_for(:artist)[:internal_populator].must_be_instance_of Reform::Form::Populator::IfEmpty
 
 
 
     CompilationForm.options_for(:title)[:deserializer][:skip_parse].must_equal "skip_if from CompilationForm"
     # pp CompilationForm.options_for(:songs)
-    CompilationForm.options_for(:songs)[:deserializer][:instance].must_be_instance_of Reform::Form::Populator::IfEmpty
+    CompilationForm.options_for(:songs)[:internal_populator].must_be_instance_of Reform::Form::Populator::IfEmpty
 
-    CompilationForm.options_for(:artist)[:deserializer][:instance].must_be_instance_of Reform::Form::Populator::IfEmpty
+    CompilationForm.options_for(:artist)[:internal_populator].must_be_instance_of Reform::Form::Populator::IfEmpty
 
     # completely overwrite inherited.
-    CompilationForm.options_for(:hit)[:deserializer][:instance].must_be_instance_of Reform::Form::Populator::Sync # reset to default.
+    CompilationForm.options_for(:hit)[:internal_populator].must_be_instance_of Reform::Form::Populator::Sync # reset to default.
     CompilationForm.options_for(:hit)[:deserializer][:skip_parse].must_equal "SkipParse"
 
 

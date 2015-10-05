@@ -143,7 +143,7 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
   end
 end
 
-class ValidateWithDeserializerOptionTest < MiniTest::Spec
+class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)
@@ -153,21 +153,20 @@ class ValidateWithDeserializerOptionTest < MiniTest::Spec
     validates :name, presence: true
 
     collection :songs,
-      deserializer: {instance: lambda { |fragment, index, options|
-              collection = options.binding.get
-              (item = collection[index]) ? item : collection.insert(index, Song.new) },
-      setter: nil} do
+      internal_populator: lambda { |input, options|
+              collection = options[:binding].get
+              (item = collection[options[:index]]) ? item : collection.insert(options[:index], Song.new) } do
 
       property :title
       validates :title, presence: true
 
-      property :composer, deserializer: { instance: lambda { |fragment, options| (item = options.binding.get) ? item : Artist.new } } do
+      property :composer, internal_populator: lambda { |input, options| (item = options[:binding].get) ? item : Artist.new } do
         property :name
         validates :name, presence: true
       end
     end
 
-    property :artist, deserializer: { instance: lambda { |fragment, options| (item = options.binding.get) ? item : Artist.new } } do
+    property :artist, internal_populator: lambda { |input, options| (item = options[:binding].get) ? item : Artist.new } do
       property :name
       validates :name, presence: true
     end
