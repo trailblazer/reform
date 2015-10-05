@@ -17,8 +17,9 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency             "disposable",     "~> 0.1.11"
+  spec.add_dependency             "disposable",     "~> 0.1.13"
   spec.add_dependency             "uber",           "~> 0.0.11"
+  spec.add_dependency             "representable",  "~> 2.4.0"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
