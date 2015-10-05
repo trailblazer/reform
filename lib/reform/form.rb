@@ -38,7 +38,7 @@ module Reform
         if block = definition[:populator] # populator wins over populate_if_empty when :inherit
           internal_populator = Populator.new(block)
         end
-        definition.merge!(internal_populator: internal_populator)
+        definition.merge!(internal_populator: internal_populator) unless definition[:internal_populator]
         external_populator = Populator::External.new
 
 
