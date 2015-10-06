@@ -2,9 +2,10 @@ require 'test_helper'
 require 'representable/json'
 
 class InheritTest < BaseTest
+  Populator = Reform::Form::Populator
+
   class AlbumForm < Reform::Form
     property :title, deserializer: {instance: "Instance"}, skip_if: "skip_if in AlbumForm" # allow direct configuration of :deserializer.
-    # puts "[#{options_for(:title)[:deserializer].object_id}] ALB@@@@@ #{options_for(:title)[:deserializer].inspect}"
 
     property :hit, populator: "Populator" do
       property :title
@@ -93,6 +94,7 @@ require "pp"
     # pp CompilationForm.options_for(:songs)
     CompilationForm.options_for(:songs)[:internal_populator].must_be_instance_of Reform::Form::Populator::IfEmpty
 
+
     CompilationForm.options_for(:artist)[:internal_populator].must_be_instance_of Reform::Form::Populator::IfEmpty
 
     # completely overwrite inherited.
@@ -104,4 +106,14 @@ require "pp"
     AlbumForm.new(OpenStruct.new(artist: OpenStruct.new)).artist.artist_id.must_equal 1
     CompilationForm.new(OpenStruct.new(artist: OpenStruct.new)).artist.artist_id.must_equal 1
   end
+
+
+  class CDForm < AlbumForm
+    # override :artist's original populate_if_empty but with :inherit.
+    property :artist, inherit: true, populator: "CD Populator" do
+
+    end
+  end
+
+  it { CDForm.options_for(:artist)[:internal_populator].instance_variable_get(:@user_proc).must_equal "CD Populator" }
 end
