@@ -82,7 +82,7 @@ private
       return yield if arity == 1
       warn "[Reform] Positional arguments for :prepopulate and friends are deprecated. Please use ->(options) and enjoy the rest of your day. Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21"
 
-      @value.(form, options[:fragment], options[:binding].user_options)
+      @value.(form, options[:fragment], options[:user_options])
     end
 
   end
