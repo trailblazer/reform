@@ -63,8 +63,11 @@ module Reform
             pipeline =  [Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
           end
         end
+        pipeline = [Representable::Stop] if deserializer_options[:writeable]==false || definition[:deserializer_options]&&definition[:deserializer_options][:writeable]==false # TODO: use better API from representable.
 
-        deserializer_options.merge!(parse_pipeline: ->(*) { pipeline }) # TODO: test that Default, etc are NOT RUN.
+
+
+        deserializer_options.merge!(parse_pipeline: ->(*) { Representable::Pipeline[*pipeline] }) # TODO: test that Default, etc are NOT RUN.
 
         if proc = definition[:skip_if]
           proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
