@@ -2,7 +2,10 @@
 en:
   # custom validation error messages
 
-  activemodel:
+  activerecord:
+    attributes:
+      song:
+        title: Song Title
     errors:
       models:
         song:
