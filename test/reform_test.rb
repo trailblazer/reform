@@ -106,7 +106,7 @@ class ReformTest < ReformSpec
 
     before { form.validate("name" => "Diesel Boy") }
 
-    it "pushes data to models" do
+    it "xxpushes data to models" do
       form.save
 
       comp.name.must_equal "Diesel Boy"

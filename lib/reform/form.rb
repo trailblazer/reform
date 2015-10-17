@@ -48,19 +48,19 @@ module Reform
           standard_pipeline = [Representable::SkipParse, Representable::AssignFragment, external_populator, Deserialize]
 
           if definition.array?
-            pipeline =  [Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
+            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
           else
-            pipeline =  [Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
+            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
           end
 
 
         else
-          standard_pipeline = [Representable::SkipParse, Representable::Setter]
+          standard_pipeline = [Representable::SkipParse, Representable::Set]
 
           if definition.array?
-            pipeline =  [Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
+            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
           else
-            pipeline =  [Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
+            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
           end
         end
         pipeline = [Representable::Stop] if deserializer_options[:writeable]==false || definition[:deserializer_options]&&definition[:deserializer_options][:writeable]==false # TODO: use better API from representable.

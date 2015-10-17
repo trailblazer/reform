@@ -154,19 +154,19 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
 
     collection :songs,
       internal_populator: lambda { |input, options|
-              collection = options[:binding].get
+              collection = options[:binding].get(options)
               (item = collection[options[:index]]) ? item : collection.insert(options[:index], Song.new) } do
 
       property :title
       validates :title, presence: true
 
-      property :composer, internal_populator: lambda { |input, options| (item = options[:binding].get) ? item : Artist.new } do
+      property :composer, internal_populator: lambda { |input, options| (item = options[:binding].get(options)) ? item : Artist.new } do
         property :name
         validates :name, presence: true
       end
     end
 
-    property :artist, internal_populator: lambda { |input, options| (item = options[:binding].get) ? item : Artist.new } do
+    property :artist, internal_populator: lambda { |input, options| (item = options[:binding].get(options)) ? item : Artist.new } do
       property :name
       validates :name, presence: true
     end
