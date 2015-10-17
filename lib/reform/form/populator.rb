@@ -13,14 +13,14 @@ class Reform::Form::Populator
   end
 
   def call(input, options)
-    model = options[:binding].get
+    model = options[:binding].get(options)
     twin  = call!(options.merge(model: model, collection: model))
 
     return twin if twin == Representable::Pipeline::Stop
 
     # this kinda sucks. the proc may call self.composer = Artist.new, but there's no way we can
     # return the twin instead of the model from the #composer= setter.
-    twin = options[:binding].get unless options[:binding].array?
+    twin = options[:binding].get(options) unless options[:binding].array?
 
     # we always need to return a twin/form here so we can call nested.deserialize().
     handle_fail(twin, options)
