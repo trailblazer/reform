@@ -6,6 +6,12 @@ class Reform::Form::UniqueValidator < ActiveModel::EachValidator
     # search for models with attribute equals to form field value
     query = model.class.where(attribute => value)
 
+    # apply scope if options has been declared
+    Array(options[:scope]).each do |field|
+      # add condition to only check unique value with the same scope
+      query = query.where(field => form.send(field))
+    end
+
     # if model persisted, excluded own model from query
     query = query.merge(model.class.where("id <> ?", model.id)) if model.persisted?
 
