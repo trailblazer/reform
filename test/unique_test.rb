@@ -63,16 +63,17 @@ class UniqueWithCompositionTest < MiniTest::Spec
   end
 end
 
-
 class UniqueValidatorWithScopeTest < MiniTest::Spec
   class SongForm < Reform::Form
     include ActiveRecord
+
     property :album_id
     property :title
     validates :title, unique: { scope: :album_id }
   end
 
   it do
+    Album.delete_all
     Song.delete_all
 
     album = Album.new
@@ -91,5 +92,35 @@ class UniqueValidatorWithScopeTest < MiniTest::Spec
 
     form = SongForm.new(Song.new)
     form.validate(album_id: album.id, title: 'How Many Tears').must_equal true
+  end
+end
+
+class UniqueValidatorWithCollectionTest < MiniTest::Spec
+  class AlbumForm < Reform::Form
+    include ActiveRecord
+
+    property :title
+    validates :songs, unique: { scope: :title }
+
+    collection :songs, :populate_if_empty => Song do
+      property :title
+    end
+  end
+
+  it do
+    Album.delete_all
+    Song.delete_all
+
+    form = AlbumForm.new(Album.new)
+    form.validate(songs: [{ title: 'Straight From The Jacket' }, { title: 'How Many Tears' }, { title: 'Straight From The Jacket' }]).must_equal false
+    form.errors.to_s.must_equal "{:songs=>[\"has already been taken\"]}"
+
+    album = Album.new
+    form = AlbumForm.new(album)
+    form.validate(songs: [{ title: 'Straight From The Jacket' }, { title: 'How Many Tears' }]).must_equal true
+    form.save
+
+    form.validate(songs: [{ title: 'How Many Tears' }]).must_equal false
+    form.errors.to_s.must_equal "{:songs=>[\"has already been taken\"]}"
   end
 end
