@@ -93,3 +93,43 @@ class UniqueValidatorWithScopeTest < MiniTest::Spec
     form.validate(album_id: album.id, title: 'How Many Tears').must_equal true
   end
 end
+
+class UniqueValidatorWithScopeArrayTest < MiniTest::Spec
+  class SongForm < Reform::Form
+    include ActiveRecord
+    property :album_id
+    property :artist_id
+    property :title
+    validates :title, unique: { scope: [:album_id, :artist_id] }
+  end
+
+  it do
+    Song.delete_all
+
+    album1 = Album.new
+    album1.save
+
+    artist1 = Artist.new
+    artist1.save
+
+    form = SongForm.new(Song.new)
+    form.validate(album_id: album1.id, artist_id: artist1.id, title: 'How Many Tears').must_equal true
+    form.save
+
+    form = SongForm.new(Song.new)
+    form.validate(album_id: album1.id, artist_id: artist1.id, title: 'How Many Tears').must_equal false
+    form.errors.to_s.must_equal "{:title=>[\"has already been taken\"]}"
+
+    album2 = Album.new
+    album2.save
+
+    form = SongForm.new(Song.new)
+    form.validate(album_id: album2.id, artist_id: artist1.id, title: 'How Many Tears').must_equal true
+
+    artist2 = Artist.new
+    artist2.save
+
+    form = SongForm.new(Song.new)
+    form.validate(album_id: album1.id, artist_id: artist2.id, title: 'How Many Tears').must_equal true
+  end
+end
