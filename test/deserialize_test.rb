@@ -18,7 +18,7 @@ class DeserializeTest < MiniTest::Spec
         Disposable::Twin::Schema.from(self.class,
           include:          [Representable::JSON],
           superclass:       Representable::Decorator,
-          representer_from: lambda { |inline| inline.representer_class },
+          representer_from: lambda { |inline| inline.definitions },
           options_from:     :deserializer,
           exclude_options:  [:populator]
         )

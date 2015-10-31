@@ -21,6 +21,8 @@ require 'reform/active_record'
 
 class ActiveRecordTest < MiniTest::Spec
   class SongForm < Reform::Form
+    feature Reform::Form::ActiveModel::Validations
+
     include Reform::Form::ActiveRecord
     model :song
 

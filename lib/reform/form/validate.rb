@@ -45,7 +45,7 @@ private
       {
         include:          [Representable::Hash::AllowSymbols, Representable::Hash],
         superclass:       Representable::Decorator,
-        representer_from: lambda { |inline| inline.representer_class },
+        representer_from: lambda { |inline| inline.definitions },
         options_from:     :deserializer,
         exclude_options:  [:default, :populator] # Reform must not copy Disposable/Reform-only options that might confuse representable.
       }.merge(options)

@@ -2,10 +2,8 @@ require "disposable/twin/schema"
 
 module Reform
   class Form < Contract
-    representer_class.instance_eval do
-      def default_inline_class
-        Form
-      end
+    def self.default_nested_class
+      Form
     end
 
     require "reform/form/validate"
@@ -26,7 +24,7 @@ module Reform
         end
 
         definition = super # let representable sort out inheriting of properties, and so on.
-        definition.merge!(deserializer: {}) unless definition[:deserializer] # always keep :deserializer per property.
+        definition.options.merge!(deserializer: {}) unless definition[:deserializer] # always keep :deserializer per property.
 
         deserializer_options = definition[:deserializer]
 
@@ -38,16 +36,16 @@ module Reform
         if block = definition[:populator] # populator wins over populate_if_empty when :inherit
           internal_populator = Populator.new(block)
         end
-        definition.merge!(internal_populator: internal_populator) unless options[:internal_populator]
+        definition.options.merge!(internal_populator: internal_populator) unless options[:internal_populator]
         external_populator = Populator::External.new
 
 
 
         # DISCUSS: allow populators for scalars, too?
-        if definition.typed?
+        if definition[:nested]
           standard_pipeline = [Representable::SkipParse, Representable::AssignFragment, external_populator, Deserialize]
 
-          if definition.array?
+          if definition[:collection]
             pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
           else
             pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
@@ -57,7 +55,7 @@ module Reform
         else
           standard_pipeline = [Representable::SkipParse, Representable::Set]
 
-          if definition.array?
+          if definition[:collection]
             pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
           else
             pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]

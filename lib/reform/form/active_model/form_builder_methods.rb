@@ -35,13 +35,14 @@ module Reform::Form::ActiveModel
 
   private
     def rename_nested_param_for!(params, dfn)
-      nested_name = "#{dfn.name}_attributes"
+      name        = dfn[:name]
+      nested_name = "#{name}_attributes"
       return unless params.has_key?(nested_name)
 
-      value = params["#{dfn.name}_attributes"]
+      value = params["#{name}_attributes"]
       value = value.values if dfn[:collection]
 
-      params[dfn.name] = value
+      params[name] = value
     end
   end
 end
