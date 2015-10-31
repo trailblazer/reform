@@ -7,7 +7,7 @@ module Reform::Form::Validate
       def call(form, options)
         params = options[:input]
         # TODO: Schema should provide property names as plain list.
-        properties = options[:binding][:twin].representer_class.representable_attrs[:definitions].keys
+        properties = options[:binding][:nested].definitions.collect { |dfn| dfn[:name] }
 
         properties.each { |name| params[name].present? and return false }
         true # skip

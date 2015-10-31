@@ -90,7 +90,7 @@ class ValidateWithBlockTest < MiniTest::Spec
     deserializer = Disposable::Twin::Schema.from(AlbumForm,
       include:          [Representable::JSON],
       superclass:       Representable::Decorator,
-      representer_from: lambda { |inline| inline.representer_class },
+      representer_from: lambda { |inline| inline.definitions },
       options_from:     :deserializer
     )
 
