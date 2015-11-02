@@ -13,7 +13,7 @@ module Reform::Form::ActiveModel
       # TODO: add that shit in Form#present, not by overriding ::property.
       def property(name, options={}, &block)
         super.tap do |definition|
-          add_nested_attribute_compat(name) if definition[:twin] # TODO: fix that in Rails FB#1832 work.
+          add_nested_attribute_compat(name) if definition[:nested] # TODO: fix that in Rails FB#1832 work.
         end
       end
 
