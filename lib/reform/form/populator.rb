@@ -38,7 +38,7 @@ private
   end
 
   def handle_fail(twin, options)
-    raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options[:binding].name}`." if options[:binding][:twin] && !twin.is_a?(Reform::Form)
+    raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options[:binding].name}`." if options[:binding][:nested] && !twin.is_a?(Reform::Form)
   end
 
   def deprecate_positional_args(form, proc, options) # TODO: remove in 2.2.
