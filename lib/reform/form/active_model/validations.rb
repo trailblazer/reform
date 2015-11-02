@@ -19,6 +19,11 @@ module Reform::Form::ActiveModel
 
           # Hooray! Delegate translation back to Reform's Validator class which contains AM::Validations.
           delegates :validator, :human_attribute_name, :lookup_ancestors, :i18n_scope # Rails 3.1.
+
+          def validates(*args, &block)
+            puts "====validates: #{args.inspect} dele to #{validator.object_id}"
+            super
+          end
         end
       end
     end
@@ -65,7 +70,7 @@ module Reform::Form::ActiveModel
       end
     end
 
-    private
+  private
 
     # Needs to be implemented by every validation backend and implements the
     # actual validation. See Reform::Form::Lotus, too!
