@@ -103,7 +103,7 @@ private
   # property has a populator and simply delegates the entire logic to the form.
   class External
     def call(input, options)
-      options[:binding].represented.class.definitions.
+      options[:represented].class.definitions.
         get(options[:binding][:name])[:internal_populator].(input, options)
     end
   end
