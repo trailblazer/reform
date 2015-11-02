@@ -10,8 +10,10 @@ module Reform::Form::ActiveModel
     def self.included(includer)
       includer.instance_eval do
         include Reform::Form::ActiveModel
-        inheritable_attr :validator
-        self.validator = Class.new(Validator) # the actual validations happen in this instance.
+
+        def validator
+          @validator ||= Class.new(Validator) # the actual validations happen on this instance.
+        end
 
         class << self
           extend Uber::Delegates
@@ -21,7 +23,19 @@ module Reform::Form::ActiveModel
           delegates :validator, :human_attribute_name, :lookup_ancestors, :i18n_scope # Rails 3.1.
 
           def validates(*args, &block)
-            puts "====validates: #{args.inspect} dele to #{validator.object_id}"
+            heritage << {method: :validates, args: args, block: block}
+            super
+          end
+          def validate(*args, &block)
+            heritage << {method: :validate, args: args, block: block}
+            super
+          end
+          def validates_with(*args, &block)
+            heritage << {method: :validates_with, args: args, block: block}
+            super
+          end
+          def validate_with(*args, &block)
+            heritage << {method: :validate_with, args: args, block: block}
             super
           end
         end

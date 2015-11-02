@@ -81,19 +81,18 @@ class ModuleInclusionTest < MiniTest::Spec
 
     property :name
     validates :name, :presence => true
+
   end
 
   class AlbumForm < Reform::Form
     include AlbumFormModule
 
+    # pp heritage
     property :band, :inherit => true do
       property :label
       validates :label, :presence => true
     end
-
-    # raise representer_class.representable_attrs.get(:band).inspect
   end
-  # puts "......"+ AlbumForm.representer_class.representable_attrs.get(:band).inspect
 
   it do
     form = AlbumForm.new(OpenStruct.new(:band => OpenStruct.new))
