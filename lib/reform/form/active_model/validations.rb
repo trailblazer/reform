@@ -23,7 +23,7 @@ module Reform::Form::ActiveModel
           delegates :validator, :human_attribute_name, :lookup_ancestors, :i18n_scope # Rails 3.1.
 
           def validates(*args, &block)
-            heritage << {method: :validates, args: args, block: block}
+            heritage.record(:validates, *args, &block)
             super
           end
           def validate(*args, &block)
