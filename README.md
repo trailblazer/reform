@@ -17,7 +17,7 @@ Temporary note: This is the README and API for Reform 2. On the public API, only
 
 Anyway, please upgrade and _report problems_ and do not simply assume that we will magically find out what needs to get fixed. When in trouble, join us on [Gitter](https://gitter.im/trailblazer/chat).
 
-[Full documentation for Reform](http://trailblazerb.org/gems/reform) is available online, or support us and grab the [Trailblazer book](https://leanpub.com/trailblazer).
+[Full documentation for Reform](http://trailblazerb.org/gems/reform) is available online, or support us and grab the [Trailblazer book](https://leanpub.com/trailblazer). There is an [Upgrading Guide](http://trailblazer.to/gems/reform/upgrading-guide.html) to help you migrate from Reform 1.x.
 
 ## Disposable
 
