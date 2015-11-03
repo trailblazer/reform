@@ -24,7 +24,7 @@ module Reform
         end
 
         definition = super # let representable sort out inheriting of properties, and so on.
-        definition.options.merge!(deserializer: {}) unless definition[:deserializer] # always keep :deserializer per property.
+        definition.merge!(deserializer: {}) unless definition[:deserializer] # always keep :deserializer per property.
 
         deserializer_options = definition[:deserializer]
 
@@ -36,7 +36,7 @@ module Reform
         if block = definition[:populator] # populator wins over populate_if_empty when :inherit
           internal_populator = Populator.new(block)
         end
-        definition.options.merge!(internal_populator: internal_populator) unless options[:internal_populator]
+        definition.merge!(internal_populator: internal_populator) unless options[:internal_populator]
         external_populator = Populator::External.new
 
 
