@@ -15,10 +15,10 @@ class DeserializeTest < MiniTest::Spec
       end
 
       def deserializer
-        Disposable::Twin::Schema.from(self.class,
+        Disposable::Rescheme.from(self.class,
           include:          [Representable::JSON],
           superclass:       Representable::Decorator,
-          representer_from: lambda { |inline| inline.definitions },
+          definitions_from: lambda { |inline| inline.definitions },
           options_from:     :deserializer,
           exclude_options:  [:populator]
         )
@@ -87,10 +87,10 @@ class ValidateWithBlockTest < MiniTest::Spec
     form  = AlbumForm.new(album)
     json  = {title: "Apocalypse Soon", artist: {name: "Mute"}}.to_json
 
-    deserializer = Disposable::Twin::Schema.from(AlbumForm,
+    deserializer = Disposable::Rescheme.from(AlbumForm,
       include:          [Representable::JSON],
       superclass:       Representable::Decorator,
-      representer_from: lambda { |inline| inline.definitions },
+      definitions_from: lambda { |inline| inline.definitions },
       options_from:     :deserializer
     )
 
