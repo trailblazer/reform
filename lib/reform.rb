@@ -4,6 +4,7 @@ module Reform
   end
 end
 
+require "disposable"
 require "reform/contract"
 require "reform/form"
 require "reform/form/composition"

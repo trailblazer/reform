@@ -1,5 +1,3 @@
-require "disposable/twin/schema"
-
 module Reform
   class Form < Contract
     def self.default_nested_class

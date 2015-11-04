@@ -1,7 +1,4 @@
 require "uber/inheritable_attr"
-require "disposable/twin"
-require "disposable/twin/setup"
-require "disposable/twin/default"
 
 module Reform
   # Define your form structure and its validations. Instantiate it with a model,

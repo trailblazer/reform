@@ -41,11 +41,11 @@ private
   # Default deserializer for hash.
   # This is input-specific, e.g. Hash, JSON, or XML.
   def deserializer(source=self.class, options={}) # called on top-level, only, for now.
-    deserializer = Disposable::Twin::Schema.from(source,
+    deserializer = Disposable::Rescheme.from(source,
       {
         include:          [Representable::Hash::AllowSymbols, Representable::Hash],
         superclass:       Representable::Decorator,
-        representer_from: lambda { |inline| inline.definitions },
+        definitions_from: lambda { |inline| inline.definitions },
         options_from:     :deserializer,
         exclude_options:  [:default, :populator] # Reform must not copy Disposable/Reform-only options that might confuse representable.
       }.merge(options)
