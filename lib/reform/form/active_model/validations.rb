@@ -24,18 +24,18 @@ module Reform::Form::ActiveModel
 
           def validates(*args, &block)
             heritage.record(:validates, *args, &block)
-            super
+            super(*Declarative::DeepDup.(args), &block) # FIX for Rails 3.1.
           end
           def validate(*args, &block)
-            heritage << {method: :validate, args: args, block: block}
+            heritage.record(:validate, *args, &block)
             super
           end
           def validates_with(*args, &block)
-            heritage << {method: :validates_with, args: args, block: block}
+            heritage.record(:validates_with, *args, &block)
             super
           end
           def validate_with(*args, &block)
-            heritage << {method: :validate_with, args: args, block: block}
+            heritage.record(:validate_with, *args, &block)
             super
           end
         end
