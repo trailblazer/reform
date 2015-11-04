@@ -39,7 +39,6 @@ module Reform
 
 
 
-        # DISCUSS: allow populators for scalars, too?
         if definition[:nested]
           standard_pipeline = [Representable::SkipParse, Representable::AssignFragment, external_populator, Deserialize]
 
@@ -51,12 +50,13 @@ module Reform
 
 
         else
-          standard_pipeline = [Representable::SkipParse, Representable::Set]
+          setter = options[:populator] ? external_populator : Representable::Set # FIXME: this won't work with property :name, inherit: true (where there is a populator set already).
+          standard_pipeline = [Representable::SkipParse, setter]
 
           if definition[:collection]
-            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
+            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::AssignFragment, Representable::Collect[*standard_pipeline]]
           else
-            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
+            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::AssignFragment, *standard_pipeline]
           end
         end
         pipeline = [Representable::Stop] if deserializer_options[:writeable]==false || definition[:deserializer_options]&&definition[:deserializer_options][:writeable]==false # TODO: use better API from representable.

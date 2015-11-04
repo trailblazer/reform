@@ -6,7 +6,7 @@ class PopulatorTest < MiniTest::Spec
   Artist = Struct.new(:name)
 
   class AlbumForm < Reform::Form
-    property :name
+    property :name, populator: ->(options) { self.name = options[:fragment].reverse }
     validates :name, presence: true
 
     collection :songs,
@@ -38,6 +38,14 @@ class PopulatorTest < MiniTest::Spec
   let (:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
 
   let (:form) { AlbumForm.new(album) }
+
+  it "runs populator on scalar" do
+    form.validate(
+      "name" => "override me!"
+    )
+
+    form.name.must_equal "!em edirrevo"
+  end
 
   # changing existing property :artist.
   # TODO: check with artist==nil
