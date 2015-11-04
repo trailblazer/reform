@@ -1,7 +1,5 @@
 require "test_helper"
 
-require "roar/json/hal"
-
 class ExperimentalPopulatorTest < MiniTest::Spec
   Album = Struct.new(:songs)
   Song  = Struct.new(:title)
