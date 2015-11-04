@@ -1,26 +1,26 @@
 require 'test_helper'
+require "representable/json"
 
 class DeserializeTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:title, :artist)
-  Artist = Struct.new(:name)
+  Artist = Struct.new(:name, :callname)
 
   class JsonAlbumForm < Reform::Form
     module Json
       def deserialize(params)
-        # params = deserialize!(params) # DON'T call those hash hooks.
-
         deserializer.new(self).
         # extend(Representable::Debug).
           from_json(params)
       end
 
       def deserializer
-        deserializer = Disposable::Twin::Schema.from(self.class,
+        Disposable::Rescheme.from(self.class,
           include:          [Representable::JSON],
           superclass:       Representable::Decorator,
-          representer_from: lambda { |inline| inline.representer_class },
-          options_from:     :deserializer
+          definitions_from: lambda { |inline| inline.definitions },
+          options_from:     :deserializer,
+          exclude_options:  [:populator]
         )
       end
     end
@@ -32,6 +32,7 @@ class DeserializeTest < MiniTest::Spec
       property :name
     end
   end
+
 
   let (:artist) { Artist.new("A-ha") }
   it do
@@ -45,6 +46,26 @@ class DeserializeTest < MiniTest::Spec
     form.title.must_equal "Apocalypse Soon"
     form.artist.name.must_equal "Mute"
     form.artist.model.object_id.must_equal artist_id
+  end
+
+  describe "infering the deserializer from another form should NOT copy its populators" do
+    class CompilationForm < Reform::Form
+      property :artist, populator: ->(options) { self.artist = Artist.new(nil, options[:fragment].to_s) } do
+        property :name
+      end
+
+      def deserializer
+        super(JsonAlbumForm, include: [Representable::Hash])
+      end
+    end
+
+    # also tests the Form#deserializer API. # FIXME.
+    it "uses deserializer inferred from JsonAlbumForm but deserializes/populates to CompilationForm" do
+      form = CompilationForm.new(Album.new)
+      form.validate("artist"=> {"name" => "Horowitz"}) # the deserializer doesn't know symbols.
+      form.sync
+      form.artist.model.must_equal Artist.new("Horowitz", %{{"name"=>"Horowitz"}})
+    end
   end
 end
 
@@ -66,10 +87,10 @@ class ValidateWithBlockTest < MiniTest::Spec
     form  = AlbumForm.new(album)
     json  = {title: "Apocalypse Soon", artist: {name: "Mute"}}.to_json
 
-    deserializer = Disposable::Twin::Schema.from(AlbumForm,
+    deserializer = Disposable::Rescheme.from(AlbumForm,
       include:          [Representable::JSON],
       superclass:       Representable::Decorator,
-      representer_from: lambda { |inline| inline.representer_class },
+      definitions_from: lambda { |inline| inline.definitions },
       options_from:     :deserializer
     )
 

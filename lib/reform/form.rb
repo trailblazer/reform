@@ -1,11 +1,7 @@
-require "disposable/twin/schema"
-
 module Reform
   class Form < Contract
-    representer_class.instance_eval do
-      def default_inline_class
-        Form
-      end
+    def self.default_nested_class
+      Form
     end
 
     require "reform/form/validate"
@@ -13,45 +9,67 @@ module Reform
 
     require "reform/form/populator"
 
+    # called after populator: form.deserialize(params)
+    # as this only included in the typed pipeline, it's not applied for scalars.
+    Deserialize = ->(input, options) { input.deserialize(options[:fragment]) } # TODO: (result:, fragment:, **o) once we drop 2.0.
+
     module Property
       # Add macro logic, e.g. for :populator.
       # TODO: This will be re-structured once Declarative allows it.
       def property(name, options={}, &block)
         if deserializer = options[:deserializer] # this means someone is explicitly specifying :deserializer.
-          options[:deserializer] = Representable::Cloneable::Hash[deserializer]
+          options[:deserializer] = deserializer
         end
 
         definition = super # let representable sort out inheriting of properties, and so on.
-        definition.merge!(deserializer: Representable::Cloneable::Hash.new) unless definition[:deserializer] # always keep :deserializer per property.
+        definition.merge!(deserializer: {}) unless definition[:deserializer] # always keep :deserializer per property.
 
         deserializer_options = definition[:deserializer]
 
         # Populators
-        # * they assign created data, no :setter (hence the name).
-        # * they (ab)use :instance, this is why they need to return a twin form.
-        # * they are only used in the deserializer.
-        if populator = options.delete(:populate_if_empty)
-          deserializer_options.merge!({instance: Populator::IfEmpty.new(populator)})
-          deserializer_options.merge!({setter: nil})
-        elsif populator = options.delete(:populator)
-          deserializer_options.merge!({instance: Populator.new(populator)})
-          deserializer_options.merge!({setter: nil})
+        internal_populator = Populator::Sync.new(nil)
+        if block = definition[:populate_if_empty]
+          internal_populator = Populator::IfEmpty.new(block)
         end
+        if block = definition[:populator] # populator wins over populate_if_empty when :inherit
+          internal_populator = Populator.new(block)
+        end
+        definition.merge!(internal_populator: internal_populator) unless options[:internal_populator]
+        external_populator = Populator::External.new
 
 
-        # TODO: shouldn't that go into validate?
-        if proc = options.delete(:skip_if)
+
+        # DISCUSS: allow populators for scalars, too?
+        if definition[:nested]
+          standard_pipeline = [Representable::SkipParse, Representable::AssignFragment, external_populator, Deserialize]
+
+          if definition[:collection]
+            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
+          else
+            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
+          end
+
+
+        else
+          standard_pipeline = [Representable::SkipParse, Representable::Set]
+
+          if definition[:collection]
+            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
+          else
+            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
+          end
+        end
+        pipeline = [Representable::Stop] if deserializer_options[:writeable]==false || definition[:deserializer_options]&&definition[:deserializer_options][:writeable]==false # TODO: use better API from representable.
+
+
+
+        deserializer_options.merge!(parse_pipeline: ->(*) { Representable::Pipeline[*pipeline] }) # TODO: test that Default, etc are NOT RUN.
+
+        if proc = definition[:skip_if]
           proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
-
-          deserializer_options.merge!(skip_parse: proc)
+          deserializer_options.merge!(skip_parse: proc) # TODO: same with skip_parse ==> External
         end
 
-        # default:
-        # add Sync populator to nested forms.
-        # FIXME: this is, of course, ridiculous and needs a better structuring.
-        if (deserializer_options == {} || deserializer_options.keys == [:skip_parse]) && definition[:twin] && !options[:inherit] # FIXME: hmm. not a fan of this: only add when no other option given?
-          deserializer_options.merge!(instance: Populator::Sync.new(nil), setter: nil)
-        end
 
         # per default, everything should be writeable for the deserializer (we're only writing on the form). however, allow turning it off.
         deserializer_options.merge!(writeable: true) unless deserializer_options.has_key?(:writeable)

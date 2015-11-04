@@ -7,7 +7,7 @@ class Reform::Form < Reform::Contract
   module ActiveModel::ModelReflections
     def self.included(base)
       base.extend ClassMethods
-      base.register_feature self # makes it work in nested forms.
+      base.send :register_feature, self # makes it work in nested forms.
     end
 
     module ClassMethods

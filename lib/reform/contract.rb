@@ -1,7 +1,4 @@
 require "uber/inheritable_attr"
-require "disposable/twin"
-require "disposable/twin/setup"
-require "disposable/twin/default"
 
 module Reform
   # Define your form structure and its validations. Instantiate it with a model,
@@ -14,18 +11,14 @@ module Reform
     feature Setup::SkipSetter
     feature Default
 
-    representer_class.instance_eval do
-      def default_inline_class
-        Contract
-      end
+    def self.default_nested_class
+      Contract
     end
 
     def self.property(name, options={}, &block)
       if twin = options.delete(:form)
         options[:twin] = twin
       end
-
-      options[:pass_options] = true
 
       if validates_options = options[:validates]
         validates name, validates_options.dup # .dup for RAils 3.x.
@@ -63,7 +56,7 @@ module Reform
     end
 
     def self.options_for(name)
-      representer_class.representable_attrs.get(name)
+      definitions.get(name)
     end
     include Readonly
 
@@ -71,8 +64,5 @@ module Reform
     def self.clone # TODO: test. THIS IS ONLY FOR Trailblazer when contract gets cloned in suboperation.
       Class.new(self)
     end
-
-    require "reform/schema"
-    extend Reform::Schema
   end
 end

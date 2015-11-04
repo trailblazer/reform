@@ -1,3 +1,7 @@
+2.1
+
+* :populator ->(options) or ->(fragment:, model:, **o)
+
 ## 2.0.5
 
 * `ActiveModel::Validator` now delegates all methods properly to the form. It used to crashed with properties called `format` or other private `Object` methods.

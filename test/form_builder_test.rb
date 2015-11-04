@@ -12,7 +12,7 @@ class FormBuilderCompatTest < BaseTest
     end
 
     collection :songs do
-      feature Reform::Form::ActiveModel::FormBuilderMethods
+      # feature Reform::Form::ActiveModel::FormBuilderMethods
       property :title
       property :release_date, :multi_params => true
       validates :title, :presence => true
@@ -37,15 +37,17 @@ class FormBuilderCompatTest < BaseTest
 
 
   let (:song) { OpenStruct.new }
-  let (:form) { AlbumForm.new(OpenStruct.new(
-    :artist => Artist.new(:name => "Propagandhi"),
-    :songs  => [song],
-    :label  => Label.new,
+  let (:form) {
+    AlbumForm.new(OpenStruct.new(
+      :artist => Artist.new(:name => "Propagandhi"),
+      :songs  => [song],
+      :label  => Label.new,
 
-    :band => Band.new(OpenStruct.new(location: OpenStruct.new))
-    )) }
+      :band => Band.new(OpenStruct.new(location: OpenStruct.new))
+    ))
+  }
 
-  it "xxxrespects _attributes params hash" do
+  it "respects _attributes params hash" do
     form.validate(
       "artist_attributes" => {"name" => "Blink 182"},
       "songs_attributes"  => {"0" => {"title" => "Damnit"}},

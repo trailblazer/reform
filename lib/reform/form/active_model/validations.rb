@@ -10,8 +10,10 @@ module Reform::Form::ActiveModel
     def self.included(includer)
       includer.instance_eval do
         include Reform::Form::ActiveModel
-        inheritable_attr :validator
-        self.validator = Class.new(Validator) # the actual validations happen in this instance.
+
+        def validator
+          @validator ||= Class.new(Validator) # the actual validations happen on this instance.
+        end
 
         class << self
           extend Uber::Delegates
@@ -19,6 +21,23 @@ module Reform::Form::ActiveModel
 
           # Hooray! Delegate translation back to Reform's Validator class which contains AM::Validations.
           delegates :validator, :human_attribute_name, :lookup_ancestors, :i18n_scope # Rails 3.1.
+
+          def validates(*args, &block)
+            heritage.record(:validates, *args, &block)
+            super
+          end
+          def validate(*args, &block)
+            heritage << {method: :validate, args: args, block: block}
+            super
+          end
+          def validates_with(*args, &block)
+            heritage << {method: :validates_with, args: args, block: block}
+            super
+          end
+          def validate_with(*args, &block)
+            heritage << {method: :validate_with, args: args, block: block}
+            super
+          end
         end
       end
     end
@@ -65,7 +84,7 @@ module Reform::Form::ActiveModel
       end
     end
 
-    private
+  private
 
     # Needs to be implemented by every validation backend and implements the
     # actual validation. See Reform::Form::Lotus, too!

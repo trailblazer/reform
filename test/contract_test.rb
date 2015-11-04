@@ -40,7 +40,7 @@ class ContractTest < MiniTest::Spec
   end
 
   describe "#options_for" do
-    it { AlbumForm.options_for(:name).inspect.must_match "#<Representable::Definition ==>name @options" }
-    it { AlbumForm.new(album).options_for(:name).inspect.must_match "#<Representable::Definition ==>name @options" }
+    it { AlbumForm.options_for(:name).extend(Declarative::Inspect).inspect.must_equal "#<Disposable::Twin::Definition: @options={:private_name=>:name, :name=>\"name\"}>" }
+    it { AlbumForm.new(album).options_for(:name).extend(Declarative::Inspect).inspect.must_equal "#<Disposable::Twin::Definition: @options={:private_name=>:name, :name=>\"name\"}>" }
   end
 end

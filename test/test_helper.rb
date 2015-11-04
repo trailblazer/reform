@@ -1,6 +1,7 @@
-require 'reform'
+require "reform"
 require 'minitest/autorun'
 require "representable/debug"
+require "declarative/testing"
 require "pp"
 
 class ReformSpec < MiniTest::Spec
@@ -73,7 +74,11 @@ end
 
 require "reform/form/active_model/validations"
 Reform::Contract.class_eval do
-  include Reform::Form::ActiveModel::Validations
+  feature Reform::Form::ActiveModel::Validations
+end
+# FIXME!
+Reform::Form.class_eval do
+  feature Reform::Form::ActiveModel::Validations
 end
 
 I18n.load_path << Dir['test/dummy/config/locales/*.yml']

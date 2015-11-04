@@ -28,16 +28,16 @@ module Reform::Form::ActiveModel
     end
 
     # DISCUSS: can we achieve that somehow via features in build_inline?
-    def process_inline!(mod, definition)
-      _name = definition.name
-      mod.instance_eval do
-        @_name = _name.singularize.camelize
-        # this adds Form::name for AM::Validations and I18N.
-        # i have a feeling that this is also needed for Rails autoloader, which is scary.
-        # beside that, it is a nice way for debugging to find out which anonymous form class you're working on:
-        #   anonymous_nested_form.class.name
-        def name
-          @_name
+    def property(*)
+      super.tap do |dfn|
+        return dfn unless dfn[:nested]
+        _name = dfn[:name]
+        dfn[:nested].instance_eval do
+          @_name = _name.singularize.camelize
+          # this adds Form::name for AM::Validations and I18N.
+          def name
+            @_name
+          end
         end
       end
     end

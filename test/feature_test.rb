@@ -10,8 +10,8 @@ class FeatureInheritanceTest < BaseTest
       "May 16"
     end
 
-    def self.included(base)
-      base.representer_class.representable_attrs.features << self # TODO: register_feature
+    def self.included(includer)
+      includer.send :register_feature, self
     end
   end
 

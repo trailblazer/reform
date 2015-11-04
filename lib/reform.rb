@@ -4,6 +4,7 @@ module Reform
   end
 end
 
+require "disposable"
 require "reform/contract"
 require "reform/form"
 require "reform/form/composition"
@@ -14,3 +15,4 @@ require "reform/form/module"
 if defined?(Rails)
   require "reform/rails"
 end
+

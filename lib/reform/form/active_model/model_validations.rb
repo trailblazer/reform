@@ -63,8 +63,8 @@ module Reform::Form::ActiveModel
       def self.from_representable_attrs(attrs)
         new.tap do |mapping|
           attrs.each do |dfn|
-            from = dfn.name.to_sym
-            to = [dfn[:on], (dfn[:private_name] || dfn.name)].compact.map(&:to_sym)
+            from = dfn[:name].to_sym
+            to = [dfn[:on], (dfn[:private_name] || dfn[:name])].compact.map(&:to_sym)
             mapping.add(from, to)
           end
         end
@@ -103,7 +103,7 @@ module Reform::Form::ActiveModel
     end
 
     def copy_validations_from(models)
-      ValidationCopier.copy(self, Mapping.from_representable_attrs(representer_class.representable_attrs), models)
+      ValidationCopier.copy(self, Mapping.from_representable_attrs(definitions), models)
     end
 
   end
