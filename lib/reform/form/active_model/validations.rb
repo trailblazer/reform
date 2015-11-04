@@ -62,7 +62,7 @@ module Reform::Form::ActiveModel
 
       class << self
         def model_name
-          @_active_model_sucks || ActiveModel::Name.new(Reform::Form, nil, "Reform::Form")
+          @_active_model_sucks ||= ActiveModel::Name.new(Reform::Form, nil, "Reform::Form")
         end
 
         def model_name=(name)
