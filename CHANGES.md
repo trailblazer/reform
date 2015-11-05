@@ -1,3 +1,7 @@
+## Unreleased
+
+* `ActiveModel::Validator` prevents Rails from adding methods to it. This makes `acceptance` and `confirmation` validations work properly.
+
 ## 2.1
 
 ### Awesomeness

@@ -72,6 +72,13 @@ module Reform::Form::ActiveModel
         def clone
           Class.new(self)
         end
+
+        # Prevent AM:V from mutating the validator class
+        def attr_reader(*)
+        end
+
+        def attr_writer(*)
+        end
       end
 
       def initialize(form, name)
