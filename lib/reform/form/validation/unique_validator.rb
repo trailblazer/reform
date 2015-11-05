@@ -41,11 +41,9 @@ class Reform::Form::UniqueValidator < ActiveModel::EachValidator
       query = query.where(field => form.send(field))
     end
 
-    # if model persisted, excluded own model from query
-    query = query.merge(model.class.where("id <> ?", model.id)) if model.persisted?
-
-    # if any models found, add error on attribute
-    form.errors.add(attribute, :taken) if query.any?
+    # if model persisted, query may return 0 or 1 rows, else 0
+    allow_count = model.persisted? ? 1 : 0
+    form.errors.add(attribute, :taken) if query.count > allow_count
   end
 end
 
