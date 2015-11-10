@@ -59,7 +59,7 @@ module Reform
 
 
 
-        deserializer_options.merge!(parse_pipeline: ->(*) { Representable::Pipeline[*pipeline] }) # TODO: test that Default, etc are NOT RUN.
+        deserializer_options.merge!(parse_pipeline: ->(*) { Representable::Pipeline[*pipeline] }) unless deserializer_options[:parse_pipeline] # TODO: test that Default, etc are NOT RUN.
 
         if proc = definition[:skip_if]
           proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
