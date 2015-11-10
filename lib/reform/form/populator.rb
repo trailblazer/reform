@@ -31,7 +31,8 @@ class Reform::Form::Populator
 private
   def call!(options)
     # FIXME: use U:::Value.
-    form = options[:binding].represented
+    form = options[:represented]
+
     deprecate_positional_args(form, @user_proc, options) do
       form.instance_exec(options, &@user_proc)
     end
@@ -59,7 +60,7 @@ private
   class IfEmpty < self # Populator
     def call!(options)
       binding, twin, index, fragment = options[:binding], options[:model], options[:index], options[:fragment] # TODO: remove once we drop 2.0.
-      form = binding.represented
+      form = options[:represented]
 
       if binding.array?
         item = twin.original[index] and return item
