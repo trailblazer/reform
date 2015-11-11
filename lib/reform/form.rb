@@ -33,33 +33,30 @@ module Reform
         definition.merge!(internal_populator: internal_populator) unless options[:internal_populator]
         external_populator = Populator::External.new
 
-
-
+        # always compute a parse_pipeline for each property of the deserializer and inject it via :parse_pipeline.
+        # first, let representable compute the pipeline functions by invoking #parse_functions.
         if definition[:nested]
-          standard_pipeline = [Representable::SkipParse, Representable::AssignFragment, external_populator, Deserialize]
+          parse_pipeline = ->(input, options) do
+            functions = options[:binding].send(:parse_functions)
+            pipeline  = Representable::Pipeline[*functions] # Pipeline[StopOnExcluded, AssignName, ReadFragment, StopOnNotFound, OverwriteOnNil, Collect[#<Representable::Function::CreateObject:0xa6148ec>, #<Representable::Function::Decorate:0xa6148b0>, Deserialize], Set]
 
-          if definition[:collection]
-            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::Collect[*standard_pipeline]]
-          else
-            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, *standard_pipeline]
+            pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,            replace: Representable::CreateObject)
+            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::Decorate,       delete: true)
+            pipeline  = Representable::Pipeline::Insert.(pipeline, Deserialize,                   replace: Representable::Deserialize)
+            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::Set,            delete: true) # FIXME: only diff to options without :populator
           end
-
-
         else
-          setter = options[:populator] ? external_populator : Representable::Set # FIXME: this won't work with property :name, inherit: true (where there is a populator set already).
-          standard_pipeline = [Representable::SkipParse, setter]
+          parse_pipeline = ->(input, options) do
+            functions = options[:binding].send(:parse_functions)
+            pipeline  = Representable::Pipeline[*functions] # Pipeline[StopOnExcluded, AssignName, ReadFragment, StopOnNotFound, OverwriteOnNil, Collect[#<Representable::Function::CreateObject:0xa6148ec>, #<Representable::Function::Decorate:0xa6148b0>, Deserialize], Set]
 
-          if definition[:collection]
-            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::AssignFragment, Representable::Collect[*standard_pipeline]]
-          else
-            pipeline =  [Representable::AssignName, Representable::ReadFragment, Representable::StopOnNotFound, Representable::AssignFragment, *standard_pipeline]
+            # FIXME: this won't work with property :name, inherit: true (where there is a populator set already).
+            pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,            replace: Representable::Set) if definition[:populator] # FIXME: only diff to options without :populator
+            pipeline
           end
         end
-        pipeline = [Representable::Stop] if deserializer_options[:writeable]==false || definition[:deserializer_options]&&definition[:deserializer_options][:writeable]==false # TODO: use better API from representable.
 
-
-
-        deserializer_options.merge!(parse_pipeline: ->(*) { Representable::Pipeline[*pipeline] }) unless deserializer_options[:parse_pipeline] # TODO: test that Default, etc are NOT RUN.
+        deserializer_options[:parse_pipeline] ||= parse_pipeline
 
         if proc = definition[:skip_if]
           proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
