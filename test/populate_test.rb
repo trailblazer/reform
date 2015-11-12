@@ -180,7 +180,7 @@ class PopulateIfEmptyTest < MiniTest::Spec
   end
 
   # trigger artist populator. lambda calling form instance method.
-  it do
+  it "xxxx" do
     form = AlbumForm.new(album = Album.new)
     form.validate("artist" => {"name" => "From Autumn To Ashes"})
 

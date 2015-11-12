@@ -43,7 +43,7 @@ private
   end
 
   def get(options)
-     Representable::Get.(nil, options)
+     Representable::GetValue.(nil, options)
   end
 
   def deprecate_positional_args(form, proc, options) # TODO: remove in 2.2.

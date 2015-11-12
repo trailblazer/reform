@@ -43,7 +43,7 @@ module Reform
             pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,            replace: Representable::CreateObject)
             pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::Decorate,       delete: true)
             pipeline  = Representable::Pipeline::Insert.(pipeline, Deserialize,                   replace: Representable::Deserialize)
-            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::Set,            delete: true) # FIXME: only diff to options without :populator
+            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::SetValue,            delete: true) # FIXME: only diff to options without :populator
           end
         else
           parse_pipeline = ->(input, options) do
@@ -51,7 +51,7 @@ module Reform
             pipeline  = Representable::Pipeline[*functions] # Pipeline[StopOnExcluded, AssignName, ReadFragment, StopOnNotFound, OverwriteOnNil, Collect[#<Representable::Function::CreateObject:0xa6148ec>, #<Representable::Function::Decorate:0xa6148b0>, Deserialize], Set]
 
             # FIXME: this won't work with property :name, inherit: true (where there is a populator set already).
-            pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,            replace: Representable::Set) if definition[:populator] # FIXME: only diff to options without :populator
+            pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,            replace: Representable::SetValue) if definition[:populator] # FIXME: only diff to options without :populator
             pipeline
           end
         end
