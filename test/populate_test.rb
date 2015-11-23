@@ -131,7 +131,7 @@ class PopulateIfEmptyTest < MiniTest::Spec
       end
     end
 
-    property :artist, populate_if_empty: lambda { |*args| create_artist(args) } do # methods work, too.
+    property :artist, populate_if_empty: lambda { |args| create_artist(args[:fragment], args[:user_options]) } do # methods work, too.
       property :name
     end
 
@@ -139,8 +139,8 @@ class PopulateIfEmptyTest < MiniTest::Spec
     class Sting < Artist
       attr_accessor :args
     end
-    def create_artist(args)
-      Sting.new.tap { |artist| artist.args=(args) }
+    def create_artist(input, user_options)
+      Sting.new.tap { |artist| artist.args=([input, user_options].to_s) }
     end
   end
 
@@ -188,7 +188,7 @@ class PopulateIfEmptyTest < MiniTest::Spec
     # test lambda was executed in form context.
     form.artist.model.must_be_instance_of AlbumForm::Sting
     # test lambda block arguments.
-    form.artist.model.args.to_s.must_equal "[{\"name\"=>\"From Autumn To Ashes\"}, {}]"
+    form.artist.model.args.to_s.must_equal "[{\"name\"=>\"From Autumn To Ashes\"}, nil]"
 
     album.artist.must_equal nil
   end

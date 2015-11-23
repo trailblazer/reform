@@ -40,7 +40,7 @@ module Reform
             functions = options[:binding].send(:parse_functions)
             pipeline  = Representable::Pipeline[*functions] # Pipeline[StopOnExcluded, AssignName, ReadFragment, StopOnNotFound, OverwriteOnNil, Collect[#<Representable::Function::CreateObject:0xa6148ec>, #<Representable::Function::Decorate:0xa6148b0>, Deserialize], Set]
 
-            pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,            replace: Representable::CreateObject)
+            pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,            replace: Representable::CreateObject::Instance)
             pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::Decorate,       delete: true)
             pipeline  = Representable::Pipeline::Insert.(pipeline, Deserialize,                   replace: Representable::Deserialize)
             pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::SetValue,            delete: true) # FIXME: only diff to options without :populator
