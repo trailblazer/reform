@@ -17,7 +17,7 @@ Temporary note: This is the README and API for Reform 2. On the public API, only
 
 Anyway, please upgrade and _report problems_ and do not simply assume that we will magically find out what needs to get fixed. When in trouble, join us on [Gitter](https://gitter.im/trailblazer/chat).
 
-[Full documentation for Reform](http://trailblazerb.org/gems/reform) is available online, or support us and grab the [Trailblazer book](https://leanpub.com/trailblazer). There is an [Upgrading Guide](http://trailblazer.to/gems/reform/upgrading-guide.html) to help you migrate from Reform 1.x.
+[Full documentation for Reform](http://trailblazer.to/gems/reform) is available online, or support us and grab the [Trailblazer book](https://leanpub.com/trailblazer). There is an [Upgrading Guide](http://trailblazer.to/gems/reform/upgrading-guide.html) to help you migrate from Reform 1.x.
 
 ## Disposable
 
@@ -283,7 +283,7 @@ class AlbumForm < Reform::Form
   end
 ```
 
-Reform also allows to completely override population using the `:populator` options. This is [documented here](http://trailblazerb.org/gems/reform/populators.html), and also in the Trailblazer book.
+Reform also allows to completely override population using the `:populator` options. This is [documented here](http://trailblazer.to/gems/reform/populators.html), and also in the Trailblazer book.
 
 ## Installation
 
@@ -794,7 +794,7 @@ class SongForm < Reform::Form
 
 Both ActiveRecord and Mongoid modules will support "native" uniqueness support from the model class when you use `validates_uniqueness_of`. They will provide options like `:scope`, etc.
 
-You're encouraged to use Reform's non-writing `unique: true` validation, though. [Learn more](http://trailblazerb.org/gems/reform/validation.html)
+You're encouraged to use Reform's non-writing `unique: true` validation, though. [Learn more](http://trailblazer.to/gems/reform/validation.html)
 
 ## ActiveModel Compliance
 
@@ -976,7 +976,7 @@ Note that this still runs validations for the property, though.
 
 ### Prepopulating Forms
 
-Docs: http://trailblazerb.org/gems/reform/prepopulator.html
+Docs: http://trailblazer.to/gems/reform/prepopulator.html
 
 When rendering a new form for an empty object, nested forms won't show up. The [Trailblazer book, chapter 5](https://leanpub.com/trailblazer), discusses this in detail.
 
