@@ -104,8 +104,16 @@ private
     end
   end
 
-  # This function is added to the pipeline the deserializer uses. It marks that this
-  # property has a populator and simply delegates the entire logic to the form.
+  # This function is added to the deserializer's pipeline.
+  #
+  # When deserializing, the representer will call this function and thereby delegate the
+  # entire population process to the form. The form's :internal_populator will run its
+  # :populator option function and return the new/existing form instance.
+  # The deserializing representer will then continue on that returned form.
+  #
+  # Goal of this indirection is to leave all population logic in the form, while the
+  # representer really just traverses an incoming document and dispatches business logic
+  # (which population is) to the form.
   class External
     def call(input, options)
       options[:represented].class.definitions.
