@@ -215,8 +215,8 @@ class PopulateIfEmptyWithDeletionTest < MiniTest::Spec
       validates :title, presence: true
     end
 
-    def delete_song!(fragment, *)
-      songs.delete(songs[0]) and return true if fragment["title"] == "Broken, delete me!"
+    def delete_song!(options)
+      songs.delete(songs[0]) and return true if options[:fragment]["title"] == "Broken, delete me!"
       false
     end
   end

@@ -5,7 +5,7 @@ class SkipIfTest < BaseTest
   class AlbumForm < Reform::Form
     property :title
 
-    property :hit, skip_if: lambda { |fragment, *| fragment["title"].blank? } do
+    property :hit, skip_if: lambda { |options| options[:fragment]["title"].blank? } do
       property :title
       validates :title, presence: true
     end
@@ -14,8 +14,8 @@ class SkipIfTest < BaseTest
       property :title
     end
 
-    def skip_song?(fragment, options)
-      fragment["title"].nil?
+    def skip_song?(options)
+      options[:fragment]["title"].nil?
     end
   end
 
