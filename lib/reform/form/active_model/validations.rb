@@ -4,8 +4,11 @@ require "uber/delegates"
 
 module Reform::Form::ActiveModel
   # AM::Validations for your form.
-  #
   # Provides ::validates, ::validate, #validate, and #valid?.
+  #
+  # Most of this file contains unnecessary wiring to make ActiveModel's error message magic work.
+  # Since Rails still thinks it's a good idea to do things like object.class.human_attribute_name,
+  # we have some hacks in here to provide that. If it doesn't work for you, don't blame us.
   module Validations
     def self.included(includer)
       includer.instance_eval do
@@ -25,8 +28,12 @@ module Reform::Form::ActiveModel
             Group
           end
 
+          # this is to allow calls like Form::human_attribute_name (note that this is on the CLASS level) to be resolved.
+          # those calls happen when adding errors in a custom validation method, which is defined on the form (as an instance method).
           def active_model_really_sucks
-            Class.new(Validator)
+            Class.new(Validator).tap do |v|
+              v.model_name = model_name
+            end
           end
 
         end
