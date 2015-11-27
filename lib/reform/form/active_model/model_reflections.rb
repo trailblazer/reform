@@ -19,7 +19,7 @@ class Reform::Form < Reform::Contract
 
       # this is needed in simpleform to infer required fields.
       def validators_on(*args)
-        validator.validators_on(*args)
+        validation_groups.collect { |group| group.instance_variable_get(:@validations).validators_on(*args) }.flatten
       end
     end
 
