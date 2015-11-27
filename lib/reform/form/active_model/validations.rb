@@ -19,11 +19,6 @@ module Reform::Form::ActiveModel
           # # Hooray! Delegate translation back to Reform's Validator class which contains AM::Validations.
           delegates :active_model_really_sucks, :human_attribute_name, :lookup_ancestors, :i18n_scope # Rails 3.1.
 
-          def validates(*args, &block) # TODO: remove when we drop Rails 3.1.
-            # heritage.record(:validates, *args, &block)
-            super(*Declarative::DeepDup.(args), &block) # FIX for Rails 3.1.
-          end
-
           def validation_group_class
             Group
           end
