@@ -82,6 +82,13 @@ module Reform::Form::ActiveModel
         def validates(*args, &block)
           super(*Declarative::DeepDup.(args), &block)
         end
+
+        # Prevent AM:V from mutating the validator class
+        def attr_reader(*)
+        end
+
+        def attr_writer(*)
+        end
       end
 
       def initialize(form)
