@@ -78,6 +78,10 @@ module Reform::Form::ActiveModel
         def model_name=(name)
           @_active_model_sucks = name
         end
+
+        def validates(*args, &block)
+          super(*Declarative::DeepDup.(args), &block)
+        end
       end
 
       def initialize(form)
