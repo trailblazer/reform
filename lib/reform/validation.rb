@@ -8,6 +8,8 @@ module Reform::Validation
 
     # DSL.
     def validation(name, options={}, &block)
+      heritage.record(:validation, name, options, &block)
+
       group = validation_groups.add(name, options)
 
       group.instance_exec(&block)
