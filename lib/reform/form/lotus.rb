@@ -4,11 +4,14 @@ require "lotus/validations"
 module Reform::Form::Lotus
   class Errors < Lotus::Validations::Errors
     def merge!(errors, prefix)
+      new_errors = {}
       errors.instance_variable_get(:@errors).each do |name, err|
         field = (prefix+[name]).join(".")
-        add(field, *err) # TODO: use namespace feature in Lotus here!
+        new_errors[field] = err
       end
       #   next if messages[field] and messages[field].include?(msg)
+
+      new_errors.each { |field, err| add(field, *err) } # TODO: use namespace feature in Lotus here!
     end
 
     def inspect
