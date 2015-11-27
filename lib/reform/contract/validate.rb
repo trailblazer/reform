@@ -1,8 +1,14 @@
 module Reform::Contract::Validate
-  def validate
-    validate!(errs=build_errors, [])
+  def initialize(*)
+    super
+    @errors = build_errors
+  end
 
-    @errors = errs
+  attr_reader :errors
+
+  def validate
+    validate!(errors, [])
+
     errors.empty?
   end
 
@@ -13,10 +19,6 @@ module Reform::Contract::Validate
 
     errors.merge!(self.errors, prefix) # local errors.
     errors.merge!(nested_errors, [])
-  end
-
-  def errors
-    @errors ||= build_errors
   end
 
 private

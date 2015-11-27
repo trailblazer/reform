@@ -83,10 +83,10 @@ class ErrorsTest < MiniTest::Spec
 
 
   describe "#validate with main form invalid" do
-    before { @result = form.validate("title"=>"", "band"=>{"label"=>{:name => "Fat Wreck"}}) }
-
-    it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:title=>["can't be blank"]}) }
+    it do
+      form.validate("title"=>"", "band"=>{"label"=>{:name => "Fat Wreck"}}).must_equal false
+      form.errors.messages.must_equal({:title=>["can't be blank"]})
+    end
   end
 
 
