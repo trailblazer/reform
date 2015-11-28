@@ -238,4 +238,14 @@ class ActiveModelValidationTest < MiniTest::Spec
       form.errors.empty?.must_equal true
     end
   end
+
+
+  describe "validates: :acceptance" do
+    class AcceptanceForm < Reform::Form
+      property :accept, virtual: true, validates: { acceptance: true }
+    end
+
+    it { AcceptanceForm.new(nil).validate(accept: "0").must_equal false }
+    it { AcceptanceForm.new(nil).validate(accept: "1").must_equal true }
+  end
 end
