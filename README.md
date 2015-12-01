@@ -734,7 +734,7 @@ class SongForm < Reform::Form
 end
 ```
 
-Be warned that we _do not_ encourage copying validations. You should rather move validation code into forms and not work on your model directly anymore.
+Be warned that we _do not_ encourage copying validations. You should rather move validation code into forms and not work on your model directly anymore. Also, please note that the ```copy_validations_from``` line _must_ go below your property definitions for the validations to copy correctly.
 
 ## Agnosticism: Mapping Data
 
