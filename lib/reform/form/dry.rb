@@ -1,14 +1,12 @@
-require "dry-validation"
-require "reform/validation"
+require 'dry-validation'
+require 'reform/validation'
+require 'dry/validation/schema/form'
 
-require 'byebug'
-
-# Implements ::validates and friends, and #valid?.
 module Reform::Form::Dry
   module Validations
 
     def build_errors
-      Reform::Contract::Errors.new
+      Reform::Contract::Errors.new(self)
     end
 
     module ClassMethods
@@ -33,28 +31,17 @@ module Reform::Form::Dry
       def call(fields, reform_errors, form)
         validator = @validator.new(form)
 
-        validator.(Dry::Validation.symbolize_keys(fields)).each do |dry_error|
-          pp lookup_message(validator.class, dry_error)
-          reform_errors.add(dry_error.result.rule.name,
-                            lookup_message(validator.class, dry_error))
-                            # {
-                            #   validation: dry_error.result.rule.predicate.id,
-                            #   invalid_input: dry_error.result.input,
-                            #   message: lookup_message(validator.class, dry_error)
-                            # })
+        validator.call(fields).messages.each do |dry_error|
+          # a dry error message looks like this:
+          # [:email, [['Please provide your email', '']]]
+          dry_error[1].each do |attr_error|
+            reform_errors.add(dry_error[0], attr_error[0])
+          end
         end
-      end
-
-      private
-
-      def lookup_message(validator_class, dry_error)
-        validator_class.messages.lookup(dry_error.result.rule.predicate.id,
-                                        dry_error.result.rule.name,
-                                        dry_error.result.rule.predicate.args)
       end
     end
 
-    class ValidatorSchema < Dry::Validation::Schema
+    class ValidatorSchema < Dry::Validation::Schema::Form
       def initialize(form)
         @form = form
         super()

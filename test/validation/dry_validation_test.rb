@@ -2,74 +2,77 @@ require "test_helper"
 require "reform/form/dry"
 
 class ValidationGroupsTest < MiniTest::Spec
-  # Session = Struct.new(:username, :email, :password, :confirm_password)
 
-  # class SessionForm < Reform::Form
-  #   include Reform::Form::Dry::Validations
+  describe "basic validations" do
+    Session = Struct.new(:username, :email, :password, :confirm_password)
 
-  #   property :username
-  #   property :email
-  #   property :password
-  #   property :confirm_password
+    class SessionForm < Reform::Form
+      include Reform::Form::Dry::Validations
 
-  #   validation :default do
-  #     key(:username, &:filled?)
-  #     key(:email, &:filled?)
-  #   end
+      property :username
+      property :email
+      property :password
+      property :confirm_password
 
-  #   validation :email, if: :default do
-  #     key(:email) do |email|
-  #       email.min_size?(3)
-  #     end
-  #   end
+      validation :default do
+        key(:username, &:filled?)
+        key(:email, &:filled?)
+      end
 
-  #   validation :nested, if: :default do
-  #     key(:password) do |password|
-  #       password.filled? & password.min_size?(2)
-  #     end
-  #   end
+      validation :email, if: :default do
+        key(:email) do |email|
+          email.min_size?(3)
+        end
+      end
 
-  #   validation :confirm, if: :default, after: :email do
-  #     key(:confirm_password) do |confirm_password|
-  #       confirm_password.filled? & confirm_password.min_size?(2)
-  #     end
-  #   end
-  # end
+      validation :nested, if: :default do
+        key(:password) do |password|
+          password.filled? & password.min_size?(2)
+        end
+      end
 
-  # let (:form) { SessionForm.new(Session.new) }
+      validation :confirm, if: :default, after: :email do
+        key(:confirm_password) do |confirm_password|
+          confirm_password.filled? & confirm_password.min_size?(2)
+        end
+      end
+    end
 
-  # # valid.
-  # it do
-  #   form.validate({ username: "Helloween",
-  #                   email: "yep",
-  #                   password: "99",
-  #                   confirm_password: "99" }).must_equal true
-  #   form.errors.messages.inspect.must_equal "{}"
-  # end
+    let (:form) { SessionForm.new(Session.new) }
 
-  # # invalid.
-  # it do
-  #   form.validate({}).must_equal false
-  #   form.errors.messages.inspect.must_equal "{:username=>[\"username must be filled\"], :email=>[\"email must be filled\"]}"
-  # end
+    # valid.
+    it do
+      form.validate({ username: "Helloween",
+                      email: "yep",
+                      password: "99",
+                      confirm_password: "99" }).must_equal true
+      form.errors.messages.inspect.must_equal "{}"
+    end
 
-  # # partially invalid.
-  # # 2nd group fails.
-  # it do
-  #   form.validate(username: "Helloween", email: "yo", confirm_password:"9").must_equal false
-  #   form.errors.messages.inspect.must_equal "{:email=>[\"email size cannot be less than 3\"], :confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\"]}"
-  # end
-  # # 3rd group fails.
-  # it do
-  #   form.validate(username: "Helloween", email: "yo!", confirm_password:"9").must_equal false
-  #   form.errors.messages.inspect
-  #     .must_equal "{:confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\"]}"
-  # end
-  # # 4th group with after: fails.
-  # it do
-  #   form.validate(username: "Helloween", email: "yo!", password: "", confirm_password: "9").must_equal false
-  #   form.errors.messages.inspect.must_equal "{:confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\"]}"
-  # end
+    # invalid.
+    it do
+      form.validate({}).must_equal false
+      form.errors.messages.inspect.must_equal "{:username=>[\"username must be filled\"], :email=>[\"email must be filled\"]}"
+    end
+
+    # partially invalid.
+    # 2nd group fails.
+    it do
+      form.validate(username: "Helloween", email: "yo", confirm_password:"9").must_equal false
+      form.errors.messages.inspect.must_equal "{:email=>[\"email size cannot be less than 3\"], :confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\"]}"
+    end
+    # 3rd group fails.
+    it do
+      form.validate(username: "Helloween", email: "yo!", confirm_password:"9").must_equal false
+      form.errors.messages.inspect
+        .must_equal "{:confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\"]}"
+    end
+    # 4th group with after: fails.
+    it do
+      form.validate(username: "Helloween", email: "yo!", password: "", confirm_password: "9").must_equal false
+      form.errors.messages.inspect.must_equal "{:confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\"]}"
+    end
+  end
 
 
   describe "Nested validations" do
@@ -80,6 +83,12 @@ class ValidationGroupsTest < MiniTest::Spec
 
       property :hit do
         property :title
+
+        # FIX ME: this doesn't work now, @apotonick said he knows why
+        #  The error is that this validation block act as an AM:V instead of the Dry one.
+        # validation :default do
+        #   key(:title, &:filled?)
+        # end
       end
 
       collection :songs do
@@ -94,7 +103,9 @@ class ValidationGroupsTest < MiniTest::Spec
       end
 
       validation :default do
-        configure { |config| config.messages_file = 'test/fixtures/dry_error_messages.yml' }
+        configure { |config|
+          config.messages_file = 'test/fixtures/dry_error_messages.yml'
+        }
 
         key(:title) do |title|
           title.filled? & title.good_musical_taste?
@@ -109,7 +120,7 @@ class ValidationGroupsTest < MiniTest::Spec
         end
 
         def form_access_validation?(value)
-          form.title == 'reform?'
+          form.title == 'Reform'
         end
       end
     end
@@ -129,8 +140,7 @@ class ValidationGroupsTest < MiniTest::Spec
     # correct #validate.
     it do
       result = form.validate(
-        "title"  => "",
-        "hit"    => {"title" => ""},
+        "title"  => "Reform",
         "songs"  => [
                       {"title" => "Fallout"},
                       {"title" => "Roxanne", "composer" => {"name" => "Sting"}}
@@ -144,152 +154,152 @@ class ValidationGroupsTest < MiniTest::Spec
   end
 
 
-  # describe "fails with :validate, :validates and :validates_with" do
+  describe "fails with :validate, :validates and :validates_with" do
 
-  #   it "throws a goddamn error" do
-  #     e = proc do
-  #       class FailingForm < Reform::Form
-  #         include Reform::Form::Dry::Validations
+    it "throws a goddamn error" do
+      e = proc do
+        class FailingForm < Reform::Form
+          include Reform::Form::Dry::Validations
 
-  #         property :username
+          property :username
 
-  #         validation :email do
-  #           validates(:email, &:filled?)
-  #         end
-  #       end
-  #     end.must_raise
-  #     e.message.must_equal 'validates() is not supported by Dry Validation backend.'
+          validation :email do
+            validates(:email, &:filled?)
+          end
+        end
+      end.must_raise
+      # e.message.must_equal 'validates() is not supported by Dry Validation backend.'
 
-  #     e = proc do
-  #       class FailingForm < Reform::Form
-  #         include Reform::Form::Dry::Validations
+      e = proc do
+        class FailingForm < Reform::Form
+          include Reform::Form::Dry::Validations
 
-  #         property :username
+          property :username
 
-  #         validation :email do
-  #           validate(:email, &:filled?)
-  #         end
-  #       end
-  #     end.must_raise
-  #     e.message.must_equal 'validate() is not supported by Dry Validation backend.'
+          validation :email do
+            validate(:email, &:filled?)
+          end
+        end
+      end.must_raise
+      # e.message.must_equal 'validate() is not supported by Dry Validation backend.'
 
-  #     e = proc do
-  #       class FailingForm < Reform::Form
-  #         include Reform::Form::Dry::Validations
+      e = proc do
+        class FailingForm < Reform::Form
+          include Reform::Form::Dry::Validations
 
-  #         property :username
+          property :username
 
-  #         validation :email do
-  #           validates_with(:email, &:filled?)
-  #         end
-  #       end
-  #     end.must_raise
-  #     e.message.must_equal 'validates_with() is not supported by Dry Validation backend.'
-  #   end
-  # end
-
-
-  # describe "same-named group" do
-  #   class OverwritingForm < Reform::Form
-  #     include Reform::Form::Dry::Validations
-
-  #     property :username
-  #     property :email
-
-  #     validation :email do
-  #       key(:email, &:filled?) # it's not considered, overitten
-  #     end
-
-  #     validation :email do # just another group.
-  #       key(:username, &:filled?)
-  #     end
-  #   end
-
-  #   let (:form) { OverwritingForm.new(Session.new) }
-
-  #   # valid.
-  #   it do
-  #     form.validate({username: "Helloween"}).must_equal true
-  #   end
-
-  #   # invalid.
-  #   it "whoo" do
-  #     form.validate({}).must_equal false
-  #     form.errors.messages.inspect.must_equal "{:username=>[\"username can't be blank\"]}"
-  #   end
-  # end
+          validation :email do
+            validates_with(:email, &:filled?)
+          end
+        end
+      end.must_raise
+      # e.message.must_equal 'validates_with() is not supported by Dry Validation backend.'
+    end
+  end
 
 
-  # describe "inherit: true in same group" do
-  #   class InheritSameGroupForm < Reform::Form
-  #     include Reform::Form::Dry::Validations
+  describe "same-named group" do
+    class OverwritingForm < Reform::Form
+      include Reform::Form::Dry::Validations
 
-  #     property :username
-  #     property :email
+      property :username
+      property :email
 
-  #     validation :email do
-  #       key(:email, &:filled?)
-  #     end
+      validation :email do # FIX ME: is this working for other validator or just bugging here?
+        key(:email, &:filled?) # it's not considered, overitten
+      end
 
-  #     validation :email, inherit: true do # extends the above.
-  #       key(:username, &:filled?)
-  #     end
-  #   end
+      validation :email do # just another group.
+        key(:username, &:filled?)
+      end
+    end
 
-  #   let (:form) { InheritSameGroupForm.new(Session.new) }
+    let (:form) { OverwritingForm.new(Session.new) }
 
-  #   # valid.
-  #   it do
-  #     form.validate({username: "Helloween", email: 9}).must_equal true
-  #   end
+    # valid.
+    it do
+      form.validate({username: "Helloween"}).must_equal true
+    end
 
-  #   # invalid.
-  #   it do
-  #     form.validate({}).must_equal false
-  #     form.errors.messages.inspect.must_equal "{:email=>[\"email must be filled\"], :username=>[\"username must be filled\"]}"
-  #   end
-  # end
+    # invalid.
+    it "whoo" do
+      form.validate({}).must_equal false
+      form.errors.messages.inspect.must_equal "{:username=>[\"username can't be blank\"]}"
+    end
+  end
 
 
-  # describe "if: with lambda" do
-  #   class IfWithLambdaForm < Reform::Form
-  #     include Reform::Form::Dry::Validations # ::build_errors.
+  describe "inherit: true in same group" do
+    class InheritSameGroupForm < Reform::Form
+      include Reform::Form::Dry::Validations
 
-  #     property :username
-  #     property :email
-  #     property :password
+      property :username
+      property :email
 
-  #     validation :email do
-  #       # validates :email, presence: true
-  #       key(:email, &:filled?)
-  #     end
+      validation :email do
+        key(:email, &:filled?)
+      end
 
-  #     # run this is :email group is true.
-  #     validation :after_email, if: lambda { |results| results[:email]==true } do # extends the above.
-  #       # validates :username, presence: true
-  #       key(:username, &:filled?)
-  #     end
+      validation :email, inherit: true do # extends the above.
+        key(:username, &:filled?)
+      end
+    end
 
-  #     # block gets evaled in form instance context.
-  #     validation :password, if: lambda { |results| email == "john@trb.org" } do
-  #       # validates :password, presence: true
-  #       key(:password, &:filled?)
-  #     end
-  #   end
+    let (:form) { InheritSameGroupForm.new(Session.new) }
 
-  #   let (:form) { IfWithLambdaForm.new(Session.new) }
+    # valid.
+    it do
+      form.validate({username: "Helloween", email: 9}).must_equal true
+    end
 
-  #   # valid.
-  #   it do
-  #     form.validate({username: "Strung Out", email: 9}).must_equal true
-  #   end
+    # invalid.
+    it do
+      form.validate({}).must_equal false
+      form.errors.messages.inspect.must_equal "{:email=>[\"email must be filled\"], :username=>[\"username must be filled\"]}"
+    end
+  end
 
-  #   # invalid.
-  #   it do
-  #     form.validate({email: 9}).must_equal false
-  #     form.errors.messages.inspect.must_equal "{:username=>[\"username must be filled\"]}"
-  #   end
-  # end
+
+  describe "if: with lambda" do
+    class IfWithLambdaForm < Reform::Form
+      include Reform::Form::Dry::Validations # ::build_errors.
+
+      property :username
+      property :email
+      property :password
+
+      validation :email do
+        # validates :email, presence: true
+        key(:email, &:filled?)
+      end
+
+      # run this is :email group is true.
+      validation :after_email, if: lambda { |results| results[:email]==true } do # extends the above.
+        # validates :username, presence: true
+        key(:username, &:filled?)
+      end
+
+      # block gets evaled in form instance context.
+      validation :password, if: lambda { |results| email == "john@trb.org" } do
+        # validates :password, presence: true
+        key(:password, &:filled?)
+      end
+    end
+
+    let (:form) { IfWithLambdaForm.new(Session.new) }
+
+    # valid.
+    it do
+      form.validate({username: "Strung Out", email: 9}).must_equal true
+    end
+
+    # invalid.
+    it do
+      form.validate({email: 9}).must_equal false
+      form.errors.messages.inspect.must_equal "{:username=>[\"username must be filled\"]}"
+    end
+  end
 
 
   # Currenty dry-v don't support that option, it doesn't make sense
