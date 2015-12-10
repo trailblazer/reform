@@ -3,6 +3,7 @@
 ### Awesomeness
 
 * You can now have `:populator` for scalar properties, too. This allows "parsing code" per property which is super helpful to structure your deserialization.
+* `:populator` can be a method name, as in `populator: :populate_authors!`.
 
 * :populator ->(options) or ->(fragment:, model:, **o)
 * `ActiveModel::Validator` prevents Rails from adding methods to it. This makes `acceptance` and `confirmation` validations work properly.

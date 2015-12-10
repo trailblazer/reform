@@ -30,11 +30,10 @@ class Reform::Form::Populator
 
 private
   def call!(options)
-    # FIXME: use U:::Value.
     form = options[:represented]
 
     deprecate_positional_args(form, @user_proc, options) do
-      form.instance_exec(options, &@user_proc)
+      @value.(form, options)
     end
   end
 

@@ -98,6 +98,26 @@ class PopulatorTest < MiniTest::Spec
   end
 end
 
+class PopulateWithMethodTest < Minitest::Spec
+  class AlbumForm < Reform::Form
+    property :title, populator: :title!
+
+    def title!(options)
+      self.title = options[:fragment].reverse
+    end
+  end
+
+  let (:form) { AlbumForm.new(Album.new) }
+
+  it "runs populator method" do
+    form.validate(
+      "title" => "override me!"
+    )
+
+    form.title.must_equal "!em edirrevo"
+  end
+end
+
 class PopulateIfEmptyTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
