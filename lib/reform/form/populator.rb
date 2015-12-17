@@ -50,7 +50,7 @@ private
         index = args.first
         item = twin.original[index] and return item
 
-        twin.insert(index, run!(form, fragment, options)) # form.songs.insert(Song.new)
+        twin.insert([index, twin.count].min, run!(form, fragment, options)) # form.songs.insert(Song.new)
       else
         return if twin
 
