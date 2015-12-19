@@ -1,0 +1,43 @@
+array?: "%{name} must be an array"
+
+empty?: "%{name} cannot be empty"
+
+exclusion?: "%{name} must not be one of: %{list}"
+
+eql?: "%{name} must be equal to %{eql_value}"
+
+filled?: "%{name} must be filled"
+
+format?: "%{name} is in invalid format"
+
+gt?: "%{name} must be greater than %{num} (%{value} was given)"
+
+gteq?: "%{name} must be greater than or equal to %{num}"
+
+hash?: "%{name} must be a hash"
+
+inclusion?: "%{name} must be one of: %{list}"
+
+int?: "%{name} must be an integer"
+
+key?: "%{name} is missing"
+
+lt?: "%{name} must be less than %{num} (%{value} was given)"
+
+lteq?: "%{name} must be less than or equal to %{num}"
+
+max_size?: "%{name} size cannot be greater than %{num}"
+
+min_size?: "%{name} size cannot be less than %{num}"
+
+nil?: "%{name} cannot be nil"
+
+size?:
+  range: "%{name} size must be within %{left} - %{right}"
+  default: "%{name} size must be %{num}"
+
+str?: "%{name} must be a string"
+
+good_musical_taste?: "you're a bad person"
+
+form_access_validation?: "this doesn't look like a Reform form dude!!"
