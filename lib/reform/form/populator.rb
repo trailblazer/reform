@@ -64,7 +64,10 @@ private
       if binding.array?
         item = twin.original[index] and return item
 
-        twin.insert([index, twin.count].min, run!(form, fragment, options)) # form.songs.insert(Song.new)
+        new_index = [index, twin.count].min # prevents nil items with initially empty/smaller collections and :skip_if's.
+        # this means the fragment index and populated nested form index might be different.
+
+        twin.insert(new_index, run!(form, fragment, options)) # form.songs.insert(Song.new)
       else
         return if twin
 
