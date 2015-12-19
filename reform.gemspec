@@ -32,5 +32,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "multi_json"
 
   spec.add_development_dependency "lotus-validations"
+  spec.add_development_dependency "veto"
   spec.add_development_dependency "actionpack"
 end
