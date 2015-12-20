@@ -4,7 +4,7 @@ require 'rake/testtask'
 task :default => [:test]
 Rake::TestTask.new(:test) do |test|
   test.libs << 'test'
-  test.test_files = FileList['test/*_test.rb']
+  test.test_files = FileList['test/*_test.rb'] + FileList["test/validation/*_test.rb"]
 
 #   test.test_files = ["test/changed_test.rb",
 #   "test/coercion_test.rb",
