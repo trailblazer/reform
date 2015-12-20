@@ -43,7 +43,7 @@ module Reform
             pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,            replace: Representable::CreateObject::Instance)
             pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::Decorate,       delete: true)
             pipeline  = Representable::Pipeline::Insert.(pipeline, Deserialize,                   replace: Representable::Deserialize)
-            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::SetValue,            delete: true) # FIXME: only diff to options without :populator
+            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::SetValue,       delete: true) # FIXME: only diff to options without :populator
           end
         else
           parse_pipeline = ->(input, options) do

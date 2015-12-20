@@ -1,9 +1,5 @@
 module Reform::Validation
-  # DSL object wrapping the ValidationSet.
-  # Translates the "Reform" DSL to the target validator gem's language.
-  # TODO: rename so everything is in Reform::Lotus ns
-
-  # A Group is a set of native validations, targeting a validation backend (AM, Lotus, Veto).
+  # A Group is a set of native validations, targeting a validation backend (AM, Lotus, Dry).
   # Group receives configuration via #validates and #validate and translates that to its
   # internal backend.
   #

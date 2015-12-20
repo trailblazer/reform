@@ -1,6 +1,6 @@
-require 'dry-validation'
-require 'reform/validation'
-require 'dry/validation/schema/form'
+require "dry-validation"
+require "reform/validation"
+require "dry/validation/schema/form"
 
 module Reform::Form::Dry
   module Validations
