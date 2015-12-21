@@ -193,8 +193,8 @@ class ValidationGroupsTest < MiniTest::Spec
             validates_with(:email, &:filled?)
           end
         end
-      end.must_raise
-      # e.message.must_equal 'validates_with() is not supported by Dry Validation backend.'
+      end.must_raise(NoMethodError)
+      # e.message.must_equal (NoMethodError)'validates_with() is not supported by Dry Validation backend.'
     end
   end
 
