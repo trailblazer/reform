@@ -199,35 +199,35 @@ class ValidationGroupsTest < MiniTest::Spec
   end
 
 
-  describe "same-named group" do
-    class OverwritingForm < Reform::Form
-      include Reform::Form::Dry::Validations
+  # describe "same-named group" do
+  #   class OverwritingForm < Reform::Form
+  #     include Reform::Form::Dry::Validations
 
-      property :username
-      property :email
+  #     property :username
+  #     property :email
 
-      validation :email do # FIX ME: is this working for other validator or just bugging here?
-        key(:email, &:filled?) # it's not considered, overitten
-      end
+  #     validation :email do # FIX ME: is this working for other validator or just bugging here?
+  #       key(:email, &:filled?) # it's not considered, overitten
+  #     end
 
-      validation :email do # just another group.
-        key(:username, &:filled?)
-      end
-    end
+  #     validation :email do # just another group.
+  #       key(:username, &:filled?)
+  #     end
+  #   end
 
-    let (:form) { OverwritingForm.new(Session.new) }
+  #   let (:form) { OverwritingForm.new(Session.new) }
 
-    # valid.
-    it do
-      form.validate({username: "Helloween"}).must_equal true
-    end
+  #   # valid.
+  #   it do
+  #     form.validate({username: "Helloween"}).must_equal true
+  #   end
 
-    # invalid.
-    it "whoo" do
-      form.validate({}).must_equal false
-      form.errors.messages.inspect.must_equal "{:username=>[\"username can't be blank\"]}"
-    end
-  end
+  #   # invalid.
+  #   it "whoo" do
+  #     form.validate({}).must_equal false
+  #     form.errors.messages.inspect.must_equal "{:username=>[\"username can't be blank\"]}"
+  #   end
+  # end
 
 
   describe "inherit: true in same group" do
