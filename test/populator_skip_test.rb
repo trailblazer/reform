@@ -1,15 +1,17 @@
 require "test_helper"
 
-class ExperimentalPopulatorTest < MiniTest::Spec
+class PopulatorSkipTest < MiniTest::Spec
   Album = Struct.new(:songs)
   Song  = Struct.new(:title)
 
 
   class AlbumForm < Reform::Form
-    collection :songs, populator: ->(options) { return Representable::Pipeline::Stop if options[:fragment][:title]=="Good"
-      songs[options[:index]]
-              } do
-      property :title
+    collection :songs,
+      populator: ->(options) {
+        return skip! if options[:fragment][:title] == "Good"
+        songs[options[:index]]
+      } do
+        property :title
     end
   end
 
