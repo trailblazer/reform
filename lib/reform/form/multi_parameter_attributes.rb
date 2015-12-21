@@ -45,13 +45,4 @@ module Reform::Form::MultiParameterAttributes
   def deserialize!(params)
     super DateTimeParamsFilter.new.call(params) # if params.is_a?(Hash) # this currently works for hash, only.
   end
-
-  # module BuildDefinition
-  #   def build_definition(name, options, &block)
-  #     return super unless options[:multi_params]
-
-  #     options[:parse_filter] << DateParamsFilter.new
-  #     super
-  #   end
-  # end
 end

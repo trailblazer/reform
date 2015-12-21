@@ -15,4 +15,3 @@ require "reform/form/module"
 if defined?(Rails)
   require "reform/rails"
 end
-
