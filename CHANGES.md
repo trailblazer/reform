@@ -4,6 +4,8 @@
 
 * You can now have `:populator` for scalar properties, too. This allows "parsing code" per property which is super helpful to structure your deserialization.
 * `:populator` can be a method name, as in `populator: :populate_authors!`.
+* Populators can now skip deserialization of a nested fragment using `skip!`. [Learn more here](http://trailblazer.to/gems/reform/populator.html).
+* Added basic support for dry-validation as a future replacement for ActiveModel::Validation. Note that this is still experimental, but feel free to test.
 
 * :populator ->(options) or ->(fragment:, model:, **o)
 * `ActiveModel::Validator` prevents Rails from adding methods to it. This makes `acceptance` and `confirmation` validations work properly.
