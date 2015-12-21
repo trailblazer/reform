@@ -180,7 +180,7 @@ class ValidationGroupsTest < MiniTest::Spec
             validate(:email, &:filled?)
           end
         end
-      end.must_raise
+      end.must_raise(NoMethodError)
       # e.message.must_equal 'validate() is not supported by Dry Validation backend.'
 
       e = proc do
