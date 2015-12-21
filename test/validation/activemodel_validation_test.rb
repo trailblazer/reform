@@ -50,14 +50,15 @@ class ActiveModelValidationTest < MiniTest::Spec
 
   # partially invalid.
   # 2nd group fails.
+  let (:character) { self.class.rails4_2? ? :character : :characters}
   it do
     form.validate(username: "Helloween", email: "yo").must_equal false
-    form.errors.messages.inspect.must_equal "{:email=>[\"is the wrong length (should be 3 characters)\"], :confirm_password=>[\"is the wrong length (should be 2 characters)\"], :password=>[\"can't be blank\", \"is the wrong length (should be 1 character)\"]}"
+    form.errors.messages.inspect.must_equal "{:email=>[\"is the wrong length (should be 3 characters)\"], :confirm_password=>[\"is the wrong length (should be 2 characters)\"], :password=>[\"can't be blank\", \"is the wrong length (should be 1 #{character})\"]}"
   end
   # 3rd group fails.
   it do
     form.validate(username: "Helloween", email: "yo!").must_equal false
-    form.errors.messages.inspect.must_equal"{:confirm_password=>[\"is the wrong length (should be 2 characters)\"], :password=>[\"can't be blank\", \"is the wrong length (should be 1 character)\"]}"
+    form.errors.messages.inspect.must_equal"{:confirm_password=>[\"is the wrong length (should be 2 characters)\"], :password=>[\"can't be blank\", \"is the wrong length (should be 1 #{character})\"]}"
   end
   # 4th group with after: fails.
   it do

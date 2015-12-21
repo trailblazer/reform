@@ -63,6 +63,10 @@ MiniTest::Spec.class_eval do
     end
   end
 
+  def self.rails4_2?
+    ::ActiveModel::VERSION::MAJOR == 4 and ::ActiveModel::VERSION::MINOR == 2
+  end
+
   def self.rails4_0?
     ::ActiveModel::VERSION::MAJOR == 4 and ::ActiveModel::VERSION::MINOR == 0
   end
