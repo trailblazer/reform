@@ -1,14 +1,23 @@
-## 2.1
+## 2.1.0
+
+You should be able to upgrade from 2.0 without any code changes.
 
 ### Awesomeness
 
 * You can now have `:populator` for scalar properties, too. This allows "parsing code" per property which is super helpful to structure your deserialization.
 * `:populator` can be a method name, as in `populator: :populate_authors!`.
-* Populators can now skip deserialization of a nested fragment using `skip!`. [Learn more here](http://trailblazer.to/gems/reform/populator.html).
-* Added basic support for dry-validation as a future replacement for ActiveModel::Validation. Note that this is still experimental, but feel free to test.
+* Populators can now skip deserialization of a nested fragment using `skip!`. [Learn more here](http://trailblazer.to/gems/reform/populator.html#skip).
+* Added support for dry-validation as a future replacement for ActiveModel::Validation. Note that this is still experimental, but works great.
+* Added validation groups.
 
-* :populator ->(options) or ->(fragment:, model:, **o)
+### Changes
+
+* All lambda APIs change (with deprecation): `populator: ->(options)` or `->(fragment:, model:, **o)` where we only receive one hash instead of a varying number or arguments. This is pretty cool and should be listed under _Awesomeness_.
 * `ActiveModel::Validator` prevents Rails from adding methods to it. This makes `acceptance` and `confirmation` validations work properly.
+
+### Notes
+
+* Please be warned that we will drop support for `ActiveModel::Validations` from 2.2 onwards. Don't worry, it will still work, but we don't want to work with it anymore.
 
 ## 2.0.5
 
