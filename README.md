@@ -298,7 +298,7 @@ Reform comes many more optional features, like hash fields, coercion, virtual fi
 ![](http://trailblazer.to/images/3dbuch-freigestellt.png)
 </a>
 
-Reform is part of the [Trailblazer project](http://trailblazer.to). Please [buy my book](https://leanpub.com/trailblazer) to support the development and learn everything about Reform. Currently the book discusses:
+Reform is part of the [Trailblazer project](http://trailblazer.to). Please [buy my book](https://leanpub.com/trailblazer) to support the development and learn everything about Reform - there's two chapters dedicated to Reform!
 
 
 ## Security And Strong_parameters
