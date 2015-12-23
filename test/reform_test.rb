@@ -89,7 +89,7 @@ class ReformTest < ReformSpec
   describe "#errors" do
     before { form.validate({})}
 
-    it { form.errors.must_be_kind_of Reform::Form::Errors }
+    it { form.errors.must_be_kind_of Reform::Form::ActiveModel::Errors }
 
     it { form.errors.messages.must_equal({}) }
 
