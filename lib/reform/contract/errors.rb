@@ -35,4 +35,9 @@ class Reform::Contract::Errors
   def empty?
     @errors.empty?
   end
+
+  # needed by Rails form builder.
+  def [](name)
+    @errors[name] || []
+  end
 end
