@@ -104,7 +104,7 @@ class ValidationGroupsTest < MiniTest::Spec
 
       validation :default do
         configure { |config|
-          config.messages_file = 'test/fixtures/dry_error_messages.yml'
+          # config.messages_file = 'test/fixtures/dry_error_messages.yml'
         }
 
         key(:title) do |title|
