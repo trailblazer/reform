@@ -241,49 +241,9 @@ The block form of `#save` would give you the following data.
 The manual saving with block is not encouraged. You should rather check the Disposable docs to find out how to implement your manual tweak with the official API.
 
 
-## Populating Forms for Validation
+## Populating Forms
 
-This topic is thorougly covered in the [Trailblazer book](https://leanpub.com/trailblazer) in chapters _Nested Forms_ and _Mastering Forms_.
-
-With a complex nested setup it can sometimes be painful to setup the model object graph.
-
-Let's assume you rendered the following form.
-
-```ruby
-@form = AlbumForm.new(Album.new(songs: [Song.new, Song.new]))
-```
-
-This will render two nested forms to create new songs.
-
-In `validate`, you're supposed to setup the very same object graph, again. Reform has no way of remembering what the object setup was like a request ago.
-
-So, the following code will fail.
-
-```ruby
-@form = AlbumForm.new(Album.new).validate(params[:album])
-```
-
-However, you can advise Reform to setup the correct objects for you.
-
-```ruby
-class AlbumForm < Reform::Form
-  collection :songs, populate_if_empty: Song do
-    # ..
-  end
-```
-
-This works for both `property` and `collection` and instantiates `Song` objects where they're missing when calling `#validate`.
-
-If you want to create the objects yourself, because you're smarter than Reform, do it with a lambda.
-
-```ruby
-class AlbumForm < Reform::Form
-  collection :songs, populate_if_empty: lambda { |fragment, args| Song.new } do
-    # ..
-  end
-```
-
-Reform also allows to completely override population using the `:populator` options. This is [documented here](http://trailblazer.to/gems/reform/populators.html), and also in the Trailblazer book.
+Very often, you need to give Reform some information how to create or find nested objects when `validate`ing. This directive is called _populator_ and [documented here](http://trailblazer.to/gems/reform/populator.html).
 
 ## Installation
 
