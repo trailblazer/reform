@@ -31,11 +31,10 @@ module Reform::Form::Dry
       def call(fields, reform_errors, form)
         validator = @validator.new(form)
 
-        validator.call(fields).messages.each do |dry_error|
-          # a dry error message looks like this:
-          # [:email, [['Please provide your email', '']]]
-          dry_error[1].each do |attr_error|
-            reform_errors.add(dry_error[0], attr_error[0])
+        # a message item looks like: {:confirm_password=>[["confirm_password size cannot be less than 2"], "9"]}
+        validator.call(fields).messages.each do |field, dry_error|
+          dry_error[0].each do |attr_error|
+            reform_errors.add(field, attr_error)
           end
         end
       end

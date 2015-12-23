@@ -59,18 +59,18 @@ class ValidationGroupsTest < MiniTest::Spec
     # 2nd group fails.
     it do
       form.validate(username: "Helloween", email: "yo", confirm_password:"9").must_equal false
-      form.errors.messages.inspect.must_equal "{:email=>[\"email size cannot be less than 3\"], :confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\"]}"
+      form.errors.messages.inspect.must_equal "{:email=>[\"email size cannot be less than 3\"], :confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\", \"password size cannot be less than 2\"]}"
     end
     # 3rd group fails.
     it do
       form.validate(username: "Helloween", email: "yo!", confirm_password:"9").must_equal false
       form.errors.messages.inspect
-        .must_equal "{:confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\"]}"
+        .must_equal "{:confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\", \"password size cannot be less than 2\"]}"
     end
     # 4th group with after: fails.
     it do
       form.validate(username: "Helloween", email: "yo!", password: "", confirm_password: "9").must_equal false
-      form.errors.messages.inspect.must_equal "{:confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\"]}"
+      form.errors.messages.inspect.must_equal "{:confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\", \"password size cannot be less than 2\"]}"
     end
   end
 
