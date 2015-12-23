@@ -33,11 +33,13 @@ module Reform
       args.each { |name| property(name, options.dup) }
     end
 
+    require "reform/contract/errors"
     require 'reform/contract/validate'
     include Reform::Contract::Validate
 
     require "reform/validation"
     include Reform::Validation # ::validates and #valid?
+
 
 
     # module ValidatesWarning

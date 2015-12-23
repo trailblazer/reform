@@ -1,5 +1,4 @@
 require "active_model"
-require "reform/form/active_model/errors"
 require "uber/delegates"
 
 module Reform::Form::ActiveModel
@@ -35,7 +34,7 @@ module Reform::Form::ActiveModel
     end
 
     def build_errors
-      Reform::Contract::Errors.new(self)
+      Errors.new(self)
     end
 
     # The concept of "composition" has still not arrived in Rails core and they rely on 400 methods being
@@ -100,5 +99,9 @@ module Reform::Form::ActiveModel
         __getobj__.send(m, *args, &block) # send all methods to the form, even privates.
       end
     end
+  end
+
+  class Errors < ActiveModel::Errors
+    include Reform::Form::Errors::Merge
   end
 end
