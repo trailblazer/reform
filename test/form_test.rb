@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class FormTest < MiniTest::Spec
+  Artist = Struct.new(:name)
+
   class AlbumForm < Reform::Form
     property :title
 
@@ -47,6 +49,17 @@ class FormTest < MiniTest::Spec
       end
       cloned.validates :title, presence: true
       cloned.new(OpenStruct.new).validate({})
+    end
+  end
+
+  describe "#initialize" do
+    class ArtistForm < Reform::Form
+      property :name
+      property :current_user, virtual: true
+    end
+
+    it "allows injecting :virtual options" do
+      ArtistForm.new(Artist.new, current_user: Object).current_user.must_equal Object
     end
   end
 end
