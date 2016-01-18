@@ -263,7 +263,7 @@ To use dry-validation (recommended).
 ```ruby
 require "reform/form/dry"
 Reform::Form.class_eval do
-  include Reform::Form::Dry
+  feature Reform::Form::Dry
 end
 ```
 
