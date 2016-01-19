@@ -1,6 +1,7 @@
 # Reform
 
 [![Gitter Chat](https://badges.gitter.im/trailblazer/chat.svg)](https://gitter.im/trailblazer/chat)
+[![TRB Newsletter](https://img.shields.io/badge/TRB-newsletter-lightgrey.svg)](http://trailblazer.to/newsletter/)
 [![Build
 Status](https://travis-ci.org/apotonick/reform.svg)](https://travis-ci.org/apotonick/reform)
 [![Gem Version](https://badge.fury.io/rb/reform.svg)](http://badge.fury.io/rb/reform)
