@@ -41,8 +41,9 @@ class Reform::Form::UniqueValidator < ActiveModel::EachValidator
       query = query.where(field => form.send(field))
     end
 
-    # if model persisted, query may return 0 or 1 rows, else 0
-    allow_count = model.persisted? ? 1 : 0
+    # if model is persisted and has the same value then count of 1 is allowed, in
+    # all other other cases it is 0
+    allow_count = model.persisted? && model.public_send(attribute) == value ? 1 : 0
     form.errors.add(attribute, :taken) if query.count > allow_count
   end
 end
