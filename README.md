@@ -16,6 +16,10 @@ Although reform can be used in any Ruby framework, it comes with [Rails support]
 
 Reform is part of the [Trailblazer](http://trailblazer.to) framework. [Full documentation](http://trailblazer.to/gems/reform) is available on the project site.
 
+## Reform 2.2
+
+Temporary note: Reform 2.2 does **not automatically load Rails files** anymore (e.g. `ActiveModel::Validations`). You need the `reform-rails` gem, see [Installation](#installation).
+
 ## Defining Forms
 
 Forms are defined in separate classes. Often, these classes partially map to a model.
