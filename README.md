@@ -243,10 +243,16 @@ Very often, you need to give Reform some information how to create or find neste
 Add this line to your Gemfile:
 
 ```ruby
-gem 'reform'
+gem "reform"
 ```
 
-Reform works fine with Rails 3.1-4.2. However, inheritance of validations with `ActiveModel::Validations` is broken in Rails 3.2 and 4.0.
+Reform works fine with Rails 3.1-5.0. However, inheritance of validations with `ActiveModel::Validations` is broken in Rails 3.2 and 4.0.
+
+Since Reform 2.2, you have to add the `reform-rails` gem to your `Gemfile` to automatically load ActiveModel/Rails files.
+
+```ruby
+gem "reform-rails"
+```
 
 Since Reform 2.0 you need to specify which **validation backend** you want to use (unless you're in a Rails environment where ActiveModel will be used).
 

@@ -1,3 +1,7 @@
+## 2.2.0
+
+* Remove `reform/rails`. This is now handled via the `reform-rails` gem which you have to bundle.
+
 ## 2.1.0
 
 You should be able to upgrade from 2.0 without any code changes.
