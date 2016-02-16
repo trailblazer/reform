@@ -52,7 +52,7 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.inspect.must_equal "{:username=>[\"username must be filled\"], :email=>[\"email must be filled\"]}"
+      form.errors.messages.inspect.must_equal "{:email=>[\"email must be filled\"], :username=>[\"username must be filled\"]}"
     end
 
     # partially invalid.
@@ -256,7 +256,7 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.inspect.must_equal "{:email=>[\"email must be filled\"], :username=>[\"username must be filled\"]}"
+      form.errors.messages.inspect.must_equal "{:username=>[\"username must be filled\"], :email=>[\"email must be filled\"]}"
     end
   end
 
