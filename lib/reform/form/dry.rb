@@ -30,10 +30,9 @@ module Reform::Form::Dry
 
       def call(fields, reform_errors, form)
         validator = @validator.new(form)
-
-        # a message item looks like: {:confirm_password=>[["confirm_password size cannot be less than 2"], "9"]}
+        # a message item looks like: {:confirm_password=>["confirm_password size cannot be less than 2"]}
         validator.call(fields).messages.each do |field, dry_error|
-          dry_error[0].each do |attr_error|
+          dry_error.each do |attr_error|
             reform_errors.add(field, attr_error)
           end
         end
