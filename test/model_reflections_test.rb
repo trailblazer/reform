@@ -1,3 +1,5 @@
+require 'disposable/twin/struct'
+
 require 'test_helper'
 
 # Reform::ModelReflections will be the interface between the form object and form builders like simple_form.
@@ -11,6 +13,11 @@ class ModelReflectionTest < MiniTest::Spec
     property :title
     property :artist do
       property :name
+    end
+
+    property :meta do
+      include Disposable::Twin::Struct
+      property :runtime
     end
   end
 
@@ -32,7 +39,7 @@ class ModelReflectionTest < MiniTest::Spec
     end
   end
 
-  describe "#column_for_attribute" do
+  describe "#column_for_attribute when backed by ActiveRecord" do
     let (:artist) { Artist.new }
     let (:song) { Song.new(artist: artist) }
     let (:form) { SongForm.new(song) }
@@ -47,7 +54,16 @@ class ModelReflectionTest < MiniTest::Spec
     end
   end
 
-  describe "#has_attribute?" do
+  describe "#column_for_attribute when backed by a Hash" do
+    let (:song) { Song.new }
+    let (:form) { SongForm.new(song) }
+
+    it do
+      form.meta.column_for_attribute(:runtime).must_equal nil
+    end
+  end
+
+  describe "#has_attribute? when backed by ActiveRecord" do
     let (:artist) { Artist.new }
     let (:song) { Song.new(artist: artist) }
     let (:form) { SongForm.new(song) }
@@ -59,6 +75,16 @@ class ModelReflectionTest < MiniTest::Spec
 
       form.has_attribute?(:title).must_equal "Song: has [:title]"
       form.artist.has_attribute?(:name).must_equal "Artist: has [:name]"
+    end
+  end
+
+  describe "#has_attribute? when backed by Hash" do
+    let (:song) { Song.new }
+    let (:form) { SongForm.new(song) }
+
+    # delegate to model.
+    it do
+      form.meta.has_attribute?(:runtime).must_equal nil
     end
   end
 

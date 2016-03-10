@@ -15,6 +15,7 @@ end
 
 class Song < ActiveRecord::Base
   belongs_to :artist
+  serialize :meta, Hash
 end
 
 class Album < ActiveRecord::Base
