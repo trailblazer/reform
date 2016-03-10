@@ -15,26 +15,20 @@ class ValidationGroupsTest < MiniTest::Spec
       property :confirm_password
 
       validation :default do
-        key(:username, &:filled?)
-        key(:email, &:filled?)
+        key(:username).required
+        key(:email).required
       end
 
       validation :email, if: :default do
-        key(:email) do |email|
-          email.min_size?(3)
-        end
+        key(:email).required(min_size?: 3)
       end
 
       validation :nested, if: :default do
-        key(:password) do |password|
-          password.filled? & password.min_size?(2)
-        end
+        key(:password).required(min_size?: 2)
       end
 
       validation :confirm, if: :default, after: :email do
-        key(:confirm_password) do |confirm_password|
-          confirm_password.filled? & confirm_password.min_size?(2)
-        end
+        key(:confirm_password).required(min_size?: 2)
       end
     end
 
@@ -52,7 +46,7 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.inspect.must_equal "{:email=>[\"email must be filled\"], :username=>[\"username must be filled\"]}"
+      form.errors.messages.inspect.must_equal "{:username=>[\"username must be filled\"], :email=>[\"email must be filled\"]}"
     end
 
     # partially invalid.
@@ -65,7 +59,7 @@ class ValidationGroupsTest < MiniTest::Spec
     it do
       form.validate(username: "Helloween", email: "yo!", confirm_password:"9").must_equal false
       form.errors.messages.inspect
-        .must_equal "{:confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\", \"password size cannot be less than 2\"]}"
+      .must_equal "{:confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\", \"password size cannot be less than 2\"]}"
     end
     # 4th group with after: fails.
     it do
@@ -73,7 +67,6 @@ class ValidationGroupsTest < MiniTest::Spec
       form.errors.messages.inspect.must_equal "{:confirm_password=>[\"confirm_password size cannot be less than 2\"], :password=>[\"password must be filled\", \"password size cannot be less than 2\"]}"
     end
   end
-
 
   describe "Nested validations" do
     class AlbumForm < Reform::Form
@@ -103,25 +96,21 @@ class ValidationGroupsTest < MiniTest::Spec
       end
 
       validation :default do
-        configure { |config|
-          # config.messages_file = 'test/fixtures/dry_error_messages.yml'
-        }
+        configure do
+          option :form
+          # message need to be defined on fixtures/dry_error_messages
+          # d-v expects you to define your custome messages on the .yml file
+          def good_musical_taste?(value)
+            value != 'Nickelback'
+          end
 
-        key(:title) do |title|
-          title.filled? & title.good_musical_taste?
+          def form_access_validation?(value)
+            form.title == 'Reform'
+          end
         end
 
-        key(:title, &:form_access_validation?)
-
-        # message need to be defined on fixtures/dry_error_messages
-        # d-v expects you to define your custome messages on the .yml file
-        def good_musical_taste?(value)
-          value != 'Nickelback'
-        end
-
-        def form_access_validation?(value)
-          form.title == 'Reform'
-        end
+        key(:title).required(:good_musical_taste?)
+        key(:title).required(:form_access_validation?)
       end
     end
 
@@ -142,9 +131,9 @@ class ValidationGroupsTest < MiniTest::Spec
       result = form.validate(
         "title"  => "Reform",
         "songs"  => [
-                      {"title" => "Fallout"},
-                      {"title" => "Roxanne", "composer" => {"name" => "Sting"}}
-                    ],
+          {"title" => "Fallout"},
+          {"title" => "Roxanne", "composer" => {"name" => "Sting"}}
+        ],
         "band"   => {"label" => {"name" => "Epitaph"}},
       )
 
@@ -238,11 +227,11 @@ class ValidationGroupsTest < MiniTest::Spec
       property :email
 
       validation :email do
-        key(:email, &:filled?)
+        key(:email).required
       end
 
       validation :email, inherit: true do # extends the above.
-        key(:username, &:filled?)
+        key(:username).required
       end
     end
 
@@ -256,7 +245,7 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.inspect.must_equal "{:username=>[\"username must be filled\"], :email=>[\"email must be filled\"]}"
+      form.errors.messages.inspect.must_equal "{:email=>[\"email must be filled\"], :username=>[\"username must be filled\"]}"
     end
   end
 
@@ -270,20 +259,17 @@ class ValidationGroupsTest < MiniTest::Spec
       property :password
 
       validation :email do
-        # validates :email, presence: true
-        key(:email, &:filled?)
+        key(:email).required
       end
 
       # run this is :email group is true.
       validation :after_email, if: lambda { |results| results[:email]==true } do # extends the above.
-        # validates :username, presence: true
-        key(:username, &:filled?)
+        key(:username).required
       end
 
       # block gets evaled in form instance context.
       validation :password, if: lambda { |results| email == "john@trb.org" } do
-        # validates :password, presence: true
-        key(:password, &:filled?)
+        key(:password).required
       end
     end
 

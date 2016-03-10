@@ -13,5 +13,4 @@ gemspec
 # gem "declarative", path: "../declarative"
 
 gem "minitest-line"
-gem 'dry-validation'
 gem 'byebug'
