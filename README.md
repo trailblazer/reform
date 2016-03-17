@@ -128,6 +128,16 @@ This will sync the data to the model and then call `album.save`.
 
 Sometimes, you need to do saving manually.
 
+## Default values
+
+Reform allows default values to be provided for properties. 
+
+```ruby
+class AlbumForm < Reform::Form
+  property :price_in_cents, default: 9_95
+end
+```
+
 ## Saving Forms Manually
 
 Calling `#save` with a block will provide a nested hash of the form's properties and values. This does **not call `#save` on the models** and allows you to implement the saving yourself.
