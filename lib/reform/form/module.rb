@@ -1,5 +1,6 @@
 # Include this in every module that gets further included.
 module Reform::Form::Module
+  # DISCUSS: could this be part of Declarative?
   def self.included(base)
     base.extend ClassMethods
     base.extend Declarative::Heritage::DSL # ::heritage
