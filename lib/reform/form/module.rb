@@ -2,9 +2,20 @@
 module Reform::Form::Module
   def self.included(base)
     base.extend ClassMethods
+    base.extend Declarative::Heritage::DSL # ::heritage
+    # base.extend Declarative::Heritage::Included # ::included
+    base.extend Included
+  end
 
-    base.extend Declarative::Heritage::DSL      # ::heritage
-    base.extend Declarative::Heritage::Included # ::included
+  module Included
+    # Gets imported into your module and will be run when including it.
+    def included(includer)
+      super
+      # first, replay all declaratives like ::property on includer.
+      heritage.(includer) # this normally happens via Heritage::Included.
+      # then, include optional accessors.
+      includer.send(:include, self::InstanceMethods) if const_defined?(:InstanceMethods)
+    end
   end
 
   module ClassMethods

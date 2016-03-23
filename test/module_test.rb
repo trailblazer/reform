@@ -81,7 +81,6 @@ class ModuleInclusionTest < MiniTest::Spec
 
     property :name
     validates :name, :presence => true
-
   end
 
   class AlbumForm < Reform::Form
@@ -99,4 +98,32 @@ class ModuleInclusionTest < MiniTest::Spec
     form.validate({"band" => {}})
     form.errors.messages.must_equal({:"band.title"=>["can't be blank"], :"band.label"=>["can't be blank"], :name=>["can't be blank"]})
   end
+
+
+  describe "module with custom accessors" do
+    module SongModule
+      include Reform::Form::Module
+
+      property :id    # no custom accessor for id.
+      property :title # has custom accessor.
+
+      module InstanceMethods
+        def title
+          super.upcase
+        end
+      end
+    end
+
+    class IncludingSongForm < Reform::Form
+      include SongModule
+    end
+
+    let (:song) { OpenStruct.new(id: 1, title: "Instant Mash") }
+
+    it do
+      IncludingSongForm.new(song).id.must_equal 1
+      IncludingSongForm.new(song).title.must_equal "INSTANT MASH"
+    end
+  end
 end
+
