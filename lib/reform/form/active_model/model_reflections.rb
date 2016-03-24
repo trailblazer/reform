@@ -26,11 +26,13 @@ class Reform::Form < Reform::Contract
     # Delegate column for attribute to the model to support simple_form's
     # attribute type interrogation.
     def column_for_attribute(name)
-      model_for_property(name).column_for_attribute(name)
+      model = model_for_property(name)
+      model.respond_to?(:column_for_attribute) ? model.column_for_attribute(name) : nil
     end
 
     def has_attribute?(name)
-      model_for_property(name).has_attribute?(name)
+      model = model_for_property(name)
+      model.respond_to?(:has_attribute?) ? model.has_attribute?(name) : nil
     end
 
     def defined_enums
