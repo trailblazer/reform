@@ -21,33 +21,42 @@ module Reform::Form::Dry
 
     class Group
       def initialize
-        @validator = Class.new(ValidatorSchema)
+        @schemas = []
       end
 
       def instance_exec(&block)
-        @validator.class_eval(&block)
+        @schemas << block
+        @validator = Builder.new(@schemas.dup).validation_graph
       end
 
       def call(fields, reform_errors, form)
-        validator = @validator.new(form)
-
-        # a message item looks like: {:confirm_password=>[["confirm_password size cannot be less than 2"], "9"]}
-        validator.call(fields).messages.each do |field, dry_error|
-          dry_error[0].each do |attr_error|
+        # a message item looks like: {:confirm_password=>["confirm_password size cannot be less than 2"]}
+        @validator.with(form: form).call(fields).messages.each do |field, dry_error|
+          dry_error.each do |attr_error|
             reform_errors.add(field, attr_error)
           end
         end
       end
-    end
 
-    class ValidatorSchema < Dry::Validation::Schema::Form
-      def initialize(form)
-        @form = form
-        super()
-      end
+      class Builder < Array
+        def initialize(array)
+          super(array)
+          @validator = Dry::Validation.Form({}, &shift)
+        end
 
-      def form
-        @form
+        def validation_graph
+          build_graph(@validator)
+        end
+
+
+        private
+
+        def build_graph(validator)
+          if empty?
+            return validator
+          end
+          build_graph(Dry::Validation.Schema(validator, {}, &shift))
+        end
       end
     end
   end
