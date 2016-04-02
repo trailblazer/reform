@@ -29,11 +29,12 @@ module Reform::Form::Dry
         @validator = Builder.new(@schemas.dup).validation_graph
       end
 
-      def call(fields, reform_errors, form)
-        # a message item looks like: {:confirm_password=>["confirm_password size cannot be less than 2"]}
-        @validator.with(form: form).call(fields).messages.each do |field, dry_error|
+      def call(form)
+        # a message item looks like: {:confirm_password=>["size cannot be less than 2"]}
+        @validator.with(form: form).call(form.to_nested_hash).messages
+        .each do |field, dry_error|
           dry_error.each do |attr_error|
-            reform_errors.add(field, attr_error)
+            form.errors.add(field, attr_error)
           end
         end
       end
