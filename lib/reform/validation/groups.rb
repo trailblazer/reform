@@ -51,7 +51,7 @@ module Reform::Validation
 
           if evaluate_if(depends_on, results, form)
             # puts "evaluating #{group.instance_variable_get(:@validator).instance_variable_get(:@checker).inspect}"
-            results[name] = group.(form).empty? # validate.
+            results[name] = group.(form, options).empty? # validate.
           end
 
           result &= form.errors.empty?

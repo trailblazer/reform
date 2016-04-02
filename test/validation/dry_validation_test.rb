@@ -69,6 +69,8 @@ class ValidationGroupsTest < MiniTest::Spec
   end
 
   describe "Nested validations" do
+    Guitar = -> { "Purple"  }
+
     class AlbumForm < Reform::Form
       include Reform::Form::Dry::Validations
 
@@ -95,7 +97,7 @@ class ValidationGroupsTest < MiniTest::Spec
         end
       end
 
-      validation :default do
+      validation :default, with: { title: -> { title }, guitar: Guitar } do
 
         key(:title).required
 
@@ -107,20 +109,21 @@ class ValidationGroupsTest < MiniTest::Spec
         end
 
         configure do
-          option :form
+          option :title
+          option :guitar
           # message need to be defined on fixtures/dry_error_messages
           # d-v expects you to define your custome messages on the .yml file
           def good_musical_taste?(value)
             value != 'Nickelback'
           end
 
-          def form_access_validation?(value)
-            form.title == 'Reform'
+          def validation_with_dependencies?(value)
+            title == 'Reform' && guitar == 'Purple'
           end
         end
 
         key(:title).required(:good_musical_taste?)
-        key(:title).required(:form_access_validation?)
+        key(:title).required(:validation_with_dependencies?)
       end
     end
 
