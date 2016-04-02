@@ -2,7 +2,7 @@ require "test_helper"
 require "reform/form/coercion"
 
 class CoercionTest < BaseTest
-  class Irreversible #< Virtus::Attribute
+  class Irreversible
     def self.call(value)
       value*2
     end

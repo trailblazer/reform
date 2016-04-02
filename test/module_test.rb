@@ -21,7 +21,8 @@ class ModuleInclusionTest < MiniTest::Spec
 
     validates :band, presence: true
 
-    property :cool, type: Disposable::Twin::Coercion::Types::Form::Bool # test coercion.
+    include Dry::Types.module # allows using Types::* in module.
+    property :cool, type: Form::Bool # test coercion.
   end
 
   # TODO: test if works, move stuff into inherit_schema!

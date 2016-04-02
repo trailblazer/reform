@@ -4,6 +4,8 @@
 * For coercion, we now use [dry-types](https://github.com/dry-rb/dry-types) as a replacement for the deprecated virtus. You have to change to dry-types' constants, e.g. `type: Types::Form::Bool`.
 * Use disposable 0.3.0. This gives us the long-awaited `nilify: true` option.
 
+####### TODO: fix Module and coercion Types::*
+
 ## 2.1.0
 
 You should be able to upgrade from 2.0 without any code changes.
