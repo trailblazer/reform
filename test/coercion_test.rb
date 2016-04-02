@@ -2,8 +2,8 @@ require "test_helper"
 require "reform/form/coercion"
 
 class CoercionTest < BaseTest
-  class Irreversible < Virtus::Attribute
-    def coerce(value)
+  class Irreversible #< Virtus::Attribute
+    def self.call(value)
       value*2
     end
   end
@@ -11,16 +11,16 @@ class CoercionTest < BaseTest
   class Form < Reform::Form
     feature Coercion
 
-    property :released_at, :type => DateTime
+    property :released_at, type: Types::Form::DateTime
 
     property :hit do
-      property :length, :type => Integer
-      property :good,   :type => Virtus::Attribute::Boolean
+      property :length, type: Types::Form::Int
+      property :good,   type: Types::Form::Bool
     end
 
     property :band do
       property :label do
-        property :value, :type => Irreversible
+        property :value, type: Irreversible
       end
     end
   end

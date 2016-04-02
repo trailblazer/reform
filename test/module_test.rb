@@ -21,7 +21,7 @@ class ModuleInclusionTest < MiniTest::Spec
 
     validates :band, presence: true
 
-    property :cool, type: Virtus::Attribute::Boolean # test coercion.
+    property :cool, type: Disposable::Twin::Coercion::Types::Form::Bool # test coercion.
   end
 
   # TODO: test if works, move stuff into inherit_schema!

@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency             "disposable",     ">= 0.2.6", "< 0.3.0"
+  spec.add_dependency             "disposable",     ">= 0.3.0", "< 0.4.0"
   spec.add_dependency             "uber",           "~> 0.0.11"
   spec.add_dependency             "representable",  ">= 2.4.0", "< 3.1.0"
 
@@ -26,12 +26,12 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest"
   spec.add_development_dependency "activerecord"
   spec.add_development_dependency "sqlite3"
-  spec.add_development_dependency "virtus"
+  spec.add_development_dependency "dry-types"
   spec.add_development_dependency "rails"
   spec.add_development_dependency "mongoid"
   spec.add_development_dependency "multi_json"
 
   spec.add_development_dependency "lotus-validations"
-  spec.add_development_dependency "dry-validation", "~> 0.6.0"
+  spec.add_development_dependency "dry-validation", "0.4.0"
   spec.add_development_dependency "actionpack"
 end
