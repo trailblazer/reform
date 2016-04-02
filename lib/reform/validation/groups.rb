@@ -40,30 +40,27 @@ module Reform::Validation
     # Runs all validations groups according to their rules and returns result.
     # Populates errors passed into #call.
     class Result # DISCUSS: could be in Groups.
-      def initialize(groups)
-        @groups = groups
-      end
 
-      def call(fields, errors, form)
+      def self.call(groups, form)
         result = true
         results = {}
 
-        @groups.each do |cfg|
+        groups.each do |cfg|
           name, group, options = cfg
           depends_on = options[:if]
 
           if evaluate_if(depends_on, results, form)
             # puts "evaluating #{group.instance_variable_get(:@validator).instance_variable_get(:@checker).inspect}"
-            results[name] = group.(fields, errors, form).empty? # validate.
+            results[name] = group.(form, options).empty? # validate.
           end
 
-          result &= errors.empty?
+          result &= form.errors.empty?
         end
 
         result
       end
 
-      def evaluate_if(depends_on, results, form)
+      def self.evaluate_if(depends_on, results, form)
         return true if depends_on.nil?
         return results[depends_on] if depends_on.is_a?(Symbol)
         form.instance_exec(results, &depends_on)
