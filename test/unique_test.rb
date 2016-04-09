@@ -42,8 +42,16 @@ class UniquenessValidatorOnUpdateTest < MiniTest::Spec
     form = SongForm.new(@song)
     form.validate("title" => "How Many Tears").must_equal true
   end
-end
 
+  it do
+    Song.delete_all
+    Song.create(title: "How Many Tears")
+
+    @song = Song.create(title: "Baby Face")
+    form = SongForm.new(@song)
+    form.validate("title" => "How Many Tears").must_equal false
+  end
+end
 
 class UniqueWithCompositionTest < MiniTest::Spec
   class SongForm < Reform::Form
