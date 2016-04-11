@@ -19,6 +19,12 @@ class ModuleInclusionTest < MiniTest::Spec
       1
     end
 
+    property :name
+
+    def name=(new_value)
+      super("new#{new_value}")
+    end
+
     validates :band, presence: true
 
     property :cool, type: Virtus::Attribute::Boolean # test coercion.
@@ -73,6 +79,12 @@ class ModuleInclusionTest < MiniTest::Spec
     form.cool.must_equal true
   end
 
+  # includes setters
+  it do
+    form = HitForm.new(OpenStruct.new)
+    form.validate({name: "1"})
+    form.name.must_equal "new1"
+  end
 
   # include a module into a module into a class :)
   module AlbumFormModule
@@ -126,4 +138,3 @@ class ModuleInclusionTest < MiniTest::Spec
     end
   end
 end
-
