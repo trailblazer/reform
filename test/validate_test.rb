@@ -50,7 +50,7 @@ class ContractValidateTest < MiniTest::Spec
     album.name = nil
 
     form.validate.must_equal false
-    form.errors.messages.inspect.must_equal "{:name=>[\"can't be blank\"], :\"songs.composer.name\"=>[\"can't be blank\"]}"
+    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"]}"
   end
 end
 
@@ -234,7 +234,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
       "artist" => {"name" => ""},
     ).must_equal false
 
-    form.errors.messages.inspect.must_equal "{:name=>[\"can't be blank\"], :\"songs.composer.name\"=>[\"can't be blank\"], :\"artist.name\"=>[\"can't be blank\"]}"
+    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"], :\"artist.name\"=>[\"must be filled\"]}"
   end
 
   # adding to collection via :instance.
@@ -337,7 +337,7 @@ end
 #         # ensure that only hit and songs keys are present
 #         subject.errors.messages.keys.sort.must_equal([:hit, :songs])
 #         # validate content of hit and songs keys
-#         subject.errors.messages[:hit].must_equal(["can't be blank"])
+#         subject.errors.messages[:hit].must_equal(["must be filled"])
 #         subject.errors.messages[:songs].first.must_match(/\Ais too short \(minimum is 1 characters?\)\z/)
 #       end
 #     end

@@ -85,21 +85,22 @@ class ReformTest < ReformSpec
 
       it "populates errors" do
         form.validate({})
-        form.errors.messages.must_equal({:name=>["can't be blank"], :title=>["can't be blank"]})
+        form.errors.messages.must_equal({:name=>["is missing"], :title=>["is missing"]})
       end
     end
   end
 
+  # FIXME: add this test to reform-rails.
   describe "#errors" do
     before { form.validate({})}
 
-    it { form.errors.must_be_kind_of Reform::Form::ActiveModel::Errors }
+    it { form.errors.must_be_kind_of Reform::Contract::Errors }
 
     it { form.errors.messages.must_equal({}) }
 
     it do
       form.validate({"name"=>""})
-      form.errors.messages.must_equal({:name=>["can't be blank"]})
+      form.errors.messages.must_equal({:name=>["must be filled"]})
     end
   end
 
@@ -136,21 +137,20 @@ class ReformTest < ReformSpec
   end
 
 
-  unless (rails4_0? or rails3_2?)
-    describe "inheritance" do
-      class HitForm < SongForm
-        property :position
-        validates :position, :presence => true
-
+  describe "inheritance" do
+    class HitForm < SongForm
+      property :position
+      validation do
+        key(:position).required
       end
+    end
 
-      let (:form) { HitForm.new(OpenStruct.new()) }
-      it do
-        form.validate({"title" => "The Body"})
-        form.title.must_equal "The Body"
-        form.position.must_equal nil
-        form.errors.messages.must_equal({:name=>["can't be blank"], :position=>["can't be blank"]})
-      end
+    let (:form) { HitForm.new(OpenStruct.new()) }
+    it do
+      form.validate({"title" => "The Body"})
+      form.title.must_equal "The Body"
+      form.position.must_equal nil
+      form.errors.messages.must_equal({:name=>["is missing"], :position=>["is missing"]})
     end
   end
 end

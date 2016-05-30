@@ -23,7 +23,7 @@ class ErrorsTest < MiniTest::Spec
       property :label do
         property :name
         validation do
-          key(:title).required
+          key(:name).required
         end
       end
       # TODO: make band a required object.
@@ -63,28 +63,28 @@ class ErrorsTest < MiniTest::Spec
 
     it do
       form.errors.messages.must_equal({
-        :title  => ["can't be blank"],
-        :"hit.title"=>["can't be blank"],
-        :"songs.title"=>["can't be blank"],
-        :"band.label.name"=>["can't be blank"]
+        :title  => ["must be filled"],
+        :"hit.title"=>["must be filled"],
+        :"songs.title"=>["must be filled"],
+        :"band.label.name"=>["is missing"]
       })
     end
 
     it do
-      #form.errors.must_equal({:title  => ["can't be blank"]})
+      #form.errors.must_equal({:title  => ["must be filled"]})
       # TODO: this should only contain local errors?
     end
 
     # nested forms keep their own Errors:
-    it { form.hit.errors.messages.must_equal({:title=>["can't be blank"]}) }
-    it { form.songs[0].errors.messages.must_equal({:title=>["can't be blank"]}) }
+    it { form.hit.errors.messages.must_equal({:title=>["must be filled"]}) }
+    it { form.songs[0].errors.messages.must_equal({:title=>["must be filled"]}) }
 
     it do
       form.errors.messages.must_equal({
-        :title        => ["can't be blank"],
-        :"hit.title"  => ["can't be blank"],
-        :"songs.title"=> ["can't be blank"],
-        :"band.label.name"=>["can't be blank"]
+        :title        => ["must be filled"],
+        :"hit.title"  => ["must be filled"],
+        :"songs.title"=> ["must be filled"],
+        :"band.label.name"=>["is missing"]
       })
     end
   end
@@ -93,7 +93,7 @@ class ErrorsTest < MiniTest::Spec
   describe "#validate with main form invalid" do
     it do
       form.validate("title"=>"", "band"=>{"label"=>{:name => "Fat Wreck"}}).must_equal false
-      form.errors.messages.must_equal({:title=>["can't be blank"]})
+      form.errors.messages.must_equal({:title=>["must be filled"]})
     end
   end
 
@@ -102,7 +102,7 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate("hit"=>{"title" => ""}, "band"=>{"label"=>{:name => "Fat Wreck"}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"hit.title"=>["can't be blank"]}) }
+    it { form.errors.messages.must_equal({:"hit.title"=>["must be filled"]}) }
   end
 
 
@@ -110,7 +110,7 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate("songs"=>[{"title" => ""}], "band"=>{"label"=>{:name => "Fat Wreck"}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"songs.title"=>["can't be blank"]}) }
+    it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"]}) }
   end
 
 
@@ -118,7 +118,7 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"songs.title"=>["can't be blank"], :"band.label.name"=>["can't be blank"]}) }
+    it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"], :"band.label.name"=>["is missing"]}) }
   end
 
   describe "#validate with nested form using :base invalid" do
@@ -148,6 +148,6 @@ class ErrorsTest < MiniTest::Spec
     before { form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
 
     # to_s is aliased to messages
-    it { form.errors.to_s.must_equal "{:\"songs.title\"=>[\"can't be blank\"], :\"band.label.name\"=>[\"can't be blank\"]}" }
+    it { form.errors.to_s.must_equal "{:\"songs.title\"=>[\"must be filled\"], :\"band.label.name\"=>[\"is missing\"]}" }
   end
 end

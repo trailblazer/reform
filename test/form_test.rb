@@ -35,7 +35,11 @@ class FormTest < MiniTest::Spec
           "Album"
         end
       end
-      cloned.validates :title, presence: true
+
+      cloned.validation do
+        key(:title).required
+      end
+
       cloned.new(OpenStruct.new).validate({})
     end
   end
