@@ -105,6 +105,8 @@ class PopulatorTest < MiniTest::Spec
 end
 
 class PopulateWithMethodTest < Minitest::Spec
+  Album = Struct.new(:title)
+
   class AlbumForm < Reform::Form
     property :title, populator: :title!
 

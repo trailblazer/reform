@@ -39,7 +39,7 @@ class DeserializeTest < MiniTest::Spec
     artist_id = artist.object_id
 
     form = JsonAlbumForm.new(Album.new("Best Of", artist))
-    json = {title: "Apocalypse Soon", artist: {name: "Mute"}}.to_json
+    json = MultiJson.dump({title: "Apocalypse Soon", artist: {name: "Mute"}})
 
     form.validate(json)
 
@@ -85,7 +85,7 @@ class ValidateWithBlockTest < MiniTest::Spec
   it do
     album = Album.new
     form  = AlbumForm.new(album)
-    json  = {title: "Apocalypse Soon", artist: {name: "Mute"}}.to_json
+    json  = MultiJson.dump({title: "Apocalypse Soon", artist: {name: "Mute"}})
 
     deserializer = Disposable::Rescheme.from(AlbumForm,
       include:          [Representable::JSON],

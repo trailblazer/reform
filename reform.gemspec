@@ -24,14 +24,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "minitest"
-  spec.add_development_dependency "activerecord"
   spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "dry-types"
-  spec.add_development_dependency "rails"
-  spec.add_development_dependency "mongoid"
   spec.add_development_dependency "multi_json"
-
-  spec.add_development_dependency "lotus-validations"
   spec.add_development_dependency "dry-validation", ">= 0.7.0"
-  spec.add_development_dependency "actionpack"
 end

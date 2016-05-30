@@ -29,7 +29,7 @@ module Reform
 
     # FIXME: test me.
     def self.properties(*args)
-      options = args.extract_options!
+      options = args.pop if args.last.is_a?(Hash)
       args.each { |name| property(name, options.dup) }
     end
 

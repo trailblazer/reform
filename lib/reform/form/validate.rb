@@ -9,7 +9,7 @@ module Reform::Form::Validate
         # TODO: Schema should provide property names as plain list.
         properties = options[:binding][:nested].definitions.collect { |dfn| dfn[:name] }
 
-        properties.each { |name| params[name].present? and return false }
+        properties.each { |name| (!params[name].nil? && params[name] != "") and return false }
         true # skip
       end
     end
