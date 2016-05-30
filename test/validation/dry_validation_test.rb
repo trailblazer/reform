@@ -1,8 +1,34 @@
 require "test_helper"
 require "reform/form/dry"
 
-class ValidationGroupsTest < MiniTest::Spec
+class DryValidationDefaultGroupTest < Minitest::Spec
+  Session = Struct.new(:username, :email, :password, :confirm_password)
 
+  class SessionForm < Reform::Form
+    include Reform::Form::Dry
+
+    property :username
+    property :email
+    property :password
+    property :confirm_password
+
+    validation do
+      key(:username).required
+      key(:email).required
+    end
+  end
+
+  let (:form) { SessionForm.new(Session.new) }
+
+  # valid.
+  it do
+    form.validate(username: "Helloween",
+                  email:    "yep").must_equal true
+    form.errors.messages.inspect.must_equal "{}"
+  end
+end
+
+class ValidationGroupsTest < MiniTest::Spec
   describe "basic validations" do
     Session = Struct.new(:username, :email, :password, :confirm_password)
 

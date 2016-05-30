@@ -3,8 +3,12 @@ require "dry/validation/schema/form"
 require "reform/validation"
 
 module Reform::Form::Dry
-  module Validations
+  def self.included(includer)
+    includer.send :include, Validations
+    includer.extend Validations::ClassMethods
+  end
 
+  module Validations
     def build_errors
       Reform::Contract::Errors.new(self)
     end

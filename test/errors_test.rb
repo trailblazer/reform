@@ -6,23 +6,29 @@ class ErrorsTest < MiniTest::Spec
 
     property :hit do
       property :title
-      validates :title, :presence => true
+      validation do
+        key(:title).required
+      end
     end
 
     collection :songs do
       property :title
-      validates :title, :presence => true
+      validation do
+        key(:title).required
+      end
     end
 
     property :band do # yepp, people do crazy stuff like that.
       property :name
       property :label do
         property :name
-        validates :name, :presence => true
+        validation do
+          key(:title).required
+        end
       end
       # TODO: make band a required object.
 
-      validate :music_taste_ok?
+      # validate :music_taste_ok?
 
     private
       def music_taste_ok?
@@ -30,7 +36,9 @@ class ErrorsTest < MiniTest::Spec
       end
     end
 
-    validates :title, :presence => true
+    validation do
+      key(:title).required
+    end
   end
 
   let (:album) do

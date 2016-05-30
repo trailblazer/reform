@@ -7,7 +7,9 @@ class PopulatorTest < MiniTest::Spec
 
   class AlbumForm < Reform::Form
     property :name, populator: ->(options) { self.name = options[:fragment].reverse }
-    validates :name, presence: true
+    validation do
+      key(:name).required
+    end
 
     collection :songs,
       populator: ->(options) {
@@ -16,11 +18,15 @@ class PopulatorTest < MiniTest::Spec
         (item = collection[index]) ? item : collection.insert(index, Song.new) } do
 
       property :title
-      validates :title, presence: true
+      validation do
+        key(:title).required
+      end
 
       property :composer, populator: ->(options) { options[:model] || self.composer= Artist.new } do
         property :name
-        validates :name, presence: true
+        validation do
+          key(:name).required
+        end
       end
     end
 
@@ -138,11 +144,15 @@ class PopulateIfEmptyTest < MiniTest::Spec
       populate_if_empty: Song do                                                # class name works.
 
       property :title
-      validates :title, presence: true
+      validation do
+        key(:title).required
+      end
 
       property :composer, populate_if_empty: :populate_composer! do # lambda works, too. in form context.
         property :name
-        validates :name, presence: true
+        validation do
+          key(:name).required
+        end
       end
 
     private
@@ -232,7 +242,9 @@ class PopulateIfEmptyWithDeletionTest < MiniTest::Spec
       populate_if_empty: Song, skip_if: :delete_song! do
 
       property :title
-      validates :title, presence: true
+      validation do
+        key(:title).required
+      end
     end
 
     def delete_song!(options)

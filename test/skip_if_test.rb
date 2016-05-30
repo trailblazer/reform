@@ -7,7 +7,9 @@ class SkipIfTest < BaseTest
 
     property :hit, skip_if: lambda { |options| options[:fragment]["title"].blank? } do
       property :title
-      validates :title, presence: true
+      validation do
+        key(:title).required
+      end
     end
 
     collection :songs, skip_if: :skip_song?, populate_if_empty: BaseTest::Song do

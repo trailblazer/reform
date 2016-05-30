@@ -8,7 +8,9 @@ class ModuleInclusionTest < MiniTest::Spec
     property :band do
       property :title
 
-      validates :title, presence: true
+      validation do
+        key(:title).required
+      end
 
       def id # gets mixed into Form, too.
         2
@@ -19,7 +21,9 @@ class ModuleInclusionTest < MiniTest::Spec
       1
     end
 
-    validates :band, presence: true
+    validation do
+      key(:band).required
+    end
 
     include Dry::Types.module # allows using Types::* in module.
     property :cool, type: Form::Bool # test coercion.
@@ -31,9 +35,13 @@ class ModuleInclusionTest < MiniTest::Spec
 
     collection :airplays do
       property :station
-      validates :station, presence: true
+      validation do
+        key(:station).required
+      end
     end
-    validates :airplays, presence: true
+    validation do
+      key(:airplays).required
+    end
   end
 
 
@@ -81,7 +89,9 @@ class ModuleInclusionTest < MiniTest::Spec
     include BandPropertyForm
 
     property :name
-    validates :name, :presence => true
+    validation do
+      key(:name).required
+    end
   end
 
   class AlbumForm < Reform::Form
@@ -90,7 +100,9 @@ class ModuleInclusionTest < MiniTest::Spec
     # pp heritage
     property :band, :inherit => true do
       property :label
-      validates :label, :presence => true
+      validation do
+        key(:label).required
+      end
     end
   end
 

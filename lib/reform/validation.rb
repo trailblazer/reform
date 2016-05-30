@@ -7,7 +7,7 @@ module Reform::Validation
     end
 
     # DSL.
-    def validation(name, options={}, &block)
+    def validation(name=:default, options={}, &block)
       heritage.record(:validation, name, options, &block)
 
       group = validation_groups.add(name, options)

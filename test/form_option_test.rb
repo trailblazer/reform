@@ -6,7 +6,9 @@ class FormOptionTest < MiniTest::Spec
 
   class SongForm < Reform::Form
     property :title
-    validates :title, presence: true
+    validation do
+      key(:title).required
+    end
   end
 
   class AlbumForm < Reform::Form

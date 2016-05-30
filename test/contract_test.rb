@@ -11,15 +11,21 @@ class ContractTest < MiniTest::Spec
 
   class AlbumForm < Reform::Contract
     property :name
-    validates :name, presence: true
+    validation do
+      key(:name).required
+    end
 
     collection :songs do
       property :title
-      validates :title, presence: true
+      validation do
+        key(:title).required
+      end
 
       property :composer do
-        validates :name, presence: true
         property :name
+        validation do
+          key(:name).required
+        end
       end
     end
 

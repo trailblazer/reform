@@ -10,7 +10,9 @@ class ReformTest < ReformSpec
     property :name
     property :title
 
-    validates :name, :presence => true
+    validation do
+      key(:name).required
+    end
   end
 
   describe "(new) form with empty models" do
@@ -70,8 +72,10 @@ class ReformTest < ReformSpec
         property :name
         property :title
 
-        validates :name,  :presence => true
-        validates :title, :presence => true
+        validation do
+          key(:name).required
+          key(:title).required
+        end
       end
       let (:form) { ValidatingForm.new(comp) }
 

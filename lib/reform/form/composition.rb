@@ -1,11 +1,10 @@
-require "reform/form/active_model"
 require "disposable/twin/composition"
 
 module Reform::Form::Composition
   # Automatically creates a Composition object for you when initializing the form.
   def self.included(base)
     base.class_eval do
-      extend Reform::Form::ActiveModel::ClassMethods # ::model.
+      # extend Reform::Form::ActiveModel::ClassMethods # ::model.
       extend ClassMethods
       include Disposable::Twin::Composition
     end

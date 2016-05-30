@@ -6,7 +6,7 @@ class ReformTest < ReformSpec
     let (:form) { DateOfBirthForm.new(Person.new) }
 
     class DateOfBirthForm < Reform::Form
-      feature Reform::Form::ActiveModel::FormBuilderMethods
+      # feature Reform::Form::ActiveModel::FormBuilderMethods
       feature Reform::Form::MultiParameterAttributes
       property :date_of_birth, type: Date, :multi_params => true
     end
@@ -29,7 +29,7 @@ class ReformTest < ReformSpec
     let (:form) { PartyForm.new(Party.new) }
 
     class PartyForm < Reform::Form
-      feature Reform::Form::ActiveModel::FormBuilderMethods
+      # feature Reform::Form::ActiveModel::FormBuilderMethods
       feature Reform::Form::MultiParameterAttributes
       property :start_time, type: DateTime, :multi_params => true
     end

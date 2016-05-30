@@ -76,14 +76,14 @@ MiniTest::Spec.class_eval do
   end
 end
 
-require "reform/form/active_model/validations"
+I18n.load_path << Dir['test/dummy/config/locales/*.yml']
+I18n.backend.load_translations
+
+require "reform/form/dry"
 Reform::Contract.class_eval do
-  feature Reform::Form::ActiveModel::Validations
+  feature Reform::Form::Dry
 end
 # FIXME!
 Reform::Form.class_eval do
-  feature Reform::Form::ActiveModel::Validations
+  feature Reform::Form::Dry
 end
-
-I18n.load_path << Dir['test/dummy/config/locales/*.yml']
-I18n.backend.load_translations

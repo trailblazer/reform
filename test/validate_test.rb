@@ -7,14 +7,20 @@ class ContractValidateTest < MiniTest::Spec
 
   class AlbumForm < Reform::Contract
     property :name
-    validates :name, presence: true
+    validation do
+      key(:name).required
+    end
 
     collection :songs do
       property :title
-      validates :title, presence: true
+      validation do
+        key(:title).required
+      end
 
       property :composer do
-        validates :name, presence: true
+        validation do
+          key(:name).required
+        end
         property :name
       end
     end
@@ -57,16 +63,22 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
 
   class AlbumForm < Reform::Form
     property :name
-    validates :name, presence: true
+    validation do
+      key(:name).required
+    end
 
     collection :songs do
 
       property :title
-      validates :title, presence: true
+      validation do
+        key(:title).required
+      end
 
       property :composer do
         property :name
-        validates :name, presence: true
+        validation do
+          key(:name).required
+        end
       end
     end
 
@@ -150,7 +162,9 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
 
   class AlbumForm < Reform::Form
     property :name
-    validates :name, presence: true
+    validation do
+      key(:name).required
+    end
 
     collection :songs,
       internal_populator: lambda { |input, options|
@@ -158,17 +172,23 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
               (item = collection[options[:index]]) ? item : collection.insert(options[:index], Song.new) } do
 
       property :title
-      validates :title, presence: true
+      validation do
+        key(:title).required
+      end
 
       property :composer, internal_populator: lambda { |input, options| (item = options[:represented].composer) ? item : Artist.new } do
         property :name
-        validates :name, presence: true
+        validation do
+          key(:name).required
+        end
       end
     end
 
     property :artist, internal_populator: lambda { |input, options| (item = options[:represented].artist) ? item : Artist.new } do
       property :name
-      validates :name, presence: true
+      validation do
+        key(:name).required
+      end
     end
   end
 
