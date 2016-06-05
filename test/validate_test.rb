@@ -50,7 +50,7 @@ class ContractValidateTest < MiniTest::Spec
     album.name = nil
 
     form.validate.must_equal false
-    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"]}"
+    form.errors.messages.inspect.must_equal "{:name=>[\"is missing\"], :\"songs.composer.name\"=>[\"is missing\"]}"
   end
 end
 

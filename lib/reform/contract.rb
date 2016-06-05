@@ -40,6 +40,10 @@ module Reform
     require "reform/validation"
     include Reform::Validation # ::validates and #valid?
 
+    # FIXME: this is only for #to_nested_hash, #sync shouldn't be part of Contract.
+    require "disposable/twin/sync"
+    include Disposable::Twin::Sync
+
 
 
     # module ValidatesWarning
