@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ErrorsTest < MiniTest::Spec
   class AlbumForm < Reform::Form
@@ -28,12 +28,24 @@ class ErrorsTest < MiniTest::Spec
       end
       # TODO: make band a required object.
 
+      validation do
+        key(:name).required(:music_taste_ok?)
+
+        configure do
+          config.messages_file = "test/validation/errors.yml"
+
+          def music_taste_ok?(value)
+            value != "Nickelback"
+            # errors.add(:base, "You are a bad person") if name == "Nickelback"
+          end
+        end
+      end
       # validate :music_taste_ok?
 
-    private
-      def music_taste_ok?
-        errors.add(:base, "You are a bad person") if name == 'Nickelback'
-      end
+    # private
+    #   def music_taste_ok?
+    #     errors.add(:base, "You are a bad person") if name == "Nickelback"
+    #   end
     end
 
     validation do
@@ -122,10 +134,10 @@ class ErrorsTest < MiniTest::Spec
   end
 
   describe "#validate with nested form using :base invalid" do
-    it "xxx" do
+    it do
       result = form.validate("songs"=>[{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}})
       result.must_equal false
-      form.errors.messages.must_equal({:base=>["You are a bad person"]})
+      form.errors.messages.must_equal({:"band.name"=>["You are a bad person"]})
     end
   end
 
