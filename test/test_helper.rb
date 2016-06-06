@@ -4,13 +4,6 @@ require "representable/debug"
 require "declarative/testing"
 require "pp"
 
-class ReformSpec < MiniTest::Spec
-  let (:duran)  { Struct.new(:name).new("Duran Duran") }
-  let (:rio)    { Struct.new(:title).new("Rio") }
-end
-
-#Artist.delete_all
-
 class BaseTest < MiniTest::Spec
   class AlbumForm < Reform::Form
     property :title
