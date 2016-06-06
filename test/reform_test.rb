@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # TODO: this test should be removed.
-class ReformTest < ReformSpec
+class ReformTest < Minitest::Spec
   let (:comp) { OpenStruct.new(:name => "Duran Duran", :title => "Rio") }
 
   let (:form) { SongForm.new(comp) }
