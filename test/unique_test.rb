@@ -41,6 +41,13 @@ class UniquenessValidatorOnCreateCaseInsensitiveTest < MiniTest::Spec
     form.validate("title" => "how many tears").must_equal false
     form.errors.to_s.must_equal "{:title=>[\"has already been taken\"]}"
   end
+
+  it do
+    Song.delete_all
+
+    form = SongForm.new(Song.new)
+    form.validate({}).must_equal true
+  end
 end
 
 class UniquenessValidatorOnCreateCaseSensitiveTest < MiniTest::Spec

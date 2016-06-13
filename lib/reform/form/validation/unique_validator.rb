@@ -38,7 +38,8 @@ class Reform::Form::UniqueValidator < ActiveModel::EachValidator
 
     # search for models with attribute equals to form field value
     if options[:case_sensitive] == false
-      query = model.class.where("lower(#{attribute}) = ?", value.downcase)
+      downcased_value = value.nil? ? value : value.downcase
+      query = model.class.where("lower(#{attribute}) = ?", downcased_value)
     else
       query = model.class.where(attribute => value)
     end
