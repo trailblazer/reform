@@ -20,6 +20,10 @@
 # property :album_id
 # validates :title, unique: { scope: :album_id }
 #
+# Case sensitivity is true by default, but can be set to false:
+#
+# validates :title, unique: { case_sensitive: false }
+#
 # Just remove write access to the property if the field must not be change:
 # property :album_id, writeable: false
 # validates :title, unique: { scope: :album_id }
@@ -33,7 +37,11 @@ class Reform::Form::UniqueValidator < ActiveModel::EachValidator
     model = form.model_for_property(attribute)
 
     # search for models with attribute equals to form field value
-    query = model.class.where(attribute => value)
+    if options[:case_sensitive] == false
+      query = model.class.where("lower(#{attribute}) = ?", value.downcase)
+    else
+      query = model.class.where(attribute => value)
+    end
 
     # apply scope if options has been declared
     Array(options[:scope]).each do |field|
