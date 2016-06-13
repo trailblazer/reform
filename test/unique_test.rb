@@ -23,6 +23,51 @@ class UniquenessValidatorOnCreateTest < MiniTest::Spec
   end
 end
 
+class UniquenessValidatorOnCreateCaseInsensitiveTest < MiniTest::Spec
+  class SongForm < Reform::Form
+    include ActiveRecord
+    property :title
+    validates :title, unique: { case_sensitive: false }
+  end
+
+  it do
+    Song.delete_all
+
+    form = SongForm.new(Song.new)
+    form.validate("title" => "How Many Tears").must_equal true
+    form.save
+
+    form = SongForm.new(Song.new)
+    form.validate("title" => "how many tears").must_equal false
+    form.errors.to_s.must_equal "{:title=>[\"has already been taken\"]}"
+  end
+
+  it do
+    Song.delete_all
+
+    form = SongForm.new(Song.new)
+    form.validate({}).must_equal true
+  end
+end
+
+class UniquenessValidatorOnCreateCaseSensitiveTest < MiniTest::Spec
+  class SongForm < Reform::Form
+    include ActiveRecord
+    property :title
+    validates :title, unique: { case_sensitive: true }
+  end
+
+  it do
+    Song.delete_all
+
+    form = SongForm.new(Song.new)
+    form.validate("title" => "How Many Tears").must_equal true
+    form.save
+
+    form = SongForm.new(Song.new)
+    form.validate("title" => "how many tears").must_equal true
+  end
+end
 
 class UniquenessValidatorOnUpdateTest < MiniTest::Spec
   class SongForm < Reform::Form
@@ -43,7 +88,6 @@ class UniquenessValidatorOnUpdateTest < MiniTest::Spec
     form.validate("title" => "How Many Tears").must_equal true
   end
 end
-
 
 class UniqueWithCompositionTest < MiniTest::Spec
   class SongForm < Reform::Form
@@ -94,6 +138,35 @@ class UniqueValidatorWithScopeTest < MiniTest::Spec
   end
 end
 
+class UniqueValidatorWithScopeAndCaseInsensitiveTest < MiniTest::Spec
+  class SongForm < Reform::Form
+    include ActiveRecord
+    property :album_id
+    property :title
+    validates :title, unique: { scope: :album_id, case_sensitive: false }
+  end
+
+  it do
+    Song.delete_all
+
+    album = Album.new
+    album.save
+
+    form = SongForm.new(Song.new)
+    form.validate(album_id: album.id, title: 'How Many Tears').must_equal true
+    form.save
+
+    form = SongForm.new(Song.new)
+    form.validate(album_id: album.id, title: 'how many tears').must_equal false
+    form.errors.to_s.must_equal "{:title=>[\"has already been taken\"]}"
+
+    album = Album.new
+    album.save
+
+    form = SongForm.new(Song.new)
+    form.validate(album_id: album.id, title: 'how many tears').must_equal true
+  end
+end
 class UniqueValidatorWithScopeArrayTest < MiniTest::Spec
   class SongForm < Reform::Form
     include ActiveRecord
