@@ -43,6 +43,25 @@ class UniquenessValidatorOnCreateCaseInsensitiveTest < MiniTest::Spec
   end
 end
 
+class UniquenessValidatorOnCreateCaseSensitiveTest < MiniTest::Spec
+  class SongForm < Reform::Form
+    include ActiveRecord
+    property :title
+    validates :title, unique: { case_sensitive: true }
+  end
+
+  it do
+    Song.delete_all
+
+    form = SongForm.new(Song.new)
+    form.validate("title" => "How Many Tears").must_equal true
+    form.save
+
+    form = SongForm.new(Song.new)
+    form.validate("title" => "how many tears").must_equal true
+  end
+end
+
 class UniquenessValidatorOnUpdateTest < MiniTest::Spec
   class SongForm < Reform::Form
     include ActiveRecord
@@ -60,26 +79,6 @@ class UniquenessValidatorOnUpdateTest < MiniTest::Spec
 
     form = SongForm.new(@song)
     form.validate("title" => "How Many Tears").must_equal true
-  end
-end
-
-class UniquenessValidatorOnUpdateCaseInsensitiveTest < MiniTest::Spec
-  class SongForm < Reform::Form
-    include ActiveRecord
-    property :title
-    validates :title, unique: { case_sensitive: false }
-  end
-
-  it do
-    Song.delete_all
-    @song = Song.create(title: "How Many Tears")
-
-    form = SongForm.new(@song)
-    form.validate("title" => "How Many Tears").must_equal true
-    form.save
-
-    form = SongForm.new(@song)
-    form.validate("title" => "how many tears").must_equal true
   end
 end
 
