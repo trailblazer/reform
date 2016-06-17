@@ -130,7 +130,7 @@ Sometimes, you need to do saving manually.
 
 ## Default values
 
-Reform allows default values to be provided for properties. 
+Reform allows default values to be provided for properties.
 
 ```ruby
 class AlbumForm < Reform::Form
@@ -270,7 +270,7 @@ gem "reform-rails"
 
 Since Reform 2.0 you need to specify which **validation backend** you want to use (unless you're in a Rails environment where ActiveModel will be used).
 
-To use ActiveModel (not recommended as it doesn't support removing validations).
+To use ActiveModel (not recommended because very out-dated).
 
 ```ruby
 require "reform/form/active_model/validations"
