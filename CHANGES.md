@@ -1,3 +1,7 @@
+## 2.2.1
+
+* Fix `Contract::Properties`. Thanks @simonc. <3
+
 ## 2.2.0
 
 * Remove `reform/rails`. This is now handled via the `reform-rails` gem which you have to bundle.
