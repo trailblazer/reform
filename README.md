@@ -296,7 +296,7 @@ Put this in an initializer or on top of your script.
 Reform allows to map multiple models to one form. The [complete documentation](https://github.com/apotonick/disposable#composition) is here, however, this is how it works.
 
 ```ruby
-class AlbumTwin < Reform::Form
+class AlbumForm < Reform::Form
   include Composition
 
   property :id,    on: :album
