@@ -11,7 +11,7 @@ class ReformTest < Minitest::Spec
     property :title
 
     validation do
-      key(:name).required
+      required(:name).filled
     end
   end
 
@@ -73,8 +73,8 @@ class ReformTest < Minitest::Spec
         property :title
 
         validation do
-          key(:name).required
-          key(:title).required
+          required(:name).filled
+          required(:title).filled
         end
       end
       let (:form) { ValidatingForm.new(comp) }
@@ -141,7 +141,7 @@ class ReformTest < Minitest::Spec
     class HitForm < SongForm
       property :position
       validation do
-        key(:position).required
+        required(:position).filled
       end
     end
 

@@ -13,8 +13,8 @@ class DryValidationDefaultGroupTest < Minitest::Spec
     property :confirm_password
 
     validation do
-      key(:username).required
-      key(:email).required
+      required(:username).filled
+      required(:email).filled
     end
   end
 
@@ -41,20 +41,20 @@ class ValidationGroupsTest < MiniTest::Spec
       property :confirm_password
 
       validation :default do
-        key(:username).required
-        key(:email).required
+        required(:username).filled
+        required(:email).filled
       end
 
       validation :email, if: :default do
-        key(:email).required(min_size?: 3)
+        required(:email).filled(min_size?: 3)
       end
 
       validation :nested, if: :default do
-        key(:password).required(min_size?: 2)
+        required(:password).filled(min_size?: 2)
       end
 
       validation :confirm, if: :default, after: :email do
-        key(:confirm_password).required(min_size?: 2)
+        required(:confirm_password).filled(min_size?: 2)
       end
     end
 
@@ -122,16 +122,6 @@ class ValidationGroupsTest < MiniTest::Spec
       end
 
       validation :default do
-
-        key(:title).required
-
-        key(:band).schema do
-          key(:name).required
-          key(:label).schema do
-            key(:name).required
-          end
-        end
-
         configure do
           option :form
           # message need to be defined on fixtures/dry_error_messages
@@ -140,13 +130,19 @@ class ValidationGroupsTest < MiniTest::Spec
             value != 'Nickelback'
           end
 
-          def form_access_validation?(value)
+          def form_access_validation?
             form.title == 'Reform'
           end
         end
 
-        key(:title).required(:good_musical_taste?)
-        key(:title).required(:form_access_validation?)
+        required(:title).filled(:good_musical_taste?, :form_access_validation?)
+
+        required(:band).schema do
+          required(:name).filled
+          required(:label).schema do
+            required(:name).filled
+          end
+        end
       end
     end
 
@@ -192,7 +188,7 @@ class ValidationGroupsTest < MiniTest::Spec
             validates(:email, &:filled?)
           end
         end
-      end.must_raise(NoMethodError)
+      end.must_raise(ArgumentError) # <"+validates+ is not a valid predicate name">
       # e.message.must_equal 'validates() is not supported by Dry Validation backend.'
 
       e = proc do
@@ -205,7 +201,7 @@ class ValidationGroupsTest < MiniTest::Spec
             validate(:email, &:filled?)
           end
         end
-      end.must_raise(NoMethodError)
+      end.must_raise(ArgumentError) # <"+validates+ is not a valid predicate name">
       # e.message.must_equal 'validate() is not supported by Dry Validation backend.'
 
       e = proc do
@@ -218,7 +214,7 @@ class ValidationGroupsTest < MiniTest::Spec
             validates_with(:email, &:filled?)
           end
         end
-      end.must_raise(NoMethodError)
+      end.must_raise(ArgumentError) # <"+validates+ is not a valid predicate name">
       # e.message.must_equal (NoMethodError)'validates_with() is not supported by Dry Validation backend.'
     end
   end
@@ -263,11 +259,11 @@ class ValidationGroupsTest < MiniTest::Spec
       property :email
 
       validation :email do
-        key(:email).required
+        required(:email).filled
       end
 
       validation :email, inherit: true do # extends the above.
-        key(:username).required
+        required(:username).filled
       end
     end
 
@@ -295,17 +291,17 @@ class ValidationGroupsTest < MiniTest::Spec
       property :password
 
       validation :email do
-        key(:email).required
+        required(:email).filled
       end
 
       # run this is :email group is true.
       validation :after_email, if: lambda { |results| results[:email]==true } do # extends the above.
-        key(:username).required
+        required(:username).filled
       end
 
       # block gets evaled in form instance context.
       validation :password, if: lambda { |results| email == "john@trb.org" } do
-        key(:password).required
+        required(:password).filled
       end
     end
 

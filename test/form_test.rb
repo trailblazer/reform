@@ -37,7 +37,7 @@ class FormTest < MiniTest::Spec
       end
 
       cloned.validation do
-        key(:title).required
+        required(:title).filled
       end
 
       cloned.new(OpenStruct.new).validate({})

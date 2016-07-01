@@ -17,9 +17,9 @@ class FormCompositionTest < MiniTest::Spec
     property :captcha,        :on => :song, :virtual => true
 
     validation do
-      key(:name).required
-      key(:name).required
-      key(:title).required
+      required(:name).filled
+      required(:name).filled
+      required(:title).filled
     end
 
     property :band,           :on => :song do

@@ -7,7 +7,7 @@ class FormOptionTest < MiniTest::Spec
   class SongForm < Reform::Form
     property :title
     validation do
-      key(:title).required
+      required(:title).filled
     end
   end
 

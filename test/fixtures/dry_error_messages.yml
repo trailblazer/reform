@@ -2,7 +2,7 @@ array?: "%{name} must be an array"
 
 empty?: "%{name} cannot be empty"
 
-exclusion?: "%{name} must not be one of: %{list}"
+excluded_from?: "%{name} must not be one of: %{list}"
 
 eql?: "%{name} must be equal to %{eql_value}"
 
@@ -16,7 +16,7 @@ gteq?: "%{name} must be greater than or equal to %{num}"
 
 hash?: "%{name} must be a hash"
 
-inclusion?: "%{name} must be one of: %{list}"
+included_in?: "%{name} must be one of: %{list}"
 
 int?: "%{name} must be an integer"
 
