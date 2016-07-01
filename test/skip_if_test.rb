@@ -8,7 +8,7 @@ class SkipIfTest < BaseTest
     property :hit, skip_if: lambda { |options| options[:fragment]["title"]=="" } do
       property :title
       validation do
-        key(:title).required
+        required(:title).filled
       end
     end
 

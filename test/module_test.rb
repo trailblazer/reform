@@ -9,7 +9,7 @@ class ModuleInclusionTest < MiniTest::Spec
       property :title
 
       validation do
-        key(:title).required
+        required(:title).filled
       end
 
       def id # gets mixed into Form, too.
@@ -22,7 +22,7 @@ class ModuleInclusionTest < MiniTest::Spec
     end
 
     validation do
-      key(:band).required
+      required(:band).filled
     end
 
     include Dry::Types.module # allows using Types::* in module.
@@ -36,11 +36,11 @@ class ModuleInclusionTest < MiniTest::Spec
     collection :airplays do
       property :station
       validation do
-        key(:station).required
+        required(:station).filled
       end
     end
     validation do
-      key(:airplays).required
+      required(:airplays).filled
     end
   end
 
@@ -90,7 +90,7 @@ class ModuleInclusionTest < MiniTest::Spec
 
     property :name
     validation do
-      key(:name).required
+      required(:name).filled
     end
   end
 
@@ -101,7 +101,7 @@ class ModuleInclusionTest < MiniTest::Spec
     property :band, :inherit => true do
       property :label
       validation do
-        key(:label).required
+        required(:label).filled
       end
     end
   end
