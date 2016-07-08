@@ -44,7 +44,7 @@ module Reform::Validation
         @groups = groups
       end
 
-      def call(fields, errors, form)
+      def call(errors, form)
         result = true
         results = {}
 
@@ -54,7 +54,7 @@ module Reform::Validation
 
           if evaluate_if(depends_on, results, form)
             # puts "evaluating #{group.instance_variable_get(:@validator).instance_variable_get(:@checker).inspect}"
-            results[name] = group.(fields, errors, form).empty? # validate.
+            results[name] = group.(errors, form).empty? # validate.
           end
 
           result &= errors.empty?

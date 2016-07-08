@@ -1,20 +1,24 @@
 require "test_helper"
 require "reform/form/dry"
+require "reform/form/coercion"
 
 class DryValidationDefaultGroupTest < Minitest::Spec
-  Session = Struct.new(:username, :email, :password, :confirm_password)
+  Session = Struct.new(:username, :email, :password, :confirm_password, :starts_at)
 
   class SessionForm < Reform::Form
     include Reform::Form::Dry
+    include Coercion
 
     property :username
     property :email
     property :password
     property :confirm_password
+    property :starts_at, type: Types::Form::DateTime
 
     validation do
       required(:username).filled
       required(:email).filled
+      required(:starts_at).filled(:date_time?)
     end
   end
 
@@ -23,7 +27,8 @@ class DryValidationDefaultGroupTest < Minitest::Spec
   # valid.
   it do
     form.validate(username: "Helloween",
-                  email:    "yep").must_equal true
+                  email:    "yep",
+                  starts_at: "01/01/2000 - 11:00").must_equal true
     form.errors.messages.inspect.must_equal "{}"
   end
 end
