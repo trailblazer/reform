@@ -31,10 +31,7 @@ class Reform::Form::Populator
 private
   def call!(options)
     form = options[:represented]
-
-    deprecate_positional_args(form, @user_proc, options) do
-      @value.(form, options)
-    end
+    @value.(form, options)
   end
 
   def handle_fail(twin, options)
@@ -44,17 +41,6 @@ private
   def get(options)
      Representable::GetValue.(nil, options)
   end
-
-  def deprecate_positional_args(form, proc, options) # TODO: remove in 2.2.
-    arity = proc.is_a?(Symbol) ? form.method(proc).arity : proc.arity
-    return yield if arity == 1
-    warn "[Reform] Positional arguments for :populator and friends are deprecated. Please use ->(options) and enjoy the rest of your day. Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21"
-    args = []
-    args <<  options[:index] if  options[:index]
-    args << options[:representable_options]
-    form.instance_exec(options[:fragment], options[:model], *args, &proc)
-  end
-
 
   class IfEmpty < self # Populator
     def call!(options)
