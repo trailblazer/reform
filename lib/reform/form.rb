@@ -16,6 +16,11 @@ module Reform
     module Property
       # Add macro logic, e.g. for :populator.
       def property(name, options={}, &block)
+        if options.key?(:parse)
+          options[:deserializer] ||= {}
+          options[:deserializer][:writeable] = options.delete(:parse)
+        end
+
         definition = super # let representable sort out inheriting of properties, and so on.
         definition.merge!(deserializer: {}) unless definition[:deserializer] # always keep :deserializer per property.
 
