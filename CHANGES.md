@@ -1,3 +1,9 @@
+## 2.3.0
+
+* `representable-3.0.0` or higher is now required.
+* Removed Representable 2.4 deprecation code.
+* Allow using `:populator` classes marked with `Uber::Callable`.
+
 ## 2.2.1
 
 * Fix `Contract::Properties`. Thanks @simonc. <3

@@ -118,9 +118,51 @@ class PopulateWithMethodTest < Minitest::Spec
   let (:form) { AlbumForm.new(Album.new) }
 
   it "runs populator method" do
-    form.validate(
-      "title" => "override me!"
-    )
+    form.validate("title" => "override me!")
+
+    form.title.must_equal "!em edirrevo"
+  end
+end
+
+class PopulateWithCallableTest < Minitest::Spec
+  Album = Struct.new(:title)
+
+  class TitlePopulator
+    include Uber::Callable
+
+    def call(form, options)
+      form.title = options[:fragment].reverse
+    end
+  end
+
+  class AlbumForm < Reform::Form
+    property :title, populator: TitlePopulator.new
+  end
+
+  let (:form) { AlbumForm.new(Album.new) }
+
+  it "runs populator method" do
+    form.validate("title" => "override me!")
+
+    form.title.must_equal "!em edirrevo"
+  end
+end
+
+class PopulateWithProcTest < Minitest::Spec
+  Album = Struct.new(:title)
+
+  TitlePopulator = ->(options) do
+    options[:represented].title = options[:fragment].reverse
+  end
+
+  class AlbumForm < Reform::Form
+    property :title, populator: TitlePopulator
+  end
+
+  let (:form) { AlbumForm.new(Album.new) }
+
+  it "runs populator method" do
+    form.validate("title" => "override me!")
 
     form.title.must_equal "!em edirrevo"
   end
