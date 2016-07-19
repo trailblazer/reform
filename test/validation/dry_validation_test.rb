@@ -45,7 +45,7 @@ class DryValidationDefaultGroupTest < Minitest::Spec
                   email:    "yep",
                   active: 'hello',
                   starts_at: "01/01/2000 - 11:00").must_equal false
-    form.errors.messages.inspect.must_equal "{:active=>[\"must be boolean\"], :confirm_password=>[\"confirm_password is missing\"]}"
+    form.errors.messages.inspect.must_equal "{:active=>[\"must be boolean\"], :confirm_password=>[\"is missing\"]}"
   end
 end
 
