@@ -3,7 +3,7 @@ require "reform/form/dry"
 require "reform/form/coercion"
 
 class DryValidationDefaultGroupTest < Minitest::Spec
-  Session = Struct.new(:username, :email, :password, :confirm_password, :starts_at)
+  Session = Struct.new(:username, :email, :password, :confirm_password, :starts_at, :active)
 
   class SessionForm < Reform::Form
     include Reform::Form::Dry
@@ -14,11 +14,17 @@ class DryValidationDefaultGroupTest < Minitest::Spec
     property :password
     property :confirm_password
     property :starts_at, type: Types::Form::DateTime
+    property :active, type: Types::Form::Bool
 
     validation do
       required(:username).filled
       required(:email).filled
       required(:starts_at).filled(:date_time?)
+      required(:active).filled(:bool?)
+    end
+
+    validation :another_block, error_message_format: :full do
+      required(:confirm_password).filled
     end
   end
 
@@ -28,8 +34,18 @@ class DryValidationDefaultGroupTest < Minitest::Spec
   it do
     form.validate(username: "Helloween",
                   email:    "yep",
-                  starts_at: "01/01/2000 - 11:00").must_equal true
+                  starts_at: "01/01/2000 - 11:00",
+                  active: "true",
+                  confirm_password: 'pA55w0rd').must_equal true
     form.errors.messages.inspect.must_equal "{}"
+  end
+
+  it "invalid" do
+    form.validate(username: "Helloween",
+                  email:    "yep",
+                  active: 'hello',
+                  starts_at: "01/01/2000 - 11:00").must_equal false
+    form.errors.messages.inspect.must_equal "{:active=>[\"must be boolean\"], :confirm_password=>[\"confirm_password is missing\"]}"
   end
 end
 
