@@ -70,14 +70,14 @@ class ErrorsTest < MiniTest::Spec
     before { form.validate(
       "hit"   =>{"title" => ""},
       "title" => "",
-      "songs" => [{"title" => ""}, {"title" => ""}]) } # FIXME: what happens if item is missing?
+      "songs" => [{"title" => ""}, {"title" => ""}]) } # FIXME: what happens if item must be filled?
 
     it do
       form.errors.messages.must_equal({
         :title  => ["must be filled"],
         :"hit.title"=>["must be filled"],
         :"songs.title"=>["must be filled"],
-        :"band.label.name"=>["is missing"]
+        :"band.label.name"=>["must be filled"]
       })
     end
 
@@ -95,7 +95,7 @@ class ErrorsTest < MiniTest::Spec
         :title        => ["must be filled"],
         :"hit.title"  => ["must be filled"],
         :"songs.title"=> ["must be filled"],
-        :"band.label.name"=>["is missing"]
+        :"band.label.name"=>["must be filled"]
       })
     end
   end
@@ -129,7 +129,7 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"], :"band.label.name"=>["is missing"]}) }
+    it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"], :"band.label.name"=>["must be filled"]}) }
   end
 
   describe "#validate with nested form using :base invalid" do
@@ -159,6 +159,6 @@ class ErrorsTest < MiniTest::Spec
     before { form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
 
     # to_s is aliased to messages
-    it { form.errors.to_s.must_equal "{:\"songs.title\"=>[\"must be filled\"], :\"band.label.name\"=>[\"is missing\"]}" }
+    it { form.errors.to_s.must_equal "{:\"songs.title\"=>[\"must be filled\"], :\"band.label.name\"=>[\"must be filled\"]}" }
   end
 end

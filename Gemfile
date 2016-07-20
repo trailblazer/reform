@@ -7,10 +7,10 @@ gemspec
 # gem 'representable', path: "../representable"
 # # gem 'representable', github: "apotonick/representable"
 # gem "disposable", path: "../disposable"
-# gem "disposable", github: "apotonick/disposable"
-
+gem "disposable", "0.4.0"
 
 # gem "declarative", path: "../declarative"
 
 gem "minitest-line"
 gem 'byebug'
+gem "dry-validation", "> 0.9.0"

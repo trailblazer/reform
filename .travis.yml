@@ -3,7 +3,7 @@ rvm:
   - 2.3.0
   - 2.0.0
 gemfile:
-  - gemfiles/Gemfile.disposable-0.3
+  - gemfiles/Gemfile.disposable-0.4
 
 matrix:
   fast_finish: true

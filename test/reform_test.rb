@@ -85,7 +85,7 @@ class ReformTest < Minitest::Spec
 
       it "populates errors" do
         form.validate({})
-        form.errors.messages.must_equal({:name=>["is missing"], :title=>["is missing"]})
+        form.errors.messages.must_equal({:name=>["must be filled"], :title=>["must be filled"]})
       end
     end
   end
@@ -126,7 +126,7 @@ class ReformTest < Minitest::Spec
           hash = map
         end
 
-        hash.must_equal({"name"=>"Diesel Boy"})
+        hash.must_equal({"name"=>"Diesel Boy", "title" => nil})
       end
     end
   end
@@ -150,7 +150,7 @@ class ReformTest < Minitest::Spec
       form.validate({"title" => "The Body"})
       form.title.must_equal "The Body"
       form.position.must_equal nil
-      form.errors.messages.must_equal({:name=>["is missing"], :position=>["is missing"]})
+      form.errors.messages.must_equal({:name=>["must be filled"], :position=>["must be filled"]})
     end
   end
 end

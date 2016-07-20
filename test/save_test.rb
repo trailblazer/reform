@@ -60,6 +60,21 @@ class SaveTest < BaseTest
     album.songs[0].saved?.must_equal true
     album.artist.saved?.must_equal nil
   end
+
+  describe "#sync with block" do
+    it do
+      form = AlbumForm.new(Album.new("Greatest Hits"))
+
+      form.validate(name: nil) # nil-out the title.
+
+      nested_hash = nil
+      form.sync do |hash|
+        nested_hash = hash
+      end
+
+      nested_hash.must_equal({"name"=>nil, "artist"=>nil})
+    end
+  end
 end
 
 

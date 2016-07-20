@@ -72,7 +72,7 @@ class ModuleInclusionTest < MiniTest::Spec
   it do
     form = SongForm.new(OpenStruct.new)
     form.validate({})
-    form.errors.messages.must_equal({:band=>["is missing"]})
+    form.errors.messages.must_equal({:band=>["must be filled"]})
   end
 
   # coercion works
@@ -109,7 +109,7 @@ class ModuleInclusionTest < MiniTest::Spec
   it do
     form = AlbumForm.new(OpenStruct.new(:band => OpenStruct.new))
     form.validate({"band" => {}})
-    form.errors.messages.must_equal({:band=>["must be filled"], :"band.title"=>["is missing"], :"band.label"=>["is missing"], :name=>["is missing"]})
+    form.errors.messages.must_equal({:"band.title"=>["must be filled"], :"band.label"=>["must be filled"], :name=>["must be filled"]})
   end
 
 

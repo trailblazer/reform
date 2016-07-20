@@ -45,7 +45,7 @@ class DryValidationDefaultGroupTest < Minitest::Spec
                   email:    "yep",
                   active: 'hello',
                   starts_at: "01/01/2000 - 11:00").must_equal false
-    form.errors.messages.inspect.must_equal "{:active=>[\"must be boolean\"], :confirm_password=>[\"is missing\"]}"
+    form.errors.messages.inspect.must_equal "{:active=>[\"must be boolean\"], :confirm_password=>[\"must be filled\"]}"
   end
 end
 
@@ -93,20 +93,20 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.inspect.must_equal "{:username=>[\"is missing\"], :email=>[\"is missing\"]}"
+      form.errors.messages.inspect.must_equal "{:username=>[\"must be filled\"], :email=>[\"must be filled\"]}"
     end
 
     # partially invalid.
     # 2nd group fails.
     it do
       form.validate(username: "Helloween", email: "yo", confirm_password:"9").must_equal false
-      form.errors.messages.inspect.must_equal "{:email=>[\"size cannot be less than 3\"], :confirm_password=>[\"size cannot be less than 2\"], :password=>[\"is missing\", \"size cannot be less than 2\"]}"
+      form.errors.messages.inspect.must_equal "{:email=>[\"size cannot be less than 3\"], :confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
     end
     # 3rd group fails.
     it do
       form.validate(username: "Helloween", email: "yo!", confirm_password:"9").must_equal false
       form.errors.messages.inspect
-      .must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"is missing\", \"size cannot be less than 2\"]}"
+      .must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
     end
     # 4th group with after: fails.
     it do
@@ -298,7 +298,7 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.inspect.must_equal "{:email=>[\"is missing\"], :username=>[\"is missing\"]}"
+      form.errors.messages.inspect.must_equal "{:email=>[\"must be filled\"], :username=>[\"must be filled\"]}"
     end
   end
 
@@ -336,7 +336,7 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({email: 9}).must_equal false
-      form.errors.messages.inspect.must_equal "{:username=>[\"is missing\"]}"
+      form.errors.messages.inspect.must_equal "{:username=>[\"must be filled\"]}"
     end
   end
 
