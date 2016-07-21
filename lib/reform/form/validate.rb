@@ -53,8 +53,4 @@ private
 
     deserializer
   end
-
-
-  class DeserializeError < RuntimeError
-  end
 end
