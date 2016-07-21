@@ -1,9 +1,10 @@
 ## 2.3.0
 
-* `representable-3.0.0` or higher is now required.
-* Removed Representable 2.4 deprecation code.
+* Require Representable 3.0.0 and **removed Representable 2.4 deprecation code**.
+* Fix boolean coercion.
 * Allow using `:populator` classes marked with `Uber::Callable`.
 * Introduce `parse: false` as a shortcut for `deserialzer: { writeable: false}`. Thanks to @pabloh for insisting on this handy change.
+* Require Disposable 0.4.0 which fixes issues with `nil` field values, `sync {}` and dry-validation.
 
 ## 2.2.1
 
