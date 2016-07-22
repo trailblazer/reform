@@ -1,4 +1,11 @@
+## 3.0.0
+
+[* Removed `Reform::Contract` ?]
+[* Move Form#deserializer to Form::deserializer]
+
 ## 2.3.0
+
+You can upgrade from 2.2.0 without worries.
 
 * Require Representable 3.0.0 and **removed Representable 2.4 deprecation code**.
 * Require Disposable 0.4.0 which fixes issues with `nil` field values, `sync {}` and dry-validation.

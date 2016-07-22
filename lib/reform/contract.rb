@@ -27,7 +27,6 @@ module Reform
       super
     end
 
-    # FIXME: test me.
     def self.properties(*args)
       options = args.last.is_a?(Hash) ? args.pop : {}
       args.each { |name| property(name, options.dup) }
