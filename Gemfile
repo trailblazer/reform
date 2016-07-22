@@ -13,4 +13,5 @@ gem "disposable", "0.4.0"
 
 gem "minitest-line"
 gem 'byebug'
+gem "benchmark-ips"
 gem "dry-validation", "> 0.9.0"
