@@ -40,7 +40,7 @@ private
 
   # Default deserializer for hash.
   # This is input-specific, e.g. Hash, JSON, or XML.
-  def deserializer(source=self.class, options={}) # called on top-level, only, for now.
+  def deserializer!(source=self.class, options={}) # called on top-level, only, for now.
     deserializer = Disposable::Rescheme.from(source,
       {
         include:          [Representable::Hash::AllowSymbols, Representable::Hash],
@@ -52,5 +52,14 @@ private
     )
 
     deserializer
+  end
+
+  def deserializer(*args)
+    # DISCUSS: should we simply delegate to class and sort out memoizing there? 
+    self.class.deserializer_class || self.class.deserializer_class = deserializer!(*args)
+  end
+
+  def self.included(includer)
+    includer.singleton_class.send :attr_accessor, :deserializer_class
   end
 end
