@@ -30,14 +30,14 @@ class ErrorsTest < MiniTest::Spec
 
       validation do
         configure do
-          config.messages_file = "test/validation/errors.yml"
+          config.messages_file = "test/fixtures/dry_error_messages.yml"
 
-          def music_taste_ok?(value)
+          def good_musical_taste?(value)
             value != "Nickelback"
           end
         end
 
-        required(:name).filled(:music_taste_ok?)
+        required(:name).filled(:good_musical_taste?)
       end
       # validate :music_taste_ok?
 
@@ -136,7 +136,7 @@ class ErrorsTest < MiniTest::Spec
     it do
       result = form.validate("songs"=>[{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}})
       result.must_equal false
-      form.errors.messages.must_equal({:"band.name"=>["You are a bad person"]})
+      form.errors.messages.must_equal({:"band.name"=>["you're a bad person"]})
     end
   end
 

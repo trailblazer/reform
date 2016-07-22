@@ -145,6 +145,7 @@ class ValidationGroupsTest < MiniTest::Spec
       validation :default do
         configure do
           option :form
+          config.messages_file = "test/fixtures/dry_error_messages.yml"
           # message need to be defined on fixtures/dry_error_messages
           # d-v expects you to define your custome messages on the .yml file
           def good_musical_taste?(value)
