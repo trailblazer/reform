@@ -236,54 +236,6 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
-
-
-
-  describe "fails with :validate, :validates and :validates_with" do
-
-    it "throws a goddamn error" do
-      e = proc do
-        class FailingForm < Reform::Form
-          include Reform::Form::Dry::Validations
-
-          property :username
-
-          validation :email do
-            validates(:email, &:filled?)
-          end
-        end
-      end.must_raise(ArgumentError) # <"+validates+ is not a valid predicate name">
-      # e.message.must_equal 'validates() is not supported by Dry Validation backend.'
-
-      e = proc do
-        class FailingForm < Reform::Form
-          include Reform::Form::Dry::Validations
-
-          property :username
-
-          validation :email do
-            validate(:email, &:filled?)
-          end
-        end
-      end.must_raise(ArgumentError) # <"+validates+ is not a valid predicate name">
-      # e.message.must_equal 'validate() is not supported by Dry Validation backend.'
-
-      e = proc do
-        class FailingForm < Reform::Form
-          include Reform::Form::Dry::Validations
-
-          property :username
-
-          validation :email do
-            validates_with(:email, &:filled?)
-          end
-        end
-      end.must_raise(ArgumentError) # <"+validates+ is not a valid predicate name">
-      # e.message.must_equal (NoMethodError)'validates_with() is not supported by Dry Validation backend.'
-    end
-  end
-
-
   # describe "same-named group" do
   #   class OverwritingForm < Reform::Form
   #     include Reform::Form::Dry::Validations

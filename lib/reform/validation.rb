@@ -14,18 +14,6 @@ module Reform::Validation
 
       group.instance_exec(&block)
     end
-
-    def validates(*args, &block)
-      validation(:default, inherit: true) { validates *args, &block }
-    end
-
-    def validate(*args, &block)
-      validation(:default, inherit: true) { validate *args, &block }
-    end
-
-    def validates_with(*args, &block)
-      validation(:default, inherit: true) { validates_with *args, &block }
-    end
   end
 
   def self.included(includer)
