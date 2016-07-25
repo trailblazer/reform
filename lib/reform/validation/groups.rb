@@ -19,7 +19,7 @@ module Reform::Validation
 
       i = index_for(options)
 
-      self.insert(i, [name, group = @group_class.new, options]) # Group.new
+      self.insert(i, [name, group = @group_class.new(options), options]) # Group.new
       group
     end
 

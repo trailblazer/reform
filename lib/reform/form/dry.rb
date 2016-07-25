@@ -23,14 +23,22 @@ module Reform::Form::Dry
       includer.extend(ClassMethods)
     end
 
+    class DrySchema < Dry::Validation::Schema::Form
+      configure do |config|
+        option :form
+      end
+    end
+
     class Group
-      def initialize
+      def initialize(options = {})
         @schemas = []
+        options ||= {}
+        @schema_class = options[:schema_class] || DrySchema
       end
 
       def instance_exec(&block)
         @schemas << block
-        @validator = Builder.new(@schemas.dup).validation_graph
+        @validator = Builder.new(@schemas.dup, @schema_class).validation_graph
       end
 
       def call(fields, reform_errors, form)
@@ -43,9 +51,9 @@ module Reform::Form::Dry
       end
 
       class Builder < Array
-        def initialize(array)
+        def initialize(array, schema_class = ReformSchema)
           super(array)
-          @validator = Dry::Validation.Form(&shift)
+          @validator = Dry::Validation.Schema(schema_class, &shift)
         end
 
         def validation_graph

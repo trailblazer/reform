@@ -115,6 +115,46 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
+  describe "with custom schema class" do
+    Session2 = Struct.new(:username, :email)
+
+    class CustomSchema < Reform::Form::DrySchema
+      configure do
+        config.messages_file = 'test/fixtures/dry_error_messages.yml'
+
+        def good_musical_taste?
+          !form.nil?
+        end
+      end
+    end
+
+    class Session2Form < Reform::Form
+      include Reform::Form::Dry::Validations
+
+      property :username
+      property :email
+
+      validation :default, schema_class: CustomSchema do
+        required(:username).filled
+        required(:email).filled(:good_musical_taste?)
+      end
+    end
+
+    let (:form) { Session2Form.new(Session2.new) }
+
+    # valid.
+    it do
+      form.validate({ username: "Helloween", email: "yep" }).must_equal true
+      form.errors.messages.inspect.must_equal "{}"
+    end
+
+    # invalid.
+    it do
+      form.validate({}).must_equal false
+      form.errors.messages.inspect.must_equal "{:username=>[\"must be filled\"], :email=>[\"must be filled\", \"you're a bad person\"]}"
+    end
+  end
+
   describe "Nested validations" do
     class AlbumForm < Reform::Form
       include Reform::Form::Dry::Validations
@@ -195,6 +235,8 @@ class ValidationGroupsTest < MiniTest::Spec
       form.errors.messages.inspect.must_equal "{}"
     end
   end
+
+
 
 
   describe "fails with :validate, :validates and :validates_with" do
