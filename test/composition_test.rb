@@ -18,7 +18,6 @@ class FormCompositionTest < MiniTest::Spec
 
     validation do
       required(:name).filled
-      required(:name).filled
       required(:title).filled
     end
 
@@ -50,7 +49,8 @@ class FormCompositionTest < MiniTest::Spec
 
 
   it "creates Composition for you" do
-    form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb").must_equal false
+    form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb").must_equal true
+    form.validate("title" => "", "name" => "Frenzal Rhomb").must_equal false
   end
 
   describe "#save" do

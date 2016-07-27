@@ -23,7 +23,7 @@ module Reform::Form::Dry
       includer.extend(ClassMethods)
     end
 
-    class DrySchema < Dry::Validation::Schema::Form
+    class DrySchema < Dry::Validation::Schema
       configure do |config|
         option :form
       end
@@ -41,13 +41,25 @@ module Reform::Form::Dry
         @validator = Builder.new(@schemas.dup, @schema_class).validation_graph
       end
 
+      # FIXME: This doesn't work with compositions as the default implementaion of to_nested_hash
+      # messes with the input hash structure.
       def call(form, reform_errors)
         # a message item looks like: {:confirm_password=>["confirm_password size cannot be less than 2"]}
-        @validator.with(form: form).call(form.to_nested_hash).messages.each do |field, dry_error|
+        # dry-v needs symbolized keys
+        dry_nested_hash = symbolize_fields(form.to_nested_hash)
+
+        @validator.with(form: form).call(dry_nested_hash).messages.each do |field, dry_error|
           dry_error.each do |attr_error|
             reform_errors.add(field, attr_error)
           end
         end
+      end
+
+      # TODO: Don't do this here... Representers??
+      def symbolize_fields(hash)
+        hash.each_with_object({}) { |(k, v), hash|
+          hash[k.to_sym] = v.is_a?(Hash) ? symbolize_fields(v) : v
+        }
       end
 
       class Builder < Array
