@@ -21,7 +21,7 @@ module Reform::Validation
   end
 
   def valid?
-    Groups::Result.new(self.class.validation_groups).(@fields, errors, self)
+    Groups::Result.new(self.class.validation_groups).(self, errors)
   end
 end
 
