@@ -44,21 +44,25 @@ module Reform::Form::Dry
       # FIXME: This doesn't work with compositions as the default implementaion of to_nested_hash
       # messes with the input hash structure.
       def call(form, reform_errors)
-        # a message item looks like: {:confirm_password=>["confirm_password size cannot be less than 2"]}
-        # dry-v needs symbolized keys
-        dry_nested_hash = symbolize_fields(form.to_nested_hash)
-
-        @validator.with(form: form).call(dry_nested_hash).messages.each do |field, dry_error|
+        # a message item looks like: {:confirm_password=>["size cannot be less than 2"]}
+        @validator.with(form: form).call(input_hash(form)).messages.each do |field, dry_error|
           dry_error.each do |attr_error|
             reform_errors.add(field, attr_error)
           end
         end
       end
 
+      # we can't use to_nested_hash has it get's messed up by composition.
+      def input_hash(form)
+        hash = form.class.nested_hash_representer.new(form).to_hash
+        symbolize_hash(hash)
+      end
+
+      # dry-v needs symbolized keys
       # TODO: Don't do this here... Representers??
-      def symbolize_fields(hash)
+      def symbolize_hash(hash)
         hash.each_with_object({}) { |(k, v), hash|
-          hash[k.to_sym] = v.is_a?(Hash) ? symbolize_fields(v) : v
+          hash[k.to_sym] = v.is_a?(Hash) ? symbolize_hash(v) : v
         }
       end
 
