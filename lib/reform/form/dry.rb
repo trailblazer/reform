@@ -33,7 +33,7 @@ module Reform::Form::Dry
       def initialize(options = {})
         @schemas = []
         options ||= {}
-        @schema_class = options[:schema_class] || DrySchema
+        @schema_class = options[:schema] || DrySchema
       end
 
       def instance_exec(&block)
