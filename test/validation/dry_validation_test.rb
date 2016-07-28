@@ -134,7 +134,7 @@ class ValidationGroupsTest < MiniTest::Spec
       property :username
       property :email
 
-      validation :default, schema_class: CustomSchema do
+      validation schema: CustomSchema do
         required(:username).filled
         required(:email).filled(:good_musical_taste?)
       end

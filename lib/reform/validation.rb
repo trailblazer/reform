@@ -7,7 +7,16 @@ module Reform::Validation
     end
 
     # DSL.
-    def validation(name=:default, options={}, &block)
+    def validation(*args, &block)
+      if args[0].is_a? Hash
+        options = args[0]
+      else
+        name, options = args
+      end
+
+      name ||= :default
+      options ||= {}
+
       heritage.record(:validation, name, options, &block)
 
       group = validation_groups.add(name, options)
