@@ -8,11 +8,10 @@ module Reform::Validation
 
     # DSL.
     def validation(name=:default, options={}, &block)
-      heritage.record(:validation, name, options, &block)
-
       options = deprecate_validation_positional_args(name, options)
       name    = options[:name] # TODO: remove in favor of kw args in 3.0.
 
+      heritage.record(:validation, name, options, &block)
       group = validation_groups.add(name, options)
 
       group.instance_exec(&block)
