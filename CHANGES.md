@@ -13,6 +13,9 @@ You can upgrade from 2.2.0 without worries.
 * Allow using `:populator` classes marked with `Uber::Callable`.
 * Introduce `parse: false` as a shortcut for `deserialzer: { writeable: false}`. Thanks to @pabloh for insisting on this handy change.
 * Memoize the deserializer instance on the class level via `::deserializer`. This saves the inferal of a deserializing representer and speeds up following calls by 130%.
+* Reform now maintains a generic `Dry::Schema` class for global schema configuration. Can be overridden via `::validation`.
+* When validating with dry-validation, we now pass a symbolized hash. We also replaced `Dry::Validation::Form` with `Schema` which won't coerce values where it shouldn't.
+* [private] `Group#call` API now is: `call(form, errors)`.
 
 ## 2.2.1
 
