@@ -8,6 +8,12 @@ module Reform::Form::Dry
     includer.extend Validations::ClassMethods
   end
 
+  class Schema < Dry::Validation::Schema
+    configure do |config|
+      option :form
+    end
+  end
+
   module Validations
     def build_errors
       Reform::Contract::Errors.new(self)
@@ -23,17 +29,12 @@ module Reform::Form::Dry
       includer.extend(ClassMethods)
     end
 
-    class DrySchema < Dry::Validation::Schema
-      configure do |config|
-        option :form
-      end
-    end
 
     class Group
       def initialize(options = {})
         @schemas = []
         options ||= {}
-        @schema_class = options[:schema] || DrySchema
+        @schema_class = options[:schema] || Schema
       end
 
       def instance_exec(&block)
@@ -41,8 +42,6 @@ module Reform::Form::Dry
         @validator = Builder.new(@schemas.dup, @schema_class).validation_graph
       end
 
-      # FIXME: This doesn't work with compositions as the default implementaion of to_nested_hash
-      # messes with the input hash structure.
       def call(form, reform_errors)
         # a message item looks like: {:confirm_password=>["size cannot be less than 2"]}
         @validator.with(form: form).call(input_hash(form)).messages.each do |field, dry_error|

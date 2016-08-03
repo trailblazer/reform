@@ -118,7 +118,7 @@ class ValidationGroupsTest < MiniTest::Spec
   describe "with custom schema class" do
     Session2 = Struct.new(:username, :email)
 
-    class CustomSchema < Reform::Form::DrySchema
+    class CustomSchema < Reform::Form::Dry::Schema
       configure do
         config.messages_file = 'test/fixtures/dry_error_messages.yml'
 
