@@ -61,7 +61,13 @@ module Reform::Form::Dry
       # TODO: Don't do this here... Representers??
       def symbolize_hash(hash)
         hash.each_with_object({}) { |(k, v), hash|
-          hash[k.to_sym] = v.is_a?(Hash) ? symbolize_hash(v) : v
+          hash[k.to_sym] = if v.is_a?(Hash)
+                             symbolize_hash(v)
+                           elsif v.is_a?(Array)
+                             v.map{ |h| symbolize_hash(h) }
+                           else
+                             v
+                           end
         }
       end
 

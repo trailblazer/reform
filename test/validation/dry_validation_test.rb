@@ -164,15 +164,23 @@ class ValidationGroupsTest < MiniTest::Spec
       property :hit do
         property :title
 
-        # FIX ME: this doesn't work now, @apotonick said he knows why
-        #  The error is that this validation block act as an AM:V instead of the Dry one.
-        # validation :default do
-        #   key(:title, &:filled?)
-        # end
+        validation do
+          required(:title).filled
+        end
       end
 
+      # we test this by embedding a validation block
       collection :songs do
         property :title
+
+        validation do
+          required(:title).filled
+        end
+      end
+
+      # we test this one by running an each / schema dry-v check on the main block
+      collection :producers do
+        property :name
       end
 
       property :band do
@@ -205,6 +213,13 @@ class ValidationGroupsTest < MiniTest::Spec
             required(:name).filled
           end
         end
+
+        required(:producers).each do
+          schema do
+            required(:name).filled
+          end
+        end
+
       end
     end
 
@@ -213,11 +228,12 @@ class ValidationGroupsTest < MiniTest::Spec
         :title  => "Blackhawks Over Los Angeles",
         :hit    => song,
         :songs  => songs,
+        :producers => [ OpenStruct.new(name: 'some name'), OpenStruct.new() ],
         :band => Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
       )
     end
-    let (:song)  { OpenStruct.new(:title => "Downtown") }
-    let (:songs) { [ song = OpenStruct.new(:title => "Calling"), song ] }
+    let (:song)  { OpenStruct.new }
+    let (:songs) { [ OpenStruct.new(:title => "Calling"),  OpenStruct.new] }
     let (:form)  { AlbumForm.new(album) }
 
     # correct #validate.
@@ -226,13 +242,14 @@ class ValidationGroupsTest < MiniTest::Spec
         "title"  => "Reform",
         "songs"  => [
           {"title" => "Fallout"},
-          {"title" => "Roxanne", "composer" => {"name" => "Sting"}}
+          {"title" => "", "composer" => {"name" => "Sting"}}
         ],
         "band"   => {"label" => {"name" => "Epitaph"}},
+        "producers" => [{"name" => ''}, {"name" => ''}]
       )
 
-      result.must_equal true
-      form.errors.messages.inspect.must_equal "{}"
+      result.must_equal false
+      form.errors.messages.inspect.must_equal %({:"producers.0.name"=>[\"must be filled\"], :"producers.1.name"=>[\"must be filled\"], {:"hit.title"=>["must be filled"], {:"songs.1.title"=>["must be filled"]}})
     end
   end
 
