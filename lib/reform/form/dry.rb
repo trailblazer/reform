@@ -64,7 +64,7 @@ module Reform::Form::Dry
           hash[k.to_sym] = if v.is_a?(Hash)
                              symbolize_hash(v)
                            elsif v.is_a?(Array)
-                             v.map{ |h| symbolize_hash(h) }
+                             v.map{ |h| h.is_a?(Hash) ? symbolize_hash(h) : h }
                            else
                              v
                            end

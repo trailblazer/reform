@@ -23,12 +23,12 @@ class InheritTest < BaseTest
     end
   end
 
-  puts
-  puts "inherit"
+  # puts
+  # puts "inherit"
 
   class CompilationForm < AlbumForm
     property :title, inherit: true, skip_if: "skip_if from CompilationForm"
-    puts "[#{options_for(:title)[:deserializer].object_id}] COM@@@@@ #{options_for(:title)[:deserializer].inspect}"
+    # puts "[#{options_for(:title)[:deserializer].object_id}] COM@@@@@ #{options_for(:title)[:deserializer].inspect}"
     # property :hit, :inherit => true do
     #   property :rating
     #   validates :title, :rating, :presence => true
