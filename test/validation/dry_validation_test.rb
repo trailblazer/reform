@@ -23,7 +23,7 @@ class DryValidationDefaultGroupTest < Minitest::Spec
       required(:active).filled(:bool?)
     end
 
-    validation :another_block, error_message_format: :full do
+    validation :another_block do
       required(:confirm_password).filled
     end
   end
