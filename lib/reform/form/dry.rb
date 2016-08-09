@@ -44,9 +44,50 @@ module Reform::Form::Dry
 
       def call(form, reform_errors)
         # a message item looks like: {:confirm_password=>["size cannot be less than 2"]}
-        @validator.with(form: form).call(input_hash(form)).messages.each do |field, dry_error|
-          dry_error.each do |attr_error|
-            reform_errors.add(field, attr_error)
+        dry_errors = @validator.with(form: form).call(input_hash(form)).messages
+
+        process_errors(form, reform_errors, dry_errors)
+      end
+
+      # if dry_error is a hash rather than an array then it contains
+      # the messages for a collection
+      # these messages need to be added to the correct collection
+      # objects.
+
+      # collections:  TODO: Correctly assign errors based on fragment index
+      # {0=>{:name=>["must be filled"]}, 1=>{:name=>["must be filled"]}}
+      # these index keys would match the fragment['index']
+
+      # Objects:
+      # {:name=>["must be filled"]}
+      # simply load up the object and attach the message to it
+      def process_errors(form, reform_errors, dry_errors)
+        dry_errors.each do |field, dry_error|
+          add_error_message(field, dry_error, reform_errors) and next if dry_error.is_a?(Array)
+          add_nested_error_message(form, field, reform_errors, dry_error)
+        end
+      end
+
+      def add_error_message(field, attr_errors, reform_errors)
+        attr_errors.each do |attr_error|
+          reform_errors.add(field, attr_error)
+        end
+      end
+
+      def add_nested_error_message(form, field, reform_errors, dry_error)
+        form.schema.each(twin: true) do |dfn|
+          next if dfn[:name] != field.to_s
+          # recursively add messages on nested form.
+          Disposable::Twin::PropertyProcessor.new(dfn, form).() do |nested_form|
+            if dfn[:collection]
+              dry_error = dry_error[nested_form.fragment_index.to_i]
+              return if dry_error.nil? # if our fragment isn't in dry-errors then skip
+            end
+            nested_errors = nested_form.build_errors
+            process_errors(nested_form, nested_errors, dry_error)
+
+            reform_errors.merge!(nested_errors, [field]) # local errors.
+            nested_form.errors.merge!(nested_errors, [])
           end
         end
       end

@@ -180,6 +180,7 @@ class ValidationGroupsTest < MiniTest::Spec
 
       # we test this one by running an each / schema dry-v check on the main block
       collection :producers do
+        property :fragment_index, virtual: true # TODO: We need to store this automatically during deserialization somehow...
         property :name
       end
 
@@ -190,7 +191,7 @@ class ValidationGroupsTest < MiniTest::Spec
         end
       end
 
-      validation :default do
+      validation do
         configure do
           option :form
           config.messages_file = "test/fixtures/dry_error_messages.yml"
@@ -225,31 +226,41 @@ class ValidationGroupsTest < MiniTest::Spec
 
     let (:album) do
       OpenStruct.new(
-        :title  => "Blackhawks Over Los Angeles",
-        :hit    => song,
-        :songs  => songs,
-        :producers => [ OpenStruct.new(name: 'some name'), OpenStruct.new() ],
-        :band => Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
+        :hit    => OpenStruct.new,
+        :songs  => [OpenStruct.new, OpenStruct.new],
+        :producers => [OpenStruct.new, OpenStruct.new],
+        :band => Struct.new(:name, :label).new("", OpenStruct.new),
       )
     end
-    let (:song)  { OpenStruct.new }
-    let (:songs) { [ OpenStruct.new(:title => "Calling"),  OpenStruct.new] }
+
+    # let (:album) do
+    #   OpenStruct.new(
+    #     :title  => "Blackhawks Over Los Angeles",
+    #     :hit    => song,
+    #     :songs  => songs,
+    #     :producers => [ OpenStruct.new(name: 'some name'), OpenStruct.new() ],
+    #     :band => Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
+    #   )
+    # end
+    # let (:song)  { OpenStruct.new }
+    # let (:songs) { [ OpenStruct.new(:title => "Calling"),  OpenStruct.new] }
     let (:form)  { AlbumForm.new(album) }
 
-    # correct #validate.
-    it do
+    it "maps errors to form objects correctly" do
       result = form.validate(
-        "title"  => "Reform",
+        "title"  => "",
         "songs"  => [
-          {"title" => "Fallout"},
-          {"title" => "", "composer" => {"name" => "Sting"}}
+          {"title" => ""},
+          {"title" => "", "composer" => {"" => ""}}
         ],
-        "band"   => {"label" => {"name" => "Epitaph"}},
-        "producers" => [{"name" => ''}, {"name" => ''}]
-      )
-
+        "band"   => {"name" => "", "label" => {"name" => ""}},
+        "producers" => [{"fragment_index"=>'0', "name" => ''}, {"fragment_index"=>'1', "name" => 'something lovely'}]
+      ) # TODO: We need to store the fragment automatically during deserialization somehow...
       result.must_equal false
-      form.errors.messages.inspect.must_equal %({:"producers.0.name"=>[\"must be filled\"], :"producers.1.name"=>[\"must be filled\"], {:"hit.title"=>["must be filled"], {:"songs.1.title"=>["must be filled"]}})
+      form.band.errors.messages.inspect.must_equal %({:name=>["must be filled"], :\"label.name\"=>[\"must be filled\"]})
+      form.band.label.errors.messages.inspect.must_equal %({:name=>["must be filled"]})
+      form.producers.first.errors.messages.inspect.must_equal %({:name=>[\"must be filled\"]})
+      form.errors.messages.inspect.must_equal %({:title=>["must be filled", "this doesn't look like a Reform form dude!!"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.title"=>["must be filled"]})
     end
   end
 
