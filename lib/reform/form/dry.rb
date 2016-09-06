@@ -35,6 +35,7 @@ module Reform::Form::Dry
         @schemas = []
         options ||= {}
         @schema_class = options[:schema] || Schema
+        @schema_inject_params = options[:with] || {}
       end
 
       def instance_exec(&block)
@@ -42,10 +43,10 @@ module Reform::Form::Dry
         @validator = Builder.new(@schemas.dup, @schema_class).validation_graph
       end
 
-      def call(form, reform_errors, options={})
+      def call(form, reform_errors)
         # a message item looks like: {:confirm_password=>["size cannot be less than 2"]}
-        with = {form: form}
-        with.merge!(options[:with]) if options[:with]
+        with = {form: form }.merge(@schema_inject_params)
+
         dry_errors = @validator.new(@validator.rules, with).call(input_hash(form)).messages
 
         process_errors(form, reform_errors, dry_errors)
