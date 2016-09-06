@@ -51,8 +51,8 @@ end
 
 class ValidationGroupsTest < MiniTest::Spec
   describe "basic validations" do
-    Session = Struct.new(:username, :email, :password, :confirm_password)
-
+    Session = Struct.new(:username, :email, :password, :confirm_password, :special_class)
+    SomeClass= Struct.new(:id)
     class SessionForm < Reform::Form
       include Reform::Form::Dry::Validations
 
@@ -60,10 +60,12 @@ class ValidationGroupsTest < MiniTest::Spec
       property :email
       property :password
       property :confirm_password
+      property :special_class
 
       validation :default do
         required(:username).filled
         required(:email).filled
+        required(:special_class).filled(type?: SomeClass)
       end
 
       validation :email, if: :default do
@@ -84,6 +86,7 @@ class ValidationGroupsTest < MiniTest::Spec
     # valid.
     it do
       form.validate({ username: "Helloween",
+                      special_class: SomeClass.new(id: 15),
                       email: "yep",
                       password: "99",
                       confirm_password: "99" }).must_equal true
@@ -93,24 +96,24 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.inspect.must_equal "{:username=>[\"must be filled\"], :email=>[\"must be filled\"]}"
+      form.errors.messages.inspect.must_equal "{:username=>[\"must be filled\"], :email=>[\"must be filled\"], :special_class=>[\"must be filled\", \"must be ValidationGroupsTest::SomeClass\"]}"
     end
 
     # partially invalid.
     # 2nd group fails.
     it do
-      form.validate(username: "Helloween", email: "yo", confirm_password:"9").must_equal false
+      form.validate(username: "Helloween", email: "yo", confirm_password:"9", special_class: SomeClass.new(id: 15)).must_equal false
       form.errors.messages.inspect.must_equal "{:email=>[\"size cannot be less than 3\"], :confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
     end
     # 3rd group fails.
     it do
-      form.validate(username: "Helloween", email: "yo!", confirm_password:"9").must_equal false
+      form.validate(username: "Helloween", email: "yo!", confirm_password:"9", special_class: SomeClass.new(id: 15)).must_equal false
       form.errors.messages.inspect
       .must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
     end
     # 4th group with after: fails.
     it do
-      form.validate(username: "Helloween", email: "yo!", password: "", confirm_password: "9").must_equal false
+      form.validate(username: "Helloween", email: "yo!", password: "", confirm_password: "9", special_class: SomeClass.new(id: 15)).must_equal false
       form.errors.messages.inspect.must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
     end
   end
