@@ -80,7 +80,7 @@ module Reform::Form::Dry
           # recursively add messages on nested form.
           Disposable::Twin::PropertyProcessor.new(dfn, form).() do |nested_form|
             if dfn[:collection]
-              dry_error = dry_error[nested_form.fragment_index.to_i]
+              dry_error = dry_error[nested_form.parent.send(dfn[:name]).index(nested_form)]
               return if dry_error.nil? # if our fragment isn't in dry-errors then skip
             end
             nested_errors = nested_form.build_errors

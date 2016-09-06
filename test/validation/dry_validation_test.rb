@@ -159,8 +159,11 @@ class ValidationGroupsTest < MiniTest::Spec
   end
 
   describe "Nested validations" do
+    require "disposable/twin/parent"
+
     class AlbumForm < Reform::Form
       include Reform::Form::Dry::Validations
+      feature Disposable::Twin::Parent
 
       property :title
 
@@ -183,7 +186,6 @@ class ValidationGroupsTest < MiniTest::Spec
 
       # we test this one by running an each / schema dry-v check on the main block
       collection :producers do
-        property :fragment_index, virtual: true # TODO: We need to store this automatically during deserialization somehow...
         property :name
       end
 
