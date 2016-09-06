@@ -133,6 +133,41 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
+  class ValidationWithOptionsTest < MiniTest::Spec
+    describe "basic validations" do
+      Session = Struct.new(:username)
+      class SessionForm < Reform::Form
+        include Reform::Form::Dry::Validations
+
+        property :username
+
+        validation :default, with: {user: OpenStruct.new(name: "Nick")} do
+          configure do
+            option :user
+
+            def users_name
+              user.name
+            end
+          end
+          required(:username).filled(eql?: users_name)
+        end
+      end
+
+      let (:form) { SessionForm.new(Session.new) }
+
+      # valid.
+      it do
+        form.validate({ username: "Nick" }).must_equal true
+        form.errors.messages.inspect.must_equal "{}"
+      end
+
+      # invalid.
+      it do
+        form.validate({ username: 'Fred'}).must_equal false
+        form.errors.messages.inspect.must_equal "{:username=>[\"must be equal to Nick\"]}"
+      end
+    end
+  end
   describe "with custom schema class" do
     Session2 = Struct.new(:username, :email)
 

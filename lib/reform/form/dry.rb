@@ -42,9 +42,11 @@ module Reform::Form::Dry
         @validator = Builder.new(@schemas.dup, @schema_class).validation_graph
       end
 
-      def call(form, reform_errors)
+      def call(form, reform_errors, options={})
         # a message item looks like: {:confirm_password=>["size cannot be less than 2"]}
-        dry_errors = @validator.new(@validator.rules, form: form).call(input_hash(form)).messages
+        with = {form: form}
+        with.merge!(options[:with]) if options[:with]
+        dry_errors = @validator.new(@validator.rules, with).call(input_hash(form)).messages
 
         process_errors(form, reform_errors, dry_errors)
       end
