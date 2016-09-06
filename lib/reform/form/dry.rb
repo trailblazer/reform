@@ -44,7 +44,7 @@ module Reform::Form::Dry
 
       def call(form, reform_errors)
         # a message item looks like: {:confirm_password=>["size cannot be less than 2"]}
-        dry_errors = @validator.with(form: form).call(input_hash(form)).messages
+        dry_errors = @validator.new(@validator.rules, form: form).call(input_hash(form)).messages
 
         process_errors(form, reform_errors, dry_errors)
       end
@@ -115,7 +115,7 @@ module Reform::Form::Dry
       class Builder < Array
         def initialize(array, schema_class = ReformSchema)
           super(array)
-          @validator = Dry::Validation.Schema(schema_class, &shift)
+          @validator = Dry::Validation.Schema(schema_class, build: false, &shift)
         end
 
         def validation_graph
@@ -128,7 +128,7 @@ module Reform::Form::Dry
           if empty?
             return validator
           end
-          build_graph(Dry::Validation.Schema(validator, &shift))
+          build_graph(Dry::Validation.Schema(validator, build: false, &shift))
         end
       end
     end

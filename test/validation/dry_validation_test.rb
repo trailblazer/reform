@@ -3,7 +3,7 @@ require "reform/form/dry"
 require "reform/form/coercion"
 
 class DryValidationDefaultGroupTest < Minitest::Spec
-  Session = Struct.new(:username, :email, :password, :confirm_password, :starts_at, :active)
+  Session = Struct.new(:username, :email, :password, :confirm_password, :starts_at, :active, :color)
 
   class SessionForm < Reform::Form
     include Reform::Form::Dry
@@ -15,6 +15,7 @@ class DryValidationDefaultGroupTest < Minitest::Spec
     property :confirm_password
     property :starts_at, type: Types::Form::DateTime
     property :active, type: Types::Form::Bool
+    property :color
 
     validation do
       required(:username).filled
@@ -25,6 +26,19 @@ class DryValidationDefaultGroupTest < Minitest::Spec
 
     validation :another_block do
       required(:confirm_password).filled
+    end
+
+    validation :dynamic_args do
+      configure do
+        def colors
+          form.colors
+        end
+      end
+      required(:color).maybe(included_in?: colors)
+    end
+
+    def colors
+      %(red orange green)
     end
   end
 
@@ -44,8 +58,9 @@ class DryValidationDefaultGroupTest < Minitest::Spec
     form.validate(username: "Helloween",
                   email:    "yep",
                   active: 'hello',
-                  starts_at: "01/01/2000 - 11:00").must_equal false
-    form.errors.messages.inspect.must_equal "{:active=>[\"must be boolean\"], :confirm_password=>[\"must be filled\"]}"
+                  starts_at: "01/01/2000 - 11:00",
+                  color: 'purple').must_equal false
+    form.errors.messages.inspect.must_equal "{:active=>[\"must be boolean\"], :confirm_password=>[\"must be filled\"], :color=>[\"must be one of: red orange green\"]}"
   end
 end
 
