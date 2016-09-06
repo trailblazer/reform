@@ -7,7 +7,7 @@ module Reform::Validation
     end
 
     # DSL.
-    def validation(name=:default, options={}, &block)
+    def validation(name=nil, options={}, &block)
       options = deprecate_validation_positional_args(name, options)
       name    = options[:name] # TODO: remove in favor of kw args in 3.0.
 
@@ -21,6 +21,10 @@ module Reform::Validation
       if name.is_a?(Symbol)
         warn "[Reform] Form::validation API is now: validation(name: :default, if:nil, schema:Schema). Please use keyword arguments instead of positional arguments."
         return { name: name }.merge(options)
+      end
+
+      if name.nil?
+        return { name: :default }.merge(options)
       end
 
       { name: :default }.merge(name)
