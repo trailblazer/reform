@@ -200,7 +200,7 @@ class PopulateIfEmptyTest < MiniTest::Spec
       end
 
     private
-      def populate_composer!(fragment, options)
+      def populate_composer!(options)
         Artist.new
       end
     end
