@@ -22,7 +22,7 @@ module Reform
         end
 
         if options.key?(:writable)
-          options[:writeable] = options.delete(:writable)
+          options[:writeable] ||= options.delete(:writable)
         end
 
         definition = super # let representable sort out inheriting of properties, and so on.
