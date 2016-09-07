@@ -36,7 +36,7 @@ class SaveTest < BaseTest
     end
 
     def saved?
-      @saved
+      defined?(@saved) && @saved
     end
   end
 
