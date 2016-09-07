@@ -24,11 +24,11 @@ class DryValidationDefaultGroupTest < Minitest::Spec
       required(:active).filled(:bool?)
     end
 
-    validation :another_block do
+    validation name: :another_block do
       required(:confirm_password).filled
     end
 
-    validation :dynamic_args do
+    validation name: :dynamic_args do
       configure do
         def colors
           form.colors
@@ -77,21 +77,21 @@ class ValidationGroupsTest < MiniTest::Spec
       property :confirm_password
       property :special_class
 
-      validation :default do
+      validation do
         required(:username).filled
         required(:email).filled
         required(:special_class).filled(type?: SomeClass)
       end
 
-      validation :email, if: :default do
+      validation name: :email, if: :default do
         required(:email).filled(min_size?: 3)
       end
 
-      validation :nested, if: :default do
+      validation name: :nested, if: :default do
         required(:password).filled(min_size?: 2)
       end
 
-      validation :confirm, if: :default, after: :email do
+      validation name: :confirm, if: :default, after: :email do
         required(:confirm_password).filled(min_size?: 2)
       end
     end
@@ -141,7 +141,7 @@ class ValidationGroupsTest < MiniTest::Spec
 
         property :username
 
-        validation :default, with: {user: OpenStruct.new(name: "Nick")} do
+        validation name: :default, with: { user: OpenStruct.new(name: "Nick") } do
           configure do
             option :user
 
@@ -357,11 +357,11 @@ class ValidationGroupsTest < MiniTest::Spec
       property :username
       property :email
 
-      validation :email do
+      validation name: :email do
         required(:email).filled
       end
 
-      validation :email, inherit: true do # extends the above.
+      validation name: :email, inherit: true do # extends the above.
         required(:username).filled
       end
     end
@@ -389,17 +389,17 @@ class ValidationGroupsTest < MiniTest::Spec
       property :email
       property :password
 
-      validation :email do
+      validation name: :email do
         required(:email).filled
       end
 
       # run this is :email group is true.
-      validation :after_email, if: lambda { |results| results[:email]==true } do # extends the above.
+      validation name: :after_email, if: lambda { |results| results[:email]==true } do # extends the above.
         required(:username).filled
       end
 
       # block gets evaled in form instance context.
-      validation :password, if: lambda { |results| email == "john@trb.org" } do
+      validation name: :password, if: lambda { |results| email == "john@trb.org" } do
         required(:password).filled
       end
     end
