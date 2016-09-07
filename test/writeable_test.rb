@@ -28,7 +28,7 @@ class WriteableTest < MiniTest::Spec
   end
 end
 
-# writable option is alias of wiriteable option.
+# writable option is alias of writeable option.
 class WritableTest < MiniTest::Spec
   Location = Struct.new(:country)
 
