@@ -13,7 +13,7 @@ class PopulatorTest < MiniTest::Spec
 
     collection :songs,
       populator: ->(options) {
-        fragment, collection, index = options[:fragment], options[:model], options[:index]
+        _fragment, collection, index = options[:fragment], options[:model], options[:index]
 
         (item = collection[index]) ? item : collection.insert(index, Song.new) } do
 
