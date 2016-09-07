@@ -103,9 +103,9 @@ module Reform::Form::Dry
 
       # dry-v needs symbolized keys
       # TODO: Don't do this here... Representers??
-      def symbolize_hash(hash)
-        hash.each_with_object({}) { |(k, v), hash|
-          hash[k.to_sym] = if v.is_a?(Hash)
+      def symbolize_hash(old_hash)
+        old_hash.each_with_object({}) { |(k, v), new_hash|
+          new_hash[k.to_sym] = if v.is_a?(Hash)
                              symbolize_hash(v)
                            elsif v.is_a?(Array)
                              v.map{ |h| h.is_a?(Hash) ? symbolize_hash(h) : h }

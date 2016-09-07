@@ -40,8 +40,8 @@ module Reform
         # always compute a parse_pipeline for each property of the deserializer and inject it via :parse_pipeline.
         # first, let representable compute the pipeline functions by invoking #parse_functions.
         if definition[:nested]
-          parse_pipeline = ->(input, options) do
-            functions = options[:binding].send(:parse_functions)
+          parse_pipeline = ->(input, opts) do
+            functions = opts[:binding].send(:parse_functions)
             pipeline  = Representable::Pipeline[*functions] # Pipeline[StopOnExcluded, AssignName, ReadFragment, StopOnNotFound, OverwriteOnNil, Collect[#<Representable::Function::CreateObject:0xa6148ec>, #<Representable::Function::Decorate:0xa6148b0>, Deserialize], Set]
 
             pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,            replace: Representable::CreateObject::Instance)
@@ -50,8 +50,8 @@ module Reform
             pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::SetValue,       delete: true) # FIXME: only diff to options without :populator
           end
         else
-          parse_pipeline = ->(input, options) do
-            functions = options[:binding].send(:parse_functions)
+          parse_pipeline = ->(input, opts) do
+            functions = opts[:binding].send(:parse_functions)
             pipeline  = Representable::Pipeline[*functions] # Pipeline[StopOnExcluded, AssignName, ReadFragment, StopOnNotFound, OverwriteOnNil, Collect[#<Representable::Function::CreateObject:0xa6148ec>, #<Representable::Function::Decorate:0xa6148b0>, Deserialize], Set]
 
             # FIXME: this won't work with property :name, inherit: true (where there is a populator set already).
