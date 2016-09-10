@@ -315,7 +315,7 @@ class ValidationGroupsTest < MiniTest::Spec
       form.band.errors.messages.inspect.must_equal %({:name=>["must be filled"], :\"label.name\"=>[\"must be filled\"]})
       form.band.label.errors.messages.inspect.must_equal %({:name=>["must be filled"]})
       form.producers.first.errors.messages.inspect.must_equal %({:name=>[\"must be filled\"]})
-      form.errors.messages.inspect.must_equal %({:title=>["must be filled", "this doesn't look like a Reform form dude!!"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.title"=>["must be filled"]})
+      form.errors.messages.inspect.must_equal %({:title=>["must be filled", "you're a bad person", "this doesn't look like a Reform form dude!!"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.title"=>["must be filled"]})
     end
   end
 

@@ -14,4 +14,7 @@ gem "disposable", "0.4.0"
 gem "minitest-line"
 gem 'byebug'
 gem "benchmark-ips"
-gem "dry-validation", "> 0.9.0"
+gem "dry-validation", github: 'dry-rb/dry-validation', branch: 'master'#, "> 0.9.0"
+gem "dry-logic", github: 'dry-rb/dry-logic', branch: 'master'#, "> 0.9.0"
+gem "dry-types", github: 'dry-rb/dry-types', branch: 'master'#, "> 0.9.0"
+gem "dry-struct", github: 'dry-rb/dry-struct', branch: 'master'#, "> 0.9.0"
