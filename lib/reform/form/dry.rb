@@ -118,7 +118,7 @@ module Reform::Form::Dry
       end
 
       class Builder < Array
-        def initialize(array, schema_class = ReformSchema)
+        def initialize(array, schema_class)
           super(array)
           @validator = Dry::Validation.Schema(schema_class, build: false, &shift)
         end
