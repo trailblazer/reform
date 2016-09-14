@@ -36,6 +36,7 @@ module Reform::Form::Dry
         options ||= {}
         @schema_class = options[:schema] || Schema
         @schema_inject_params = options[:with] || {}
+        @context = options[:context] || :object
       end
 
       def instance_exec(&block)
@@ -44,7 +45,6 @@ module Reform::Form::Dry
       end
 
       def call(form, reform_errors)
-        # a message item looks like: {:confirm_password=>["size cannot be less than 2"]}
         with = {form: form }.merge(@schema_inject_params)
 
         dry_errors = @validator.new(@validator.rules, with).call(input_hash(form)).messages
@@ -97,6 +97,8 @@ module Reform::Form::Dry
 
       # we can't use to_nested_hash has it get's messed up by composition.
       def input_hash(form)
+        return form.input_params if @context == :params
+
         hash = form.class.nested_hash_representer.new(form).to_hash
         symbolize_hash(hash)
       end

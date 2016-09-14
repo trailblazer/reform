@@ -168,6 +168,42 @@ class ValidationGroupsTest < MiniTest::Spec
       end
     end
   end
+
+
+  class ValidationInputContextTest < MiniTest::Spec
+    describe "basic validations" do
+      Session = Struct.new(:username, :id)
+      Schema = Dry::Validation.Form
+      class SessionForm < Reform::Form
+        include Reform::Form::Dry::Validations
+
+        property :username
+        property :id
+
+        validation context: :params, schema: Schema do
+          required(:username).filled
+          optional(:id).filled
+        end
+      end
+
+      let (:form) { SessionForm.new(Session.new) }
+
+      # valid.
+      it do
+        form.validate({ 'username' => "Nick" }).must_equal true
+        form.errors.messages.inspect.must_equal "{}"
+      end
+
+      # invalid.
+      it do
+        form.validate({ 'username' => 'Fred', 'id' => nil}).must_equal false
+        form.errors.messages.inspect.must_equal "{:id=>[\"must be filled\"]}"
+      end
+    end
+  end
+
+
+
   describe "with custom schema class" do
     Session2 = Struct.new(:username, :email)
 
