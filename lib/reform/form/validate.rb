@@ -16,7 +16,7 @@ module Reform::Form::Validate
   end
 
 
-  def validate(params)
+  def validate(params = {})
     # allow an external deserializer.
     block_given? ? yield(params) : deserialize(params)
 
