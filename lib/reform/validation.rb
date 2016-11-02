@@ -29,6 +29,11 @@ module Reform::Validation
 
       { name: :default }.merge(name)
     end
+
+    def validation_group_class
+      raise NoBackendError, 'no validation backend loaded. Please include a ' +
+                            'validation backend such as Reform::Form::Dry'
+    end
   end
 
   def self.included(includer)
@@ -37,6 +42,9 @@ module Reform::Validation
 
   def valid?
     Groups::Result.new(self.class.validation_groups).(self, errors)
+  end
+
+  class NoBackendError < RuntimeError
   end
 end
 
