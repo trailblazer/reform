@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency             "disposable",     ">= 0.3.0", "< 0.4.0"
-  spec.add_dependency             "uber",           "~> 0.0.11"
+  spec.add_dependency             "uber",           ">= 0.0.15", "< 0.2.0"
   spec.add_dependency             "representable",  ">= 2.4.0", "< 3.1.0"
 
   spec.add_development_dependency "bundler"
@@ -26,5 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest"
   spec.add_development_dependency "dry-types"
   spec.add_development_dependency "multi_json"
-  spec.add_development_dependency "dry-validation", ">= 0.7.0"
+  spec.add_development_dependency "dry-validation", ">= 0.10.0"
 end
