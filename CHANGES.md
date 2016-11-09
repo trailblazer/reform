@@ -1,3 +1,7 @@
+## 2.2.2
+
+** Loosen `uber` dependency.
+
 ## 2.2.1
 
 * Fix `Contract::Properties`. Thanks @simonc. <3
