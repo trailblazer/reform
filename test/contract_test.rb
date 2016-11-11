@@ -5,11 +5,11 @@ class ContractTest < MiniTest::Spec
   Album = Struct.new(:name, :duration, :songs, :artist)
   Artist = Struct.new(:name)
 
-  class ArtistForm < Reform::Form
+  class ArtistForm < TestForm
     property :name
   end
 
-  class AlbumForm < Reform::Contract
+  class AlbumForm < TestContract
     property :name
 
     properties :duration

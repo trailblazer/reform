@@ -7,7 +7,7 @@ class SetupSkipSetterAndGetterTest < MiniTest::Spec
   Album = Struct.new(:title, :artist)
   Artist = Struct.new(:name)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title
 
     def title

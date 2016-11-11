@@ -4,7 +4,7 @@ class ParseOptionTest < MiniTest::Spec
   Comment = Struct.new(:content, :user)
   User    = Struct.new(:name)
 
-  class CommentForm < Reform::Form
+  class CommentForm < TestForm
     property :content
     property :user, parse: false
   end
@@ -23,7 +23,7 @@ class ParseOptionTest < MiniTest::Spec
   end
 
   describe "using ':parse' option doesn't override other ':deserialize' options" do
-    class ArticleCommentForm < Reform::Form
+    class ArticleCommentForm < TestForm
       property :content
       property :article, deserializer: { instance: "Instance" }
       property :user, parse: false, deserializer: { instance: "Instance" }

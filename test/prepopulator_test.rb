@@ -4,7 +4,7 @@ class PrepopulatorTest < MiniTest::Spec
   Song = Struct.new(:title, :band, :length)
   Band = Struct.new(:name)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title, prepopulator: ->(*){ self.title = "Another Day At Work" }                  # normal assignment.
     property :length
 
@@ -63,7 +63,7 @@ end
 class PrepopulateWithoutConfiguration < MiniTest::Spec
   Song = Struct.new(:title)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     collection :songs do
       property :title
     end
@@ -83,7 +83,7 @@ class ManualPrepopulatorOverridingTest < MiniTest::Spec
   Song = Struct.new(:title, :band, :length)
   Band = Struct.new(:name)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title
     property :length
 

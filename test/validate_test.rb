@@ -5,7 +5,7 @@ class ContractValidateTest < MiniTest::Spec
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)
 
-  class AlbumForm < Reform::Contract
+  class AlbumForm < TestContract
     property :name
     validation do
       required(:name).filled
@@ -61,7 +61,7 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :name
     validation do
       required(:name).filled
@@ -160,7 +160,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :name
     validation do
       required(:name).filled
@@ -268,7 +268,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
 
 
   # allow writeable: false even in the deserializer.
-  class SongForm < Reform::Form
+  class SongForm < TestForm
     property :title, deserializer: { writeable: false }
   end
 

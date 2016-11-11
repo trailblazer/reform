@@ -4,7 +4,7 @@ require 'representable/json'
 class InheritTest < BaseTest
   Populator = Reform::Form::Populator
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title, deserializer: {instance: "Instance"}, skip_if: "skip_if in AlbumForm" # allow direct configuration of :deserializer.
 
     property :hit, populator: "Populator" do

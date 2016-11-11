@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class VirtualTest < MiniTest::Spec
-  class CreditCardForm < Reform::Form
+  class CreditCardForm < TestForm
     property :credit_card_number, virtual: true # no read, no write, it's virtual.
   end
 

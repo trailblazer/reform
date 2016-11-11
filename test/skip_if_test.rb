@@ -2,7 +2,7 @@ require 'test_helper'
 
 class SkipIfTest < BaseTest
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title
 
     property :hit, skip_if: lambda { |options| options[:fragment]["title"]=="" } do
@@ -50,7 +50,7 @@ end
 
 class SkipIfAllBlankTest < BaseTest
   # skip_if: :all_blank"
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     collection :songs, skip_if: :all_blank, populate_if_empty: BaseTest::Song do
       property :title
       property :length

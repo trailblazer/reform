@@ -5,7 +5,7 @@ class PopulatorTest < MiniTest::Spec
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :name, populator: ->(options) { self.name = options[:fragment].reverse }
     validation do
       required(:name).filled
@@ -107,7 +107,7 @@ end
 class PopulateWithMethodTest < Minitest::Spec
   Album = Struct.new(:title)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title, populator: :title!
 
     def title!(options)
@@ -135,7 +135,7 @@ class PopulateWithCallableTest < Minitest::Spec
     end
   end
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title, populator: TitlePopulator.new
   end
 
@@ -155,7 +155,7 @@ class PopulateWithProcTest < Minitest::Spec
     options[:represented].title = options[:fragment].reverse
   end
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title, populator: TitlePopulator
   end
 
@@ -181,7 +181,7 @@ class PopulateIfEmptyTest < MiniTest::Spec
 
 
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :name
 
     collection :songs,
@@ -279,7 +279,7 @@ class PopulateIfEmptyWithDeletionTest < MiniTest::Spec
   let (:album) { Album.new("The Dissent Of Man", [song, song2]) }
 
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :name
 
     collection :songs,
