@@ -21,7 +21,7 @@ class FeatureInheritanceTest < BaseTest
   #   end
   # end
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     feature Date # feature.
     property :name
 

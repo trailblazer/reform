@@ -4,8 +4,18 @@ require "representable/debug"
 require "declarative/testing"
 require "pp"
 
+require "reform/form/dry"
+# setup test classes so we can test without dry being included
+class TestForm < Reform::Form
+  feature Reform::Form::Dry
+end
+
+class TestContract < Reform::Contract
+  feature Reform::Form::Dry
+end
+
 class BaseTest < MiniTest::Spec
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title
 
     property :hit do
@@ -39,11 +49,3 @@ MiniTest::Spec.class_eval do
   end
 end
 
-require "reform/form/dry"
-Reform::Contract.class_eval do
-  feature Reform::Form::Dry
-end
-# FIXME!
-Reform::Form.class_eval do
-  feature Reform::Form::Dry
-end

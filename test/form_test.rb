@@ -3,7 +3,7 @@ require 'test_helper'
 class FormTest < MiniTest::Spec
   Artist = Struct.new(:name)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title
 
     property :hit do
@@ -45,7 +45,7 @@ class FormTest < MiniTest::Spec
   end
 
   describe "#initialize" do
-    class ArtistForm < Reform::Form
+    class ArtistForm < TestForm
       property :name
       property :current_user, virtual: true
     end

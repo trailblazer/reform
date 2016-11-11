@@ -3,7 +3,7 @@ require "test_helper"
 class ParsePipelineTest < MiniTest::Spec
   Album = Struct.new(:name)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :name, deserializer: { parse_pipeline: ->(input, options) { Representable::Pipeline[->(input, options) { options[:represented].name = input.inspect }] } }
   end
 

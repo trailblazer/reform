@@ -5,7 +5,7 @@ class SaveTest < BaseTest
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :name
     validation do
       required(:name).filled
@@ -83,7 +83,7 @@ end
 #     include Saveable
 #   end
 
-#   class SongForm < Reform::Form
+#   class SongForm < TestForm
 #     property :title#, save: false
 #     property :length, virtual: true
 #   end

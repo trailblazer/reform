@@ -3,7 +3,7 @@ require 'test_helper'
 class WriteableTest < MiniTest::Spec
   Location = Struct.new(:country)
 
-  class LocationForm < Reform::Form
+  class LocationForm < TestForm
     property :country, writeable: false
   end
 
@@ -32,7 +32,7 @@ end
 class WritableTest < MiniTest::Spec
   Location = Struct.new(:country)
 
-  class LocationForm < Reform::Form
+  class LocationForm < TestForm
     property :country, writable: false
   end
 

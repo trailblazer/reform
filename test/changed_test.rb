@@ -6,7 +6,7 @@ class ChangedTest < MiniTest::Spec
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :name
 
     collection :songs do

@@ -6,7 +6,7 @@ class ReformTest < Minitest::Spec
 
   let (:form) { SongForm.new(comp) }
 
-  class SongForm < Reform::Form
+  class SongForm < TestForm
     property :name
     property :title
 
@@ -68,7 +68,7 @@ class ReformTest < Minitest::Spec
 
     # TODO: test errors. test valid.
     describe "invalid input" do
-      class ValidatingForm < Reform::Form
+      class ValidatingForm < TestForm
         property :name
         property :title
 
@@ -157,7 +157,7 @@ end
 
 
 class OverridingAccessorsTest < BaseTest
-  class SongForm < Reform::Form
+  class SongForm < TestForm
     property :title
 
     def title=(v) # used in #validate.
@@ -200,7 +200,7 @@ end
 
 
 class MethodInFormTest < MiniTest::Spec
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title
 
     def title

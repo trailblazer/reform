@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class AsTest < BaseTest
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :name, from: :title
 
     property :single, from: :hit do
