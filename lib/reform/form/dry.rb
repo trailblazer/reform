@@ -9,7 +9,7 @@ module Reform::Form::Dry
   end
 
   class Schema < Dry::Validation::Schema
-    configure do |config|
+    configure do
       option :form
     end
   end
