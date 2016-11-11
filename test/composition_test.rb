@@ -5,7 +5,7 @@ class FormCompositionTest < MiniTest::Spec
   Requester = Struct.new(:id, :name, :requester)
   Band      = Struct.new(:title)
 
-  class RequestForm < Reform::Form
+  class RequestForm < TestForm
     include Composition
 
     property  :name,          :on =>  :requester
@@ -133,7 +133,7 @@ class FormCompositionCollectionTest < MiniTest::Spec
     end
   end
 
-  class LibraryForm < Reform::Form
+  class LibraryForm < TestForm
     include Reform::Form::Composition
 
     collection :books, on: :library do

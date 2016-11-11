@@ -4,14 +4,14 @@ class FormOptionTest < MiniTest::Spec
   Song  = Struct.new(:title)
   Album = Struct.new(:song)
 
-  class SongForm < Reform::Form
+  class SongForm < TestForm
     property :title
     validation do
       required(:title).filled
     end
   end
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :song, form: SongForm
   end
 

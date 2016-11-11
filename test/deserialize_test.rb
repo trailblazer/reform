@@ -6,7 +6,7 @@ class DeserializeTest < MiniTest::Spec
   Album = Struct.new(:title, :artist)
   Artist = Struct.new(:name, :callname)
 
-  class JsonAlbumForm < Reform::Form
+  class JsonAlbumForm < TestForm
     module Json
       def deserialize(params)
         deserializer.new(self).
@@ -49,7 +49,7 @@ class DeserializeTest < MiniTest::Spec
   end
 
   describe "infering the deserializer from another form should NOT copy its populators" do
-    class CompilationForm < Reform::Form
+    class CompilationForm < TestForm
       property :artist, populator: ->(options) { self.artist = Artist.new(nil, options[:fragment].to_s) } do
         property :name
       end
@@ -75,7 +75,7 @@ class ValidateWithBlockTest < MiniTest::Spec
   Album = Struct.new(:title, :artist)
   Artist = Struct.new(:name)
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     property :title
     property :artist, populate_if_empty: Artist do
       property :name

@@ -5,7 +5,7 @@ class PopulatorSkipTest < MiniTest::Spec
   Song  = Struct.new(:title)
 
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     collection :songs,
       populator: ->(options) {
         return skip! if options[:fragment][:title] == "Good"

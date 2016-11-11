@@ -8,7 +8,7 @@ class CoercionTest < BaseTest
     end
   end
 
-  class Form < Reform::Form
+  class Form < TestForm
     feature Coercion
 
     property :released_at, type: Types::Form::DateTime

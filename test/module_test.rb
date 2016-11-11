@@ -47,11 +47,11 @@ class ModuleInclusionTest < MiniTest::Spec
 
   # test:
   # by including BandPropertyForm into multiple classes we assure that options hashes don't get messed up by AM:V.
-  class HitForm < Reform::Form
+  class HitForm < TestForm
     include BandPropertyForm
   end
 
-  class SongForm < Reform::Form
+  class SongForm < TestForm
     include Coercion
     property :title
 
@@ -94,7 +94,7 @@ class ModuleInclusionTest < MiniTest::Spec
     end
   end
 
-  class AlbumForm < Reform::Form
+  class AlbumForm < TestForm
     include AlbumFormModule
 
     # pp heritage
@@ -127,7 +127,7 @@ class ModuleInclusionTest < MiniTest::Spec
       end
     end
 
-    class IncludingSongForm < Reform::Form
+    class IncludingSongForm < TestForm
       include SongModule
     end
 

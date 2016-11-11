@@ -5,7 +5,7 @@ require "reform/form/coercion"
 class DryValidationDefaultGroupTest < Minitest::Spec
   Session = Struct.new(:username, :email, :password, :confirm_password, :starts_at, :active)
 
-  class SessionForm < Reform::Form
+  class SessionForm < TestForm
     include Reform::Form::Dry
     include Coercion
 
@@ -53,7 +53,7 @@ class ValidationGroupsTest < MiniTest::Spec
   describe "basic validations" do
     Session = Struct.new(:username, :email, :password, :confirm_password)
 
-    class SessionForm < Reform::Form
+    class SessionForm < TestForm
       include Reform::Form::Dry::Validations
 
       property :username
@@ -118,7 +118,7 @@ class ValidationGroupsTest < MiniTest::Spec
   describe "with custom schema class" do
     Session2 = Struct.new(:username, :email)
 
-    class CustomSchema < Reform::Form::DrySchema
+    class CustomSchema < TestForm::DrySchema
       configure do
         config.messages_file = 'test/fixtures/dry_error_messages.yml'
 
@@ -128,7 +128,7 @@ class ValidationGroupsTest < MiniTest::Spec
       end
     end
 
-    class Session2Form < Reform::Form
+    class Session2Form < TestForm
       include Reform::Form::Dry::Validations
 
       property :username
@@ -156,7 +156,7 @@ class ValidationGroupsTest < MiniTest::Spec
   end
 
   describe "Nested validations" do
-    class AlbumForm < Reform::Form
+    class AlbumForm < TestForm
       include Reform::Form::Dry::Validations
 
       property :title
@@ -237,7 +237,7 @@ class ValidationGroupsTest < MiniTest::Spec
   end
 
   # describe "same-named group" do
-  #   class OverwritingForm < Reform::Form
+  #   class OverwritingForm < TestForm
   #     include Reform::Form::Dry::Validations
 
   #     property :username
@@ -268,7 +268,7 @@ class ValidationGroupsTest < MiniTest::Spec
 
 
   describe "inherit: true in same group" do
-    class InheritSameGroupForm < Reform::Form
+    class InheritSameGroupForm < TestForm
       include Reform::Form::Dry::Validations
 
       property :username
@@ -299,7 +299,7 @@ class ValidationGroupsTest < MiniTest::Spec
 
 
   describe "if: with lambda" do
-    class IfWithLambdaForm < Reform::Form
+    class IfWithLambdaForm < TestForm
       include Reform::Form::Dry::Validations # ::build_errors.
 
       property :username
@@ -341,7 +341,7 @@ class ValidationGroupsTest < MiniTest::Spec
   #   more errors messages than only those that have failed.
   #
   # describe "multiple errors for property" do
-  #   class MultipleErrorsForPropertyForm < Reform::Form
+  #   class MultipleErrorsForPropertyForm < TestForm
   #     include Reform::Form::Dry::Validations
 
   #     property :username
