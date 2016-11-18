@@ -2,6 +2,36 @@ require "test_helper"
 require "reform/form/dry"
 require "reform/form/coercion"
 
+class DryValidationNoBlockTest < Minitest::Spec
+  Session = Struct.new(:name, :email)
+  SessionSchema = Dry::Validation.Schema do
+    required(:name).filled
+    required(:email).filled
+  end
+
+  class SessionForm < TestForm
+    include Coercion
+
+    property :name
+    property :email
+
+    validation schema: SessionSchema
+  end
+
+  let (:form) { SessionForm.new(Session.new) }
+
+  # valid.
+  it do
+    form.validate(name: "Helloween", email: "yep").must_equal true
+    form.errors.messages.inspect.must_equal "{}"
+  end
+
+  it "invalid" do
+    form.validate(name: "", email: "yep").must_equal false
+    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"]}"
+  end
+end
+
 class DryValidationDefaultGroupTest < Minitest::Spec
   Session = Struct.new(:username, :email, :password, :confirm_password, :starts_at, :active, :color)
 
