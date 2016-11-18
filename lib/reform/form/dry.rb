@@ -8,12 +8,6 @@ module Reform::Form::Dry
     includer.extend Validations::ClassMethods
   end
 
-  class Schema < Dry::Validation::Schema
-    configure do
-      option :form
-    end
-  end
-
   module Validations
     def build_errors
       Reform::Contract::Errors.new(self)
@@ -34,7 +28,7 @@ module Reform::Form::Dry
       def initialize(options = {})
         @schemas = []
         options ||= {}
-        @schema_class = options[:schema] || Schema
+        @schema_class = options[:schema] || Dry::Validation::Schema
         @schema_inject_params = options[:with] || {}
         @context = options[:context] || :object
       end
@@ -45,9 +39,11 @@ module Reform::Form::Dry
       end
 
       def call(form, reform_errors)
-        with = {form: form }.merge(@schema_inject_params)
+        # is there a better way to allow people to inject their form??
+        # can't use 'self' as it would just return the class and not the instance.
+        @schema_inject_params[:form] = form if @schema_inject_params[:form]
 
-        dry_errors = @validator.new(@validator.rules, with).call(input_hash(form)).messages
+        dry_errors = @validator.new(@validator.rules, @schema_inject_params).call(input_hash(form)).messages
 
         process_errors(form, reform_errors, dry_errors)
       end

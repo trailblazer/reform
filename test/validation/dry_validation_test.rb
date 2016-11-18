@@ -36,7 +36,6 @@ class DryValidationDefaultGroupTest < Minitest::Spec
   Session = Struct.new(:username, :email, :password, :confirm_password, :starts_at, :active, :color)
 
   class SessionForm < TestForm
-    include Reform::Form::Dry
     include Coercion
 
     property :username
@@ -58,8 +57,9 @@ class DryValidationDefaultGroupTest < Minitest::Spec
       required(:confirm_password).filled
     end
 
-    validation name: :dynamic_args do
+    validation name: :dynamic_args, with: { form: true } do
       configure do
+        option :form
         def colors
           form.colors
         end
@@ -100,7 +100,6 @@ class ValidationGroupsTest < MiniTest::Spec
     SomeClass= Struct.new(:id)
 
     class SessionForm < TestForm
-      include Reform::Form::Dry::Validations
 
       property :username
       property :email
@@ -167,9 +166,7 @@ class ValidationGroupsTest < MiniTest::Spec
   class ValidationWithOptionsTest < MiniTest::Spec
     describe "basic validations" do
       Session = Struct.new(:username)
-      class SessionForm < Reform::Form
-        include Reform::Form::Dry::Validations
-
+      class SessionForm < TestForm
         property :username
 
         validation name: :default, with: { user: OpenStruct.new(name: "Nick") } do
@@ -205,8 +202,7 @@ class ValidationGroupsTest < MiniTest::Spec
     describe "basic validations" do
       Session = Struct.new(:username, :id)
       Schema = Dry::Validation.Form
-      class SessionForm < Reform::Form
-        include Reform::Form::Dry::Validations
+      class SessionForm < TestForm
 
         property :username
         property :id
@@ -238,19 +234,17 @@ class ValidationGroupsTest < MiniTest::Spec
   describe "with custom schema class" do
     Session2 = Struct.new(:username, :email)
 
-    class CustomSchema < Reform::Form::Dry::Schema
+    class CustomSchema < Dry::Validation::Schema
       configure do
         config.messages_file = 'test/fixtures/dry_error_messages.yml'
 
-        def good_musical_taste?
-          !form.nil?
+        def good_musical_taste?(val)
+          val.is_a? String
         end
       end
     end
 
     class Session2Form < TestForm
-      include Reform::Form::Dry::Validations
-
       property :username
       property :email
 
@@ -278,7 +272,6 @@ class ValidationGroupsTest < MiniTest::Spec
   describe "Nested validations" do
     require "disposable/twin/parent"
     class AlbumForm < TestForm
-      include Reform::Form::Dry::Validations
       feature Disposable::Twin::Parent
 
       property :title
@@ -314,20 +307,15 @@ class ValidationGroupsTest < MiniTest::Spec
 
       validation do
         configure do
-          option :form
           config.messages_file = "test/fixtures/dry_error_messages.yml"
           # message need to be defined on fixtures/dry_error_messages
           # d-v expects you to define your custome messages on the .yml file
           def good_musical_taste?(value)
             value != 'Nickelback'
           end
-
-          def form_access_validation?
-            form.title == 'Reform'
-          end
         end
 
-        required(:title).filled(:good_musical_taste?, :form_access_validation?)
+        required(:title).filled(:good_musical_taste?)
 
         required(:band).schema do
           required(:name).filled
@@ -381,7 +369,7 @@ class ValidationGroupsTest < MiniTest::Spec
       form.band.errors.messages.inspect.must_equal %({:name=>["must be filled"], :\"label.name\"=>[\"must be filled\"]})
       form.band.label.errors.messages.inspect.must_equal %({:name=>["must be filled"]})
       form.producers.first.errors.messages.inspect.must_equal %({:name=>[\"must be filled\"]})
-      form.errors.messages.inspect.must_equal %({:title=>["must be filled", "you're a bad person", "this doesn't look like a Reform form dude!!"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.title"=>["must be filled"]})
+      form.errors.messages.inspect.must_equal %({:title=>["must be filled", "you're a bad person"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.title"=>["must be filled"]})
     end
   end
 
@@ -418,8 +406,6 @@ class ValidationGroupsTest < MiniTest::Spec
 
   describe "inherit: true in same group" do
     class InheritSameGroupForm < TestForm
-      include Reform::Form::Dry::Validations
-
       property :username
       property :email
 
@@ -449,8 +435,6 @@ class ValidationGroupsTest < MiniTest::Spec
 
   describe "if: with lambda" do
     class IfWithLambdaForm < TestForm
-      include Reform::Form::Dry::Validations # ::build_errors.
-
       property :username
       property :email
       property :password
