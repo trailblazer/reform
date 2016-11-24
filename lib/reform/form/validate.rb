@@ -18,15 +18,18 @@ module Reform::Form::Validate
 
   def validate(params)
     # allow an external deserializer.
+    @input_params = params # we want to store these for access via dry later
     block_given? ? yield(params) : deserialize(params)
 
     super() # run the actual validation on self.
   end
+  attr_reader :input_params # make the raw input params public
 
   def deserialize(params)
     params = deserialize!(params)
     deserializer.new(self).from_hash(params)
   end
+
 
 private
   # Meant to return params processable by the representer. This is the hook for munching date fields, etc.
@@ -55,7 +58,7 @@ private
   end
 
   def deserializer(*args)
-    # DISCUSS: should we simply delegate to class and sort out memoizing there? 
+    # DISCUSS: should we simply delegate to class and sort out memoizing there?
     self.class.deserializer_class || self.class.deserializer_class = deserializer!(*args)
   end
 

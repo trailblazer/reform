@@ -26,5 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest"
   spec.add_development_dependency "dry-types"
   spec.add_development_dependency "multi_json"
-  spec.add_development_dependency "dry-validation", ">= 0.8.0"
+  spec.add_development_dependency "dry-validation", ">= 0.10.1"
 end

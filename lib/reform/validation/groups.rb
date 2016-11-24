@@ -31,7 +31,7 @@ module Reform::Validation
     end
 
     def [](name)
-      cfg = find { |cfg| cfg.first == name }
+      cfg = find { |c| c.first == name }
       return unless cfg
       cfg[1]
     end
