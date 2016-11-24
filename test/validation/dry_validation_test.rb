@@ -363,6 +363,21 @@ class ValidationGroupsTest < MiniTest::Spec
       form.producers.first.errors.messages.inspect.must_equal %({:name=>[\"must be filled\"]})
       form.errors.messages.inspect.must_equal %({:title=>["must be filled", "you're a bad person"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.title"=>["must be filled"]})
     end
+
+    it "renders full messages correcty" do
+      result = form.validate(
+        "title"  => "",
+        "songs"  => [ {"title" => ""}, {"title" => ""} ],
+        "band"   => {"size" => "", "label" => {"name" => ""}},
+        "producers" => [{"name" => ''}, {"name" => 'something lovely'}]
+      )
+
+      result.must_equal false
+      form.band.errors.full_messages.inspect.must_equal %({:name=>["Name must be filled"], :\"label.name\"=>[\"Label Name must be filled\"]})
+      form.band.label.errors.full_messages.inspect.must_equal %({:name=>["Name must be filled"]})
+      form.producers.first.errors.full_messages.inspect.must_equal %({:name=>[\"Name must be filled\"]})
+      form.errors.full_messages.inspect.must_equal %({:title=>["Title must be filled", "Title you're a bad person"], :"band.name"=>["Band Name must be filled"], :"band.label.name"=>["Band Label Name must be filled"], :"producers.name"=>[\"Producers Name must be filled\"], :"hit.title"=>["Hit Title must be filled"], :"songs.title"=>["Songs Title must be filled"]})
+    end
   end
 
   # describe "same-named group" do
