@@ -270,10 +270,7 @@ class ValidationGroupsTest < MiniTest::Spec
   end
 
   describe "Nested validations" do
-    require "disposable/twin/parent"
     class AlbumForm < TestForm
-      feature Disposable::Twin::Parent
-
       property :title
 
       property :hit do
@@ -358,13 +355,11 @@ class ValidationGroupsTest < MiniTest::Spec
     it "maps errors to form objects correctly" do
       result = form.validate(
         "title"  => "",
-        "songs"  => [
-          {"title" => ""},
-          {"title" => "", "composer" => {"" => ""}}
-        ],
-        "band"   => {"name" => "", "label" => {"name" => ""}},
-        "producers" => [{"fragment_index"=>'0', "name" => ''}, {"fragment_index"=>'1', "name" => 'something lovely'}]
-      ) # TODO: We need to store the fragment automatically during deserialization somehow...
+        "songs"  => [ {"title" => ""}, {"title" => ""} ],
+        "band"   => {"size" => "", "label" => {"name" => ""}},
+        "producers" => [{"name" => ''}, {"name" => 'something lovely'}]
+      )
+
       result.must_equal false
       form.band.errors.messages.inspect.must_equal %({:name=>["must be filled"], :\"label.name\"=>[\"must be filled\"]})
       form.band.label.errors.messages.inspect.must_equal %({:name=>["must be filled"]})
