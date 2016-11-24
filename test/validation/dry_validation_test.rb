@@ -59,7 +59,6 @@ class DryValidationDefaultGroupTest < Minitest::Spec
 
     validation name: :dynamic_args, with: { form: true } do
       configure do
-        option :form
         def colors
           form.colors
         end
@@ -171,8 +170,6 @@ class ValidationGroupsTest < MiniTest::Spec
 
         validation name: :default, with: { user: OpenStruct.new(name: "Nick") } do
           configure do
-            option :user
-
             def users_name
               user.name
             end
