@@ -87,5 +87,8 @@ module Reform
     def skip!
       Representable::Pipeline::Stop
     end
+
+    require "reform/form/call"
+    include Call
   end
 end
