@@ -1,6 +1,10 @@
+## 2.2.3
+
+* Add `Form#call` as an alias for `validate` and the `Result` object.
+
 ## 2.2.2
 
-** Loosen `uber` dependency.
+* Loosen `uber` dependency.
 
 ## 2.2.1
 
