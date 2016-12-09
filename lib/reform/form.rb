@@ -16,6 +16,12 @@ module Reform
     module Property
       # Add macro logic, e.g. for :populator.
       def property(name, options={}, &block)
+        # if composition and inherited we also need this setting
+        # to correctly inherit modules
+        if options.key?(:on) && options.key?(:inherit)
+          options[:_inherited] = options[:inherit]
+        end
+
         if options.key?(:parse)
           options[:deserializer] ||= {}
           options[:deserializer][:writeable] = options.delete(:parse)

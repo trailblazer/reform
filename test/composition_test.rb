@@ -1,5 +1,43 @@
 require 'test_helper'
 
+class FormCompositionInheritanceTest < MiniTest::Spec
+  module SizePrice
+    include Reform::Form::Module
+
+    property :price
+    property :size
+
+    module InstanceMethods
+      def price(for_size: size)
+        case for_size.to_sym
+          when :s then super() * 1
+          when :m then super() * 2
+          when :l then super() * 3
+        end
+      end
+    end
+  end
+
+  class OutfitForm < TestForm
+    include Reform::Form::Composition
+    include SizePrice
+
+    property :price,  inherit: true, on: :tshirt
+    property :size,   inherit: true, on: :measurement
+  end
+
+
+  let (:measurement) { Measurement.new(:l) }
+  let (:tshirt)      { Tshirt.new(2, :m) }
+  let (:form)        { OutfitForm.new(tshirt: tshirt, measurement: measurement) }
+
+  Tshirt = Struct.new(:price, :size)
+  Measurement = Struct.new(:size)
+
+  it { form.price.must_equal 6 }
+  it { form.price(for_size: :s).must_equal 2 }
+end
+
 class FormCompositionTest < MiniTest::Spec
   Song      = Struct.new(:id, :title, :band)
   Requester = Struct.new(:id, :name, :requester)
