@@ -3,6 +3,7 @@ require 'minitest/autorun'
 require "representable/debug"
 require "declarative/testing"
 require "pp"
+require 'byebug'
 
 require "reform/form/dry"
 # setup test classes so we can test without dry being included
@@ -27,7 +28,7 @@ class BaseTest < MiniTest::Spec
     end
   end
 
-  Song   = Struct.new(:title, :length)
+  Song   = Struct.new(:title, :length, :rating)
   Album  = Struct.new(:title, :hit, :songs, :band)
   Band   = Struct.new(:label)
   Label  = Struct.new(:name)
