@@ -1,7 +1,7 @@
 class Reform::Contract::Errors
   def initialize(*)
     @errors = {}
-    @full_errors = []
+    @full_errors = Set.new
   end
 
   module Merge
@@ -31,8 +31,7 @@ class Reform::Contract::Errors
     # Ensure that we can return Active Record compliant full messages when using dry
     # we only want unique messages in our array
     human_field = field.to_s.gsub(/([\.\_])+/, " ").gsub(/(\b\w)+/) { |s| s.capitalize }
-    message = "#{human_field} #{message}"
-    @full_errors << message unless @full_errors.include?(message)
+    @full_errors.add("#{human_field} #{message}")
   end
 
   def messages
@@ -40,7 +39,7 @@ class Reform::Contract::Errors
   end
 
   def full_messages
-    @full_errors
+    @full_errors.to_a
   end
 
   def empty?
