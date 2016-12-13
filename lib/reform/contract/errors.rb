@@ -49,4 +49,13 @@ class Reform::Contract::Errors
   def [](name)
     @errors[name] || []
   end
+
+  def size
+    @errors.values.flatten.size
+  end
+  alias :count :size
+
+  def empty?
+    size.zero?
+  end
 end
