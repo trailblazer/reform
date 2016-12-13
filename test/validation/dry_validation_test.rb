@@ -331,7 +331,7 @@ class ValidationGroupsTest < MiniTest::Spec
       OpenStruct.new(
         :hit    => OpenStruct.new,
         :songs  => [OpenStruct.new, OpenStruct.new],
-        :producers => [OpenStruct.new, OpenStruct.new],
+        :producers => [OpenStruct.new, OpenStruct.new, OpenStruct.new],
         :band => Struct.new(:name, :label).new("", OpenStruct.new),
       )
     end
@@ -369,7 +369,7 @@ class ValidationGroupsTest < MiniTest::Spec
         "title"  => "",
         "songs"  => [ {"title" => ""}, {"title" => ""} ],
         "band"   => {"size" => "", "label" => {"name" => ""}},
-        "producers" => [{"name" => ''}, {"name" => 'something lovely'}]
+        "producers" => [{"name" => ''}, {"name" => ''}, {"name" => 'something lovely'}]
       )
 
       result.must_equal false

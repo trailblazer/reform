@@ -28,8 +28,11 @@ class Reform::Contract::Errors
     @errors[field] ||= []
     @errors[field] << message
 
+    # Ensure that we can return Active Record compliant full messages when using dry
+    # we only want unique messages in our array
     human_field = field.to_s.gsub(/([\.\_])+/, " ").gsub(/(\b\w)+/) { |s| s.capitalize }
-    @full_errors << "#{human_field} #{message}"
+    message = "#{human_field} #{message}"
+    @full_errors << message unless @full_errors.include?(message)
   end
 
   def messages
