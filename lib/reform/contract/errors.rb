@@ -1,7 +1,7 @@
 class Reform::Contract::Errors
   def initialize(*)
     @errors = {}
-    @full_errors = {}
+    @full_errors = []
   end
 
   module Merge
@@ -29,8 +29,7 @@ class Reform::Contract::Errors
     @errors[field] << message
 
     human_field = field.to_s.gsub(/([\.\_])+/, " ").gsub(/(\b\w)+/) { |s| s.capitalize }
-    @full_errors[field] ||= []
-    @full_errors[field] << "#{human_field} #{message}"
+    @full_errors << "#{human_field} #{message}"
   end
 
   def messages
