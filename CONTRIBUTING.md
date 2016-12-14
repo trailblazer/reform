@@ -2,9 +2,9 @@
 
 #### **Did you find a bug?**
 
-* **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/apotonick/reform/issues).
+* **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/trailblazer/reform/issues).
 
-* If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/apotonick/reform/issues/new). Be sure to follow the issue template.
+* If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/trailblazer/reform/issues/new). Be sure to follow the issue template.
 
 #### **Did you write a patch that fixes a bug?**
 

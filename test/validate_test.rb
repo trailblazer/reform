@@ -282,7 +282,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
   end
 end
 
-#   # not sure if we should catch that in Reform or rather do that in disposable. this is https://github.com/apotonick/reform/pull/104
+#   # not sure if we should catch that in Reform or rather do that in disposable. this is https://github.com/trailblazer/reform/pull/104
 #   # describe ":populator with :empty" do
 #   #   let (:form) {
 #   #     Class.new(Reform::Form) do

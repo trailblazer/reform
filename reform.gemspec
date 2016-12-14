@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["apotonick@gmail.com", "heinleng@gmail.com"]
   spec.description   = %q{Form object decoupled from models.}
   spec.summary       = %q{Form object decoupled from models with validation, population and presentation.}
-  spec.homepage      = "https://github.com/apotonick/reform"
+  spec.homepage      = "https://github.com/trailblazer/reform"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

@@ -3,7 +3,7 @@
 [![Gitter Chat](https://badges.gitter.im/trailblazer/chat.svg)](https://gitter.im/trailblazer/chat)
 [![TRB Newsletter](https://img.shields.io/badge/TRB-newsletter-lightgrey.svg)](http://trailblazer.to/newsletter/)
 [![Build
-Status](https://travis-ci.org/apotonick/reform.svg)](https://travis-ci.org/apotonick/reform)
+Status](https://travis-ci.org/trailblazer/reform.svg)](https://travis-ci.org/trailblazer/reform)
 [![Gem Version](https://badge.fury.io/rb/reform.svg)](http://badge.fury.io/rb/reform)
 
 _Form objects decoupled from your models._
@@ -328,7 +328,7 @@ By explicitely defining the form layout using `::property` there is no more need
 
 ## This is not Reform 1.x!
 
-Temporary note: This is the README and API for Reform 2. On the public API, only a few tiny things have changed. Here are the [Reform 1.2 docs](https://github.com/apotonick/reform/blob/v1.2.6/README.md).
+Temporary note: This is the README and API for Reform 2. On the public API, only a few tiny things have changed. Here are the [Reform 1.2 docs](https://github.com/trailblazer/reform/blob/v1.2.6/README.md).
 
 Anyway, please upgrade and _report problems_ and do not simply assume that we will magically find out what needs to get fixed. When in trouble, join us on [Gitter](https://gitter.im/trailblazer/chat).
 
