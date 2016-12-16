@@ -331,7 +331,7 @@ class ValidationGroupsTest < MiniTest::Spec
       OpenStruct.new(
         :hit    => OpenStruct.new,
         :songs  => [OpenStruct.new, OpenStruct.new],
-        :producers => [OpenStruct.new, OpenStruct.new],
+        :producers => [OpenStruct.new, OpenStruct.new, OpenStruct.new],
         :band => Struct.new(:name, :label).new("", OpenStruct.new),
       )
     end
@@ -369,14 +369,14 @@ class ValidationGroupsTest < MiniTest::Spec
         "title"  => "",
         "songs"  => [ {"title" => ""}, {"title" => ""} ],
         "band"   => {"size" => "", "label" => {"name" => ""}},
-        "producers" => [{"name" => ''}, {"name" => 'something lovely'}]
+        "producers" => [{"name" => ''}, {"name" => ''}, {"name" => 'something lovely'}]
       )
 
       result.must_equal false
-      form.band.errors.full_messages.inspect.must_equal %({:name=>["Name must be filled"], :\"label.name\"=>[\"Label Name must be filled\"]})
-      form.band.label.errors.full_messages.inspect.must_equal %({:name=>["Name must be filled"]})
-      form.producers.first.errors.full_messages.inspect.must_equal %({:name=>[\"Name must be filled\"]})
-      form.errors.full_messages.inspect.must_equal %({:title=>["Title must be filled", "Title you're a bad person"], :"band.name"=>["Band Name must be filled"], :"band.label.name"=>["Band Label Name must be filled"], :"producers.name"=>[\"Producers Name must be filled\"], :"hit.title"=>["Hit Title must be filled"], :"songs.title"=>["Songs Title must be filled"]})
+      form.band.errors.full_messages.must_equal ["Name must be filled", "Label Name must be filled"]
+      form.band.label.errors.full_messages.must_equal ["Name must be filled"]
+      form.producers.first.errors.full_messages.must_equal ["Name must be filled"]
+      form.errors.full_messages.must_equal ["Title must be filled", "Title you're a bad person", "Band Name must be filled", "Band Label Name must be filled", "Producers Name must be filled", "Hit Title must be filled", "Songs Title must be filled"]
     end
   end
 
