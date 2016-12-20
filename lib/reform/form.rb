@@ -31,7 +31,7 @@ module Reform
           options[:writeable] ||= options.delete(:writable)
         end
 
-        definition = super # let representable sort out inheriting of properties, and so on.
+        definition = super # let disposable and declarative gems sort out inheriting of properties, and so on.
         definition.merge!(deserializer: {}) unless definition[:deserializer] # always keep :deserializer per property.
 
         deserializer_options = definition[:deserializer]
