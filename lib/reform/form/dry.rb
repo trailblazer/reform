@@ -26,16 +26,16 @@ module Reform::Form::Dry
 
     class Group
       def initialize(options = {})
-        @schemas = []
         options ||= {}
         @schema_class = options[:schema] || Dry::Validation::Schema
+        @validator = Dry::Validation.Schema(@schema_class, build: false)
+
         @schema_inject_params = options[:with] || {}
         @context = options[:context] || :object
       end
 
       def instance_exec(&block)
-        @schemas << block
-        @validator = Builder.new(@schemas.dup, @schema_class).validation_graph
+        @validator = Dry::Validation.Schema(@validator, build: false, &block)
 
         # inject the keys into the configure block automatically
         keys = @schema_inject_params.keys
@@ -111,26 +111,6 @@ module Reform::Form::Dry
                              v
                            end
         }
-      end
-
-      class Builder < Array
-        def initialize(array, schema_class)
-          super(array)
-          @validator = Dry::Validation.Schema(schema_class, build: false, &shift)
-        end
-
-        def validation_graph
-          build_graph(@validator)
-        end
-
-        private
-
-        def build_graph(validator)
-          if empty?
-            return validator
-          end
-          build_graph(Dry::Validation.Schema(validator, build: false, &shift))
-        end
       end
     end
   end
