@@ -3,9 +3,7 @@ require "test_helper"
 class CallTest < Minitest::Spec
   Song = Struct.new(:title)
 
-  class SongForm < Reform::Form
-    include Dry
-
+  class SongForm < TestForm
     property :title
 
     validation do
