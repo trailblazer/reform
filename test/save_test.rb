@@ -58,7 +58,7 @@ class SaveTest < BaseTest
     album.saved?.must_equal true
     album.songs[0].title.must_equal "Fixed"
     album.songs[0].saved?.must_equal true
-    album.artist.saved?.must_equal nil
+    assert_nil album.artist.saved?
   end
 
   describe "#sync with block" do
@@ -98,7 +98,7 @@ end
 #     form.save(length: lambda { |value, options| form.model.id = "#{value}: #{length_seconds}" })
 
 #     song.title.must_equal "A Poor Man's Memory"
-#     song.length.must_equal nil
+#     assert_nil song.length
 #     song.id.must_equal "10: 120"
 #   end
 # end

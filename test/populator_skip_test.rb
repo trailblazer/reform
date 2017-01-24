@@ -6,12 +6,13 @@ class PopulatorSkipTest < MiniTest::Spec
 
 
   class AlbumForm < TestForm
-    collection :songs,
-      populator: ->(options) {
-        return skip! if options[:fragment][:title] == "Good"
-        songs[options[:index]]
-      } do
-        property :title
+    collection :songs, populator: :my_populator do
+      property :title
+    end
+
+    def my_populator(options)
+      return skip! if options[:fragment][:title] == "Good"
+      songs[options[:index]]
     end
   end
 
@@ -22,7 +23,7 @@ class PopulatorSkipTest < MiniTest::Spec
     form.validate(hash)
 
     form.songs.size.must_equal 2
-    form.songs[0].title.must_equal nil
+    assert_nil form.songs[0].title
     form.songs[1].title.must_equal "Bad"
   end
 end

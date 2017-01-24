@@ -19,7 +19,7 @@ class ReformTest < Minitest::Spec
     let (:comp) { OpenStruct.new }
 
     it "returns empty fields" do
-      form.title.must_equal nil
+      assert_nil form.title
       form.name.must_equal  nil
     end
 
@@ -27,7 +27,7 @@ class ReformTest < Minitest::Spec
       it "returns filled-out fields" do
         form.validate("name" => "Duran Duran")
 
-        form.title.must_equal nil
+        assert_nil form.title
         form.name.must_equal  "Duran Duran"
       end
     end
@@ -63,7 +63,7 @@ class ReformTest < Minitest::Spec
     it "doesn't change model properties" do
       form.validate("name" => "Duran Duran")
 
-      comp.name.must_equal nil # don't touch model, yet.
+      assert_nil comp.name # don't touch model, yet.
     end
 
     # TODO: test errors. test valid.
@@ -115,7 +115,7 @@ class ReformTest < Minitest::Spec
       form.save
 
       comp.name.must_equal "Diesel Boy"
-      comp.title.must_equal nil
+      assert_nil comp.title
     end
 
     describe "#save with block" do
@@ -149,7 +149,7 @@ class ReformTest < Minitest::Spec
     it do
       form.validate({"title" => "The Body"})
       form.title.must_equal "The Body"
-      form.position.must_equal nil
+      assert_nil form.position
       form.errors.messages.must_equal({:name=>["must be filled"], :position=>["must be filled"]})
     end
   end

@@ -264,7 +264,7 @@ class PopulateIfEmptyTest < MiniTest::Spec
     # test lambda block arguments.
     form.artist.model.args.to_s.must_equal "[{\"name\"=>\"From Autumn To Ashes\"}, nil]"
 
-    album.artist.must_equal nil
+    assert_nil album.artist
   end
 end
 

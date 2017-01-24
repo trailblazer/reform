@@ -11,7 +11,7 @@ class ReadableTest < MiniTest::Spec
   let (:form) { PasswordForm.new(cred) }
 
   it {
-    form.password.must_equal nil # password not read.
+    assert_nil form.password # password not read.
 
     form.validate("password" => "123")
 

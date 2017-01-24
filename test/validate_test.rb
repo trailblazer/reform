@@ -275,7 +275,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
   it do
     form = SongForm.new(song = Song.new)
     form.validate("title" => "Ignore me!")
-    form.title.must_equal nil
+    assert_nil form.title
     form.title = "Unopened"
     form.sync # only the deserializer is marked as not-writeable.
     song.title.must_equal "Unopened"
