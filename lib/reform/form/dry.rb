@@ -31,7 +31,6 @@ module Reform::Form::Dry
         @validator = Dry::Validation.Schema(@schema_class, build: false)
 
         @schema_inject_params = options[:with] || {}
-        @context = options[:context] || :object
       end
 
       def instance_exec(&block)
@@ -93,8 +92,6 @@ module Reform::Form::Dry
 
       # we can't use to_nested_hash as it get's messed up by composition.
       def input_hash(form)
-        return form.input_params if @context == :params
-
         hash = form.class.nested_hash_representer.new(form).to_hash
         symbolize_hash(hash)
       end
