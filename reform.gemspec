@@ -5,8 +5,8 @@ require 'reform/version'
 Gem::Specification.new do |spec|
   spec.name          = "reform"
   spec.version       = Reform::VERSION
-  spec.authors       = ["Nick Sutterer", "Garrett Heinlen"]
-  spec.email         = ["apotonick@gmail.com", "heinleng@gmail.com"]
+  spec.authors       = ["Nick Sutterer", "Fran Worley"]
+  spec.email         = ["apotonick@gmail.com", "frances@safetytoolbox.co.uk"]
   spec.description   = %q{Form object decoupled from models.}
   spec.summary       = %q{Form object decoupled from models with validation, population and presentation.}
   spec.homepage      = "https://github.com/trailblazer/reform"
@@ -17,9 +17,9 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency             "disposable",     ">= 0.3.0", "< 0.5.0"
-  spec.add_dependency             "uber",           "~> 0.0.11"
-  spec.add_dependency             "representable",  ">= 3.0.0", "< 4.0.0"
+  spec.add_dependency             "disposable",     ">= 0.3.0", "< 0.4.0"
+  spec.add_dependency             "uber",           ">= 0.0.15", "< 0.2.0"
+  spec.add_dependency             "representable",  ">= 2.4.0", "< 3.1.0"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
