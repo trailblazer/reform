@@ -4,6 +4,8 @@ class CallTest < Minitest::Spec
   Song = Struct.new(:title)
 
   class SongForm < Reform::Form
+    include Dry
+
     property :title
 
     validation do
