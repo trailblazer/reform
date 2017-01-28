@@ -51,7 +51,7 @@ module Reform::Validation
             _errors = group.(form)
 
             results[name] = _errors.empty? # validate.
-            errors.merge!(_errors, [])
+            errors.merge!(_errors, nil)
           end
         end
 

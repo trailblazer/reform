@@ -11,7 +11,7 @@ module Reform::Contract::Validate
     local_errors = Reform::Validation::Groups::Result.(self.class.validation_groups, self)
 
     nested_errors.each do |(name, errors)|
-      local_errors.merge!(errors, [name])
+      local_errors.merge!(errors, name)
     end
 
     @errors = local_errors # @ivar sucks, of course
