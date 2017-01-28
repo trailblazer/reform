@@ -2,6 +2,23 @@ require "test_helper"
 require "reform/form/dry"
 require "reform/form/coercion"
 
+class DryValidationErrorsAPITest < Minitest::Spec
+  class SongForm < TestForm
+    property :title
+
+    validation do
+      required(:title).filled
+    end
+  end
+
+  it do
+    form = SongForm.new(Struct.new(:title).new)
+    result = form.({ title: "" })
+
+    puts "@@@@@ #{result.inspect}"
+  end
+end
+
 class DryValidationNoBlockTest < Minitest::Spec
   Session = Struct.new(:name, :email)
   SessionSchema = Dry::Validation.Schema do

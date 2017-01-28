@@ -15,7 +15,7 @@ module Reform::Contract::Validate
   def validate!(errors, prefix)
     validate_nested!(nested_errors = build_errors, prefix) # call valid? recursively and collect nested errors.
 
-    valid?  # calls AM/Lotus validators and invokes self.errors=.
+    Reform::Validation::Groups::Result.(self.class.validation_groups, self, @errors)  # calls AM/Lotus validators and invokes self.errors=.
 
     errors.merge!(self.errors, prefix) # local errors.
     errors.merge!(nested_errors, [])

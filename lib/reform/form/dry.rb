@@ -50,9 +50,15 @@ module Reform::Form::Dry
         dynamic_options[:form] = form if @schema_inject_params[:form]
         inject_options  = @schema_inject_params.merge(dynamic_options)
 
-        dry_errors = @validator.new(@validator.rules, inject_options).call(input_hash(form)).messages
+# #<Dry::Validation::Result output={:title=>"", :hit=>{:title=>nil}, :songs=>[{:title=>""}, {:title=>""}], :producers=>[{:name=>""}, {:name=>"something lovely"}, {:name=>nil}], :band=>{:name=>"", :label=>{:name=>""}}} errors={:title=>["must be filled"], :band=>{:name=>["must be filled"], :label=>{:name=>["must be filled"]}}, :producers=>{0=>{:name=>["must be filled"]}, 2=>{:name=>["must be filled"]}}}>
+        dry_errors = @validator.new(@validator.rules, inject_options).call(input_hash(form))
+        dry_messages = dry_errors.messages
+        # puts "@@@@@ #{dry_messages.inspect}"
 
-        process_errors(form, reform_errors, dry_errors)
+
+        process_errors(form, reform_errors, dry_messages).tap do |bla|
+          puts "xxx #{bla} I AM WRONG!"
+        end
       end
 
       # if dry_error is a hash rather than an array then it contains

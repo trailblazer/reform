@@ -40,10 +40,6 @@ module Reform::Validation
     includer.extend(ClassMethods)
   end
 
-  def valid?
-    Groups::Result.(self.class.validation_groups, self, errors)
-  end
-
   NoValidationLibraryError = Class.new(RuntimeError)
 end
 
