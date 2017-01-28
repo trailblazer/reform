@@ -18,6 +18,11 @@ You can upgrade from 2.2.0 without worries.
 * When validating with dry-validation, we now pass a symbolized hash. We also replaced `Dry::Validation::Form` with `Schema` which won't coerce values where it shouldn't.
 * [private] `Group#call` API now is: `call(form, errors)`.
 
+## 2.2.4
+
+* You can now use any object with `call` as a populator, no need to `include Uber::Callable` anymore. This is because we have only three types and don't need a `is_a?` or `respond_to?` check.
+* Use `declarative-option` and loosen `uber` dependency.
+
 ## 2.2.3
 
 * Add `Form#call` as an alias for `validate` and the `Result` object.

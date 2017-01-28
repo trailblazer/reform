@@ -5,11 +5,9 @@
 #
 # For collections, the entire collection and the currently deserialised index is passed in.
 class Reform::Form::Populator
-  include Uber::Callable
-
   def initialize(user_proc)
     @user_proc = user_proc # the actual `populator: ->{}` block from the user, via ::property.
-    @value     = Uber::Options::Value.new(user_proc) # we can now process Callable, procs, :symbol.
+    @value     = Declarative::Option(user_proc, instance_exec: true, callable: Object) # we can now process Callable, procs, :symbol.
   end
 
   def call(input, options)
@@ -31,7 +29,7 @@ class Reform::Form::Populator
 private
   def call!(options)
     form = options[:represented]
-    @value.(form, options)
+    @value.(form, options) # Declarative::Option call.
   end
 
   def handle_fail(twin, options)

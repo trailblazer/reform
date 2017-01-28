@@ -12,7 +12,7 @@ private
   def prepopulate_local!(options)
     schema.each do |dfn|
       next unless block = dfn[:prepopulator]
-      Uber::Options::Value.new(block).evaluate(self, options)
+      Declarative::Option(block, instance_exec: true).(self, options)
     end
   end
 
