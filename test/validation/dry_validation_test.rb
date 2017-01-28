@@ -3,19 +3,34 @@ require "reform/form/dry"
 require "reform/form/coercion"
 
 class DryValidationErrorsAPITest < Minitest::Spec
+  Song   = Struct.new(:title, :artist)
+  Artist = Struct.new(:email)
+
   class SongForm < TestForm
     property :title
 
     validation do
       required(:title).filled
     end
+
+    property :artist do
+      property :email
+
+      validation do
+        required(:email).filled
+      end
+    end
   end
 
   it do
-    form = SongForm.new(Struct.new(:title).new)
-    result = form.({ title: "" })
+    form = SongForm.new(Song.new(nil, Artist.new))
+    result = form.({ title: "", artist: { email: "" } })
 
-    puts "@@@@@ #{result.inspect}"
+    # puts "@@@@@ #{result.inspect}"
+
+    # local errors
+    form.errors[:title].must_equal ["must be filled"]
+    form.artist.errors[:email].must_equal ["must be filled"]
   end
 end
 
