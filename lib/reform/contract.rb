@@ -43,15 +43,6 @@ module Reform
     require "disposable/twin/sync"
     include Disposable::Twin::Sync
 
-
-
-    # module ValidatesWarning
-    #   def validates(*)
-    #     raise "[Reform] Please include either Reform::Form::ActiveModel::Validations or Reform::Form::Lotus in your form class."
-    #   end
-    # end
-    # extend ValidatesWarning
-
   private
     # DISCUSS: separate file?
     module Readonly
