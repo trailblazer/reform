@@ -19,14 +19,13 @@ module Reform::Contract::Validate
 
 private
 
-  # runs form.validate! on all nested forms
+  # Recursively call validate! on nested forms.
+  # Collect [ [:composer, #<Errors>], [:albums, #<Errors>]]
   def validate_nested!
     arr = []
     schema.each(twin: true) do |dfn|
-      # recursively call valid? on nested form.
-      Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form| arr << [dfn[:name], form.validate!] }
+      Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form| arr<<[ dfn[:name], form.validate! ] }
     end
-
     arr
   end
 end
