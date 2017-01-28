@@ -37,26 +37,25 @@ module Reform::Validation
     end
 
 
-    # Runs all validations groups according to their rules and returns result.
-    # Populates errors passed into #call.
+    # Runs all validations groups according to their rules and returns Errors object with all groups merged errors.
     class Result
-      def self.call(groups, form, errors)
-        result = true
+      def self.call(groups, form)
         results = {}
+        errors = Reform::Contract::Errors.new
 
         groups.each do |cfg|
           name, group, options = cfg
           depends_on = options[:if]
 
           if evaluate_if(depends_on, results, form)
-            # puts "evaluating #{group.instance_variable_get(:@validator).instance_variable_get(:@checker).inspect}"
-            results[name] = group.(form, errors).empty? # validate.
-          end
+            _errors = group.(form)
 
-          result &= errors.empty?
+            results[name] = _errors.empty? # validate.
+            errors.merge!(_errors, [])
+          end
         end
 
-        result
+        errors
       end
 
       def self.evaluate_if(depends_on, results, form)

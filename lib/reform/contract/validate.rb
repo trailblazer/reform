@@ -1,9 +1,4 @@
 module Reform::Contract::Validate
-  # def initialize(*)
-  #   super
-  #   @errors = build_errors
-  # end
-
   attr_reader :errors # TODO: breaks when #validate wasn't called (and that's a GOOD THING.)
 
   def validate
@@ -13,12 +8,11 @@ module Reform::Contract::Validate
   end
 
   def validate!
-    nested = validate_nested!
+    nested_errors = validate_nested!
 
-    local_errors = build_errors
-    Reform::Validation::Groups::Result.(self.class.validation_groups, self, local_errors)
+    local_errors = Reform::Validation::Groups::Result.(self.class.validation_groups, self)
 
-    nested.each do |(name, errors)|
+    nested_errors.each do |(name, errors)|
       local_errors.merge!(errors, [name])
     end
 
