@@ -2,9 +2,7 @@ module Reform::Contract::Validate
   attr_reader :errors # TODO: breaks when #validate wasn't called (and that's a GOOD THING.)
 
   def validate
-    errors = validate!
-
-    errors.empty?
+    validate!.empty?
   end
 
   def validate!
@@ -18,8 +16,6 @@ module Reform::Contract::Validate
 
     @errors = local_errors # @ivar sucks, of course
   end
-
-  # TODO: make build_errors a lambda.
 
 private
 

@@ -42,15 +42,13 @@ module Reform::Form::Dry
       end
 
       def call(form)
-        reform_errors   = Reform::Contract::Errors.new
         dynamic_options = {}
         dynamic_options[:form] = form if @schema_inject_params[:form]
         inject_options  = @schema_inject_params.merge(dynamic_options)
 
-        dry_errors = @validator.new(@validator.rules, inject_options).call(input_hash(form))
-        dry_messages = dry_errors.messages
-         puts "dry @@@@@ #{dry_messages.inspect}"
-
+        dry_errors      = @validator.new(@validator.rules, inject_options).call(input_hash(form))
+        reform_errors   = Reform::Contract::Errors.new#(dry_errors)
+        dry_messages    = dry_errors.messages
 
         process_errors(form, reform_errors, dry_messages)
 

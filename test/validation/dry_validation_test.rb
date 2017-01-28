@@ -41,6 +41,14 @@ class DryValidationErrorsAPITest < Minitest::Spec
     form.artist.errors[:email].must_equal ["must be filled"]
   end
 
+  describe "Errors#raw" do
+    it do
+      skip
+      result = form.({ title: "", artist: { email: "" } })
+      form.errors.raw.must_equal []
+    end
+  end
+
   # only nested is invalid.
   it do
     result = form.({ title: "Black Star", artist: { email: "" } })

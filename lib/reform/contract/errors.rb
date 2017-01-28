@@ -1,5 +1,6 @@
 class Reform::Contract::Errors
-  def initialize
+  def initialize(raw=nil)
+    @raw    = raw
     @errors = {}
     @full_errors = Set.new
   end
