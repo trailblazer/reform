@@ -27,8 +27,8 @@ module Reform::Form::Dry
     class Group
       def initialize(options = {})
         options ||= {}
-        @schema_class = options[:schema] || Dry::Validation::Schema
-        @validator = Dry::Validation.Schema(@schema_class, build: false)
+        schema_class = options[:schema] || Dry::Validation::Schema
+        @validator = Dry::Validation.Schema(schema_class, build: false)
 
         @schema_inject_params = options[:with] || {}
       end
@@ -46,11 +46,11 @@ module Reform::Form::Dry
       end
 
       def call(form, reform_errors)
-        # is there a better way to allow people to inject their form??
-        # can't use 'self' as it would just return the class and not the instance.
-        @schema_inject_params[:form] = form if @schema_inject_params[:form]
+        dynamic_options = {}
+        dynamic_options[:form] = form if @schema_inject_params[:form]
+        inject_options  = @schema_inject_params.merge(dynamic_options)
 
-        dry_errors = @validator.new(@validator.rules, @schema_inject_params).call(input_hash(form)).messages
+        dry_errors = @validator.new(@validator.rules, inject_options).call(input_hash(form)).messages
 
         process_errors(form, reform_errors, dry_errors)
       end

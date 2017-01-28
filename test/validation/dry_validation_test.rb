@@ -324,13 +324,15 @@ class ValidationGroupsTest < MiniTest::Spec
       )
 
       result.must_equal false
+      # songs have their own validation.
+      form.songs[0].errors.messages.inspect.must_equal %{{:title=>[\"must be filled\"]}}
       form.band.errors.messages.inspect.must_equal %({:name=>["must be filled"], :\"label.name\"=>[\"must be filled\"]})
       form.band.label.errors.messages.inspect.must_equal %({:name=>["must be filled"]})
       form.producers.first.errors.messages.inspect.must_equal %({:name=>[\"must be filled\"]})
       form.errors.messages.inspect.must_equal %({:title=>["must be filled", "you're a bad person"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.title"=>["must be filled"]})
     end
 
-    it "renders full messages correcty" do
+    it "renders full messages correctly" do
       result = form.validate(
         "title"  => "",
         "songs"  => [ {"title" => ""}, {"title" => ""} ],
