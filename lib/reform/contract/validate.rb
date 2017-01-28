@@ -7,9 +7,9 @@ module Reform::Contract::Validate
   attr_reader :errors
 
   def validate
-    validate!(errors, [])
+    validate!(@errors, [])
 
-    errors.empty?
+    @errors.empty?
   end
 
   def validate!(errors, prefix)
@@ -17,7 +17,7 @@ module Reform::Contract::Validate
 
     Reform::Validation::Groups::Result.(self.class.validation_groups, self, @errors)  # calls AM/Lotus validators and invokes self.errors=.
 
-    errors.merge!(self.errors, prefix) # local errors.
+    errors.merge!(@errors, prefix) # local errors.
     errors.merge!(nested_errors, [])
   end
 

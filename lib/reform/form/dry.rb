@@ -10,7 +10,7 @@ module Reform::Form::Dry
 
   module Validations
     def build_errors
-      Reform::Contract::Errors.new(self)
+      Reform::Contract::Errors.new
     end
 
     module ClassMethods
