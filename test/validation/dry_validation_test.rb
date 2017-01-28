@@ -70,6 +70,49 @@ class DryValidationErrorsAPITest < Minitest::Spec
     result.success?.must_equal false
     form.errors.messages.must_equal({:"artist.label.location"=>["must be filled"]})
   end
+
+  #---
+  #- collections
+  Album = Struct.new(:songs)
+
+  class CollectionForm < TestForm
+    collection :songs do
+      property :title
+    end
+
+    validation do
+      required(:songs).each do
+        schema do
+          required(:title).filled
+        end
+      end
+    end
+  end
+
+  it do
+    form = CollectionForm.new(Album.new([Song.new, Song.new]))
+    form.validate(songs: [ { title: "Liar"}, { title: ""} ])
+
+    form.songs[0].errors.messages.must_equal({})
+    form.songs[1].errors.messages.must_equal({:title=>["must be filled"]})
+  end
+
+  class CollectionLocalValidationsForm < TestForm
+    collection :songs do
+      property :title
+      validation do
+        required(:title).filled
+      end
+    end
+  end
+
+  it "local collection validation group shows errors" do
+    form = CollectionLocalValidationsForm.new(Album.new([Song.new, Song.new]))
+    form.validate(songs: [ { title: "Liar"}, { title: ""} ])
+
+    form.songs[0].errors.messages.must_equal({})
+    form.songs[1].errors.messages.must_equal({:title=>["must be filled"]})
+  end
 end
 
 class DryValidationNoBlockTest < Minitest::Spec
