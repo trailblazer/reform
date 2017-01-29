@@ -8,7 +8,13 @@ module Reform::Contract::Validate
   def validate!
     nested_errors = validate_nested!
 
-    local_errors = Reform::Validation::Groups::Result.(self.class.validation_groups, self)
+    local_errors_by_group = Reform::Validation::Groups::Result.(self.class.validation_groups, self).compact # TODO: discss compact
+
+    local_errors = Reform::Contract::Errors.new
+    local_errors_by_group.each do |error|
+       Reform::Contract::Errors::Merge.merge!(local_errors, error, [])
+    end
+
 
     nested_errors.each do |(prefixes, errors)|
       Reform::Contract::Errors::Merge.merge!(local_errors, errors, prefixes)

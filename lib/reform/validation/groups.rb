@@ -41,23 +41,17 @@ module Reform::Validation
     class Result
       def self.call(groups, form)
         results = {}
-        errors = Reform::Contract::Errors.new
 
-        groups.each do |(name, group, options)|
+        groups.collect do |(name, group, options)|
           next unless evaluate?(options[:if], results, form)
 
-          _errors = group.(form) # run validation for group.
-
-          results[name] = _errors.success?
-          Reform::Contract::Errors::Merge.merge!(errors, _errors, [nil])
+          results[name] = group.(form) # run validation for group. store <Result>.
         end
-
-        errors
       end
 
       def self.evaluate?(depends_on, results, form)
         return true if depends_on.nil?
-        return results[depends_on] if depends_on.is_a?(Symbol)
+        return results[depends_on].success? if depends_on.is_a?(Symbol)
         form.instance_exec(results, &depends_on)
       end
     end
