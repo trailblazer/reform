@@ -97,7 +97,7 @@ class ErrorsTest < MiniTest::Spec
         :"songs.title"=> ["must be filled"],
         :"band.label.name"=>["must be filled"]
       })
-      form.errors.count.must_equal(4)
+      form.errors.send(:size).must_equal(4)
     end
   end
 
@@ -106,7 +106,7 @@ class ErrorsTest < MiniTest::Spec
     it do
       form.validate("title"=>"", "band"=>{"label"=>{:name => "Fat Wreck"}}).must_equal false
       form.errors.messages.must_equal({:title=>["must be filled"]})
-      form.errors.count.must_equal(1)
+      form.errors.send(:size).must_equal(1)
     end
   end
 
@@ -116,7 +116,7 @@ class ErrorsTest < MiniTest::Spec
 
     it { @result.must_equal false }
     it { form.errors.messages.must_equal({:"hit.title"=>["must be filled"]}) }
-    it { form.errors.count.must_equal(1) }
+    it { form.errors.send(:size).must_equal(1) }
   end
 
 
@@ -125,7 +125,7 @@ class ErrorsTest < MiniTest::Spec
 
     it { @result.must_equal false }
     it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"]}) }
-    it { form.errors.count.must_equal(1) }
+    it { form.errors.send(:size).must_equal(1) }
   end
 
 
@@ -134,7 +134,7 @@ class ErrorsTest < MiniTest::Spec
 
     it { @result.must_equal false }
     it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"], :"band.label.name"=>["must be filled"]}) }
-    it { form.errors.count.must_equal(2) }
+    it { form.errors.send(:size).must_equal(2) }
   end
 
   describe "#validate with nested form using :base invalid" do
@@ -142,7 +142,7 @@ class ErrorsTest < MiniTest::Spec
       result = form.validate("songs"=>[{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}})
       result.must_equal false
       form.errors.messages.must_equal({:"band.name"=>["you're a bad person"]})
-      form.errors.count.must_equal(1)
+      form.errors.send(:size).must_equal(1)
     end
   end
 
@@ -159,7 +159,8 @@ class ErrorsTest < MiniTest::Spec
     it { form.title.must_equal "Second Heat" }
     it { form.songs.first.title.must_equal "Heart Of A Lion" }
     it do
-      form.errors.count.must_equal(0)
+      skip "WE DON'T NEED COUNT AND EMPTY? ON THE CORE ERRORS OBJECT"
+      form.errors.send(:size).must_equal(0)
       form.errors.empty?.must_equal(true)
     end
   end

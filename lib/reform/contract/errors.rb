@@ -51,17 +51,12 @@ class Reform::Contract::Errors
     @errors[name] || []
   end
 
-  def size
-    @errors.values.flatten.size
-  end
-  alias :count :size # TODO: deprecate count and size. rather introduce #to_a or #to_h.
-
-  # TODO: deprecate empty?
-  def empty?
+  def success?
     size.zero?
   end
 
-  def success?
-    empty?
+private
+  def size
+    @errors.values.flatten.size
   end
 end

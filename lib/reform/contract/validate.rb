@@ -2,7 +2,7 @@ module Reform::Contract::Validate
   attr_reader :errors # TODO: breaks when #validate wasn't called (and that's a GOOD THING.)
 
   def validate
-    validate!.empty?
+    validate!.success?
   end
 
   def validate!
