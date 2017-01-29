@@ -1,16 +1,15 @@
 class Reform::Contract::Errors
-  def initialize(result=nil)
-    @result = result
+  def initialize(original_result=nil)
+    @original_result = original_result
     @errors = {}
     @full_errors = Set.new
   end
 
+  # Merge always adds errors on the same level with target, but adds prefix.
   module Merge
     def merge!(errors, prefix)
       errors.messages.each do |field, msgs|
-        unless field.to_sym == :base
-          field = [prefix,field].compact.join(".").to_sym # TODO: why is that a symbol in Rails?
-        end
+        field = prefixed(field) unless field.to_sym == :base # DISCUSS: isn't that AMV specific?
 
         msgs.each do |msg|
           next if messages[field] and messages[field].include?(msg)
@@ -21,6 +20,11 @@ class Reform::Contract::Errors
 
     def to_s
       messages.inspect
+    end
+
+  private
+    def prefixed(field)
+      [prefix,field].compact.join(".").to_sym # TODO: why is that a symbol in Rails?
     end
   end
   include Merge
@@ -51,7 +55,7 @@ class Reform::Contract::Errors
   def size
     @errors.values.flatten.size
   end
-  alias :count :size
+  alias :count :size # TODO: deprecate count and size. rather introduce #to_a or #to_h.
 
   # TODO: deprecate empty?
   def empty?

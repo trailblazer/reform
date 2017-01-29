@@ -44,9 +44,7 @@ module Reform::Validation
         errors = Reform::Contract::Errors.new
 
         groups.each do |(name, group, options)|
-          depends_on = options[:if]
-
-          next unless evaluate?(depends_on, results, form)
+          next unless evaluate?(options[:if], results, form)
 
           _errors = group.(form) # run validation for group.
 
