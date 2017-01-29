@@ -47,8 +47,8 @@ module Reform::Validation
           name, group, options = cfg
           depends_on = options[:if]
 
-          if evaluate_if(depends_on, results, form)
-            _errors = group.(form)
+          if evaluate?(depends_on, results, form)
+            _errors = group.(form) # run validation for group.
 
             results[name] = _errors.empty? # validate.
             errors.merge!(_errors, nil)
@@ -58,7 +58,7 @@ module Reform::Validation
         errors
       end
 
-      def self.evaluate_if(depends_on, results, form)
+      def self.evaluate?(depends_on, results, form)
         return true if depends_on.nil?
         return results[depends_on] if depends_on.is_a?(Symbol)
         form.instance_exec(results, &depends_on)
