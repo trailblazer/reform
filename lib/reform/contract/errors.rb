@@ -1,6 +1,6 @@
 class Reform::Contract::Errors
-  def initialize(raw=nil)
-    @raw    = raw
+  def initialize(result=nil)
+    @result = result
     @errors = {}
     @full_errors = Set.new
   end
@@ -41,10 +41,6 @@ class Reform::Contract::Errors
 
   def full_messages
     @full_errors.to_a
-  end
-
-  def empty?
-    @errors.empty?
   end
 
   # needed by Rails form builder.
