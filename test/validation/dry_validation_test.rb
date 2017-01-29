@@ -346,7 +346,7 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
-  describe "Nested validations" do
+  describe "MIXED nested validations" do
     class AlbumForm < TestForm
       property :title
 
@@ -358,7 +358,6 @@ class ValidationGroupsTest < MiniTest::Spec
         end
       end
 
-      # we test this by embedding a validation block
       collection :songs do
         property :title
 
@@ -416,17 +415,6 @@ class ValidationGroupsTest < MiniTest::Spec
       )
     end
 
-    # let (:album) do
-    #   OpenStruct.new(
-    #     :title  => "Blackhawks Over Los Angeles",
-    #     :hit    => song,
-    #     :songs  => songs,
-    #     :producers => [ OpenStruct.new(name: 'some name'), OpenStruct.new() ],
-    #     :band => Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
-    #   )
-    # end
-    # let (:song)  { OpenStruct.new }
-    # let (:songs) { [ OpenStruct.new(:title => "Calling"),  OpenStruct.new] }
     let (:form)  { AlbumForm.new(album) }
 
     it "maps errors to form objects correctly" do
@@ -443,7 +431,7 @@ class ValidationGroupsTest < MiniTest::Spec
       form.band.errors.messages.inspect.must_equal %({:name=>["must be filled"], :\"label.name\"=>[\"must be filled\"]})
       form.band.label.errors.messages.inspect.must_equal %({:name=>["must be filled"]})
       form.producers.first.errors.messages.inspect.must_equal %({:name=>[\"must be filled\"]})
-      form.errors.messages.inspect.must_equal %({:title=>["must be filled", "you're a bad person"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.title"=>["must be filled"]})
+      form.errors.messages.inspect.must_equal %({:title=>["must be filled", "you're a bad person"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.2.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.0.title"=>["must be filled"]})
     end
 
     it "renders full messages correctly" do

@@ -5,10 +5,15 @@ module Reform::Contract::Validate
     validate!.success?
   end
 
+
+  # first: nested schema needs to write errors to nested forms
+  # second: normal mechanics: validate all nested forms, merge their errors into ours.
+
   def validate!
     nested_errors = validate_nested!
 
     local_errors_by_group = Reform::Validation::Groups::Result.(self.class.validation_groups, self).compact # TODO: discss compact
+    # this is where nested dry errors come with mixed validations.
 
     local_errors = Reform::Contract::Errors.new
     local_errors_by_group.each do |error|
