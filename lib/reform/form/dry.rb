@@ -38,7 +38,7 @@ module Reform::Form::Dry
           configure do
             keys.each { |k| option k }
           end
-        end unless keys.empty?
+        end
       end
 
       def call(form)
