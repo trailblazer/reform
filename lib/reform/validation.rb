@@ -3,7 +3,7 @@
 module Reform::Validation
   module ClassMethods
     def validation_groups
-      @groups ||= Groups.new(validation_group_class) # TODO: inheritable_attr with Inheritable::Hash
+      @groups ||= Groups.new(validation_group_class)
     end
 
     # DSL.
