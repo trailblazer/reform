@@ -88,7 +88,7 @@ module Reform::Form::Dry
             end
           else
             call(nested_form, nested_form.errors, dry_errors)
-            Reform::Contract::Errors::Merge.merge!(reform_errors, nested_form.errors, [field])
+            # Reform::Contract::Errors::Merge.merge!(reform_errors, nested_form.errors, [field])
           end
         end
 
