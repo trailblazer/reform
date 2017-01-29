@@ -47,7 +47,7 @@ module Reform::Form::Dry
         inject_options  = @schema_inject_params.merge(dynamic_options)
 
         # TODO: only pass submitted values to Schema#call?
-        dry_result      = @validator.new(@validator.rules, inject_options).(input_hash(form))
+        dry_result      = call_schema(inject_options, input_hash(form))
         dry_messages    = dry_result.messages
 
         reform_errors   = Reform::Contract::Errors.new(dry_result) # TODO: dry should be merged here.
@@ -55,6 +55,11 @@ module Reform::Form::Dry
         process_errors(form, reform_errors, dry_messages)
 
         reform_errors
+      end
+
+    private
+      def call_schema(inject_options, input)
+        @validator.new(@validator.rules, inject_options).(input)
       end
 
       # if dry_error is a hash rather than an array then it contains

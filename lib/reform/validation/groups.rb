@@ -37,7 +37,7 @@ module Reform::Validation
     end
 
 
-    # Runs all validations groups according to their rules and returns Errors object with all groups merged errors.
+    # Runs all validations groups according to their rules and returns all Result objects.
     class Result
       def self.call(groups, form)
         results = {}
@@ -45,7 +45,7 @@ module Reform::Validation
         groups.collect do |(name, group, options)|
           next unless evaluate?(options[:if], results, form)
 
-          results[name] = group.(form) # run validation for group. store <Result>.
+          results[name] = group.(form) # run validation for group. store and collect <Result>.
         end
       end
 
