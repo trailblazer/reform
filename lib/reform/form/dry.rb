@@ -46,9 +46,11 @@ module Reform::Form::Dry
         dynamic_options[:form] = form if @schema_inject_params[:form]
         inject_options  = @schema_inject_params.merge(dynamic_options)
 
-        dry_errors      = @validator.new(@validator.rules, inject_options).call(input_hash(form))
-        reform_errors   = Reform::Contract::Errors.new#(dry_errors)
-        dry_messages    = dry_errors.messages
+        # TODO: only pass submitted values?
+        dry_result      = @validator.new(@validator.rules, inject_options).(input_hash(form))
+        dry_messages    = dry_result.messages
+
+        reform_errors   = Reform::Contract::Errors.new(dry_result)
 
         process_errors(form, reform_errors, dry_messages)
 

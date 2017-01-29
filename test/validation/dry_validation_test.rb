@@ -45,6 +45,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
     it do
       skip
       result = form.({ title: "", artist: { email: "" } })
+      # for now (and we can change this) we have the schema's result object, literally per schema (or validation block).
       form.errors.raw.must_equal []
     end
   end

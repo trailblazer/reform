@@ -53,7 +53,12 @@ class Reform::Contract::Errors
   end
   alias :count :size
 
+  # TODO: deprecate empty?
   def empty?
     size.zero?
+  end
+
+  def success?
+    empty?
   end
 end

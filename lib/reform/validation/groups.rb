@@ -43,16 +43,15 @@ module Reform::Validation
         results = {}
         errors = Reform::Contract::Errors.new
 
-        groups.each do |cfg|
-          name, group, options = cfg
+        groups.each do |(name, group, options)|
           depends_on = options[:if]
 
-          if evaluate?(depends_on, results, form)
-            _errors = group.(form) # run validation for group.
+          next unless evaluate?(depends_on, results, form)
 
-            results[name] = _errors.empty? # validate.
-            errors.merge!(_errors, nil)
-          end
+          _errors = group.(form) # run validation for group.
+
+          results[name] = _errors.success?
+          errors.merge!(_errors, nil)
         end
 
         errors
