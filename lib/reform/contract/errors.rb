@@ -9,21 +9,20 @@ class Reform::Contract::Errors
   module Merge
     def merge!(errors, prefix)
       errors.messages.each do |field, msgs|
-        field = prefixed(field) unless field.to_sym == :base # DISCUSS: isn't that AMV specific?
+        field = prefixed(field, prefix) unless field.to_sym == :base # DISCUSS: isn't that AMV specific?
 
         msgs.each do |msg|
-          next if messages[field] and messages[field].include?(msg)
+          next if messages[field] and messages[field].include?(msg) # DISCUSS: why would this ever happen?
+          # this is total nonsense: :"songs.title"=>["must be filled", "must be filled"],
+          # why would two different forms merge their errors into one field?
+
           add(field, msg)
         end
       end
     end
 
-    def to_s
-      messages.inspect
-    end
-
   private
-    def prefixed(field)
+    def prefixed(field, prefix)
       [prefix,field].compact.join(".").to_sym # TODO: why is that a symbol in Rails?
     end
   end
