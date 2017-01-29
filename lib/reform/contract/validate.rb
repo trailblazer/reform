@@ -10,8 +10,8 @@ module Reform::Contract::Validate
 
     local_errors = Reform::Validation::Groups::Result.(self.class.validation_groups, self)
 
-    nested_errors.each do |(name, errors)|
-      local_errors.merge!(errors, name)
+    nested_errors.each do |(prefixes, errors)|
+      Reform::Contract::Errors::Merge.merge!(local_errors, errors, prefixes)
     end
 
     @errors = local_errors # @ivar sucks, of course
@@ -24,7 +24,8 @@ private
   def validate_nested!
     arr = []
     schema.each(twin: true) do |dfn|
-      Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form| arr<<[ dfn[:name], form.validate! ] }
+      # on collections, this calls validate! on each item form.
+      Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form, i| arr<<[ [dfn[:name], i], form.validate! ] }
     end
     arr
   end

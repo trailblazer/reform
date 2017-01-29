@@ -4,3 +4,4 @@ gemspec
 
 gem "minitest-line"
 gem 'byebug'
+gem "disposable", path: "../disposable"

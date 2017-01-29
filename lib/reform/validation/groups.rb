@@ -49,7 +49,7 @@ module Reform::Validation
           _errors = group.(form) # run validation for group.
 
           results[name] = _errors.success?
-          errors.merge!(_errors, nil)
+          Reform::Contract::Errors::Merge.merge!(errors, _errors, [nil])
         end
 
         errors

@@ -7,26 +7,19 @@ class Reform::Contract::Errors
 
   # Merge always adds errors on the same level with target, but adds prefix.
   module Merge
-    def merge!(errors, prefix)
+    def self.merge!(target, errors, prefix)
       errors.messages.each do |field, msgs|
         field = prefixed(field, prefix) unless field.to_sym == :base # DISCUSS: isn't that AMV specific?
 
-        msgs.each do |msg|
-          next if messages[field] and messages[field].include?(msg) # DISCUSS: why would this ever happen?
-          # this is total nonsense: :"songs.title"=>["must be filled", "must be filled"],
-          # why would two different forms merge their errors into one field?
-
-          add(field, msg)
-        end
+        msgs.each { |msg| target.add(field, msg) }
       end
     end
 
   private
-    def prefixed(field, prefix)
-      [prefix,field].compact.join(".").to_sym # TODO: why is that a symbol in Rails?
+    def self.prefixed(field, prefix)
+      [*prefix, field].compact.join(".").to_sym # TODO: why is that a symbol in Rails?
     end
   end
-  include Merge
 
   def add(field, message)
     @errors[field] ||= []
