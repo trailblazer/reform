@@ -374,7 +374,7 @@ class ValidationGroupsTest < MiniTest::Spec
       property :band do
         property :name
         property :label do
-          property :name
+          property :location
         end
       end
 
@@ -393,7 +393,7 @@ class ValidationGroupsTest < MiniTest::Spec
         required(:band).schema do
           required(:name).filled
           required(:label).schema do
-            required(:name).filled
+            required(:location).filled
           end
         end
 
@@ -421,15 +421,17 @@ class ValidationGroupsTest < MiniTest::Spec
       result = form.validate(
         "title"  => "",
         "songs"  => [ {"title" => ""}, {"title" => ""} ],
-        "band"   => {"size" => "", "label" => {"name" => ""}},
+        "band"   => {"size" => "", "label" => {"location" => ""}},
         "producers" => [{"name" => ''}, {"name" => 'something lovely'}]
       )
 
       result.must_equal false
       # songs have their own validation.
       form.songs[0].errors.messages.inspect.must_equal %{{:title=>[\"must be filled\"]}}
+      # hit got its own validation group.
+
+      form.band.label.errors.messages.inspect.must_equal %({:location=>["must be filled"]})
       form.band.errors.messages.inspect.must_equal %({:name=>["must be filled"], :\"label.name\"=>[\"must be filled\"]})
-      form.band.label.errors.messages.inspect.must_equal %({:name=>["must be filled"]})
       form.producers.first.errors.messages.inspect.must_equal %({:name=>[\"must be filled\"]})
       form.errors.messages.inspect.must_equal %({:title=>["must be filled", "you're a bad person"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.2.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.0.title"=>["must be filled"]})
     end

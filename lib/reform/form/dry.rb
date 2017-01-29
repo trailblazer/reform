@@ -48,11 +48,11 @@ module Reform::Form::Dry
 
         # TODO: only pass submitted values to Schema#call?
         dry_result      = call_schema(inject_options, input_hash(form))
-        dry_messages    = dry_result.messages
+        # dry_messages    = dry_result.messages
 
         reform_errors   = Reform::Contract::Errors.new(dry_result) # TODO: dry should be merged here.
 
-        WriteErrorsToNestedForms.(form, reform_errors, dry_messages)
+        # WriteErrorsToNestedForms.(form, reform_errors, dry_messages)
 
         reform_errors
       end
@@ -87,6 +87,7 @@ module Reform::Form::Dry
               process_nested_errors(nested_form[index], field, object_errors, reform_errors)
             end
           else
+            puts "@@@@@ #{nested_form.errors.inspect}"
             call(nested_form, nested_form.errors, dry_errors)
             # Reform::Contract::Errors::Merge.merge!(reform_errors, nested_form.errors, [field])
           end

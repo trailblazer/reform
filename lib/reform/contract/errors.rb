@@ -8,7 +8,7 @@ class Reform::Contract::Errors
   # Merge always adds errors on the same level with target, but adds prefix.
   module Merge
     def self.merge!(target, errors, prefix)
-      errors.messages.each do |field, msgs|
+      errors.each do |field, msgs|
         field = prefixed(field, prefix) unless field.to_sym == :base # DISCUSS: isn't that AMV specific?
 
         msgs.each { |msg| target.add(field, msg) }
