@@ -7,8 +7,10 @@ class Reform::Contract::Errors
 
   # Merge always adds errors on the same level with target, but adds prefix.
   module Merge
-    def self.merge!(target, errors, prefix)
-      errors.each do |field, msgs|
+    def self.call(target, to_merge, prefix)
+      to_merge = to_merge.find_all { |k,v| v.is_a?(Array) }.to_h # FIXME. can't we distinguish between nested in another way?
+
+      to_merge.each do |field, msgs|
         field = prefixed(field, prefix) unless field.to_sym == :base # DISCUSS: isn't that AMV specific?
 
         msgs.each { |msg| target.add(field, msg) }

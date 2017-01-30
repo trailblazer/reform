@@ -5,22 +5,14 @@ module Reform::Contract::Validate
     validate!(nil, {}).success?
   end
 
-
-  # first: nested schema needs to write errors to nested forms
-  # second: normal mechanics: validate all nested forms, merge their errors into ours.
-
-  MergeLocalErrors = ->(target, to_merge) { to_merge.find_all { |k,v| v.is_a?(Array) }.to_h.each { |k,v|
-
-    v.each { |i| target.add(k,i) }
-      } }
-
   def validate!(name, injected_errors)
+    # injected_errors: {:name=>["must be filled"], :label=>{:location=>["must be filled"]}}
     puts ">>> #{name.inspect}, #{injected_errors}"
 
     local_errors = Reform::Contract::Errors.new
 
     # merge injected locals on local.
-    MergeLocalErrors.(local_errors, injected_errors)
+    Reform::Contract::Errors::Merge.(local_errors, injected_errors, [])
 
     # validate local validation groups.
     local_errors_by_group = Reform::Validation::Groups::Result.(self.class.validation_groups, self).compact # TODO: discss compact
@@ -32,7 +24,7 @@ module Reform::Contract::Validate
       # dry:
       error = error.instance_variable_get(:@original_result)
 
-      MergeLocalErrors.(local_errors, error.messages)
+      Reform::Contract::Errors::Merge.(local_errors, error.messages, [])
 
       nested_injected_errors.merge!(error.messages)
     end
@@ -42,7 +34,8 @@ module Reform::Contract::Validate
     # this is where nested dry errors come with mixed validations.
 
     nested_errors.each do |(prefixes, errors)|
-      Reform::Contract::Errors::Merge.merge!(local_errors, errors.messages, prefixes)
+      puts "@@@@@ #{prefixes.inspect}, #{errors.messages}"
+      Reform::Contract::Errors::Merge.(local_errors, errors.messages, prefixes)
     end
 
     @errors = local_errors # @ivar sucks, of course
