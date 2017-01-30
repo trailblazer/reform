@@ -1,3 +1,12 @@
+# form.errors => result.messages(locale: :default)
+module Reform
+  module Errors
+    class Result
+
+    end
+  end
+end
+
 class Reform::Contract::Errors
   def initialize(original_result=nil)
     @original_result = original_result

@@ -2,6 +2,9 @@ require "test_helper"
 require "reform/form/dry"
 require "reform/form/coercion"
 
+
+#---
+# one "nested" Schema per form.
 class DryValidationErrorsAPITest < Minitest::Spec
   Song   = Struct.new(:title, :artist)
   Artist = Struct.new(:email, :label)
@@ -36,9 +39,11 @@ class DryValidationErrorsAPITest < Minitest::Spec
   it do
     result = form.({ title: "", artist: { email: "" } })
 
+    result.success?.must_equal false
     # local errors
     form.errors[:title].must_equal ["must be filled"]
     form.artist.errors[:email].must_equal ["must be filled"]
+    form.artist.label.errors.must_equal({})
   end
 
   describe "Errors#raw" do

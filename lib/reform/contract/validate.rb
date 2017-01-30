@@ -17,7 +17,6 @@ module Reform::Contract::Validate
     # validate local validation groups.
     local_errors_by_group = Reform::Validation::Groups::Result.(self.class.validation_groups, self).compact # TODO: discss compact
 
-
     nested_injected_errors = {}.merge(injected_errors)
 
     local_errors_by_group.each do |error|
@@ -34,7 +33,6 @@ module Reform::Contract::Validate
     # this is where nested dry errors come with mixed validations.
 
     nested_errors.each do |(prefixes, errors)|
-      puts "@@@@@ #{prefixes.inspect}, #{errors.messages}"
       Reform::Contract::Errors::Merge.(local_errors, errors.messages, prefixes)
     end
 
