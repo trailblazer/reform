@@ -9,6 +9,16 @@ module Reform::Contract::Validate
     # injected_errors: {:name=>["must be filled"], :label=>{:location=>["must be filled"]}}
     puts ">>> #{name.inspect}, #{injected_errors}"
 
+
+    local_errors_by_group = Reform::Validation::Groups::Result.(self.class.validation_groups, self).compact # TODO: discss compact
+
+
+
+
+        nested_errors = validate_nested!({})
+return @errors = local_errors
+
+
     local_errors = Reform::Contract::Errors.new
 
     # merge injected locals on local.

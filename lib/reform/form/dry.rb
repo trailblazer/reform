@@ -50,6 +50,7 @@ module Reform::Form::Dry
         dry_result      = call_schema(inject_options, input_hash(form))
         # dry_messages    = dry_result.messages
 
+        return dry_result
         reform_errors   = Reform::Contract::Errors.new(dry_result) # TODO: dry should be merged here.
       end
 

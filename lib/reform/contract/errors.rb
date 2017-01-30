@@ -1,8 +1,38 @@
 # form.errors => result.messages(locale: :default)
 module Reform
-  module Errors
-    class Result
+  class Contract < Disposable::Twin
 
+    # Collects all results of a form of all groups.
+    class Result
+      def initialize(results)
+        @results = results
+        @success = @results.find(&:success?)
+      end
+
+      def success?
+        !! @success
+      end
+
+      def errors(*args)
+        @results.collect { |r| r.errors(*args) }
+          .inject({}) { |hsh, errs| hsh.merge(errs) }
+          .find_all { |k, v| v.is_a?(Array) } # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
+          .to_h
+      end
+
+      class Pointer
+        def initialize(result, path)
+          @result, @path = result, path
+        end
+
+        def success?
+          @result.success?
+        end
+
+        def errors(*args)
+          @path.inject(@result.errors) { |errs, segment| errs[segment] }
+        end
+      end
     end
   end
 end
