@@ -43,17 +43,14 @@ class DryValidationErrorsAPITest < Minitest::Spec
     # local errors
     form.errors[:title].must_equal ["must be filled"]
     form.artist.errors[:email].must_equal ["must be filled"]
-    form.artist.label.errors.must_equal({})
+    form.artist.label.errors.must_equal({:location=>["must be filled"]})
   end
 
-  describe "Errors#raw" do
-    it do
-      skip
-      result = form.({ title: "", artist: { email: "" } })
-      # for now (and we can change this) we have the schema's result object, literally per schema (or validation block).
-      form.errors.raw.must_equal []
-    end
-  end
+
+
+
+
+
 
   # only nested is invalid.
   it do
@@ -424,22 +421,27 @@ class ValidationGroupsTest < MiniTest::Spec
 
     it "maps errors to form objects correctly" do
       result = form.validate(
-        "title"  => "",
+        "title"  => "Nickelback",
         "songs"  => [ {"title" => ""}, {"title" => ""} ],
         "band"   => {"size" => "", "label" => {"location" => ""}},
         "producers" => [{"name" => ''}, {"name" => 'something lovely'}]
       )
 
       result.must_equal false
-      # songs have their own validation.
-      form.songs[0].errors.messages.inspect.must_equal %{{:title=>[\"must be filled\"]}}
-      # hit got its own validation group.
+      # from nested validation
+      form.errors.inspect.must_equal %({:title=>["you're a bad person"]})
 
-      form.band.label.errors.messages.inspect.must_equal %({:location=>["must be filled"]})
-      form.band.errors.messages.inspect.must_equal %({:name=>["must be filled"], :\"label.location\"=>[\"must be filled\"]})
-      form.producers.first.errors.messages.inspect.must_equal %({:name=>[\"must be filled\"]})
-      form.errors.messages.inspect.must_equal %({:title=>["must be filled", "you're a bad person"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.2.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.0.title"=>["must be filled"]})
+      # songs have their own validation.
+      form.songs[0].errors.inspect.must_equal %{{:title=>[\"must be filled\"]}}
+      # hit got its own validation group.
+      form.hit.errors.must_equal({:title=>["must be filled"]})
+
+      form.band.label.errors.inspect.must_equal %({:location=>["must be filled"]})
+      form.band.errors.inspect.must_equal %({:name=>["must be filled"]})
+      form.producers.first.errors.inspect.must_equal %({:name=>[\"must be filled\"]})
     end
+
+    # FIXME: fix the "must be filled error"
 
     it "renders full messages correctly" do
       result = form.validate(

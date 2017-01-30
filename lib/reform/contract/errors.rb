@@ -30,7 +30,12 @@ module Reform
         end
 
         def errors(*args)
-          @path.inject(@result.errors) { |errs, segment| errs[segment] }
+          @path.inject(@result.errors(*args)) { |errs, segment| errs[segment] }
+        end
+
+        # FIXME.
+        def [](name)
+          @path.inject(@result.errors) { |errs, segment| errs[segment] }[name]
         end
       end
     end
