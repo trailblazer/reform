@@ -9,35 +9,37 @@ module Reform::Contract::Validate
   # first: nested schema needs to write errors to nested forms
   # second: normal mechanics: validate all nested forms, merge their errors into ours.
 
+  MergeLocalErrors = ->(target, to_merge) { to_merge.find_all { |k,v| v.is_a?(Array) }.to_h.each { |k,v|
+
+    v.each { |i| target.add(k,i) }
+      } }
+
   def validate!(name, injected_errors)
     puts ">>> #{name.inspect}, #{injected_errors}"
 
-    local_errors_by_group = Reform::Validation::Groups::Result.(self.class.validation_groups, self).compact # TODO: discss compact
-    puts "  > #{local_errors_by_group.inspect}" # validate_nested!(:songs-1 Error)
-
-    nested_passthrough_errors = {}.merge(injected_errors)
-
     local_errors = Reform::Contract::Errors.new
-    Reform::Contract::Errors::Merge.merge!(local_errors, injected_errors, []) # merge injected on local.
+
+    # merge injected locals on local.
+    MergeLocalErrors.(local_errors, injected_errors)
+
+    # validate local validation groups.
+    local_errors_by_group = Reform::Validation::Groups::Result.(self.class.validation_groups, self).compact # TODO: discss compact
+
+
+    nested_injected_errors = {}.merge(injected_errors)
 
     local_errors_by_group.each do |error|
       # dry:
       error = error.instance_variable_get(:@original_result)
 
-      Reform::Contract::Errors::Merge.merge!(local_errors, error.messages, [])
+      MergeLocalErrors.(local_errors, error.messages)
 
-      nested_passthrough_errors.merge!(error.messages)
+      nested_injected_errors.merge!(error.messages)
     end
 
-    # dry:
-    puts "@@@@@ #{nested_passthrough_errors.inspect}"
-
-    nested_errors = validate_nested!(nested_passthrough_errors)
+    nested_errors = validate_nested!(nested_injected_errors)
 
     # this is where nested dry errors come with mixed validations.
-    # this is also where fran's algorithm set errors on nested forms.
-
-
 
     nested_errors.each do |(prefixes, errors)|
       Reform::Contract::Errors::Merge.merge!(local_errors, errors.messages, prefixes)

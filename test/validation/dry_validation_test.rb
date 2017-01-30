@@ -431,7 +431,7 @@ class ValidationGroupsTest < MiniTest::Spec
       # hit got its own validation group.
 
       form.band.label.errors.messages.inspect.must_equal %({:location=>["must be filled"]})
-      form.band.errors.messages.inspect.must_equal %({:name=>["must be filled"], :\"label.name\"=>[\"must be filled\"]})
+      form.band.errors.messages.inspect.must_equal %({:name=>["must be filled"], :\"label.location\"=>[\"must be filled\"]})
       form.producers.first.errors.messages.inspect.must_equal %({:name=>[\"must be filled\"]})
       form.errors.messages.inspect.must_equal %({:title=>["must be filled", "you're a bad person"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.2.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.0.title"=>["must be filled"]})
     end
@@ -445,8 +445,8 @@ class ValidationGroupsTest < MiniTest::Spec
       )
 
       result.must_equal false
-      form.band.errors.full_messages.must_equal ["Name must be filled", "Label Name must be filled"]
-      form.band.label.errors.full_messages.must_equal ["Name must be filled"]
+      form.band.errors.full_messages.must_equal ["Name must be filled", "Label Location must be filled"]
+      form.band.label.errors.full_messages.must_equal ["Location must be filled"]
       form.producers.first.errors.full_messages.must_equal ["Name must be filled"]
       form.errors.full_messages.must_equal ["Title must be filled", "Title you're a bad person", "Band Name must be filled", "Band Label Name must be filled", "Producers Name must be filled", "Hit Title must be filled", "Songs Title must be filled"]
     end
