@@ -412,8 +412,8 @@ class ValidationGroupsTest < MiniTest::Spec
       OpenStruct.new(
         :hit    => OpenStruct.new,
         :songs  => [OpenStruct.new, OpenStruct.new],
-        :producers => [OpenStruct.new, OpenStruct.new, OpenStruct.new],
         :band => Struct.new(:name, :label).new("", OpenStruct.new),
+        :producers => [OpenStruct.new, OpenStruct.new, OpenStruct.new],
       )
     end
 
@@ -438,7 +438,8 @@ class ValidationGroupsTest < MiniTest::Spec
 
       form.band.label.errors.inspect.must_equal %({:location=>["must be filled"]})
       form.band.errors.inspect.must_equal %({:name=>["must be filled"]})
-      form.producers.first.errors.inspect.must_equal %({:name=>[\"must be filled\"]})
+
+      form.producers[0].errors.inspect.must_equal %({:name=>[\"must be filled\"]})
     end
 
     # FIXME: fix the "must be filled error"
