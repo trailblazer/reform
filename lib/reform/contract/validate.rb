@@ -13,21 +13,12 @@ module Reform::Contract::Validate
     puts ">>> #{name.inspect}"
 
     # TODO: rename to Groups::Validate
+    # run local validations. this could be nested schemas, too.
     local_errors_by_group = Reform::Validation::Groups::Result.(self.class.validation_groups, self).compact # TODO: discss compact
 
-
-    local_errors_by_group = local_errors_by_group + pointers
-    result = Reform::Contract::Result.new(local_errors_by_group) # also add injected pointers!
-
-
-    # unless pointer
+    @result = Reform::Contract::Result.new(local_errors_by_group + pointers). tap do # blindly add injected pointers. will be readable via #errors.
       pointers += [P.new(local_errors_by_group[0], [])]
-          #   puts "building new pointer%%%%%%%%%%%%"
-    # end
-
-      nested_errors = validate_nested!(pointers) # FIXME.
-
-    @result = result
+      nested_errors = validate_nested!(pointers) # DISCUSS: do we need the nested errors right here?
   end
 
 
