@@ -457,6 +457,44 @@ class ValidationGroupsTest < MiniTest::Spec
       form.producers.first.errors.full_messages.must_equal ["Name must be filled"]
       form.errors.full_messages.must_equal ["Title must be filled", "Title you're a bad person", "Band Name must be filled", "Band Label Name must be filled", "Producers Name must be filled", "Hit Title must be filled", "Songs Title must be filled"]
     end
+
+    describe "only 1 nested validation" do
+      class AlbumFormWith1NestedVal < TestForm
+        property :title
+        property :band do
+          property :name
+          property :label do
+            property :location
+          end
+        end
+
+        validation do
+          required(:title).filled
+
+          required(:band).schema do
+            required(:name).filled
+            required(:label).schema do
+              required(:location).filled
+            end
+          end
+        end
+      end
+
+      let (:form)  { AlbumFormWith1NestedVal.new(album) }
+
+      it "what" do
+        result = form.validate(
+          "title"  => "",
+          "songs"  => [ {"title" => ""}, {"title" => ""} ],
+          "band"   => {"size" => "", "label" => {"name" => ""}},
+          "producers" => [{"name" => ''}, {"name" => ''}, {"name" => 'something lovely'}]
+        )
+
+        form.errors.must_equal({:title=>["must be filled"]})
+        form.band.errors.must_equal({:name=>["must be filled"]})
+        form.band.label.errors.must_equal({:location=>["must be filled"]})
+      end
+    end
   end
 
   # describe "same-named group" do
