@@ -1,6 +1,6 @@
 ## 2.2.4
 
-* Always require `disposable` > 0.4. 
+* Always require `disposable` >= 0.4.1. 
   
   The only difference here is that `Form#sync`/`#save` with a block will include `nil` properties into the nested hash.
 * Remove `uber` dependency.
