@@ -15,5 +15,5 @@ gemspec
 gem "minitest-line"
 gem 'byebug'
 
-gem "uber", path: "../uber"
+# gem "uber", path: "../uber"
 gem "representable", ">= 3.0.1"

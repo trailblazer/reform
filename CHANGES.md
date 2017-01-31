@@ -1,3 +1,10 @@
+## 2.2.4
+
+* Always require `disposable` > 0.4. 
+  
+  The only difference here is that `Form#sync`/`#save` with a block will include `nil` properties into the nested hash.
+* Remove `uber` dependency.
+
 ## 2.2.3
 
 * Add `Form#call` as an alias for `validate` and the `Result` object.
