@@ -1,6 +1,4 @@
 module Reform::Contract::Validate
-  # attr_reader :errors # TODO: breaks when #validate wasn't called (and that's a GOOD THING.)
-
   def validate
     validate!(nil).success?
   end
@@ -19,6 +17,9 @@ module Reform::Contract::Validate
     @result = Reform::Contract::Result.new(local_errors_by_group + pointers). tap do # blindly add injected pointers. will be readable via #errors.
       pointers += [P.new(local_errors_by_group[0], [])]
       nested_errors = validate_nested!(pointers) # DISCUSS: do we need the nested errors right here?
+    end
+
+    # TODO: we're false if nested is false!
   end
 
 
@@ -28,37 +29,28 @@ module Reform::Contract::Validate
 private
 
   # Recursively call validate! on nested forms.
-  # Collect [ [:composer, #<Errors>], [:albums, #<Errors>]]
+  # A pointer keeps an entire result object (e.g. Dry result) and 
+  # the relevant path to its fragment, e.g. <Dry::result{.....} path=songs,0>
   def validate_nested!(pointers)
-    # puts "@@@@@ #{pointer.inspect}"
-
-    arr = []
     schema.each(twin: true) do |dfn|
       # on collections, this calls validate! on each item form.
       Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form, i|
 
-        # puts "&&&&&& songs #{pointer.inspect}" if dfn[:name]=="songs"
         pointer = pointers[0] # FIXME.
 
-        if nested_error = pointer[dfn[:name].to_sym]
-          puts "   $$$$" if dfn[:name]=="songs" # SONGS DOESN'T HAVE ENTRY HERE.
-          nested_error = nested_error[i] if i
-
+        nested_pointers = [] # TODO: process all original pointers!
+        if pointer && pointer[dfn[:name].to_sym] # pointer contains fragment for us, so go one deeper.
 
           # local error has a nested element for us!
           path = pointer.instance_variable_get(:@path)
           res = pointer.instance_variable_get(:@result)
-          puts "found (#{dfn[:name]}) #{nested_error}, #{path+[dfn[:name].to_sym, i].compact}x #{res}"
+          # puts "found (#{dfn[:name]}) #{nested_error}, #{path+[dfn[:name].to_sym, i].compact}x #{res}"
 
-          pint = P.new(res, path+[dfn[:name].to_sym, i].compact)
-          arr<<[ [dfn[:name], i], form.validate!(dfn[:name], [pint]) ] and next
-          # pointer = Reform::Contract::Result::Pointer.new(pointer, [dfn[:name]]))
+          nested_pointers << P.new(res, path+[dfn[:name].to_sym, i].compact)
         end
 
-          puts "pionter: #{pint.inspect}"
-
-        arr<<[ [dfn[:name], i], form.validate!(dfn[:name]) ] }
+        form.validate!(dfn[:name], nested_pointers) 
+      }
     end
-    arr
   end
 end
