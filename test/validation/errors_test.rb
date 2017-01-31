@@ -49,6 +49,13 @@ class ErrorsResultTest < Minitest::Spec
     let (:band) { Reform::Contract::Result::Pointer.new(MyResult.new(false, errors), [:artist, :bands, 1]) }
     it { band.success?.must_equal false }
     it { band.errors.must_equal({:name=>"too boring"}) }
+
+    describe "advance" do
+      let(:advanced) { artist.advance([:bands, 1]) }
+
+      it { advanced.success?.must_equal false }
+      it { advanced.errors.must_equal({:name=>"too boring"}) }
+    end
   end
 end
 

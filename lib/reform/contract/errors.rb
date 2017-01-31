@@ -37,6 +37,11 @@ module Reform
         def [](name)
           @path.inject(@result.errors) { |errs, segment| errs[segment] }[name]
         end
+
+        def advance(segment, index)
+          return unless @path.inject(@result.errors) { |errs, segment| errs[segment] } # FIXME. test if all segments present.
+          Pointer.new(@result, @path+path)
+        end
       end
     end
   end

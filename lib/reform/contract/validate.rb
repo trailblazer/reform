@@ -29,7 +29,7 @@ module Reform::Contract::Validate
 private
 
   # Recursively call validate! on nested forms.
-  # A pointer keeps an entire result object (e.g. Dry result) and 
+  # A pointer keeps an entire result object (e.g. Dry result) and
   # the relevant path to its fragment, e.g. <Dry::result{.....} path=songs,0>
   def validate_nested!(pointers)
     schema.each(twin: true) do |dfn|
@@ -46,10 +46,10 @@ private
           res = pointer.instance_variable_get(:@result)
           # puts "found (#{dfn[:name]}) #{nested_error}, #{path+[dfn[:name].to_sym, i].compact}x #{res}"
 
-          nested_pointers << P.new(res, path+[dfn[:name].to_sym, i].compact)
+          nested_pointers << pointer.advance([ dfn[:name].to_sym, i ])
         end
 
-        form.validate!(dfn[:name], nested_pointers) 
+        form.validate!(dfn[:name], nested_pointers.compact)
       }
     end
   end
