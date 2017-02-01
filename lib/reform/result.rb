@@ -47,7 +47,7 @@ module Reform
         DottedErrors = ->(form, prefix, hash) do
           bla=form.instance_variable_get(:@result) # FIXME.
           return unless bla
-          form.instance_variable_get(:@result).messages.collect { |k,v| hash[ [*prefix, k].join(".").to_sym] = v }
+          form.instance_variable_get(:@result).errors.collect { |k,v| hash[ [*prefix, k].join(".").to_sym] = v }
 
           form.schema.each(twin: true) { |dfn|
             Disposable::Twin::PropertyProcessor.new(dfn, form).() do |frm, i|
@@ -82,19 +82,23 @@ module Reform
         def_delegators :@result, :success?, :failure?
 
         def errors(*args)
-          traverse(@path, *args) # TODO: return [] if nil
+          traverse(@result.errors(*args), @path, *args) # TODO: return [] if nil
         end
+
+        # def messages(*args)
+        #   traverse(@result.messages(*args), @path, *args) # TODO: return [] if nil
+        # end
 
         def advance(*path)
           path = @path + path.compact # remove index if nil.
-          return if traverse(path) == {}
+          return if traverse(@result.errors, path) == {}
 
           Pointer.new(@result, path)
         end
 
       private
-        def traverse(path, *args)
-          path.inject(@result.errors(*args)) { |errs, segment| errs.fetch(segment, {}) } # FIXME. test if all segments present.
+        def traverse(hash, path)
+          path.inject(hash) { |errs, segment| errs.fetch(segment, {}) } # FIXME. test if all segments present.
         end
       end
     end

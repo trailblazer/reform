@@ -429,7 +429,7 @@ class ValidationGroupsTest < MiniTest::Spec
 
       result.must_equal false
       # from nested validation
-      form.errors.inspect.must_equal %({:title=>["you're a bad person"]})
+      form.errors.messages.inspect.must_equal %({:title=>["you're a bad person"]})
 
       # songs have their own validation.
       form.songs[0].errors.inspect.must_equal %{{:title=>[\"must be filled\"]}}
