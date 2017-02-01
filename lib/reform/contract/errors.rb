@@ -20,6 +20,9 @@ module Reform
           .to_h
       end
 
+      # Note: this class might be redundant in Reform 3, where the public API
+      # allows/enforces to pass options to #errors (e.g. errors(locale: "br"))
+      # which means we don't have to "lazy-handle" that with "pointers".
       class Pointer
         def initialize(result, path)
           @result, @path = result, path
@@ -30,17 +33,24 @@ module Reform
         end
 
         def errors(*args)
-          @path.inject(@result.errors(*args)) { |errs, segment| errs[segment] } # TODO: return [] if nil
+          traverse(@path, *args) # TODO: return [] if nil
         end
 
         # FIXME.
         def [](name)
-          @path.inject(@result.errors) { |errs, segment| errs[segment] }[name]
+          traverse(@path)[name]
         end
 
-        def advance(segment, index)
-          return unless @path.inject(@result.errors) { |errs, segment| errs[segment] } # FIXME. test if all segments present.
-          Pointer.new(@result, @path+path)
+        def advance(*path)
+          path = @path + path.compact # remove index if nil.
+          return unless traverse(path)
+
+          Pointer.new(@result, path)
+        end
+
+      private
+        def traverse(path, *args)
+          path.inject(@result.errors(*args)) { |errs, segment| errs[segment] } # FIXME. test if all segments present.
         end
       end
     end

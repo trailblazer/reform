@@ -46,7 +46,7 @@ private
           res = pointer.instance_variable_get(:@result)
           # puts "found (#{dfn[:name]}) #{nested_error}, #{path+[dfn[:name].to_sym, i].compact}x #{res}"
 
-          nested_pointers << pointer.advance([ dfn[:name].to_sym, i ])
+          nested_pointers << pointer.advance(dfn[:name].to_sym, i)
         end
 
         form.validate!(dfn[:name], nested_pointers.compact)
