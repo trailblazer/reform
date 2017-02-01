@@ -23,6 +23,7 @@ module Reform
       # Note: this class might be redundant in Reform 3, where the public API
       # allows/enforces to pass options to #errors (e.g. errors(locale: "br"))
       # which means we don't have to "lazy-handle" that with "pointers".
+      # :private:
       class Pointer
         def initialize(result, path)
           @result, @path = result, path
@@ -36,21 +37,16 @@ module Reform
           traverse(@path, *args) # TODO: return [] if nil
         end
 
-        # FIXME.
-        def [](name)
-          traverse(@path)[name]
-        end
-
         def advance(*path)
           path = @path + path.compact # remove index if nil.
-          return unless traverse(path)
+          return if traverse(path) == {}
 
           Pointer.new(@result, path)
         end
 
       private
         def traverse(path, *args)
-          path.inject(@result.errors(*args)) { |errs, segment| errs[segment] } # FIXME. test if all segments present.
+          path.inject(@result.errors(*args)) { |errs, segment| errs.fetch(segment, {}) } # FIXME. test if all segments present.
         end
       end
     end
