@@ -3,10 +3,11 @@ module Reform
   class Contract < Disposable::Twin
 
     # Collects all results of a form of all groups.
+    # Keeps the validity of that branch.
     class Result
-      def initialize(results, nested_results)
+      def initialize(results, nested_results=[]) # DISCUSS: do we like this?
         @results = results
-        @failure = (results + nested_results).find(&:failure?)
+        @failure = (results + nested_results).find(&:failure?) # TODO: test nested.
       end
 
       def success?
@@ -31,7 +32,20 @@ module Reform
           .to_h
       end
 
-      # Note: this class might be redundant in Reform 3, where the public API
+      # Provides the old API for Rails and friends.
+      # Note that this might become an optional "deprecation" gem in Reform 3.
+      class Errors
+        def initialize(result)
+          @result = result
+        end
+
+        def messages(*args)
+          # warn "[Reform] form.errors.messages will be deprecated in Reform 2.4."
+          @result.messages(*args)
+        end
+      end
+
+      # Note: this class will be redundant in Reform 3, where the public API
       # allows/enforces to pass options to #errors (e.g. errors(locale: "br"))
       # which means we don't have to "lazy-handle" that with "pointers".
       # :private:

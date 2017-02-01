@@ -1,7 +1,9 @@
 require "test_helper"
 
 class ErrorsResultTest < Minitest::Spec
-  MyResult = Struct.new(:success?, :errors)
+  MyResult = Struct.new(:success?, :errors) do
+    def failure?; !success? end
+  end
 
   # TODO: errors(args) not tested.
 
@@ -10,8 +12,9 @@ class ErrorsResultTest < Minitest::Spec
     let (:succeeded) { MyResult.new(true) }
 
     it { Reform::Contract::Result.new([failed, failed]).success?.must_equal false }
-    it { Reform::Contract::Result.new([succeeded, failed]).success?.must_equal true }
-    it { Reform::Contract::Result.new([failed, succeeded]).success?.must_equal true }
+    it { Reform::Contract::Result.new([succeeded, failed]).success?.must_equal false }
+    it { Reform::Contract::Result.new([failed, succeeded]).success?.must_equal false }
+    it { Reform::Contract::Result.new([succeeded, succeeded]).success?.must_equal true }
   end
 
   describe "Contract::Result#errors" do

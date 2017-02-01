@@ -7,18 +7,7 @@ class Reform::Contract < Disposable::Twin # i hate that so much. will we get nam
     def errors(*args)
       @result.errors(*args) if args.size > 0 # Reform 2.4/3.0 API. really return errors.
 
-      DeprecatedApi.new(@result)
-    end
-
-    class DeprecatedApi
-      def initialize(result)
-        @result = result
-      end
-
-      def messages(*args)
-        warn "[Reform] form.errors.messages will be deprecated in Reform 2.4."
-        @result.messages(*args)
-      end
+      Result::Errors.new(@result)
     end
 
     def validate!(name, pointers=[])
