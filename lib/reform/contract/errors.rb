@@ -60,24 +60,6 @@ class Reform::Contract::Errors
     @full_errors = Set.new
   end
 
-  # Merge always adds errors on the same level with target, but adds prefix.
-  module Merge
-    def self.call(target, to_merge, prefix)
-      to_merge = to_merge.find_all { |k,v| v.is_a?(Array) }.to_h # FIXME. can't we distinguish between nested in another way?
-
-      to_merge.each do |field, msgs|
-        field = prefixed(field, prefix) unless field.to_sym == :base # DISCUSS: isn't that AMV specific?
-
-        msgs.each { |msg| target.add(field, msg) }
-      end
-    end
-
-  private
-    def self.prefixed(field, prefix)
-      [*prefix, field].compact.join(".").to_sym # TODO: why is that a symbol in Rails?
-    end
-  end
-
   def add(field, message)
     @errors[field] ||= []
     @errors[field] << message

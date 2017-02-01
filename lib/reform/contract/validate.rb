@@ -10,8 +10,6 @@ class Reform::Contract < Disposable::Twin # i hate that so much. will we get nam
 
     def validate!(name, pointers=[])
       puts ">>> #{name.inspect}"
-      # puts "    #{pointers.inspect}"
-
       # TODO: rename to Groups::Validate
       # run local validations. this could be nested schemas, too.
       local_errors_by_group = Reform::Validation::Groups::Result.(self.class.validation_groups, self).compact # TODO: discss compact
@@ -20,6 +18,7 @@ class Reform::Contract < Disposable::Twin # i hate that so much. will we get nam
         # blindly add injected pointers. will be readable via #errors.
         # also, add pointers from local errors here.
         pointers += local_errors_by_group.collect { |errs| Result::Pointer.new(errs, []) }.compact
+
         nested_errors = validate_nested!(pointers) # DISCUSS: do we need the nested errors right here?
       end
 
