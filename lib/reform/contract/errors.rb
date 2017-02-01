@@ -36,13 +36,13 @@ module Reform
       # which means we don't have to "lazy-handle" that with "pointers".
       # :private:
       class Pointer
+        extend Forwardable
+
         def initialize(result, path)
           @result, @path = result, path
         end
 
-        def success?
-          @result.success?
-        end
+        def_delegators :@result, :success?, :failure?
 
         def errors(*args)
           traverse(@path, *args) # TODO: return [] if nil
