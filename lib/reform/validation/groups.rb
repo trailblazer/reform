@@ -38,7 +38,7 @@ module Reform::Validation
 
 
     # Runs all validations groups according to their rules and returns all Result objects.
-    class Result
+    class Validate
       def self.call(groups, form)
         results = {}
 

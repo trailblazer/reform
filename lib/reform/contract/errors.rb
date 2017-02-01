@@ -4,17 +4,28 @@ module Reform
 
     # Collects all results of a form of all groups.
     class Result
-      def initialize(results)
+      def initialize(results, nested_results)
         @results = results
-        @success = @results.find(&:success?)
+        @failure = (results + nested_results).find(&:failure?)
       end
 
       def success?
-        !! @success
+        ! failure?
+      end
+
+      def failure?
+        @failure
       end
 
       def errors(*args)
         @results.collect { |r| r.errors(*args) }
+          .inject({}) { |hsh, errs| hsh.merge(errs) }
+          .find_all { |k, v| v.is_a?(Array) } # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
+          .to_h
+      end
+
+      def messages(*args) # FIXME
+        @results.collect { |r| r.messages(*args) }
           .inject({}) { |hsh, errs| hsh.merge(errs) }
           .find_all { |k, v| v.is_a?(Array) } # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
           .to_h
