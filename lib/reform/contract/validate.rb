@@ -4,10 +4,11 @@ class Reform::Contract < Disposable::Twin # i hate that so much. will we get nam
       validate!(nil).success?
     end
 
+    # The #errors method will be removed in Reform 3 core.
     def errors(*args)
       @result.errors(*args) if args.size > 0 # Reform 2.4/3.0 API. really return errors.
 
-      Result::Errors.new(@result)
+      Result::Errors.new(@result, self)
     end
 
     def validate!(name, pointers=[])
