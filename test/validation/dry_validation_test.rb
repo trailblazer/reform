@@ -1,18 +1,17 @@
 # encoding: utf-8
-
 require "test_helper"
 require "reform/form/dry"
 require "reform/form/coercion"
 
-
 #---
 # one "nested" Schema per form.
 class DryValidationErrorsAPITest < Minitest::Spec
-  Song   = Struct.new(:title, :artist)
+  Album  = Struct.new(:title, :artist, :songs)
+  Song   = Struct.new(:title)
   Artist = Struct.new(:email, :label)
   Label  = Struct.new(:location)
 
-  class SongForm < TestForm
+  class AlbumForm < TestForm
     property :title
 
     validation do
@@ -34,18 +33,55 @@ class DryValidationErrorsAPITest < Minitest::Spec
         end
       end
     end
+
+    # note the validation block is *in* the collection block, per item, so to speak.
+    collection :songs do
+      property :title
+
+      validation do
+        configure do
+          config.messages_file = 'test/fixtures/dry_error_messages.yml'
+        end
+
+        required(:title).filled
+      end
+    end
+
   end
 
-  let (:form) { SongForm.new(Song.new(nil, Artist.new(nil, Label.new))) }
+  let (:form) { AlbumForm.new(Album.new(nil, Artist.new(nil, Label.new), [Song.new(nil), Song.new(nil)])) }
 
   it do
-    result = form.({ title: "", artist: { email: "" } })
+    result = form.({ title: "", artist: { email: "" }, songs: [{ title: "Clams have feelings too" }, { title: "" }] })
 
     result.success?.must_equal false
-    # local errors
+
+    # errors.messages
+    form.errors.messages.must_equal({:title=>["must be filled"], :"artist.email"=>["must be filled"], :"artist.label.location"=>["must be filled"], :"songs.1.title"=>["must be filled"]})
+    form.artist.errors.messages.must_equal({:email=>["must be filled"], :"label.location"=>["must be filled"]})
+    form.artist.label.errors.messages.must_equal({:location=>["must be filled"]})
+    form.songs[0].errors.messages.must_equal({})
+    form.songs[1].errors.messages.must_equal({:title=>["must be filled"]})
+
+    # #errors[]
+    form.errors[:nonsense].must_be_nil
     form.errors[:title].must_equal ["must be filled"]
     form.artist.errors[:email].must_equal ["must be filled"]
-    form.artist.label.errors.must_equal({:location=>["must be filled"]})
+    form.artist.label.errors[:location].must_equal ["must be filled"]
+    form.songs[0].errors[:title].must_be_nil
+    form.songs[1].errors[:title].must_equal ["must be filled"]
+
+    # #to_result
+    form.to_result.errors.must_equal({:title=>["must be filled"]})
+    form.to_result.messages.must_equal({:title=>["must be filled"]})
+    form.artist.to_result.errors.must_equal({:email=>["must be filled"]})
+    form.artist.to_result.messages.must_equal({:email=>["must be filled"]})
+    form.artist.label.to_result.errors.must_equal({:location=>["must be filled"]})
+    form.artist.label.to_result.messages.must_equal({:location=>["must be filled"]})
+    form.songs[0].to_result.errors.must_equal({})
+    form.songs[0].to_result.messages.must_equal({})
+    form.songs[1].to_result.errors.must_equal({:title=>["must be filled"]})
+    form.songs[1].to_result.messages.must_equal({:title=>["must be filled"]})
   end
 
 
@@ -74,32 +110,6 @@ class DryValidationErrorsAPITest < Minitest::Spec
 
     result.success?.must_equal false
     form.errors.messages.must_equal({:"artist.label.location"=>["must be filled"]})
-  end
-
-  #---
-  #- collections
-  Album = Struct.new(:songs)
-
-  class CollectionForm < TestForm
-    collection :songs do
-      property :title
-    end
-
-    validation do
-      required(:songs).each do
-        schema do
-          required(:title).filled
-        end
-      end
-    end
-  end
-
-  it do
-    form = CollectionForm.new(Album.new([Song.new, Song.new]))
-    form.validate(songs: [ { title: "Liar"}, { title: ""} ])
-
-    form.songs[0].errors.messages.must_equal({})
-    form.songs[1].errors.messages.must_equal({:title=>["must be filled"]})
   end
 
   class CollectionLocalValidationsForm < TestForm
