@@ -51,7 +51,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
 
   let (:form) { AlbumForm.new(Album.new(nil, Artist.new(nil, Label.new), [Song.new(nil), Song.new(nil)])) }
 
-  it do
+  it "everything wrong" do
     result = form.({ title: "", artist: { email: "" }, songs: [{ title: "Clams have feelings too" }, { title: "" }] })
 
     result.success?.must_equal false
@@ -82,55 +82,53 @@ class DryValidationErrorsAPITest < Minitest::Spec
     form.songs[0].to_result.messages.must_equal({})
     form.songs[1].to_result.errors.must_equal({:title=>["must be filled"]})
     form.songs[1].to_result.messages.must_equal({:title=>["must be filled"]})
+    form.songs[1].to_result.errors(locale: :de).must_equal({:title=>["muss abgefüllt sein"]})
+    form.songs[1].to_result.messages(locale: :de).must_equal({:title=>["muss abgefüllt sein"]})
   end
 
-
-
-
-
-
-
-  # only nested is invalid.
-  it do
+  it "only nested property is invalid." do
     result = form.({ title: "Black Star", artist: { email: "" } })
 
     result.success?.must_equal false
 
-    form.errors[:title].must_equal []
-    form.errors[:"artist.email"].must_equal ["must be filled"]
-
-    form.artist.errors[:email].must_equal ["must be filled"]
-
+    # errors.messages
+    form.errors.messages.must_equal({:"artist.email"=>["must be filled"], :"artist.label.location"=>["must be filled"], :"songs.0.title"=>["must be filled"], :"songs.1.title"=>["must be filled"]})
+    form.artist.errors.messages.must_equal({:email=>["must be filled"], :"label.location"=>["must be filled"]})
     form.artist.label.errors.messages.must_equal({:location=>["must be filled"]})
   end
 
-  # nested-nested invalid, only.
-  it do
-    result = form.({ title: "Black Star", artist: { email: "uhm", label: { location: "" } } })
+  it "nested collection invalid" do
+    result = form.({ title: "Black Star", artist: { email: "uhm", label: { location: "Hannover" } }, songs: [ { title: "" } ] })
 
     result.success?.must_equal false
-    form.errors.messages.must_equal({:"artist.label.location"=>["must be filled"]})
+    form.errors.messages.must_equal({:"songs.0.title"=>["must be filled"], :"songs.1.title"=>["must be filled"]})
   end
 
-  class CollectionLocalValidationsForm < TestForm
+  class CollectionExternalValidationsForm < TestForm
     collection :songs do
       property :title
-      validation do
-        required(:title).filled
+    end
+
+    validation do
+      required(:songs).each do
+        schema do
+          required(:title).filled
+        end
       end
     end
   end
 
-  it "local collection validation group shows errors" do
-    form = CollectionLocalValidationsForm.new(Album.new([Song.new, Song.new]))
+  it do
+    form = CollectionExternalValidationsForm.new(Album.new(nil, nil, [Song.new, Song.new]))
     form.validate(songs: [ { title: "Liar"}, { title: ""} ])
 
+    form.errors.messages.must_equal({:"songs.1.title"=>["must be filled"]})
     form.songs[0].errors.messages.must_equal({})
     form.songs[1].errors.messages.must_equal({:title=>["must be filled"]})
   end
 end
 
-class DryValidationNoBlockTest < Minitest::Spec
+class DryValidationExplicitSchemaTest < Minitest::Spec
   Session = Struct.new(:name, :email)
   SessionSchema = Dry::Validation.Schema do
     required(:name).filled
