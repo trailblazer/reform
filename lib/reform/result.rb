@@ -82,7 +82,7 @@ module Reform
         def_delegators :@result, :success?, :failure?
 
         def errors(*args)
-          traverse(@result.errors(*args), @path, *args) # TODO: return [] if nil
+          traverse(@result.errors(*args), @path) # TODO: return [] if nil
         end
 
         # def messages(*args)

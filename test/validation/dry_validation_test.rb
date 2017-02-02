@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require "test_helper"
 require "reform/form/dry"
 require "reform/form/coercion"
@@ -470,6 +472,10 @@ class ValidationGroupsTest < MiniTest::Spec
         end
 
         validation do
+          configure do
+            config.messages_file = 'test/fixtures/dry_error_messages.yml'
+          end
+
           required(:title).filled
 
           required(:band).schema do
@@ -483,7 +489,7 @@ class ValidationGroupsTest < MiniTest::Spec
 
       let (:form)  { AlbumFormWith1NestedVal.new(album) }
 
-      it "what" do
+      it "allows to access dry's result semantics per nested form" do
         result = form.validate(
           "title"  => "",
           "songs"  => [ {"title" => ""}, {"title" => ""} ],
@@ -494,6 +500,11 @@ class ValidationGroupsTest < MiniTest::Spec
         form.to_result.errors.must_equal({:title=>["must be filled"]})
         form.band.to_result.errors.must_equal({:name=>["must be filled"]})
         form.band.label.to_result.errors.must_equal({:location=>["must be filled"]})
+
+        # with locale: "de"
+        form.to_result.errors(locale: :de).must_equal({:title=>["muss abgefüllt sein"]})
+        form.band.to_result.errors(locale: :de).must_equal({:name=>["muss abgefüllt sein"]})
+        form.band.label.to_result.errors(locale: :de).must_equal({:location=>["muss abgefüllt sein"]})
       end
     end
   end
