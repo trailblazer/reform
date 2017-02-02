@@ -1,4 +1,3 @@
-# form.errors => result.messages(locale: :default)
 module Reform
   class Contract < Disposable::Twin
 
@@ -49,9 +48,9 @@ module Reform
           traverse(@result.errors(*args), @path) # TODO: return [] if nil
         end
 
-        # def messages(*args)
-        #   traverse(@result.messages(*args), @path, *args) # TODO: return [] if nil
-        # end
+        def messages(*args)
+          traverse(@result.messages(*args), @path, *args) # TODO: return [] if nil
+        end
 
         def advance(*path)
           path = @path + path.compact # remove index if nil.
@@ -68,8 +67,3 @@ module Reform
     end
   end
 end
-
-    # Ensure that we can return Active Record compliant full messages when using dry
-    # we only want unique messages in our array
-    # human_field = field.to_s.gsub(/([\.\_])+/, " ").gsub(/(\b\w)+/) { |s| s.capitalize }
-    # @full_errors.add("#{human_field} #{message}")
