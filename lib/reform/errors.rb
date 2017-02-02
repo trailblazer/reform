@@ -11,9 +11,8 @@ class Reform::Contract::Result::Errors
 
   # PROTOTYPING. THIS WILL GO TO A SEPARATE GEM IN REFORM 2.4/3.0.
   DottedErrors = ->(form, prefix, hash) do
-    bla=form.to_result
-    return unless bla # FIXME.
-    bla.messages.collect { |k,v| hash[ [*prefix, k].join(".").to_sym] = v }
+    result = form.to_result
+    result.messages.collect { |k,v| hash[ [*prefix, k].join(".").to_sym] = v }
 
     form.schema.each(twin: true) { |dfn|
       Disposable::Twin::PropertyProcessor.new(dfn, form).() do |frm, i|
