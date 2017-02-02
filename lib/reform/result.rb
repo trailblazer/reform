@@ -36,18 +36,18 @@ module Reform
       # Note that this might become an optional "deprecation" gem in Reform 3.
       class Errors
         def initialize(result, form)
-          @result = result
-          @form   = form
-
+          @result        = result # DISCUSS: we don't use this ATM?
+          @form          = form
           @dotted_errors = {} # Reform does not endorse this style of error msgs.
+
           DottedErrors.(@form, [], @dotted_errors)
         end
 
         # PROTOTYPING. THIS WILL GO TO A SEPARATE GEM IN REFORM 2.4/3.0.
         DottedErrors = ->(form, prefix, hash) do
-          bla=form.instance_variable_get(:@result) # FIXME.
-          return unless bla
-          form.instance_variable_get(:@result).errors.collect { |k,v| hash[ [*prefix, k].join(".").to_sym] = v }
+          bla=form.to_result
+          return unless bla # FIXME.
+          bla.errors.collect { |k,v| hash[ [*prefix, k].join(".").to_sym] = v }
 
           form.schema.each(twin: true) { |dfn|
             Disposable::Twin::PropertyProcessor.new(dfn, form).() do |frm, i|

@@ -491,9 +491,9 @@ class ValidationGroupsTest < MiniTest::Spec
           "producers" => [{"name" => ''}, {"name" => ''}, {"name" => 'something lovely'}]
         )
 
-        form.errors.must_equal({:title=>["must be filled"]})
-        form.band.errors.must_equal({:name=>["must be filled"]})
-        form.band.label.errors.must_equal({:location=>["must be filled"]})
+        form.to_result.errors.must_equal({:title=>["must be filled"]})
+        form.band.to_result.errors.must_equal({:name=>["must be filled"]})
+        form.band.label.to_result.errors.must_equal({:location=>["must be filled"]})
       end
     end
   end

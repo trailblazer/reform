@@ -9,6 +9,12 @@ class Reform::Contract < Disposable::Twin # i hate that so much. will we get nam
       Result::Errors.new(@result, self)
     end
 
+    #:private:
+    # only used in tests so far. this will be the new API in #call, where you will get @result.
+    def to_result
+      @result
+    end
+
     def validate!(name, pointers=[])
       # run local validations. this could be nested schemas, too.
       local_errors_by_group = Reform::Validation::Groups::Validate.(self.class.validation_groups, self).compact # TODO: discss compact
