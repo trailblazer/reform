@@ -2,30 +2,23 @@ module Reform
   class Contract < Disposable::Twin
 
     # Collects all results of a form of all groups.
-    # Keeps the validity of that branch.
+    # Keeps the validity of that branch via #success?.
     class Result
       def initialize(results, nested_results=[]) # DISCUSS: do we like this?
         @results = results
         @failure = (results + nested_results).find(&:failure?) # TODO: test nested.
       end
 
-      def success?
-        ! failure?
-      end
+      def failure?; @failure  end
+      def success?; !failure? end
 
-      def failure?
-        @failure
-      end
+      def errors(*args);   filter(:errors, *args) end
+      def messages(*args); filter(:messages, *args) end
+      def hints(*args);    filter(:hints, *args) end
 
-      def errors(*args)
-        @results.collect { |r| r.errors(*args) }
-          .inject({}) { |hsh, errs| hsh.merge(errs) }
-          .find_all { |k, v| v.is_a?(Array) } # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
-          .to_h
-      end
-
-      def messages(*args) # FIXME
-        @results.collect { |r| r.messages(*args) }
+    private
+      def filter(method, *args)
+        @results.collect { |r| r.public_send(method, *args) }
           .inject({}) { |hsh, errs| hsh.merge(errs) }
           .find_all { |k, v| v.is_a?(Array) } # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
           .to_h

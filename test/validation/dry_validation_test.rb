@@ -75,16 +75,22 @@ class DryValidationErrorsAPITest < Minitest::Spec
     # #to_result
     form.to_result.errors.must_equal({:title=>["must be filled"]})
     form.to_result.messages.must_equal({:title=>["must be filled", "size cannot be less than 2"]})
+    form.to_result.hints.must_equal({:title=>["size cannot be less than 2"]})
     form.artist.to_result.errors.must_equal({:email=>["must be filled"]})
     form.artist.to_result.messages.must_equal({:email=>["must be filled"]})
+    form.artist.to_result.hints.must_equal({:email=>[]})
     form.artist.label.to_result.errors.must_equal({:location=>["must be filled"]})
     form.artist.label.to_result.messages.must_equal({:location=>["must be filled"]})
+    form.artist.label.to_result.hints.must_equal({:location=>[]})
     form.songs[0].to_result.errors.must_equal({})
     form.songs[0].to_result.messages.must_equal({})
+    form.songs[0].to_result.hints.must_equal({})
     form.songs[1].to_result.errors.must_equal({:title=>["must be filled"]})
     form.songs[1].to_result.messages.must_equal({:title=>["must be filled"]})
+    form.songs[1].to_result.hints.must_equal({:title=>[]})
     form.songs[1].to_result.errors(locale: :de).must_equal({:title=>["muss abgefüllt sein"]})
     form.songs[1].to_result.messages(locale: :de).must_equal({:title=>["muss abgefüllt sein"]})
+    form.songs[1].to_result.hints(locale: :de).must_equal({:title=>[]})
   end
 
   it "only nested property is invalid." do
