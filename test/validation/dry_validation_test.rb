@@ -105,6 +105,8 @@ class DryValidationErrorsAPITest < Minitest::Spec
     form.errors.messages.must_equal({:"songs.0.title"=>["must be filled"], :"songs.1.title"=>["must be filled"]})
   end
 
+  #---
+  #- validation .each
   class CollectionExternalValidationsForm < TestForm
     collection :songs do
       property :title
@@ -321,24 +323,30 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
-  describe "with custom schema class" do
-    Session2 = Struct.new(:username, :email)
+  #---
+  #- validation( schema: MySchema )
+  describe "with custom schema" do
+    Session2 = Struct.new(:username, :email, :password)
 
-    class CustomSchema < Dry::Validation::Schema
+    MySchema = Dry::Validation.Schema do
       configure do
         config.messages_file = 'test/fixtures/dry_error_messages.yml'
 
         def good_musical_taste?(val)
           val.is_a? String
         end
+
       end
+
+      required(:password).filled(:min_size? => 6)
     end
 
     class Session2Form < TestForm
       property :username
       property :email
+      property :password
 
-      validation schema: CustomSchema do
+      validation schema: MySchema do
         required(:username).filled
         required(:email).filled(:good_musical_taste?)
       end
@@ -348,19 +356,19 @@ class ValidationGroupsTest < MiniTest::Spec
 
     # valid.
     it do
-      form.validate({ username: "Helloween", email: "yep" }).must_equal true
+      form.validate({ username: "Helloween", email: "yep", password: "extrasafe" }).must_equal true
       form.errors.messages.inspect.must_equal "{}"
     end
 
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.must_equal({:username=>["must be filled"], :email=>["must be filled", "you're a bad person"]})
+      form.errors.messages.must_equal({:password=>["must be filled", "size cannot be less than 6"], :username=>["must be filled"], :email=>["must be filled", "you're a bad person"]})
     end
 
     it do
       form.validate({email: 1}).must_equal false
-      form.errors.messages.inspect.must_equal "{:username=>[\"must be filled\"], :email=>[\"you're a bad person\"]}"
+      form.errors.messages.inspect.must_equal "{:password=>[\"must be filled\", \"size cannot be less than 6\"], :username=>[\"must be filled\"], :email=>[\"you're a bad person\"]}"
     end
   end
 
