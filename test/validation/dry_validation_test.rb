@@ -469,6 +469,11 @@ class ValidationGroupsTest < MiniTest::Spec
       form.band.label.errors.messages.must_equal({:location=>["must be filled"]})
       form.band.errors.messages.must_equal({:name=>["must be filled"], :"label.location"=>["must be filled"]})
       form.producers[0].errors.messages.must_equal({:name=>["must be filled"]})
+
+      # TODO: use the same form structure as the top one and do the same test against messages, errors and hints.
+      form.producers[0].to_result.errors.must_equal({:name=>["must be filled"]})
+      form.producers[0].to_result.messages.must_equal({:name=>["must be filled"]})
+      form.producers[0].to_result.hints.must_equal({:name=>[]})
     end
 
     # FIXME: fix the "must be filled error"

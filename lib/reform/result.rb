@@ -12,12 +12,12 @@ module Reform
       def failure?; @failure  end
       def success?; !failure? end
 
-      def errors(*args);   filter(:errors, *args) end
-      def messages(*args); filter(:messages, *args) end
-      def hints(*args);    filter(:hints, *args) end
+      def errors(*args);   filter_for(:errors, *args) end
+      def messages(*args); filter_for(:messages, *args) end
+      def hints(*args);    filter_for(:hints, *args) end
 
     private
-      def filter(method, *args)
+      def filter_for(method, *args)
         @results.collect { |r| r.public_send(method, *args) }
           .inject({}) { |hsh, errs| hsh.merge(errs) }
           .find_all { |k, v| v.is_a?(Array) } # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
@@ -37,13 +37,9 @@ module Reform
 
         def_delegators :@result, :success?, :failure?
 
-        def errors(*args)
-          traverse(@result.errors(*args), @path) # TODO: return [] if nil
-        end
-
-        def messages(*args)
-          traverse(@result.messages(*args), @path, *args) # TODO: return [] if nil
-        end
+        def errors(*args);   traverse_for(:errors, *args) end
+        def messages(*args); traverse_for(:messages, *args) end
+        def hints(*args);    traverse_for(:hints, *args) end
 
         def advance(*path)
           path = @path + path.compact # remove index if nil.
@@ -55,6 +51,10 @@ module Reform
       private
         def traverse(hash, path)
           path.inject(hash) { |errs, segment| errs.fetch(segment, {}) } # FIXME. test if all segments present.
+        end
+
+        def traverse_for(method, *args)
+          traverse(@result.public_send(method, *args), @path) # TODO: return [] if nil
         end
       end
     end
