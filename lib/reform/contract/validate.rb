@@ -1,5 +1,12 @@
 class Reform::Contract < Disposable::Twin # i hate that so much. will we get namespace, ever?
   module Validate
+    def initialize(*)
+      # this will be removed in Reform 3.0. we need this for the presenting form, form builders
+      # call the Form#errors method before validation.
+      super
+      @result = Result.new([])
+    end
+
     def validate
       validate!(nil).success?
     end

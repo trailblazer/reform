@@ -63,6 +63,12 @@ class ErrorsTest < MiniTest::Spec
   let (:form)  { AlbumForm.new(album) }
 
 
+  describe "#errors without #validate" do
+    it do
+      form.errors.size.must_equal 0
+    end
+  end
+
   describe "blank everywhere" do
     before { form.validate(
       "hit"   =>{"title" => ""},
