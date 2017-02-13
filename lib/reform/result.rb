@@ -50,7 +50,7 @@ module Reform
 
       private
         def traverse(hash, path)
-          path.inject(hash) { |errs, segment| errs.fetch(segment, {}) } # FIXME. test if all segments present.
+          path.inject(hash) { |errs, segment| errs[segment] || {} } # FIXME. test if all segments present.
         end
 
         def traverse_for(method, *args)
