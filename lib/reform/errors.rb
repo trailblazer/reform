@@ -16,7 +16,8 @@ class Reform::Contract::Result::Errors
 
     form.schema.each(twin: true) { |dfn|
       Disposable::Twin::PropertyProcessor.new(dfn, form).() do |frm, i|
-        DottedErrors.(form.send(dfn[:name])[i], [*prefix, dfn[:name], i], hash) and next if i
+        # DottedErrors.(form.send(dfn[:name])[i], [*prefix, dfn[:name], i], hash) and next if i
+        DottedErrors.(form.send(dfn[:name])[i], [*prefix, dfn[:name]], hash) and next if i
         DottedErrors.(form.send(dfn[:name]), [*prefix, dfn[:name]], hash)
       end
     }

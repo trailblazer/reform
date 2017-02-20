@@ -79,8 +79,7 @@ class ErrorsTest < MiniTest::Spec
       form.errors.messages.must_equal({
         :title  => ["must be filled"],
         :"hit.title"=>["must be filled"],
-        :"songs.0.title"=>["must be filled"],
-        :"songs.1.title"=>["must be filled"],
+        :"songs.title"=>["must be filled"],
         :"band.label.name"=>["must be filled"]
       })
     end
@@ -98,11 +97,10 @@ class ErrorsTest < MiniTest::Spec
       form.errors.messages.must_equal({
         :title        => ["must be filled"],
         :"hit.title"  => ["must be filled"],
-        :"songs.0.title"=> ["must be filled"],
-        :"songs.1.title"=> ["must be filled"],
+        :"songs.title"=> ["must be filled"],
         :"band.label.name"=>["must be filled"]
       })
-      form.errors.size.must_equal(5)
+      form.errors.size.must_equal(4)
     end
   end
 
@@ -129,7 +127,7 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate("songs"=>[{"title" => ""}], "band"=>{"label"=>{:name => "Fat Wreck"}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"songs.0.title"=>["must be filled"]}) }
+    it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"]}) }
     it { form.errors.size.must_equal(1) }
   end
 
@@ -138,7 +136,7 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"songs.0.title"=>["must be filled"], :"band.label.name"=>["must be filled"]}) }
+    it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"], :"band.label.name"=>["must be filled"]}) }
     it { form.errors.size.must_equal(2) }
   end
 

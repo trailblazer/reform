@@ -58,7 +58,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
     result.success?.must_equal false
 
     # errors.messages
-    form.errors.messages.must_equal({:title=>["must be filled", "size cannot be less than 2"], :"artist.email"=>["must be filled"], :"artist.label.location"=>["must be filled"], :"songs.1.title"=>["must be filled"]})
+    form.errors.messages.must_equal({:title=>["must be filled", "size cannot be less than 2"], :"artist.email"=>["must be filled"], :"artist.label.location"=>["must be filled"], :"songs.title"=>["must be filled"]})
     form.artist.errors.messages.must_equal({:email=>["must be filled"], :"label.location"=>["must be filled"]})
     form.artist.label.errors.messages.must_equal({:location=>["must be filled"]})
     form.songs[0].errors.messages.must_equal({})
@@ -99,7 +99,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
     result.success?.must_equal false
 
     # errors.messages
-    form.errors.messages.must_equal({:"artist.email"=>["must be filled"], :"artist.label.location"=>["must be filled"], :"songs.0.title"=>["must be filled"], :"songs.1.title"=>["must be filled"]})
+    form.errors.messages.must_equal({:"artist.email"=>["must be filled"], :"artist.label.location"=>["must be filled"], :"songs.title"=>["must be filled"]})
     form.artist.errors.messages.must_equal({:email=>["must be filled"], :"label.location"=>["must be filled"]})
     form.artist.label.errors.messages.must_equal({:location=>["must be filled"]})
   end
@@ -108,7 +108,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
     result = form.({ title: "Black Star", artist: { email: "uhm", label: { location: "Hannover" } }, songs: [ { title: "" } ] })
 
     result.success?.must_equal false
-    form.errors.messages.must_equal({:"songs.0.title"=>["must be filled"], :"songs.1.title"=>["must be filled"]})
+    form.errors.messages.must_equal({:"songs.title"=>["must be filled"]})
   end
 
   #---
@@ -131,7 +131,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
     form = CollectionExternalValidationsForm.new(Album.new(nil, nil, [Song.new, Song.new]))
     form.validate(songs: [ { title: "Liar"}, { title: ""} ])
 
-    form.errors.messages.must_equal({:"songs.1.title"=>["must be filled"]})
+    form.errors.messages.must_equal({:"songs.title"=>["must be filled"]})
     form.songs[0].errors.messages.must_equal({})
     form.songs[1].errors.messages.must_equal({:title=>["must be filled"]})
   end
@@ -459,7 +459,7 @@ class ValidationGroupsTest < MiniTest::Spec
 
       result.must_equal false
       # from nested validation
-      form.errors.messages.must_equal({:title=>["you're a bad person"], :"hit.title"=>["must be filled"], :"songs.0.title"=>["must be filled"], :"songs.1.title"=>["must be filled"], :"producers.0.name"=>["must be filled"], :"producers.2.name"=>["must be filled"], :"band.name"=>["must be filled"], :"band.label.location"=>["must be filled"]})
+      form.errors.messages.must_equal({:title=>["you're a bad person"], :"hit.title"=>["must be filled"], :"songs.title"=>["must be filled"], :"producers.name"=>["must be filled"], :"band.name"=>["must be filled"], :"band.label.location"=>["must be filled"]})
 
       # songs have their own validation.
       form.songs[0].errors.messages.must_equal({:title=>["must be filled"]})
@@ -490,7 +490,7 @@ class ValidationGroupsTest < MiniTest::Spec
       form.band.errors.full_messages.must_equal ["Name must be filled", "Label Location must be filled"]
       form.band.label.errors.full_messages.must_equal ["Location must be filled"]
       form.producers.first.errors.full_messages.must_equal ["Name must be filled"]
-      form.errors.full_messages.must_equal ["Title must be filled", "Title you're a bad person", "Hit Title must be filled", "Songs 0 Title must be filled", "Songs 1 Title must be filled", "Producers 0 Name must be filled", "Producers 1 Name must be filled", "Band Name must be filled", "Band Label Location must be filled"]
+      form.errors.full_messages.must_equal ["Title must be filled", "Title you're a bad person", "Hit Title must be filled", "Songs Title must be filled", "Producers Name must be filled", "Band Name must be filled", "Band Label Location must be filled"]
     end
 
     describe "only 1 nested validation" do

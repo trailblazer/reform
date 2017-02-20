@@ -1,4 +1,4 @@
-class Reform::Contract < Disposable::Twin # i hate that so much. will we get namespace, ever?
+class Reform::Contract < Disposable::Twin
   module Validate
     def initialize(*)
       # this will be removed in Reform 3.0. we need this for the presenting form, form builders
@@ -32,6 +32,7 @@ class Reform::Contract < Disposable::Twin # i hate that so much. will we get nam
 
       nested_errors = validate_nested!(pointers_for_nested)
 
+      # Result: unified interface #success?, #messages, etc.
       @result = Result.new(local_errors_by_group + pointers, nested_errors)
     end
 

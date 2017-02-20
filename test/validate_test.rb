@@ -50,7 +50,7 @@ class ContractValidateTest < MiniTest::Spec
     album.name = nil
 
     form.validate.must_equal false
-    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.1.composer.name\"=>[\"must be filled\"]}"
+    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"]}"
   end
 end
 
@@ -234,7 +234,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
       "artist" => {"name" => ""},
     ).must_equal false
 
-    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.1.composer.name\"=>[\"must be filled\"], :\"artist.name\"=>[\"must be filled\"]}"
+    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"], :\"artist.name\"=>[\"must be filled\"]}"
   end
 
   # adding to collection via :instance.
