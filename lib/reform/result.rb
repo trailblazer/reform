@@ -1,11 +1,12 @@
 module Reform
   class Contract < Disposable::Twin
 
-    # Collects all results of a form of all groups.
-    # Keeps the validity of that branch via #success?.
+    # Collects all native results of a form of all groups and provides
+    # a unified API: #success?, #errors, #messages, #hints.
+    # #success? returns validity of the branch.
     class Result
       def initialize(results, nested_results=[]) # DISCUSS: do we like this?
-        @results = results
+        @results = results # native Result objects, e.g. `#<Dry::Validation::Result output={:title=>"Fallout", :composer=>nil} errors={}>`
         @failure = (results + nested_results).find(&:failure?) # TODO: test nested.
       end
 
