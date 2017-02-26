@@ -21,8 +21,6 @@ You can upgrade from 2.2.0 without worries.
 
 * In `:if` for validation groups, you now get a hash of result objects, not just true/false.
 
-### TODO: deprecate that.
-
 
 ## 2.2.4
 
