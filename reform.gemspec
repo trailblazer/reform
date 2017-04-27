@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency             "representable",  "~> 2.1.0"
-  spec.add_dependency             "disposable",     "~> 0.0.5"
+  spec.add_dependency             "disposable",     github: 'policygenius/disposable', branch: 'log-forwardable-calls'
   spec.add_dependency             "uber",           "~> 0.0.11"
   spec.add_dependency             "activemodel"
   spec.add_development_dependency "bundler",        "~> 1.3"
