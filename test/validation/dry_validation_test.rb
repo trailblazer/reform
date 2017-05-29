@@ -237,6 +237,9 @@ class DryValidationLogicOperatorTest < MiniTest::Spec
       property :bar
 
       validation do
+        required(:foo).filled
+        required(:bar).filled
+
         rule(foobar: [:foo, :bar]) do |foo, bar|
           # syntax error when using "xor" alias
           foo.eql?("foobar") ^ bar.eql?("foobar")
@@ -254,7 +257,6 @@ class DryValidationLogicOperatorTest < MiniTest::Spec
 
     # invalid
     it do
-      # should pass but fails
       form.validate({ foo: "foobar", bar: "foobar"}).must_equal false
     end
   end
