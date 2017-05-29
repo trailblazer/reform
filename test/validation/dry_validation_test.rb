@@ -228,6 +228,65 @@ class DryValidationDefaultGroupTest < Minitest::Spec
   end
 end
 
+class DryValidationLogicOperatorTest < MiniTest::Spec
+  OperatorClass = Struct.new(:foo, :bar)
+
+  describe "xor operator" do
+    class XorOperatorForm < TestForm
+      property :foo
+      property :bar
+
+      validation do
+        required(:foo).filled
+        required(:bar).filled
+
+        rule(foobar: [:foo, :bar]) do |foo, bar|
+          # syntax error when using "xor" alias
+          foo.eql?("foobar") ^ bar.eql?("foobar")
+        end
+      end
+    end
+
+    let(:form) { XorOperatorForm.new(OperatorClass.new) }
+
+    # valid
+    it do
+      form.validate({ foo: "foobar", bar: "barfoo"}).must_equal true
+      form.validate({ foo: "barfoo", bar: "foobar"}).must_equal true
+    end
+
+    # invalid
+    it do
+      form.validate({ foo: "foobar", bar: "foobar"}).must_equal false
+    end
+  end
+
+  describe "then operator" do
+    class ThenOperatorForm < TestForm
+      property :foo
+
+      validation do
+        # syntax error when using "then" alias
+        required(:foo) { filled? > int? }
+      end
+    end
+
+    let(:form) { ThenOperatorForm.new(OperatorClass.new) }
+
+    # valid
+    it do
+      form.validate({}).must_equal true
+      form.validate({ foo: 42 }).must_equal true
+    end
+
+    # invalid
+    it do
+      form.validate({ foo: "foobar" }).must_equal false
+      form.validate({ foo: 3.14 }).must_equal false
+    end
+  end
+end
+
 class ValidationGroupsTest < MiniTest::Spec
   describe "basic validations" do
     Session = Struct.new(:username, :email, :password, :confirm_password, :special_class)
