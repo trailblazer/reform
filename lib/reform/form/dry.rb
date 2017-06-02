@@ -3,6 +3,9 @@ require "dry/validation/schema/form"
 require "reform/validation"
 
 module Reform::Form::Dry
+  class Schema < Dry::Validation::Schema
+  end
+
   def self.included(includer)
     includer.send :include, Validations
     includer.extend Validations::ClassMethods
@@ -23,7 +26,7 @@ module Reform::Form::Dry
     class Group
       def initialize(options = {})
         options ||= {}
-        schema_class = options[:schema] || Dry::Validation::Schema
+        schema_class = options[:schema] || Reform::Form::Dry::Schema
         @validator = Dry::Validation.Schema(schema_class, build: false)
 
         @schema_inject_params = options[:with] || {}
