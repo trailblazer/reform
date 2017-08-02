@@ -41,6 +41,11 @@ class Reform::Contract::Result::Errors
   def size
     messages.size
   end
+
+  # needed for rails form helpers
+  def empty?
+    messages.empty?
+  end
 end
 
     # Ensure that we can return Active Record compliant full messages when using dry
