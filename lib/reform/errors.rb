@@ -35,7 +35,7 @@ class Reform::Contract::Result::Errors
   end
 
   def [](name)
-  	@dotted_errors[name]
+  	@dotted_errors[name] || []
   end
 
   def size
