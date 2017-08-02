@@ -251,7 +251,7 @@ class ValidationGroupsTest < MiniTest::Spec
         required(:email).filled(min_size?: 3)
       end
 
-      validation name: :nested, if: :default do
+      validation name: :password, if: :email do
         required(:password).filled(min_size?: 2)
       end
 
@@ -282,7 +282,7 @@ class ValidationGroupsTest < MiniTest::Spec
     # 2nd group fails.
     it do
       form.validate(username: "Helloween", email: "yo", confirm_password:"9", special_class: SomeClass.new(id: 15)).must_equal false
-      form.errors.messages.inspect.must_equal "{:email=>[\"size cannot be less than 3\"], :confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
+      form.errors.messages.inspect.must_equal "{:email=>[\"size cannot be less than 3\"], :confirm_password=>[\"size cannot be less than 2\"]}"
     end
     # 3rd group fails.
     it do
