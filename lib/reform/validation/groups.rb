@@ -51,7 +51,7 @@ module Reform::Validation
 
       def self.evaluate?(depends_on, results, form)
         return true if depends_on.nil?
-        return results[depends_on].success? if depends_on.is_a?(Symbol)
+        return !results[depends_on].nil? && results[depends_on].success? if depends_on.is_a?(Symbol)
         form.instance_exec(results, &depends_on)
       end
     end
