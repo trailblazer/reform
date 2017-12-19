@@ -7,6 +7,7 @@ require "test_helper"
 class ErrorsTest < MiniTest::Spec
   class AlbumForm < TestForm
     property :title
+    property :artists
 
     property :hit do
       property :title
@@ -47,6 +48,7 @@ class ErrorsTest < MiniTest::Spec
 
     validation do
       required(:title).filled
+      required(:artists) { array? > each(:str?) }
     end
   end
 
@@ -113,6 +115,20 @@ class ErrorsTest < MiniTest::Spec
     end
   end
 
+  describe "#validate with invalid array property" do
+    it do
+      form.validate(
+        title: "Swimming Pool - EP",
+        band: {
+          name: "Marie Madeleine",
+          label: { name: "Ekler'o'shocK" }
+        },
+        artists: [42]
+      ).must_equal false
+      form.errors.messages.must_equal(artists: [[0, ["must be a string"]]])
+      form.errors.size.must_equal(1)
+    end
+  end
 
   describe "#validate with middle nested form invalid" do
     before { @result = form.validate("hit"=>{"title" => ""}, "band"=>{"label"=>{:name => "Fat Wreck"}}) }
