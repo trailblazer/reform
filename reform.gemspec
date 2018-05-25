@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.description   = %q{Form object decoupled from models.}
   spec.summary       = %q{Form object decoupled from models with validation, population and presentation.}
   spec.homepage      = "https://github.com/trailblazer/reform"
-  spec.license       = "MIT"
+  spec.license       = "LGPL-3.0"
 
   spec.files         = `git ls-files`.split($/)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
