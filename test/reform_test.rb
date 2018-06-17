@@ -20,7 +20,7 @@ class ReformTest < Minitest::Spec
 
     it "returns empty fields" do
       assert_nil form.title
-      form.name.must_equal  nil
+      form.name.must_be_nil
     end
 
     describe "and submitted values" do
