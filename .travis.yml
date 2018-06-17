@@ -1,13 +1,19 @@
 language: ruby
+sudo: false
 cache: bundler
 bundler_args: --without benchmarks tools
 rvm:
-  - 2.1.10
-  - 2.2.5
-  - 2.3.1
-  - 2.4.0
+  - ruby-head
+  - 2.5
+  - 2.4
+  - 2.3
+  - 2.2
+  - 2.1
 matrix:
   fast_finish: true
+  allow_failures:
+    - rvm: ruby-head
+    - rvm: 2.1
 notifications:
   webhooks:
     urls:
