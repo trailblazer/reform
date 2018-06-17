@@ -522,7 +522,7 @@ class ValidationGroupsTest < MiniTest::Spec
       let (:form)  { AlbumFormWith1NestedVal.new(album) }
 
       it "allows to access dry's result semantics per nested form" do
-        result = form.validate(
+        form.validate(
           "title"  => "",
           "songs"  => [ {"title" => ""}, {"title" => ""} ],
           "band"   => {"size" => "", "label" => {"name" => ""}},
