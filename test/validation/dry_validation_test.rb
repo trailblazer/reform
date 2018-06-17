@@ -65,11 +65,11 @@ class DryValidationErrorsAPITest < Minitest::Spec
     form.songs[1].errors.messages.must_equal({:title=>["must be filled"]})
 
     # #errors[]
-    form.errors[:nonsense].must_be_nil
+    form.errors[:nonsense].must_equal []
     form.errors[:title].must_equal ["must be filled", "size cannot be less than 2"]
     form.artist.errors[:email].must_equal ["must be filled"]
     form.artist.label.errors[:location].must_equal ["must be filled"]
-    form.songs[0].errors[:title].must_be_nil
+    form.songs[0].errors[:title].must_equal []
     form.songs[1].errors[:title].must_equal ["must be filled"]
 
     # #to_result
@@ -177,8 +177,8 @@ class DryValidationDefaultGroupTest < Minitest::Spec
     property :email
     property :password
     property :confirm_password
-    property :starts_at, type: Types::Form::DateTime
-    property :active, type: Types::Form::Bool
+    property :starts_at, type: Types::Params::DateTime
+    property :active, type: Types::Params::Bool
     property :color
 
     validation do
