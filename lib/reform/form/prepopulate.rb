@@ -1,14 +1,15 @@
 # prepopulate!(options)
 # prepopulator: ->(model, user_options)
 module Reform::Form::Prepopulate
-  def prepopulate!(options={})
+  def prepopulate!(options = {})
     prepopulate_local!(options)  # call #prepopulate! on local properties.
     prepopulate_nested!(options) # THEN call #prepopulate! on nested forms.
 
     self
   end
 
-private
+  private
+
   def prepopulate_local!(options)
     schema.each do |dfn|
       next unless block = dfn[:prepopulator]

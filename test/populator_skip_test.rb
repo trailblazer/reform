@@ -4,7 +4,6 @@ class PopulatorSkipTest < MiniTest::Spec
   Album = Struct.new(:songs)
   Song  = Struct.new(:title)
 
-
   class AlbumForm < TestForm
     collection :songs, populator: :my_populator do
       property :title

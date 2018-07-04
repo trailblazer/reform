@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ParseOptionTest < MiniTest::Spec
   Comment = Struct.new(:content, :user)
@@ -9,8 +9,8 @@ class ParseOptionTest < MiniTest::Spec
     property :user, parse: false
   end
 
-  let (:current_user) { User.new("Peter") }
-  let (:form) { CommentForm.new(Comment.new, user: current_user) }
+  let(:current_user) { User.new("Peter") }
+  let(:form) { CommentForm.new(Comment.new, user: current_user) }
 
   it do
     form.user.must_equal current_user
@@ -25,8 +25,8 @@ class ParseOptionTest < MiniTest::Spec
   describe "using ':parse' option doesn't override other ':deserialize' options" do
     class ArticleCommentForm < TestForm
       property :content
-      property :article, deserializer: { instance: "Instance" }
-      property :user, parse: false, deserializer: { instance: "Instance" }
+      property :article, deserializer: {instance: "Instance"}
+      property :user, parse: false, deserializer: {instance: "Instance"}
     end
 
     it do

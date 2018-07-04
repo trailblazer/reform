@@ -1,5 +1,5 @@
-require 'test_helper'
-require 'reform/form/coercion'
+require "test_helper"
+require "reform/form/coercion"
 
 class ChangedTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
@@ -18,11 +18,11 @@ class ChangedTest < MiniTest::Spec
     end
   end
 
-  let (:song_with_composer) { Song.new("Resist Stance", nil, composer) }
-  let (:composer)           { Artist.new("Greg Graffin") }
-  let (:album)              { Album.new("The Dissent Of Man", [song_with_composer]) }
+  let(:song_with_composer) { Song.new("Resist Stance", nil, composer) }
+  let(:composer)           { Artist.new("Greg Graffin") }
+  let(:album)              { Album.new("The Dissent Of Man", [song_with_composer]) }
 
-  let (:form) { AlbumForm.new(album) }
+  let(:form) { AlbumForm.new(album) }
 
   # nothing changed after setup.
   it do

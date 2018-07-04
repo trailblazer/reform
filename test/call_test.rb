@@ -11,7 +11,7 @@ class CallTest < Minitest::Spec
     end
   end
 
-  let (:form) { SongForm.new(Song.new) }
+  let(:form) { SongForm.new(Song.new) }
 
   it { form.(title: "True North").success?.must_equal true }
   it { form.(title: "True North").failure?.must_equal false }
@@ -19,5 +19,5 @@ class CallTest < Minitest::Spec
   it { form.(title: "").failure?.must_equal true }
 
   it { form.(title: "True North").errors.messages.must_equal({}) }
-  it { form.(title: "").errors.messages.must_equal({:title=>["must be filled"]}) }
+  it { form.(title: "").errors.messages.must_equal({title: ["must be filled"]}) }
 end

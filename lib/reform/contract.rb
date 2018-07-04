@@ -15,7 +15,7 @@ module Reform
       Contract
     end
 
-    def self.property(name, options={}, &block)
+    def self.property(name, options = {}, &block)
       if twin = options.delete(:form)
         options[:twin] = twin
       end
@@ -33,7 +33,7 @@ module Reform
     end
 
     require "reform/result"
-    require 'reform/contract/validate'
+    require "reform/contract/validate"
     include Reform::Contract::Validate
 
     require "reform/validation"
@@ -43,14 +43,16 @@ module Reform
     require "disposable/twin/sync"
     include Disposable::Twin::Sync
 
-  private
+    private
+
     # DISCUSS: separate file?
     module Readonly
       def readonly?(name)
         options_for(name)[:writeable] == false
       end
+
       def options_for(name)
-       self.class.options_for(name)
+        self.class.options_for(name)
       end
     end
 
@@ -58,7 +60,6 @@ module Reform
       definitions.get(name)
     end
     include Readonly
-
 
     def self.clone # TODO: test. THIS IS ONLY FOR Trailblazer when contract gets cloned in suboperation.
       Class.new(self)

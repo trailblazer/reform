@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class FormTest < MiniTest::Spec
   Artist = Struct.new(:name)
@@ -22,7 +22,7 @@ class FormTest < MiniTest::Spec
   end
 
   describe "::dup" do
-    let (:cloned) { AlbumForm.clone }
+    let(:cloned) { AlbumForm.clone }
 
     # #dup is called in Op.inheritable_attr(:contract_class), it must be subclass of the original one.
     it { cloned.wont_equal AlbumForm }

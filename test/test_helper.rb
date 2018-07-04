@@ -1,9 +1,9 @@
 require "reform"
-require 'minitest/autorun'
+require "minitest/autorun"
 require "representable/debug"
 require "declarative/testing"
 require "pp"
-require 'byebug'
+require "byebug"
 
 require "reform/form/dry"
 # setup test classes so we can test without dry being included
@@ -34,8 +34,7 @@ class BaseTest < MiniTest::Spec
   Label  = Struct.new(:name)
   Length = Struct.new(:minutes, :seconds)
 
-
-  let (:hit) { Song.new("Roxanne") }
+  let(:hit) { Song.new("Roxanne") }
 end
 
 MiniTest::Spec.class_eval do
@@ -49,4 +48,3 @@ MiniTest::Spec.class_eval do
     end
   end
 end
-

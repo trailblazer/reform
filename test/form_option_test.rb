@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class FormOptionTest < MiniTest::Spec
   Song  = Struct.new(:title)

@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 require "representable/json"
 
 class DeserializeTest < MiniTest::Spec
@@ -10,7 +10,7 @@ class DeserializeTest < MiniTest::Spec
     module Json
       def deserialize(params)
         deserializer.new(self).
-        # extend(Representable::Debug).
+          # extend(Representable::Debug).
           from_json(params)
       end
 
@@ -18,7 +18,7 @@ class DeserializeTest < MiniTest::Spec
         Disposable::Rescheme.from(self.class,
           include:          [Representable::JSON],
           superclass:       Representable::Decorator,
-          definitions_from: lambda { |inline| inline.definitions },
+          definitions_from: ->(inline) { inline.definitions },
           options_from:     :deserializer,
           exclude_options:  [:populator]
         )
@@ -26,15 +26,13 @@ class DeserializeTest < MiniTest::Spec
     end
     include Json
 
-
     property :title
     property :artist, populate_if_empty: Artist do
       property :name
     end
   end
 
-
-  let (:artist) { Artist.new("A-ha") }
+  let(:artist) { Artist.new("A-ha") }
   it do
     artist_id = artist.object_id
 
@@ -62,13 +60,12 @@ class DeserializeTest < MiniTest::Spec
     # also tests the Form#deserializer API. # FIXME.
     it "uses deserializer inferred from JsonAlbumForm but deserializes/populates to CompilationForm" do
       form = CompilationForm.new(Album.new)
-      form.validate("artist"=> {"name" => "Horowitz"}) # the deserializer doesn't know symbols.
+      form.validate("artist" => {"name" => "Horowitz"}) # the deserializer doesn't know symbols.
       form.sync
       form.artist.model.must_equal Artist.new("Horowitz", %{{"name"=>"Horowitz"}})
     end
   end
 end
-
 
 class ValidateWithBlockTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
@@ -90,13 +87,13 @@ class ValidateWithBlockTest < MiniTest::Spec
     deserializer = Disposable::Rescheme.from(AlbumForm,
       include:          [Representable::JSON],
       superclass:       Representable::Decorator,
-      definitions_from: lambda { |inline| inline.definitions },
+      definitions_from: ->(inline) { inline.definitions },
       options_from:     :deserializer
     )
 
-    form.validate(json) do |params|
+    form.validate(json) { |params|
       deserializer.new(form).from_json(params)
-    end.must_equal true # with block must return result, too.
+    }.must_equal true # with block must return result, too.
 
     form.title.must_equal "Apocalypse Soon"
     form.artist.name.must_equal "Mute"

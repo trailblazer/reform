@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class FeatureInheritanceTest < BaseTest
   Song  = Struct.new(:title, :album, :composer)
@@ -38,13 +38,13 @@ class FeatureInheritanceTest < BaseTest
     end
   end
 
-  let (:song)               { Song.new("Broken") }
-  let (:song_with_composer) { Song.new("Resist Stance", nil, composer) }
-  let (:composer)           { Artist.new("Greg Graffin") }
-  let (:artist)             { Artist.new("Bad Religion") }
-  let (:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
+  let(:song)               { Song.new("Broken") }
+  let(:song_with_composer) { Song.new("Resist Stance", nil, composer) }
+  let(:composer)           { Artist.new("Greg Graffin") }
+  let(:artist)             { Artist.new("Bad Religion") }
+  let(:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
 
-  let (:form) { AlbumForm.new(album) }
+  let(:form) { AlbumForm.new(album) }
 
   it do
     form.date.must_equal "May 16"
