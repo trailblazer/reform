@@ -1,8 +1,7 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
 gemspec
 
+gem "byebug"
 gem "minitest-line"
-gem 'byebug'
 # gem "disposable", path: "../disposable"
-

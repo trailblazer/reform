@@ -50,18 +50,17 @@ class ErrorsTest < MiniTest::Spec
     end
   end
 
-  let (:album) do
+  let(:album) do
     OpenStruct.new(
-      :title  => "Blackhawks Over Los Angeles",
-      :hit    => song,
-      :songs  => songs, # TODO: document this requirement,
-      :band   => Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
+      title: "Blackhawks Over Los Angeles",
+      hit: song,
+      songs: songs, # TODO: document this requirement,
+      band: Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
     )
   end
-  let (:song)  { OpenStruct.new(:title => "Downtown") }
-  let (:songs) { [song=OpenStruct.new(:title => "Calling"), song] }
-  let (:form)  { AlbumForm.new(album) }
-
+  let(:song)  { OpenStruct.new(title: "Downtown") }
+  let(:songs) { [song = OpenStruct.new(title: "Calling"), song] }
+  let(:form)  { AlbumForm.new(album) }
 
   describe "#errors without #validate" do
     it do
@@ -70,18 +69,18 @@ class ErrorsTest < MiniTest::Spec
   end
 
   describe "blank everywhere" do
-    before { form.validate(
-      "hit"   =>{"title" => ""},
+    before do form.validate(
+      "hit" => {"title" => ""},
       "title" => "",
-      "songs" => [{"title" => ""}, {"title" => ""}]) } # FIXME: what happens if item must be filled?
+      "songs" => [{"title" => ""}, {"title" => ""}]) end # FIXME: what happens if item must be filled?
 
     it do
       form.errors.messages.must_equal({
-        :title  => ["must be filled"],
-        :"hit.title"=>["must be filled"],
-        :"songs.title"=>["must be filled"],
-        :"band.label.name"=>["must be filled"]
-      })
+                                        :title => ["must be filled"],
+                                        :"hit.title" => ["must be filled"],
+                                        :"songs.title" => ["must be filled"],
+                                        :"band.label.name" => ["must be filled"]
+                                      })
     end
 
     it do
@@ -90,72 +89,68 @@ class ErrorsTest < MiniTest::Spec
     end
 
     # nested forms keep their own Errors:
-    it { form.hit.errors.messages.must_equal({:title=>["must be filled"]}) }
-    it { form.songs[0].errors.messages.must_equal({:title=>["must be filled"]}) }
+    it { form.hit.errors.messages.must_equal({title: ["must be filled"]}) }
+    it { form.songs[0].errors.messages.must_equal({title: ["must be filled"]}) }
 
     it do
       form.errors.messages.must_equal({
-        :title        => ["must be filled"],
-        :"hit.title"  => ["must be filled"],
-        :"songs.title"=> ["must be filled"],
-        :"band.label.name"=>["must be filled"]
-      })
+                                        :title        => ["must be filled"],
+                                        :"hit.title"  => ["must be filled"],
+                                        :"songs.title" => ["must be filled"],
+                                        :"band.label.name" => ["must be filled"]
+                                      })
       form.errors.size.must_equal(4)
     end
   end
 
-
   describe "#validate with main form invalid" do
     it do
-      form.validate("title"=>"", "band"=>{"label"=>{:name => "Fat Wreck"}}).must_equal false
-      form.errors.messages.must_equal({:title=>["must be filled"]})
+      form.validate("title" => "", "band" => {"label" => {name: "Fat Wreck"}}).must_equal false
+      form.errors.messages.must_equal({title: ["must be filled"]})
       form.errors.size.must_equal(1)
     end
   end
 
-
   describe "#validate with middle nested form invalid" do
-    before { @result = form.validate("hit"=>{"title" => ""}, "band"=>{"label"=>{:name => "Fat Wreck"}}) }
+    before { @result = form.validate("hit" => {"title" => ""}, "band" => {"label" => {name: "Fat Wreck"}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"hit.title"=>["must be filled"]}) }
+    it { form.errors.messages.must_equal({:"hit.title" => ["must be filled"]}) }
     it { form.errors.size.must_equal(1) }
   end
-
 
   describe "#validate with collection form invalid" do
-    before { @result = form.validate("songs"=>[{"title" => ""}], "band"=>{"label"=>{:name => "Fat Wreck"}}) }
+    before { @result = form.validate("songs" => [{"title" => ""}], "band" => {"label" => {name: "Fat Wreck"}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"]}) }
+    it { form.errors.messages.must_equal({:"songs.title" => ["must be filled"]}) }
     it { form.errors.size.must_equal(1) }
   end
 
-
   describe "#validate with collection and 2-level-nested invalid" do
-    before { @result = form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
+    before { @result = form.validate("songs" => [{"title" => ""}], "band" => {"label" => {}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"], :"band.label.name"=>["must be filled"]}) }
+    it { form.errors.messages.must_equal({:"songs.title" => ["must be filled"], :"band.label.name" => ["must be filled"]}) }
     it { form.errors.size.must_equal(2) }
   end
 
   describe "#validate with nested form using :base invalid" do
     it do
-      result = form.validate("songs"=>[{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}})
+      result = form.validate("songs" => [{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}})
       result.must_equal false
-      form.errors.messages.must_equal({:"band.name"=>["you're a bad person"]})
+      form.errors.messages.must_equal({:"band.name" => ["you're a bad person"]})
       form.errors.size.must_equal(1)
     end
   end
 
   describe "correct #validate" do
-    before { @result = form.validate(
+    before do @result = form.validate(
       "hit"   => {"title" => "Sacrifice"},
       "title" => "Second Heat",
-      "songs" => [{"title"=>"Heart Of A Lion"}],
-      "band"  => {"label"=>{:name => "Fat Wreck"}}
-      ) }
+      "songs" => [{"title" => "Heart Of A Lion"}],
+      "band"  => {"label" => {name: "Fat Wreck"}}
+      ) end
 
     it { @result.must_equal true }
     it { form.hit.title.must_equal "Sacrifice" }
@@ -168,9 +163,8 @@ class ErrorsTest < MiniTest::Spec
     end
   end
 
-
   describe "Errors#to_s" do
-    before { form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
+    before { form.validate("songs" => [{"title" => ""}], "band" => {"label" => {}}) }
 
     # to_s is aliased to messages
     it {

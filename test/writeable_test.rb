@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class WriteableTest < MiniTest::Spec
   Location = Struct.new(:country)
@@ -7,8 +7,8 @@ class WriteableTest < MiniTest::Spec
     property :country, writeable: false
   end
 
-  let (:loc) { Location.new("Australia") }
-  let (:form) { LocationForm.new(loc) }
+  let(:loc) { Location.new("Australia") }
+  let(:form) { LocationForm.new(loc) }
 
   it do
     form.country.must_equal "Australia"
@@ -24,7 +24,7 @@ class WriteableTest < MiniTest::Spec
       hash = nested
     end
 
-    hash.must_equal("country"=> "Germany")
+    hash.must_equal("country" => "Germany")
   end
 end
 
@@ -36,8 +36,8 @@ class WritableTest < MiniTest::Spec
     property :country, writable: false
   end
 
-  let (:loc) { Location.new("Australia") }
-  let (:form) { LocationForm.new(loc) }
+  let(:loc) { Location.new("Australia") }
+  let(:form) { LocationForm.new(loc) }
 
   it do
     form.country.must_equal "Australia"
@@ -53,6 +53,6 @@ class WritableTest < MiniTest::Spec
       hash = nested
     end
 
-    hash.must_equal("country"=> "Germany")
+    hash.must_equal("country" => "Germany")
   end
 end

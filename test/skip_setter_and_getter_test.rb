@@ -31,8 +31,7 @@ class SetupSkipSetterAndGetterTest < MiniTest::Spec
     end
   end
 
-  let (:artist) { Artist.new("Bad Religion") }
-
+  let(:artist) { Artist.new("Bad Religion") }
 
   it do
     album = Album.new("Greatest Hits", artist)

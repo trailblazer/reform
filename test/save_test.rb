@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class SaveTest < BaseTest
   Song  = Struct.new(:title, :album, :composer)
@@ -40,15 +40,13 @@ class SaveTest < BaseTest
     end
   end
 
+  let(:song)               { Song.new("Broken").extend(Saveable) }
+  # let(:song_with_composer) { Song.new("Resist Stance", nil, composer).extend(Saveable) }
+  let(:composer)           { Artist.new("Greg Graffin").extend(Saveable) }
+  let(:artist)             { Artist.new("Bad Religion").extend(Saveable).extend(Saveable) }
+  let(:album)              { Album.new("The Dissent Of Man", [song], artist).extend(Saveable) }
 
-  let (:song)               { Song.new("Broken").extend(Saveable) }
-  # let (:song_with_composer) { Song.new("Resist Stance", nil, composer).extend(Saveable) }
-  let (:composer)           { Artist.new("Greg Graffin").extend(Saveable) }
-  let (:artist)             { Artist.new("Bad Religion").extend(Saveable).extend(Saveable) }
-  let (:album)              { Album.new("The Dissent Of Man", [song], artist).extend(Saveable) }
-
-  let (:form) { AlbumForm.new(album) }
-
+  let(:form) { AlbumForm.new(album) }
 
   it do
     form.validate("songs" => [{"title" => "Fixed"}])
@@ -72,11 +70,10 @@ class SaveTest < BaseTest
         nested_hash = hash
       end
 
-      nested_hash.must_equal({"name"=>nil, "artist"=>nil})
+      nested_hash.must_equal({"name" => nil, "artist" => nil})
     end
   end
 end
-
 
 # class SaveWithDynamicOptionsTest < MiniTest::Spec
 #   Song = Struct.new(:id, :title, :length) do
@@ -88,8 +85,8 @@ end
 #     property :length, virtual: true
 #   end
 
-#   let (:song) { Song.new }
-#   let (:form) { SongForm.new(song) }
+#   let(:song) { Song.new }
+#   let(:form) { SongForm.new(song) }
 
 #   # we have access to original input value and outside parameters.
 #   it "xxx" do

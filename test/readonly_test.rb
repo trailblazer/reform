@@ -7,7 +7,7 @@ class ReadonlyTest < MiniTest::Spec
     # TODO: what to do with virtual values?
   end
 
-  let (:form) { SongForm.new(OpenStruct.new) }
+  let(:form) { SongForm.new(OpenStruct.new) }
 
   it { form.readonly?(:artist).must_equal false }
   it { form.readonly?(:title).must_equal true }

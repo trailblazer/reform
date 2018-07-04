@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class FormCompositionInheritanceTest < MiniTest::Spec
   module SizePrice
@@ -26,10 +26,9 @@ class FormCompositionInheritanceTest < MiniTest::Spec
     property :size,   inherit: true, on: :measurement
   end
 
-
-  let (:measurement) { Measurement.new(:l) }
-  let (:tshirt)      { Tshirt.new(2, :m) }
-  let (:form)        { OutfitForm.new(tshirt: tshirt, measurement: measurement) }
+  let(:measurement) { Measurement.new(:l) }
+  let(:tshirt)      { Tshirt.new(2, :m) }
+  let(:form)        { OutfitForm.new(tshirt: tshirt, measurement: measurement) }
 
   Tshirt = Struct.new(:price, :size)
   Measurement = Struct.new(:size)
@@ -46,28 +45,28 @@ class FormCompositionTest < MiniTest::Spec
   class RequestForm < TestForm
     include Composition
 
-    property  :name,          :on =>  :requester
-    property  :requester_id,  :on => :requester, :from => :id
-    properties :title, :id, :on => :song
+    property  :name,          on: :requester
+    property  :requester_id,  on: :requester, from: :id
+    properties :title, :id, on: :song
     # property  :channel # FIXME: what about the "main model"?
-    property :channel, :virtual => true, :on => :song
-    property :requester,      :on => :requester
-    property :captcha,        :on => :song, :virtual => true
+    property :channel, virtual: true, on: :song
+    property :requester,      on: :requester
+    property :captcha,        on: :song, virtual: true
 
     validation do
       required(:name).filled
       required(:title).filled
     end
 
-    property :band,           :on => :song do
+    property :band,           on: :song do
       property :title
     end
   end
 
-  let (:form)       { RequestForm.new(:song => song, :requester => requester) }
-  let (:song)       { Song.new(1, "Rio", band) }
-  let (:requester)  { Requester.new(2, "Duran Duran", "MCP") }
-  let (:band)       { Band.new("Duran^2") }
+  let(:form)       { RequestForm.new(song: song, requester: requester) }
+  let(:song)       { Song.new(1, "Rio", band) }
+  let(:requester)  { Requester.new(2, "Duran Duran", "MCP") }
+  let(:band)       { Band.new("Duran^2") }
 
   # delegation form -> composition works
   it { form.id.must_equal 1 }
@@ -85,7 +84,6 @@ class FormCompositionTest < MiniTest::Spec
   it { form.model[:requester].must_equal requester }
   it { form.model[:song].must_equal song }
 
-
   it "creates Composition for you" do
     form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb").must_equal true
     form.validate("title" => "", "name" => "Frenzal Rhomb").must_equal false
@@ -101,7 +99,7 @@ class FormCompositionTest < MiniTest::Spec
         hash[:title]  = form.title
       end
 
-      hash.must_equal({:name=>"Duran Duran", :title=>"Rio"})
+      hash.must_equal({name: "Duran Duran", title: "Rio"})
     end
 
     it "provides nested symbolized hash as second block argument" do
@@ -114,9 +112,9 @@ class FormCompositionTest < MiniTest::Spec
       end
 
       hash.must_equal({
-        :song=>{"title"=>"Greyhound", "id"=>1, "channel" => "JJJ", "captcha"=>"wonderful", "band"=>{"title"=>"Duran^2"}},
-        :requester=>{"name"=>"Frenzal Rhomb", "id"=>2, "requester" => "MCP"}
-        }
+                        song: {"title" => "Greyhound", "id" => 1, "channel" => "JJJ", "captcha" => "wonderful", "band" => {"title" => "Duran^2"}},
+                        requester: {"name" => "Frenzal Rhomb", "id" => 2, "requester" => "MCP"}
+                      }
       )
     end
 
@@ -162,12 +160,11 @@ class FormCompositionTest < MiniTest::Spec
   end
 end
 
-
 class FormCompositionCollectionTest < MiniTest::Spec
   Book = Struct.new(:id, :name)
   Library = Struct.new(:id) do
     def books
-      [Book.new(1,"My book")]
+      [Book.new(1, "My book")]
     end
   end
 
@@ -180,8 +177,8 @@ class FormCompositionCollectionTest < MiniTest::Spec
     end
   end
 
-  let (:form)   { LibraryForm.new(library: library) }
-  let (:library) { Library.new(2) }
+  let(:form)   { LibraryForm.new(library: library) }
+  let(:library) { Library.new(2) }
 
-  it { form.save do |hash| hash.must_equal({:library=>{"books"=>[{"id"=>1, "name"=>"My book"}]}}) end }
+  it { form.save { |hash| hash.must_equal({library: {"books" => [{"id" => 1, "name" => "My book"}]}}) } }
 end

@@ -20,13 +20,13 @@ class SetupTest < MiniTest::Spec
     end
   end
 
-  let (:song)               { Song.new("Broken") }
-  let (:song_with_composer) { Song.new("Resist Stance", nil, composer) }
-  let (:composer)           { Artist.new("Greg Graffin") }
-  let (:artist)             { Artist.new("Bad Religion") }
+  let(:song)               { Song.new("Broken") }
+  let(:song_with_composer) { Song.new("Resist Stance", nil, composer) }
+  let(:composer)           { Artist.new("Greg Graffin") }
+  let(:artist)             { Artist.new("Bad Religion") }
 
   describe "with nested objects" do
-    let (:album) { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
+    let(:album) { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
 
     it do
       form = AlbumForm.new(album)

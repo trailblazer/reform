@@ -20,7 +20,7 @@ class PopulatorTest < MiniTest::Spec
         required(:title).filled
       end
 
-      property :composer, populator: ->(options) { options[:model] || self.composer= Artist.new } do
+      property :composer, populator: ->(options) { options[:model] || self.composer = Artist.new } do
         property :name
         validation do
           required(:name).filled
@@ -35,13 +35,13 @@ class PopulatorTest < MiniTest::Spec
     end
   end
 
-  let (:song)               { Song.new("Broken") }
-  let (:song_with_composer) { Song.new("Resist Stance", nil, composer) }
-  let (:composer)           { Artist.new("Greg Graffin") }
-  let (:artist)             { Artist.new("Bad Religion") }
-  let (:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
+  let(:song)               { Song.new("Broken") }
+  let(:song_with_composer) { Song.new("Resist Stance", nil, composer) }
+  let(:composer)           { Artist.new("Greg Graffin") }
+  let(:artist)             { Artist.new("Bad Religion") }
+  let(:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
 
-  let (:form) { AlbumForm.new(album) }
+  let(:form) { AlbumForm.new(album) }
 
   it "runs populator on scalar" do
     form.validate(
@@ -91,7 +91,6 @@ class PopulatorTest < MiniTest::Spec
     form.songs.size.must_equal 4
     form.artist.name.must_equal "Bad Religion"
 
-
     # model has not changed, yet.
     album.name.must_equal "The Dissent Of Man"
     album.songs[0].title.must_equal "Broken"
@@ -113,7 +112,7 @@ class PopulateWithMethodTest < Minitest::Spec
     end
   end
 
-  let (:form) { AlbumForm.new(Album.new) }
+  let(:form) { AlbumForm.new(Album.new) }
 
   it "runs populator method" do
     form.validate("title" => "override me!")
@@ -137,7 +136,7 @@ class PopulateWithCallableTest < Minitest::Spec
     property :title, populator: TitlePopulator.new
   end
 
-  let (:form) { AlbumForm.new(Album.new) }
+  let(:form) { AlbumForm.new(Album.new) }
 
   it "runs populator method" do
     form.validate("title" => "override me!")
@@ -157,7 +156,7 @@ class PopulateWithProcTest < Minitest::Spec
     property :title, populator: TitlePopulator
   end
 
-  let (:form) { AlbumForm.new(Album.new) }
+  let(:form) { AlbumForm.new(Album.new) }
 
   it "runs populator method" do
     form.validate("title" => "override me!")
@@ -171,13 +170,11 @@ class PopulateIfEmptyTest < MiniTest::Spec
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)
 
-  let (:song)               { Song.new("Broken") }
-  let (:song_with_composer) { Song.new("Resist Stance", nil, composer) }
-  let (:composer)           { Artist.new("Greg Graffin") }
-  let (:artist)             { Artist.new("Bad Religion") }
-  let (:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
-
-
+  let(:song)               { Song.new("Broken") }
+  let(:song_with_composer) { Song.new("Resist Stance", nil, composer) }
+  let(:composer)           { Artist.new("Greg Graffin") }
+  let(:artist)             { Artist.new("Bad Religion") }
+  let(:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
 
   class AlbumForm < TestForm
     property :name
@@ -203,26 +200,26 @@ class PopulateIfEmptyTest < MiniTest::Spec
       end
     end
 
-    property :artist, populate_if_empty: lambda { |args| create_artist(args[:fragment], args[:user_options]) } do # methods work, too.
+    property :artist, populate_if_empty: ->(args) { create_artist(args[:fragment], args[:user_options]) } do # methods work, too.
       property :name
     end
 
-  private
+    private
     class Sting < Artist
       attr_accessor :args
     end
     def create_artist(input, user_options)
-      Sting.new.tap { |artist| artist.args=([input, user_options].to_s) }
+      Sting.new.tap { |artist| artist.args = ([input, user_options].to_s) }
     end
   end
 
-  let (:form) { AlbumForm.new(album) }
+  let(:form) { AlbumForm.new(album) }
 
   it do
     form.songs.size.must_equal 2
 
     form.validate(
-      "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"},
+      "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"},
         {"title" => "Rime Of The Ancient Mariner"}, # new song.
         {"title" => "Re-Education", "composer" => {"name" => "Rise Against"}}], # new song with new composer.
     ).must_equal true
@@ -240,7 +237,6 @@ class PopulateIfEmptyTest < MiniTest::Spec
     form.songs[3].composer.name.must_equal "Rise Against"
     form.songs.size.must_equal 4
     form.artist.name.must_equal "Bad Religion"
-
 
     # model has not changed, yet.
     album.name.must_equal "The Dissent Of Man"
@@ -266,16 +262,14 @@ class PopulateIfEmptyTest < MiniTest::Spec
   end
 end
 
-
 # delete songs while deserializing.
 class PopulateIfEmptyWithDeletionTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
 
-  let (:song)  { Song.new("Broken") }
-  let (:song2) { Song.new("Resist Stance") }
-  let (:album) { Album.new("The Dissent Of Man", [song, song2]) }
-
+  let(:song)  { Song.new("Broken") }
+  let(:song2) { Song.new("Resist Stance") }
+  let(:album) { Album.new("The Dissent Of Man", [song, song2]) }
 
   class AlbumForm < TestForm
     property :name
@@ -295,11 +289,11 @@ class PopulateIfEmptyWithDeletionTest < MiniTest::Spec
     end
   end
 
-  let (:form) { AlbumForm.new(album) }
+  let(:form) { AlbumForm.new(album) }
 
   it do
     form.validate(
-      "songs"  => [{"title" => "Broken, delete me!"}, {"title" => "Roxanne"}]
+      "songs" => [{"title" => "Broken, delete me!"}, {"title" => "Roxanne"}]
     ).must_equal true
 
     form.errors.messages.inspect.must_equal "{}"

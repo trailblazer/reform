@@ -16,13 +16,13 @@ module Reform::Form::Composition
     #
     # class CoverSongForm < Reform::Form
     #   model :song, on: :cover_song
-    def model(main_model, options={})
+    def model(main_model, options = {})
       super
 
       composition_model = options[:on] || main_model
 
       # FIXME: this should just delegate to :model as in FB, and the comp would take care of it internally.
-      [:persisted?, :to_key, :to_param].each do |method|
+      %i[persisted? to_key to_param].each do |method|
         define_method method do
           model[composition_model].send(method)
         end

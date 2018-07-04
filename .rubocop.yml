@@ -1,0 +1,28 @@
+AllCops:
+  TargetRubyVersion: '2.1'
+
+inherit_from:
+  - https://raw.githubusercontent.com/trailblazer/meta/master/rubocop.yml
+  - .rubocop_todo.yml
+
+Lint/AssignmentInCondition:
+  Enabled: false
+
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/OptionHash:
+  Enabled: false
+
+Style/ParallelAssignment:
+  Enabled: false
+
+Style/Send:
+  Enabled: false
+
+Style/SingleLineMethods:
+  Enabled: false
+
+Style/Lambda:
+  EnforcedStyle: literal

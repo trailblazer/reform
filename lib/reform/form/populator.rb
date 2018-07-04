@@ -26,7 +26,8 @@ class Reform::Form::Populator
     twin
   end
 
-private
+  private
+
   def call!(options)
     form = options[:represented]
     @value.(form, options) # Declarative::Option call.
@@ -37,7 +38,7 @@ private
   end
 
   def get(options)
-     Representable::GetValue.(nil, options)
+    Representable::GetValue.(nil, options)
   end
 
   class IfEmpty < self # Populator
@@ -59,7 +60,8 @@ private
       end
     end
 
-  private
+    private
+
     def run!(form, fragment, options)
       return @user_proc.new if @user_proc.is_a?(Class) # handle populate_if_empty: Class. this excludes using Callables, though.
 
@@ -75,18 +77,14 @@ private
 
       @value.(form, options[:fragment], options[:user_options])
     end
-
   end
 
   # Sync (default) blindly grabs the corresponding form twin and returns it. This might imply that nil is returned,
   # and in turn #validate! is called on nil.
   class Sync < self
     def call!(options)
-      if options[:binding].array?
-        return options[:model][options[:index]]
-      else
-        options[:model]
-      end
+      return options[:model][options[:index]] if options[:binding].array?
+      options[:model]
     end
   end
 
@@ -102,8 +100,8 @@ private
   # (which population is) to the form.
   class External
     def call(input, options)
-      options[:represented].class.definitions.
-        get(options[:binding][:name])[:internal_populator].(input, options)
+      options[:represented].class.definitions
+                           .get(options[:binding][:name])[:internal_populator].(input, options)
     end
   end
 end

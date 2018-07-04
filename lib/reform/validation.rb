@@ -7,7 +7,7 @@ module Reform::Validation
     end
 
     # DSL.
-    def validation(name=nil, options={}, &block)
+    def validation(name = nil, options = {}, &block)
       options = deprecate_validation_positional_args(name, options)
       name    = options[:name] # TODO: remove in favor of kw args in 3.0.
 
@@ -20,19 +20,17 @@ module Reform::Validation
     def deprecate_validation_positional_args(name, options)
       if name.is_a?(Symbol)
         warn "[Reform] Form::validation API is now: validation(name: :default, if:nil, schema:Schema). Please use keyword arguments instead of positional arguments."
-        return { name: name }.merge(options)
+        return {name: name}.merge(options)
       end
 
-      if name.nil?
-        return { name: :default }.merge(options)
-      end
+      return {name: :default}.merge(options) if name.nil?
 
-      { name: :default }.merge(name)
+      {name: :default}.merge(name)
     end
 
     def validation_group_class
-      raise NoValidationLibraryError, 'no validation library loaded. Please include a ' +
-                            'validation library such as Reform::Form::Dry'
+      raise NoValidationLibraryError, "no validation library loaded. Please include a " +
+                                      "validation library such as Reform::Form::Dry"
     end
   end
 

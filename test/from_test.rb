@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class AsTest < BaseTest
   class AlbumForm < TestForm
@@ -19,15 +19,15 @@ class AsTest < BaseTest
     end
   end
 
-  let (:song2) { Song.new("Roxanne") }
+  let(:song2) { Song.new("Roxanne") }
 
-  let (:params) {
+  let(:params) do
       {
         "name" => "Best Of The Police",
-        "single"   => {"title" => "So Lonely"},
+        "single" => {"title" => "So Lonely"},
         "tracks" => [{"name" => "Message In A Bottle"}, {"name" => "Roxanne"}]
       }
-    }
+    end
 
   subject { AlbumForm.new(Album.new("Best Of", hit, [Song.new("Fallout"), song2])) }
 
@@ -36,9 +36,7 @@ class AsTest < BaseTest
   it { subject.tracks[0].name.must_equal "Fallout" }
   it { subject.tracks[1].name.must_equal "Roxanne" }
 
-
   describe "#validate" do
-
 
     before { subject.validate(params) }
 
@@ -48,16 +46,14 @@ class AsTest < BaseTest
     it { subject.tracks[1].name.must_equal "Roxanne" }
   end
 
-
   describe "#sync" do
-    before {
+    before do
       subject.tracks[1].name = "Livin' Ain't No Crime"
       subject.sync
-    }
+    end
 
     it { song2.title.must_equal "Livin' Ain't No Crime" }
   end
-
 
   describe "#save (nested hash)" do
     before { subject.validate(params) }
@@ -69,7 +65,7 @@ class AsTest < BaseTest
         hash = nested_hash
       end
 
-      hash.must_equal({"title"=>"Best Of The Police", "hit"=>{"title"=>"So Lonely"}, "songs"=>[{"title"=>"Message In A Bottle"}, {"title"=>"Roxanne"}], "band"=> nil})
+      hash.must_equal({"title" => "Best Of The Police", "hit" => {"title" => "So Lonely"}, "songs" => [{"title" => "Message In A Bottle"}, {"title" => "Roxanne"}], "band" => nil})
     end
   end
 end

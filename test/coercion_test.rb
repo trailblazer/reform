@@ -4,7 +4,7 @@ require "reform/form/coercion"
 class CoercionTest < BaseTest
   class Irreversible
     def self.call(value)
-      value*2
+      value * 2
     end
   end
 
@@ -29,28 +29,26 @@ class CoercionTest < BaseTest
     Form.new(album)
   end
 
-  let (:album) {
+  let(:album) do
     OpenStruct.new(
-      :released_at => "31/03/1981",
-      :hit         => OpenStruct.new(:length => "312"),
-      :band        => Band.new(OpenStruct.new(:value => "9999.99"))
+      released_at: "31/03/1981",
+      hit: OpenStruct.new(length: "312"),
+      band: Band.new(OpenStruct.new(value: "9999.99"))
     )
-  }
+  end
 
   # it { subject.released_at.must_be_kind_of DateTime }
   it { subject.released_at.must_equal "31/03/1981" } # NO coercion in setup.
   it { subject.hit.length.must_equal "312" }
   it { subject.band.label.value.must_equal "9999.99" }
 
-
-  let (:params) {
+  let(:params) do
     {
-      :released_at => "30/03/1981",
-      :hit         => {:length => "312"},
-      :band        => {:label => {:value => "9999.99"}}
+      released_at: "30/03/1981",
+      hit: {length: "312"},
+      band: {label: {value: "9999.99"}}
     }
-  }
-
+  end
 
   # validate
   describe "#validate" do

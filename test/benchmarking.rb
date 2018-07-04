@@ -1,29 +1,29 @@
-require 'reform'
-require 'benchmark/ips'
+require "reform"
+require "benchmark/ips"
 require "reform/form/dry"
 
 class BandForm < Reform::Form
   feature Reform::Form::Dry
-  property :name#, validates: {presence: true}
+  property :name #, validates: {presence: true}
   collection :songs do
-    property :title#, validates: {presence: true}
+    property :title #, validates: {presence: true}
   end
 end
 
 class OptimizedBandForm < Reform::Form
   feature Reform::Form::Dry
-  property :name#, validates: {presence: true}
+  property :name #, validates: {presence: true}
   collection :songs do
-    property :title#, validates: {presence: true}
-  
+    property :title #, validates: {presence: true}
+
   	def deserializer(*args)
-      # DISCUSS: should we simply delegate to class and sort out memoizing there? 
+      # DISCUSS: should we simply delegate to class and sort out memoizing there?
       self.class.deserializer_class || self.class.deserializer_class = deserializer!(*args)
- 	end
+  	end
   end
 
   def deserializer(*args)
-    # DISCUSS: should we simply delegate to class and sort out memoizing there? 
+    # DISCUSS: should we simply delegate to class and sort out memoizing there?
     self.class.deserializer_class || self.class.deserializer_class = deserializer!(*args)
   end
 end
@@ -42,7 +42,6 @@ Benchmark.ips do |x|
 end
 
 exit
-
 
 songs = 50.times.collect { OpenStruct.new(title: "Be Stag") }
 band = OpenStruct.new(name: "Teenage Bottlerock", songs: songs)

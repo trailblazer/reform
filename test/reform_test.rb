@@ -1,10 +1,10 @@
-require 'test_helper'
+require "test_helper"
 
 # TODO: this test should be removed.
 class ReformTest < Minitest::Spec
-  let (:comp) { OpenStruct.new(:name => "Duran Duran", :title => "Rio") }
+  let(:comp) { OpenStruct.new(name: "Duran Duran", title: "Rio") }
 
-  let (:form) { SongForm.new(comp) }
+  let(:form) { SongForm.new(comp) }
 
   class SongForm < TestForm
     property :name
@@ -16,7 +16,7 @@ class ReformTest < Minitest::Spec
   end
 
   describe "(new) form with empty models" do
-    let (:comp) { OpenStruct.new }
+    let(:comp) { OpenStruct.new }
 
     it "returns empty fields" do
       assert_nil form.title
@@ -28,7 +28,7 @@ class ReformTest < Minitest::Spec
         form.validate("name" => "Duran Duran")
 
         assert_nil form.title
-        form.name.must_equal  "Duran Duran"
+        form.name.must_equal "Duran Duran"
       end
     end
   end
@@ -41,7 +41,7 @@ class ReformTest < Minitest::Spec
   end
 
   describe "#validate" do
-    let (:comp) { OpenStruct.new }
+    let(:comp) { OpenStruct.new }
 
     it "ignores unmapped fields in input" do
       form.validate("name" => "Duran Duran", :genre => "80s")
@@ -77,7 +77,7 @@ class ReformTest < Minitest::Spec
           required(:title).filled
         end
       end
-      let (:form) { ValidatingForm.new(comp) }
+      let(:form) { ValidatingForm.new(comp) }
 
       it "returns false when invalid" do
         form.validate({}).must_equal false
@@ -85,14 +85,14 @@ class ReformTest < Minitest::Spec
 
       it "populates errors" do
         form.validate({})
-        form.errors.messages.must_equal({:name=>["must be filled"], :title=>["must be filled"]})
+        form.errors.messages.must_equal({name: ["must be filled"], title: ["must be filled"]})
       end
     end
   end
 
   describe "#save" do
-    let (:comp) { OpenStruct.new }
-    let (:form) { SongForm.new(comp) }
+    let(:comp) { OpenStruct.new }
+    let(:form) { SongForm.new(comp) }
 
     before { form.validate("name" => "Diesel Boy") }
 
@@ -111,16 +111,14 @@ class ReformTest < Minitest::Spec
           hash = map
         end
 
-        hash.must_equal({"name"=>"Diesel Boy", "title" => nil})
+        hash.must_equal({"name" => "Diesel Boy", "title" => nil})
       end
     end
   end
 
-
   describe "#model" do
     it { form.model.must_equal comp }
   end
-
 
   describe "inheritance" do
     class HitForm < SongForm
@@ -130,23 +128,22 @@ class ReformTest < Minitest::Spec
       end
     end
 
-    let (:form) { HitForm.new(OpenStruct.new()) }
+    let(:form) { HitForm.new(OpenStruct.new()) }
     it do
       form.validate({"title" => "The Body"})
       form.title.must_equal "The Body"
       assert_nil form.position
-      form.errors.messages.must_equal({:name=>["must be filled"], :position=>["must be filled"]})
+      form.errors.messages.must_equal({name: ["must be filled"], position: ["must be filled"]})
     end
   end
 end
-
 
 class OverridingAccessorsTest < BaseTest
   class SongForm < TestForm
     property :title
 
     def title=(v) # used in #validate.
-      super v*2
+      super v * 2
     end
 
     def title # used in #sync.
@@ -154,12 +151,11 @@ class OverridingAccessorsTest < BaseTest
     end
   end
 
-  let (:song) { Song.new("Pray") }
+  let(:song) { Song.new("Pray") }
   subject { SongForm.new(song) }
 
   # override reader for presentation.
   it { subject.title.must_equal "pray" }
-
 
   describe "#save" do
     before { subject.validate("title" => "Hey Little World") }
@@ -183,7 +179,6 @@ class OverridingAccessorsTest < BaseTest
   end
 end
 
-
 class MethodInFormTest < MiniTest::Spec
   class AlbumForm < TestForm
     property :title
@@ -202,7 +197,7 @@ class MethodInFormTest < MiniTest::Spec
   end
 
   # methods can be used instead of created accessors.
-  subject { AlbumForm.new(OpenStruct.new(:hit => OpenStruct.new)) }
+  subject { AlbumForm.new(OpenStruct.new(hit: OpenStruct.new)) }
   it { subject.title.must_equal "The Suffer And The Witness" }
   it { subject.hit.title.must_equal "Drones" }
 end
