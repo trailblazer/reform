@@ -23,7 +23,7 @@ module Reform::Validation
       group
     end
 
-  private
+    private
 
     def index_for(options)
       return find_index { |el| el.first == options[:after] } + 1 if options[:after]
@@ -35,7 +35,6 @@ module Reform::Validation
       return unless cfg
       cfg[1]
     end
-
 
     # Runs all validations groups according to their rules and returns all Result objects.
     class Validate

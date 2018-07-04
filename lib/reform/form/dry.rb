@@ -22,7 +22,6 @@ module Reform::Form::Dry
       includer.extend(ClassMethods)
     end
 
-
     class Group
       def initialize(options = {})
         options ||= {}
@@ -54,10 +53,11 @@ module Reform::Form::Dry
         # dry_messages    = dry_result.messages
 
         return dry_result
-        reform_errors   = Reform::Contract::Errors.new(dry_result) # TODO: dry should be merged here.
+        reform_errors = Reform::Contract::Errors.new(dry_result) # TODO: dry should be merged here.
       end
 
-    private
+      private
+
       def call_schema(inject_options, input)
         @validator.new(@validator.rules, inject_options).(input)
       end
@@ -83,15 +83,15 @@ module Reform::Form::Dry
       # dry-v needs symbolized keys
       # TODO: Don't do this here... Representers??
       def symbolize_hash(old_hash)
-        old_hash.each_with_object({}) { |(k, v), new_hash|
+        old_hash.each_with_object({}) do |(k, v), new_hash|
           new_hash[k.to_sym] = if v.is_a?(Hash)
-                             symbolize_hash(v)
-                           elsif v.is_a?(Array)
-                             v.map{ |h| h.is_a?(Hash) ? symbolize_hash(h) : h }
-                           else
-                             v
-                           end
-        }
+                                 symbolize_hash(v)
+                               elsif v.is_a?(Array)
+                                 v.map { |h| h.is_a?(Hash) ? symbolize_hash(h) : h }
+                               else
+                                 v
+                               end
+        end
       end
     end
   end

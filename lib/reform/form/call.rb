@@ -17,7 +17,7 @@ module Reform::Form::Call
     end
 
     def failure?
-      ! @success
+      !@success
     end
   end
 end

@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ContractValidateTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
@@ -30,13 +30,13 @@ class ContractValidateTest < MiniTest::Spec
     end
   end
 
-  let (:song)               { Song.new("Broken") }
-  let (:song_with_composer) { Song.new("Resist Stance", nil, composer) }
-  let (:composer)           { Artist.new("Greg Graffin") }
-  let (:artist)             { Artist.new("Bad Religion") }
-  let (:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
+  let(:song)               { Song.new("Broken") }
+  let(:song_with_composer) { Song.new("Resist Stance", nil, composer) }
+  let(:composer)           { Artist.new("Greg Graffin") }
+  let(:artist)             { Artist.new("Bad Religion") }
+  let(:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
 
-  let (:form) { AlbumForm.new(album) }
+  let(:form) { AlbumForm.new(album) }
 
   # valid
   it do
@@ -53,7 +53,6 @@ class ContractValidateTest < MiniTest::Spec
     form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"]}"
   end
 end
-
 
 # no configuration results in "sync" (formerly known as parse_strategy: :sync).
 class ValidateWithoutConfigurationTest < MiniTest::Spec
@@ -87,13 +86,13 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
     end
   end
 
-  let (:song)               { Song.new("Broken") }
-  let (:song_with_composer) { Song.new("Resist Stance", nil, composer) }
-  let (:composer)           { Artist.new("Greg Graffin") }
-  let (:artist)             { Artist.new("Bad Religion") }
-  let (:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
+  let(:song)               { Song.new("Broken") }
+  let(:song_with_composer) { Song.new("Resist Stance", nil, composer) }
+  let(:composer)           { Artist.new("Greg Graffin") }
+  let(:artist)             { Artist.new("Bad Religion") }
+  let(:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
 
-  let (:form) { AlbumForm.new(album) }
+  let(:form) { AlbumForm.new(album) }
 
   # valid.
   it do
@@ -120,7 +119,6 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
     form.songs[1].object_id.must_equal object_ids[:song_with_composer]
     form.songs[1].composer.object_id.must_equal object_ids[:composer]
     form.artist.object_id.must_equal object_ids[:artist]
-
 
     # model has not changed, yet.
     album.name.must_equal "The Dissent Of Man"
@@ -167,7 +165,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     end
 
     collection :songs,
-      internal_populator: lambda { |input, options|
+      internal_populator: ->(input, options) {
               collection = options[:represented].songs
               (item = collection[options[:index]]) ? item : collection.insert(options[:index], Song.new) } do
 
@@ -176,7 +174,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
         required(:title).filled
       end
 
-      property :composer, internal_populator: lambda { |input, options| (item = options[:represented].composer) ? item : Artist.new } do
+      property :composer, internal_populator: ->(input, options) { (item = options[:represented].composer) ? item : Artist.new } do
         property :name
         validation do
           required(:name).filled
@@ -184,7 +182,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
       end
     end
 
-    property :artist, internal_populator: lambda { |input, options| (item = options[:represented].artist) ? item : Artist.new } do
+    property :artist, internal_populator: ->(input, options) { (item = options[:represented].artist) ? item : Artist.new } do
       property :name
       validation do
         required(:name).filled
@@ -192,13 +190,13 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     end
   end
 
-  let (:song)               { Song.new("Broken") }
-  let (:song_with_composer) { Song.new("Resist Stance", nil, composer) }
-  let (:composer)           { Artist.new("Greg Graffin") }
-  let (:artist)             { Artist.new("Bad Religion") }
-  let (:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
+  let(:song)               { Song.new("Broken") }
+  let(:song_with_composer) { Song.new("Resist Stance", nil, composer) }
+  let(:composer)           { Artist.new("Greg Graffin") }
+  let(:artist)             { Artist.new("Bad Religion") }
+  let(:album)              { Album.new("The Dissent Of Man", [song, song_with_composer], artist) }
 
-  let (:form) { AlbumForm.new(album) }
+  let(:form) { AlbumForm.new(album) }
 
   # valid.
   it("xxx") do
@@ -216,7 +214,6 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     form.songs[1].title.must_equal "Roxanne"
     form.songs[1].composer.name.must_equal "Sting"
     form.artist.name.must_equal "The Police"
-
 
     # model has not changed, yet.
     album.name.must_equal "The Dissent Of Man"
@@ -256,7 +253,6 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     form.songs.size.must_equal 3
     form.artist.name.must_equal "Bad Religion"
 
-
     # model has not changed, yet.
     album.name.must_equal "The Dissent Of Man"
     album.songs[0].title.must_equal "Broken"
@@ -266,10 +262,9 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     album.artist.name.must_equal "Bad Religion"
   end
 
-
   # allow writeable: false even in the deserializer.
   class SongForm < TestForm
-    property :title, deserializer: { writeable: false }
+    property :title, deserializer: {writeable: false}
   end
 
   it do
@@ -284,7 +279,7 @@ end
 
 #   # not sure if we should catch that in Reform or rather do that in disposable. this is https://github.com/trailblazer/reform/pull/104
 #   # describe ":populator with :empty" do
-#   #   let (:form) {
+#   #   let(:form) {
 #   #     Class.new(Reform::Form) do
 #   #       collection :songs, :empty => true, :populator => lambda { |fragment, index, args|
 #   #         songs[index] = args.binding[:form].new(Song.new)
@@ -294,7 +289,7 @@ end
 #   #     end
 #   #    }
 
-#   #   let (:params) {
+#   #   let(:params) {
 #   #     {
 #   #       "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"}]
 #   #     }
@@ -308,10 +303,9 @@ end
 #   #   it { subject.songs[1].title.must_equal "Roxanne" }
 #   # end
 
-
 #   # test cardinalities.
 #   describe "with empty collection and cardinality" do
-#     let (:album) { Album.new }
+#     let(:album) { Album.new }
 
 #     subject { Class.new(Reform::Form) do
 #       include Reform::Form::ActiveModel
@@ -329,7 +323,6 @@ end
 #       validates :hit, :presence => true
 #     end.new(album) }
 
-
 #     describe "invalid" do
 #       before { subject.validate({}).must_equal false }
 
@@ -342,9 +335,8 @@ end
 #       end
 #     end
 
-
 #     describe "valid" do
-#       let (:album) { Album.new(nil, Song.new, [Song.new("Urban Myth")]) }
+#       let(:album) { Album.new(nil, Song.new, [Song.new("Urban Myth")]) }
 
 #       before {
 #         subject.validate({"songs" => [{"title"=>"Daddy, Brother, Lover, Little Boy"}], "hit" => {"title"=>"The Horse"}}).
@@ -355,13 +347,9 @@ end
 #     end
 #   end
 
-
-
-
-
 #   # providing manual validator method allows accessing form's API.
 #   describe "with ::validate" do
-#     let (:form) {
+#     let(:form) {
 #       Class.new(Reform::Form) do
 #         property :title
 
@@ -373,8 +361,8 @@ end
 #       end
 #      }
 
-#     let (:params) { {"title" => "Fallout"} }
-#     let (:song) { Song.new("Englishman") }
+#     let(:params) { {"title" => "Fallout"} }
+#     let(:song) { Song.new("Englishman") }
 
 #     subject { form.new(song) }
 
@@ -384,10 +372,9 @@ end
 #     it { subject.errors.messages.must_equal({:title=>["not lowercase"]}) }
 #   end
 
-
 #   # overriding the reader for a nested form should only be considered when rendering.
 #   describe "with overridden reader for nested form" do
-#     let (:form) {
+#     let(:form) {
 #       Class.new(Reform::Form) do
 #         property :band, :populate_if_empty => lambda { |*| Band.new } do
 #           property :label
@@ -407,7 +394,7 @@ end
 #       end.new(album)
 #      }
 
-#      let (:album) { Album.new }
+#      let(:album) { Album.new }
 
 #      # don't use #artist when validating!
 #      it do

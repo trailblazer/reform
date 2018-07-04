@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ContractTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
@@ -36,13 +36,13 @@ class ContractTest < MiniTest::Spec
     property :artist, form: ArtistForm
   end
 
-  let (:song)               { Song.new("Broken") }
-  let (:song_with_composer) { Song.new("Resist Stance", nil, composer) }
-  let (:composer)           { Artist.new("Greg Graffin") }
-  let (:artist)             { Artist.new("Bad Religion") }
-  let (:album)              { Album.new("The Dissent Of Man", 123, [song, song_with_composer], artist) }
+  let(:song)               { Song.new("Broken") }
+  let(:song_with_composer) { Song.new("Resist Stance", nil, composer) }
+  let(:composer)           { Artist.new("Greg Graffin") }
+  let(:artist)             { Artist.new("Bad Religion") }
+  let(:album)              { Album.new("The Dissent Of Man", 123, [song, song_with_composer], artist) }
 
-  let (:form) { AlbumForm.new(album) }
+  let(:form) { AlbumForm.new(album) }
 
   # accept `property form: SongForm`.
   it do
@@ -66,7 +66,7 @@ class ContractTest < MiniTest::Spec
 
     it "returns the list of defined properties" do
       returned_value = AlbumForm.properties(:hello, :world, virtual: true)
-      returned_value.must_equal [:hello, :world]
+      returned_value.must_equal %i[hello world]
     end
   end
 

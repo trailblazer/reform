@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ReadableTest < MiniTest::Spec
   Credentials = Struct.new(:password)
@@ -7,8 +7,8 @@ class ReadableTest < MiniTest::Spec
     property :password, readable: false
   end
 
-  let (:cred) { Credentials.new }
-  let (:form) { PasswordForm.new(cred) }
+  let(:cred) { Credentials.new }
+  let(:form) { PasswordForm.new(cred) }
 
   it {
     assert_nil form.password # password not read.
@@ -25,6 +25,6 @@ class ReadableTest < MiniTest::Spec
       hash = nested
     end
 
-    hash.must_equal("password"=> "123")
+    hash.must_equal("password" => "123")
   }
 end

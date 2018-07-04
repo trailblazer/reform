@@ -1,11 +1,11 @@
-require 'test_helper'
+require "test_helper"
 
 class VirtualTest < MiniTest::Spec
   class CreditCardForm < TestForm
     property :credit_card_number, virtual: true # no read, no write, it's virtual.
   end
 
-  let (:form) { CreditCardForm.new(Object.new) }
+  let(:form) { CreditCardForm.new(Object.new) }
 
   it {
     form.validate("credit_card_number" => "123")
@@ -19,6 +19,6 @@ class VirtualTest < MiniTest::Spec
       hash = nested
     end
 
-    hash.must_equal("credit_card_number"=> "123")
+    hash.must_equal("credit_card_number" => "123")
   }
 end

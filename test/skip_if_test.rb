@@ -1,11 +1,11 @@
-require 'test_helper'
+require "test_helper"
 
 class SkipIfTest < BaseTest
 
   class AlbumForm < TestForm
     property :title
 
-    property :hit, skip_if: lambda { |options| options[:fragment]["title"]=="" } do
+    property :hit, skip_if: ->(options) { options[:fragment]["title"] == "" } do
       property :title
       validation do
         required(:title).filled
@@ -21,9 +21,8 @@ class SkipIfTest < BaseTest
     end
   end
 
-
-  let (:hit) { Song.new }
-  let (:album) { Album.new(nil, hit, [], nil) }
+  let(:hit) { Song.new }
+  let(:album) { Album.new(nil, hit, [], nil) }
 
   # deserializes when present.
   it do
@@ -60,14 +59,14 @@ class SkipIfAllBlankTest < BaseTest
   # create only one object.
   it do
     form = AlbumForm.new(OpenStruct.new(songs: []))
-    form.validate("songs" => [{"title"=>"Apathy"}, {"title"=>"", "length" => ""}]).must_equal true
+    form.validate("songs" => [{"title" => "Apathy"}, {"title" => "", "length" => ""}]).must_equal true
     form.songs.size.must_equal 1
     form.songs[0].title.must_equal "Apathy"
   end
 
   it do
     form = AlbumForm.new(OpenStruct.new(songs: []))
-    form.validate("songs" => [{"title"=>"", "length" => ""}, {"title"=>"Apathy"}]).must_equal true
+    form.validate("songs" => [{"title" => "", "length" => ""}, {"title" => "Apathy"}]).must_equal true
     form.songs.size.must_equal 1
     form.songs[0].title.must_equal "Apathy"
   end

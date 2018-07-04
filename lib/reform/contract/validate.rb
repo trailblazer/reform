@@ -22,7 +22,7 @@ class Reform::Contract < Disposable::Twin
       @result
     end
 
-    def validate!(name, pointers=[])
+    def validate!(name, pointers = [])
       # run local validations. this could be nested schemas, too.
       local_errors_by_group = Reform::Validation::Groups::Validate.(self.class.validation_groups, self).compact # TODO: discss compact
 
@@ -36,7 +36,7 @@ class Reform::Contract < Disposable::Twin
       @result = Result.new(local_errors_by_group + pointers, nested_errors)
     end
 
-  private
+    private
 
     # Recursively call validate! on nested forms.
     # A pointer keeps an entire result object (e.g. Dry result) and
@@ -46,11 +46,11 @@ class Reform::Contract < Disposable::Twin
 
       schema.each(twin: true) do |dfn|
         # on collections, this calls validate! on each item form.
-        Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form, i|
+        Disposable::Twin::PropertyProcessor.new(dfn, self).() do |form, i|
           nested_pointers = pointers.collect { |pointer| pointer.advance(dfn[:name].to_sym, i) }.compact # pointer contains fragment for us, so go deeper
 
           arr << form.validate!(dfn[:name], nested_pointers)
-        }
+        end
       end
 
       arr

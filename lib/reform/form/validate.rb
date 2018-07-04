@@ -15,7 +15,6 @@ module Reform::Form::Validate
     end
   end
 
-
   def validate(params)
     # allow an external deserializer.
     @input_params = params # we want to store these for access via dry later
@@ -30,27 +29,28 @@ module Reform::Form::Validate
     deserializer.new(self).from_hash(params)
   end
 
+  private
 
-private
   # Meant to return params processable by the representer. This is the hook for munching date fields, etc.
   def deserialize!(params)
     # NOTE: it is completely up to the form user how they want to deserialize (e.g. using an external JSON-API representer).
-      # use the deserializer as an external instance to operate on the Twin API,
-      # e.g. adding new items in collections using #<< etc.
+    # use the deserializer as an external instance to operate on the Twin API,
+    # e.g. adding new items in collections using #<< etc.
     # DISCUSS: using self here will call the form's setters like title= which might be overridden.
     params
   end
 
   # Default deserializer for hash.
   # This is input-specific, e.g. Hash, JSON, or XML.
-  def deserializer!(source=self.class, options={}) # called on top-level, only, for now.
-    deserializer = Disposable::Rescheme.from(source,
+  def deserializer!(source = self.class, options = {}) # called on top-level, only, for now.
+    deserializer = Disposable::Rescheme.from(
+      source,
       {
         include:          [Representable::Hash::AllowSymbols, Representable::Hash],
         superclass:       Representable::Decorator,
-        definitions_from: lambda { |inline| inline.definitions },
+        definitions_from: ->(inline) { inline.definitions },
         options_from:     :deserializer,
-        exclude_options:  [:default, :populator] # Reform must not copy Disposable/Reform-only options that might confuse representable.
+        exclude_options:  %i[default populator] # Reform must not copy Disposable/Reform-only options that might confuse representable.
       }.merge(options)
     )
 
