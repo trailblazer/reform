@@ -7,7 +7,10 @@ module Reform
       def initialize(results, nested_results = []) # DISCUSS: do we like this?
         @results = results # native Result objects, e.g. `#<Dry::Validation::Result output={:title=>"Fallout", :composer=>nil} errors={}>`
         @failure = (results + nested_results).find(&:failure?) # TODO: test nested.
+        @nested_results = nested_results
       end
+
+      attr_reader :failure, :nested_results, :results
 
       def failure?; !!@failure end # rubocop:disable Style/DoubleNegation
 
