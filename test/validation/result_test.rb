@@ -17,6 +17,16 @@ class ErrorsResultTest < Minitest::Spec
     it { Reform::Contract::Result.new([succeeded, succeeded]).success?.must_equal true }
   end
 
+  describe "Contract::Result#failure?" do
+    let(:failed) { MyResult.new(false) }
+    let(:succeeded) { MyResult.new(true) }
+
+    it { Reform::Contract::Result.new([failed, failed]).failure?.must_equal true }
+    it { Reform::Contract::Result.new([succeeded, failed]).failure?.must_equal true }
+    it { Reform::Contract::Result.new([failed, succeeded]).failure?.must_equal true }
+    it { Reform::Contract::Result.new([succeeded, succeeded]).failure?.must_equal false }
+  end
+
   describe "Contract::Result#errors" do
     let(:results) do
       [

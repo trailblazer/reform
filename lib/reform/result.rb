@@ -9,7 +9,7 @@ module Reform
         @failure = (results + nested_results).find(&:failure?) # TODO: test nested.
       end
 
-      def failure?; @failure  end
+      def failure?; !!@failure end # rubocop:disable Style/DoubleNegation
 
       def success?; !failure? end
 
