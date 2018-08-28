@@ -53,16 +53,16 @@ class DryValidationErrorsAPITest < Minitest::Spec
   let(:form) { AlbumForm.new(Album.new(nil, Artist.new(nil, Label.new), [Song.new(nil), Song.new(nil)])) }
 
   it "everything wrong" do
-    result = form.({title: nil, artist: {email: ""}, songs: [{title: "Clams have feelings too"}, {title: ""}]})
+    result = form.(title: nil, artist: {email: ""}, songs: [{title: "Clams have feelings too"}, {title: ""}])
 
     result.success?.must_equal false
 
     # errors.messages
-    form.errors.messages.must_equal({:title => ["must be filled", "size cannot be less than 2"], :"artist.email" => ["must be filled"], :"artist.label.location" => ["must be filled"], :"songs.title" => ["must be filled"]})
-    form.artist.errors.messages.must_equal({:email => ["must be filled"], :"label.location" => ["must be filled"]})
-    form.artist.label.errors.messages.must_equal({location: ["must be filled"]})
+    form.errors.messages.must_equal(title: ["must be filled", "size cannot be less than 2"], "artist.email": ["must be filled"], "artist.label.location": ["must be filled"], "songs.title": ["must be filled"])
+    form.artist.errors.messages.must_equal(email: ["must be filled"], "label.location": ["must be filled"])
+    form.artist.label.errors.messages.must_equal(location: ["must be filled"])
     form.songs[0].errors.messages.must_equal({})
-    form.songs[1].errors.messages.must_equal({title: ["must be filled"]})
+    form.songs[1].errors.messages.must_equal(title: ["must be filled"])
 
     # #errors[]
     form.errors[:nonsense].must_equal []
@@ -73,42 +73,42 @@ class DryValidationErrorsAPITest < Minitest::Spec
     form.songs[1].errors[:title].must_equal ["must be filled"]
 
     # #to_result
-    form.to_result.errors.must_equal({title: ["must be filled"]})
-    form.to_result.messages.must_equal({title: ["must be filled", "size cannot be less than 2"]})
-    form.to_result.hints.must_equal({title: ["size cannot be less than 2"]})
-    form.artist.to_result.errors.must_equal({email: ["must be filled"]})
-    form.artist.to_result.messages.must_equal({email: ["must be filled"]})
-    form.artist.to_result.hints.must_equal({email: []})
-    form.artist.label.to_result.errors.must_equal({location: ["must be filled"]})
-    form.artist.label.to_result.messages.must_equal({location: ["must be filled"]})
-    form.artist.label.to_result.hints.must_equal({location: []})
+    form.to_result.errors.must_equal(title: ["must be filled"])
+    form.to_result.messages.must_equal(title: ["must be filled", "size cannot be less than 2"])
+    form.to_result.hints.must_equal(title: ["size cannot be less than 2"])
+    form.artist.to_result.errors.must_equal(email: ["must be filled"])
+    form.artist.to_result.messages.must_equal(email: ["must be filled"])
+    form.artist.to_result.hints.must_equal(email: [])
+    form.artist.label.to_result.errors.must_equal(location: ["must be filled"])
+    form.artist.label.to_result.messages.must_equal(location: ["must be filled"])
+    form.artist.label.to_result.hints.must_equal(location: [])
     form.songs[0].to_result.errors.must_equal({})
     form.songs[0].to_result.messages.must_equal({})
     form.songs[0].to_result.hints.must_equal({})
-    form.songs[1].to_result.errors.must_equal({title: ["must be filled"]})
-    form.songs[1].to_result.messages.must_equal({title: ["must be filled"]})
-    form.songs[1].to_result.hints.must_equal({title: []})
-    form.songs[1].to_result.errors(locale: :de).must_equal({title: ["muss abgefüllt sein"]})
-    form.songs[1].to_result.messages(locale: :de).must_equal({title: ["muss abgefüllt sein"]})
-    form.songs[1].to_result.hints(locale: :de).must_equal({title: []})
+    form.songs[1].to_result.errors.must_equal(title: ["must be filled"])
+    form.songs[1].to_result.messages.must_equal(title: ["must be filled"])
+    form.songs[1].to_result.hints.must_equal(title: [])
+    form.songs[1].to_result.errors(locale: :de).must_equal(title: ["muss abgefüllt sein"])
+    form.songs[1].to_result.messages(locale: :de).must_equal(title: ["muss abgefüllt sein"])
+    form.songs[1].to_result.hints(locale: :de).must_equal(title: [])
   end
 
   it "only nested property is invalid." do
-    result = form.({title: "Black Star", artist: {email: ""}})
+    result = form.(title: "Black Star", artist: {email: ""})
 
     result.success?.must_equal false
 
     # errors.messages
-    form.errors.messages.must_equal({:"artist.email" => ["must be filled"], :"artist.label.location" => ["must be filled"], :"songs.title" => ["must be filled"]})
-    form.artist.errors.messages.must_equal({:email => ["must be filled"], :"label.location" => ["must be filled"]})
-    form.artist.label.errors.messages.must_equal({location: ["must be filled"]})
+    form.errors.messages.must_equal("artist.email": ["must be filled"], "artist.label.location": ["must be filled"], "songs.title": ["must be filled"])
+    form.artist.errors.messages.must_equal(email: ["must be filled"], "label.location": ["must be filled"])
+    form.artist.label.errors.messages.must_equal(location: ["must be filled"])
   end
 
   it "nested collection invalid" do
     result = form.({title: "Black Star", artist: {email: "uhm", label: {location: "Hannover"}}, songs: [{title: ""}]})
 
     result.success?.must_equal false
-    form.errors.messages.must_equal({:"songs.title" => ["must be filled"]})
+    form.errors.messages.must_equal({"songs.title": ["must be filled"]})
   end
 
   #---
@@ -131,7 +131,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
     form = CollectionExternalValidationsForm.new(Album.new(nil, nil, [Song.new, Song.new]))
     form.validate(songs: [{title: "Liar"}, {title: ""}])
 
-    form.errors.messages.must_equal({:"songs.title" => ["must be filled"]})
+    form.errors.messages.must_equal({"songs.title": ["must be filled"]})
     form.songs[0].errors.messages.must_equal({})
     form.songs[1].errors.messages.must_equal({title: ["must be filled"]})
   end
@@ -228,7 +228,7 @@ class DryValidationDefaultGroupTest < Minitest::Spec
   end
 end
 
-class ValidationGroupsTest < MiniTest::Spec # rubocop:disable Metrics/ClassLength
+class ValidationGroupsTest < MiniTest::Spec
   describe "basic validations" do
     Session = Struct.new(:username, :email, :password, :confirm_password, :special_class)
     SomeClass = Struct.new(:id)
@@ -459,21 +459,21 @@ class ValidationGroupsTest < MiniTest::Spec # rubocop:disable Metrics/ClassLengt
 
       result.must_equal false
       # from nested validation
-      form.errors.messages.must_equal({:title => ["you're a bad person"], :"hit.title" => ["must be filled"], :"songs.title" => ["must be filled"], :"producers.name" => ["must be filled"], :"band.name" => ["must be filled"], :"band.label.location" => ["must be filled"]})
+      form.errors.messages.must_equal(title: ["you're a bad person"], "hit.title": ["must be filled"], "songs.title": ["must be filled"], "producers.name": ["must be filled"], "band.name": ["must be filled"], "band.label.location": ["must be filled"])
 
       # songs have their own validation.
-      form.songs[0].errors.messages.must_equal({title: ["must be filled"]})
+      form.songs[0].errors.messages.must_equal(title: ["must be filled"])
       # hit got its own validation group.
-      form.hit.errors.messages.must_equal({title: ["must be filled"]})
+      form.hit.errors.messages.must_equal(title: ["must be filled"])
 
-      form.band.label.errors.messages.must_equal({location: ["must be filled"]})
-      form.band.errors.messages.must_equal({:name => ["must be filled"], :"label.location" => ["must be filled"]})
-      form.producers[0].errors.messages.must_equal({name: ["must be filled"]})
+      form.band.label.errors.messages.must_equal(location: ["must be filled"])
+      form.band.errors.messages.must_equal(name: ["must be filled"], "label.location": ["must be filled"])
+      form.producers[0].errors.messages.must_equal(name: ["must be filled"])
 
       # TODO: use the same form structure as the top one and do the same test against messages, errors and hints.
-      form.producers[0].to_result.errors.must_equal({name: ["must be filled"]})
-      form.producers[0].to_result.messages.must_equal({name: ["must be filled"]})
-      form.producers[0].to_result.hints.must_equal({name: []})
+      form.producers[0].to_result.errors.must_equal(name: ["must be filled"])
+      form.producers[0].to_result.messages.must_equal(name: ["must be filled"])
+      form.producers[0].to_result.hints.must_equal(name: [])
     end
 
     # FIXME: fix the "must be filled error"

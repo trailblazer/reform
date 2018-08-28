@@ -70,7 +70,7 @@ class ModuleInclusionTest < MiniTest::Spec
   it do
     form = SongForm.new(OpenStruct.new)
     form.validate({})
-    form.errors.messages.must_equal({band: ["must be filled"]})
+    form.errors.messages.must_equal(band: ["must be filled"])
   end
 
   # coercion works
@@ -105,8 +105,8 @@ class ModuleInclusionTest < MiniTest::Spec
 
   it do
     form = AlbumForm.new(OpenStruct.new(band: OpenStruct.new))
-    form.validate({"band" => {}})
-    form.errors.messages.must_equal({:"band.title" => ["must be filled"], :"band.label" => ["must be filled"], :name => ["must be filled"]})
+    form.validate("band" => {})
+    form.errors.messages.must_equal("band.title": ["must be filled"], "band.label": ["must be filled"], name: ["must be filled"])
   end
 
   describe "module with custom accessors" do
