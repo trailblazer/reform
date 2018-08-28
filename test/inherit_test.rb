@@ -52,7 +52,7 @@ class InheritTest < BaseTest
   subject { CompilationForm.new(album) }
 
   it do
-    subject.validate({"hit" => {"title" => "LA Drone", "rating" => 10}})
+    subject.validate("hit" => {"title" => "LA Drone", "rating" => 10})
     subject.hit.title.must_equal "LA Drone"
     subject.hit.rating.must_equal 10
     subject.errors.messages.must_equal({})
@@ -62,7 +62,7 @@ class InheritTest < BaseTest
     subject.validate({})
     assert_nil subject.model.hit.title
     assert_nil subject.model.hit.rating
-    subject.errors.messages.must_equal({:"hit.title" => ["must be filled"], :"hit.rating" => ["must be filled"]})
+    subject.errors.messages.must_equal("hit.title": ["must be filled"], "hit.rating": ["must be filled"])
   end
 
   it "xxx" do

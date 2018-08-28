@@ -5,9 +5,11 @@ inherit_from:
   - https://raw.githubusercontent.com/trailblazer/meta/master/rubocop.yml
   - .rubocop_todo.yml
 
+Metrics/ClassLength:
+  Max: 150
+
 Lint/AssignmentInCondition:
   Enabled: false
-
 
 Style/ClassAndModuleChildren:
   Enabled: false

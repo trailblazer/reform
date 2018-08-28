@@ -77,11 +77,11 @@ class ErrorsTest < MiniTest::Spec
         title: "Swimming Pool - EP",
         band: {
           name: "Marie Madeleine",
-          label: { name: "Ekler'o'shocK" }
+          label: {name: "Ekler'o'shocK"}
         },
-        artists: [42, 'Good Charlotte', 43]
+        artists: [42, "Good Charlotte", 43]
       ).must_equal false
-      form.errors.messages.must_equal(artists: { 0=>["must be a string"], 2=>["must be a string"] })
+      form.errors.messages.must_equal(artists: {0 => ["must be a string"], 2 => ["must be a string"]})
       form.errors.size.must_equal(1)
     end
   end
@@ -98,46 +98,46 @@ class ErrorsTest < MiniTest::Spec
         "hit" => {"title" => ""},
         "title" => "",
         "songs" => [{"title" => ""}, {"title" => ""}],
-        "producer" => { "name" => "" }
+        "producer" => {"name" => ""}
       )
     end
 
     it do
-      form.errors.messages.must_equal({
-                                        :title => ["must be filled"],
-                                        :"hit.title" => ["must be filled"],
-                                        :"songs.title" => ["must be filled"],
-                                        :"band.label.name" => ["must be filled"],
-                                        :"producer.name" => ["must be filled"]
-                                      })
+      form.errors.messages.must_equal(
+        title: ["must be filled"],
+        "hit.title": ["must be filled"],
+        "songs.title": ["must be filled"],
+        "band.label.name": ["must be filled"],
+        "producer.name": ["must be filled"]
+      )
     end
 
-    it do
-      #form.errors.must_equal({:title  => ["must be filled"]})
-      # TODO: this should only contain local errors?
-    end
+    # it do
+    #   form.errors.must_equal({:title  => ["must be filled"]})
+    #   TODO: this should only contain local errors?
+    # end
 
     # nested forms keep their own Errors:
-    it { form.producer.errors.messages.must_equal({name: ["must be filled"]}) }
-    it { form.hit.errors.messages.must_equal({title: ["must be filled"]}) }
-    it { form.songs[0].errors.messages.must_equal({title: ["must be filled"]}) }
+    it { form.producer.errors.messages.must_equal(name: ["must be filled"]) }
+    it { form.hit.errors.messages.must_equal(title: ["must be filled"]) }
+    it { form.songs[0].errors.messages.must_equal(title: ["must be filled"]) }
 
     it do
-      form.errors.messages.must_equal({
-                                        :title        => ["must be filled"],
-                                        :"hit.title"  => ["must be filled"],
-                                        :"songs.title" => ["must be filled"],
-                                        :"band.label.name" => ["must be filled"],
-                                        :"producer.name" => ["must be filled"]
-                                      })
+      form.errors.messages.must_equal(
+        title: ["must be filled"],
+        "hit.title": ["must be filled"],
+        "songs.title": ["must be filled"],
+        "band.label.name": ["must be filled"],
+        "producer.name": ["must be filled"]
+      )
       form.errors.size.must_equal(5)
     end
   end
 
   describe "#validate with main form invalid" do
     it do
-      form.validate("title" => "", "band" => {"label" => {name: "Fat Wreck"}}, 'producer' => nil).must_equal false
-      form.errors.messages.must_equal({title: ["must be filled"], producer: ["must be a hash"]})
+      form.validate("title" => "", "band" => {"label" => {name: "Fat Wreck"}}, "producer" => nil).must_equal false
+      form.errors.messages.must_equal(title: ["must be filled"], producer: ["must be a hash"])
       form.errors.size.must_equal(2)
     end
   end
@@ -146,7 +146,7 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate("hit" => {"title" => ""}, "band" => {"label" => {name: "Fat Wreck"}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"hit.title" => ["must be filled"]}) }
+    it { form.errors.messages.must_equal("hit.title": ["must be filled"]) }
     it { form.errors.size.must_equal(1) }
   end
 
@@ -154,7 +154,7 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate("songs" => [{"title" => ""}], "band" => {"label" => {name: "Fat Wreck"}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"songs.title" => ["must be filled"]}) }
+    it { form.errors.messages.must_equal("songs.title": ["must be filled"]) }
     it { form.errors.size.must_equal(1) }
   end
 
@@ -162,7 +162,7 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate("songs" => [{"title" => ""}], "band" => {"label" => {}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"songs.title" => ["must be filled"], :"band.label.name" => ["must be filled"]}) }
+    it { form.errors.messages.must_equal("songs.title": ["must be filled"], "band.label.name": ["must be filled"]) }
     it { form.errors.size.must_equal(2) }
   end
 
@@ -170,18 +170,20 @@ class ErrorsTest < MiniTest::Spec
     it do
       result = form.validate("songs" => [{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}})
       result.must_equal false
-      form.errors.messages.must_equal({:"band.name" => ["you're a bad person"]})
+      form.errors.messages.must_equal("band.name": ["you're a bad person"])
       form.errors.size.must_equal(1)
     end
   end
 
   describe "correct #validate" do
-    before do @result = form.validate(
-      "hit"   => {"title" => "Sacrifice"},
-      "title" => "Second Heat",
-      "songs" => [{"title" => "Heart Of A Lion"}],
-      "band"  => {"label" => {name: "Fat Wreck"}}
-      ) end
+    before do
+      @result = form.validate(
+        "hit"   => {"title" => "Sacrifice"},
+        "title" => "Second Heat",
+        "songs" => [{"title" => "Heart Of A Lion"}],
+        "band"  => {"label" => {name: "Fat Wreck"}}
+      )
+    end
 
     it { @result.must_equal true }
     it { form.hit.title.must_equal "Sacrifice" }
@@ -200,6 +202,7 @@ class ErrorsTest < MiniTest::Spec
     # to_s is aliased to messages
     it {
       skip "why do we need Errors#to_s ?"
-      form.errors.to_s.must_equal "{:\"songs.title\"=>[\"must be filled\"], :\"band.label.name\"=>[\"must be filled\"]}" }
+      form.errors.to_s.must_equal "{:\"songs.title\"=>[\"must be filled\"], :\"band.label.name\"=>[\"must be filled\"]}"
+    }
   end
 end
