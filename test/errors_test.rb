@@ -7,6 +7,10 @@ require "test_helper"
 class ErrorsTest < MiniTest::Spec
   class AlbumForm < TestForm
     property :title
+    property :artists, default: []
+    property :producer do
+      property :name
+    end
 
     property :hit do
       property :title
@@ -47,6 +51,10 @@ class ErrorsTest < MiniTest::Spec
 
     validation do
       required(:title).filled
+      required(:artists).each(:str?)
+      required(:producer).schema do
+        required(:name).filled
+      end
     end
   end
 
@@ -56,11 +64,27 @@ class ErrorsTest < MiniTest::Spec
       hit: song,
       songs: songs, # TODO: document this requirement,
       band: Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
+      producer: Struct.new(:name).new("Sun Records")
     )
   end
   let(:song)  { OpenStruct.new(title: "Downtown") }
   let(:songs) { [song = OpenStruct.new(title: "Calling"), song] }
   let(:form)  { AlbumForm.new(album) }
+
+  describe "#validate with invalid array property" do
+    it do
+      form.validate(
+        title: "Swimming Pool - EP",
+        band: {
+          name: "Marie Madeleine",
+          label: { name: "Ekler'o'shocK" }
+        },
+        artists: [42, 'Good Charlotte', 43]
+      ).must_equal false
+      form.errors.messages.must_equal(artists: { 0=>["must be a string"], 2=>["must be a string"] })
+      form.errors.size.must_equal(1)
+    end
+  end
 
   describe "#errors without #validate" do
     it do
@@ -69,17 +93,22 @@ class ErrorsTest < MiniTest::Spec
   end
 
   describe "blank everywhere" do
-    before do form.validate(
-      "hit" => {"title" => ""},
-      "title" => "",
-      "songs" => [{"title" => ""}, {"title" => ""}]) end # FIXME: what happens if item must be filled?
+    before do
+      form.validate(
+        "hit" => {"title" => ""},
+        "title" => "",
+        "songs" => [{"title" => ""}, {"title" => ""}],
+        "producer" => { "name" => "" }
+      )
+    end
 
     it do
       form.errors.messages.must_equal({
                                         :title => ["must be filled"],
                                         :"hit.title" => ["must be filled"],
                                         :"songs.title" => ["must be filled"],
-                                        :"band.label.name" => ["must be filled"]
+                                        :"band.label.name" => ["must be filled"],
+                                        :"producer.name" => ["must be filled"]
                                       })
     end
 
@@ -89,6 +118,7 @@ class ErrorsTest < MiniTest::Spec
     end
 
     # nested forms keep their own Errors:
+    it { form.producer.errors.messages.must_equal({name: ["must be filled"]}) }
     it { form.hit.errors.messages.must_equal({title: ["must be filled"]}) }
     it { form.songs[0].errors.messages.must_equal({title: ["must be filled"]}) }
 
@@ -97,17 +127,18 @@ class ErrorsTest < MiniTest::Spec
                                         :title        => ["must be filled"],
                                         :"hit.title"  => ["must be filled"],
                                         :"songs.title" => ["must be filled"],
-                                        :"band.label.name" => ["must be filled"]
+                                        :"band.label.name" => ["must be filled"],
+                                        :"producer.name" => ["must be filled"]
                                       })
-      form.errors.size.must_equal(4)
+      form.errors.size.must_equal(5)
     end
   end
 
   describe "#validate with main form invalid" do
     it do
-      form.validate("title" => "", "band" => {"label" => {name: "Fat Wreck"}}).must_equal false
-      form.errors.messages.must_equal({title: ["must be filled"]})
-      form.errors.size.must_equal(1)
+      form.validate("title" => "", "band" => {"label" => {name: "Fat Wreck"}}, 'producer' => nil).must_equal false
+      form.errors.messages.must_equal({title: ["must be filled"], producer: ["must be a hash"]})
+      form.errors.size.must_equal(2)
     end
   end
 
