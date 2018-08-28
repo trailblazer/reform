@@ -21,11 +21,17 @@ module Reform
 
       private
 
+      # this doesn't do nested errors (e.g. )
       def filter_for(method, *args)
         @results.collect { |r| r.public_send(method, *args) }
                 .inject({}) { |hsh, errs| hsh.merge(errs) }
-                .find_all { |k, v| v.is_a?(Array) } # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
-                .to_h
+                .find_all { |k, v|  # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
+                  if v.is_a?(Hash)
+                    nested_errors = v.select { |attr_key, val| attr_key.is_a?(Integer) && val.is_a?(Array) && val.any? }
+                    v = nested_errors.to_a if nested_errors.any?
+                  end
+                  v.is_a?(Array)
+                }.to_h
       end
 
       # Note: this class will be redundant in Reform 3, where the public API
