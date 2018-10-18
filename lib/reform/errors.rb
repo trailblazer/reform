@@ -45,12 +45,10 @@ class Reform::Contract::Result::Errors
       hash[ [*prefix, k].join(".").to_sym] = v
     # if it's a collection, index the errors
     else
-      # create an array for collection key
-      hash[ [*prefix].join(".").to_sym] ||= Array.new
-      # create hash for index position
-      hash[ [*prefix].join(".").to_sym][i] ||= Hash.new
-      # add error for attribute key
-      hash[ [*prefix].join(".").to_sym][i][k] = v
+      # create attribute prefix with all attributes joined
+      attribute_prefix = [ *prefix ].join(".")
+      # then join with index and it's attribute name
+      hash[ ["#{attribute_prefix}[#{i}]", k].join(".").to_sym] = v
     end
   end
 

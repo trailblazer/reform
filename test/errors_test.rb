@@ -117,13 +117,11 @@ class ErrorsTest < MiniTest::Spec
       form.errors.messages.must_equal({
         :title        => ["must be filled"],
         :"hit.title"  => ["must be filled"],
-        :"songs"=> [
-          { title: ["must be filled"] },
-          { title: ["must be filled"] }
-        ],
+        :"songs[0].title"=> ["must be filled"],
+        :"songs[1].title"=> ["must be filled"],
         :"band.label.name"=>["must be filled"]
       })
-      form.errors.size.must_equal(4)
+      form.errors.size.must_equal(5)
     end
   end
 
