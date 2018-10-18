@@ -104,6 +104,29 @@ class ErrorsTest < MiniTest::Spec
     end
   end
 
+  describe "indexed errors" do
+    before { form.validate(
+      "hit"   =>{"title" => ""},
+      "title" => "",
+      "songs" => [{"title" => ""}, {"title" => ""}]) } # FIXME: what happens if item must be filled?
+    
+    after { Reform::Contract::Result::Errors.index_errors = false }
+
+    it do
+      Reform::Contract::Result::Errors.index_errors = true
+      form.errors.messages.must_equal({
+        :title        => ["must be filled"],
+        :"hit.title"  => ["must be filled"],
+        :"songs"=> [
+          { title: ["must be filled"] },
+          { title: ["must be filled"] }
+        ],
+        :"band.label.name"=>["must be filled"]
+      })
+      form.errors.size.must_equal(4)
+    end
+  end
+
 
   describe "#validate with main form invalid" do
     it do
