@@ -84,5 +84,16 @@ class CoercionTest < BaseTest
     it { subject.metadata.publication_settings.featured.must_equal false }
   end
 
-  # save
+  # sync
+  describe "#sync" do
+    before {
+      subject.validate(params).must_equal true
+      subject.sync
+    }
+    it { album.released_at.must_equal DateTime.parse("30/03/1981") }
+    it { album.hit.length.must_equal 312 }
+    it { album.hit.good.must_equal false }
+    it { assert_nil album.metadata[:publication_settings] }
+    it { album.metadata['publication_settings']['featured'].must_equal false }
+  end
 end
