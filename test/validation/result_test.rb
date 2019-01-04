@@ -59,7 +59,7 @@ class ErrorsResultTest < Minitest::Spec
       it { advanced.success?.must_equal false }
       it { advanced.errors.must_equal({:name=>"too boring"}) }
 
-      it { artist.advance([:absolute, :nonsense]).must_equal nil }
+      it { assert_nil artist.advance([:absolute, :nonsense]) }
     end
   end
 end
