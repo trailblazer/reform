@@ -31,9 +31,9 @@ class CoercionTest < BaseTest
 
   let (:album) {
     OpenStruct.new(
-      :released_at => "31/03/1981",
-      :hit         => OpenStruct.new(:length => "312"),
-      :band        => Band.new(OpenStruct.new(:value => "9999.99"))
+      released_at: "31/03/1981",
+      hit: OpenStruct.new(length: "312"),
+      band: Band.new(OpenStruct.new(value: "9999.99"))
     )
   }
 
@@ -45,9 +45,15 @@ class CoercionTest < BaseTest
 
   let (:params) {
     {
-      :released_at => "30/03/1981",
-      :hit         => {:length => "312"},
-      :band        => {:label => {:value => "9999.99"}}
+      released_at: "30/03/1981",
+      hit: {
+        length: "312"
+      },
+      band: {
+        label: {
+          value: "9999.99"
+        }
+      }
     }
   }
 
