@@ -1,5 +1,6 @@
 require "test_helper"
 require "reform/form/coercion"
+require "disposable/twin/property/hash"
 
 class CoercionTest < BaseTest
   class Irreversible
@@ -10,6 +11,7 @@ class CoercionTest < BaseTest
 
   class Form < TestForm
     feature Coercion
+    include Disposable::Twin::Property::Hash
 
     property :released_at, type: Types::Form::DateTime
 
@@ -23,6 +25,12 @@ class CoercionTest < BaseTest
         property :value, type: Irreversible
       end
     end
+
+    property :metadata, field: :hash do
+      property :publication_settings do
+        property :featured, type: Types::Params::Bool
+      end
+    end
   end
 
   subject do
@@ -33,7 +41,8 @@ class CoercionTest < BaseTest
     OpenStruct.new(
       released_at: "31/03/1981",
       hit: OpenStruct.new(length: "312"),
-      band: Band.new(OpenStruct.new(value: "9999.99"))
+      band: Band.new(OpenStruct.new(value: "9999.99")),
+      metadata: {},
     )
   }
 
@@ -54,7 +63,12 @@ class CoercionTest < BaseTest
         label: {
           value: "9999.99"
         }
-      }
+      },
+      metadata: {
+        publication_settings: {
+          featured: '0',
+        }
+      },
     }
   }
 
@@ -67,6 +81,7 @@ class CoercionTest < BaseTest
     it { subject.hit.length.must_equal 312 }
     it { subject.hit.good.must_equal false }
     it { subject.band.label.value.must_equal "9999.999999.99" } # coercion happened once.
+    it { subject.metadata.publication_settings.featured.must_equal false }
   end
 
   # save
