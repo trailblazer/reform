@@ -47,7 +47,8 @@ class CoercionTest < BaseTest
     {
       released_at: "30/03/1981",
       hit: {
-        length: "312"
+        length: "312",
+        good: '0',
       },
       band: {
         label: {
@@ -64,7 +65,7 @@ class CoercionTest < BaseTest
 
     it { subject.released_at.must_equal DateTime.parse("30/03/1981") }
     it { subject.hit.length.must_equal 312 }
-    it { assert_nil subject.hit.good }
+    it { subject.hit.good.must_equal false }
     it { subject.band.label.value.must_equal "9999.999999.99" } # coercion happened once.
   end
 
