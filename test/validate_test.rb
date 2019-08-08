@@ -52,6 +52,13 @@ class ContractValidateTest < MiniTest::Spec
     form.validate.must_equal false
     form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"]}"
   end
+
+  it 'raise DoubleValidateError if validate is called more than ones' do
+    form.validate.must_equal true
+    assert_raises(Reform::Contract::DoubleValidateError) do
+      form.validate
+    end
+  end
 end
 
 # no configuration results in "sync" (formerly known as parse_strategy: :sync).

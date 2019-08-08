@@ -1,13 +1,22 @@
 class Reform::Contract < Disposable::Twin
+  class DoubleValidateError < StandardError; end
   module Validate
     def initialize(*)
       # this will be removed in Reform 3.0. we need this for the presenting form, form builders
       # call the Form#errors method before validation.
       super
       @result = Result.new([])
+      @already_validated = false
     end
+    attr_reader :already_validated
 
     def validate
+      # this is not cool and it will be removed in 3.0 where the API will not allow to call validate twice
+      # or it will return the correct value even though it's called multiple times
+      if already_validated
+        raise DoubleValidateError.new("[Reform] Do not run validate twice on the same form instance")
+      end
+
       validate!(nil).success?
     end
 
@@ -23,6 +32,7 @@ class Reform::Contract < Disposable::Twin
     end
 
     def validate!(name, pointers = [])
+      @already_validated = true
       # run local validations. this could be nested schemas, too.
       local_errors_by_group = Reform::Validation::Groups::Validate.(self.class.validation_groups, self).compact # TODO: discss compact
 

@@ -85,7 +85,9 @@ class FormCompositionTest < MiniTest::Spec
   it { form.model[:song].must_equal song }
 
   it "creates Composition for you" do
+    form = RequestForm.new(song: song, requester: requester)
     form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb").must_equal true
+    form = RequestForm.new(song: song, requester: requester)
     form.validate("title" => "", "name" => "Frenzal Rhomb").must_equal false
   end
 
