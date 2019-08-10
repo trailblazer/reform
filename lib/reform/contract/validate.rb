@@ -1,5 +1,4 @@
 class Reform::Contract < Disposable::Twin
-  class DoubleValidateError < StandardError; end
   module Validate
     def initialize(*)
       # this will be removed in Reform 3.0. we need this for the presenting form, form builders
@@ -14,7 +13,7 @@ class Reform::Contract < Disposable::Twin
       # this is not cool and it will be removed in 3.0 where the API will not allow to call validate twice
       # or it will return the correct value even though it's called multiple times
       if already_validated
-        raise DoubleValidateError.new("[Reform] Do not run validate twice on the same form instance")
+        puts "WARN: [Reform] Running validate more than ones on the same instance can lead to silents errors (#{self})"
       end
 
       validate!(nil).success?

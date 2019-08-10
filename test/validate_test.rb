@@ -53,10 +53,10 @@ class ContractValidateTest < MiniTest::Spec
     form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"]}"
   end
 
-  it 'raise DoubleValidateError if validate is called more than ones' do
+  it 'validate is called more than ones a warn message is shown' do
     form.validate.must_equal true
-    assert_raises(Reform::Contract::DoubleValidateError) do
-      form.validate
+    assert_output(/Running validate more than ones/) do
+      form.validate.must_equal true
     end
   end
 end
