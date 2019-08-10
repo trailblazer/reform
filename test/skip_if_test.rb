@@ -71,3 +71,16 @@ class SkipIfAllBlankTest < BaseTest
     form.songs[0].title.must_equal "Apathy"
   end
 end
+
+class InvalidOptionsCombinationTest < BaseTest
+  it do
+    assert_raises(Reform::Form::InvalidOptionsCombinationError) do
+      class AlbumForm < TestForm
+        collection :songs, skip_if: :all_blank, populator: -> {} do
+          property :title
+          property :length
+        end
+      end
+    end
+  end
+end

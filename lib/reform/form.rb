@@ -1,5 +1,7 @@
 module Reform
   class Form < Contract
+    class InvalidOptionsCombinationError < StandardError; end
+
     def self.default_nested_class
       Form
     end
@@ -17,6 +19,12 @@ module Reform
       # Add macro logic, e.g. for :populator.
       # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
       def property(name, options = {}, &block)
+        if (options.keys & %i[skip_if populator]).size == 2
+          raise InvalidOptionsCombinationError.new(
+            "[Reform] #{self}:property:#{name} Do not use skip_if and populator together, use populator with skip! instead"
+          )
+        end
+
         # if composition and inherited we also need this setting
         # to correctly inherit modules
         options[:_inherited] = options[:inherit] if options.key?(:on) && options.key?(:inherit)
