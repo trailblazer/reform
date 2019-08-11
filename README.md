@@ -322,7 +322,7 @@ Reform is part of the [Trailblazer project](http://trailblazer.to). Please [buy 
 
 ## Security And Strong_parameters
 
-By explicitely defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
+By explicitly defining the form layout using `::property` there is no more need for protecting from unwanted input. `strong_parameter` or `attr_accessible` become obsolete. Reform will simply ignore undefined incoming parameters.
 
 ## This is not Reform 1.x!
 
