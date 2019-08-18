@@ -26,7 +26,7 @@ class ModuleInclusionTest < MiniTest::Spec
     end
 
     include Dry::Types.module # allows using Types::* in module.
-    property :cool, type: Form::Bool # test coercion.
+    property :cool, type: DRY_TYPES_CONSTANT::Bool # test coercion.
   end
 
   # TODO: test if works, move stuff into inherit_schema!

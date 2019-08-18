@@ -5,22 +5,23 @@ rvm:
   - ruby-head
   - 2.5
   - 2.4
-  - 2.3
-  - 2.2
-  - 2.1
 env:
-  - "DRY_TYPES='~>1.1.0' DRY_VALIDATION='~> 1.2.0'"
-  - "DRY_TYPES='~>1.1.0' DRY_VALIDATION='~> 1.1.0'"
-  - "DRY_TYPES='~>1.0.0' DRY_VALIDATION='~> 1.0.0'"
-  - "DRY_TYPES='~>0.15.0' DRY_VALIDATION='~> 0.13.0'"
-  - "DRY_TYPES='~>0.14.0' DRY_VALIDATION='~> 0.13.0'"
-  - "DRY_TYPES='~>0.13.0' DRY_VALIDATION='~> 0.12.0'"
-  - "DRY_TYPES='~>0.12.0' DRY_VALIDATION='~> 0.11.0'"
+  - "DRY_VALIDATION='~> 1.3.0'"
+  - "DRY_VALIDATION='~> 1.2.0'"
+  - "DRY_VALIDATION='~> 1.1.0'"
+  - "DRY_VALIDATION='~> 1.0.0'"
+  - "DRY_VALIDATION='~> 0.13.0'"
+  - "DRY_VALIDATION='~> 0.12.0'"
 matrix:
   fast_finish: true
   allow_failures:
     - rvm: ruby-head
-    - rvm: 2.1
+  include:
+    - { rvm: 2.2, env: "DRY_VALIDATION='~> 0.11.0'" }
+    - { rvm: 2.3, env: "DRY_VALIDATION='~> 0.12.0'" }
+    - { rvm: 2.3, env: "DRY_VALIDATION='~> 0.13.0'" }
+
+
 # maybe move this to slack in a private channel
 # notifications:
 #   webhooks:
