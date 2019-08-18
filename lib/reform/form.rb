@@ -36,6 +36,12 @@ module Reform
 
         options[:writeable] ||= options.delete(:writable) if options.key?(:writable)
 
+        # for virtual collection we need at least to have the collection equal to [] to
+        # avoid issue when the populator
+        if (options.keys & %i[collection virtual]).size == 2
+          options = { default: [] }.merge(options)
+        end
+
         definition = super # letdisposable and declarative gems sort out inheriting of properties, and so on.
         definition.merge!(deserializer: {}) unless definition[:deserializer] # always keep :deserializer per property.
 
