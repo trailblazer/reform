@@ -177,8 +177,8 @@ class DryValidationDefaultGroupTest < Minitest::Spec
     property :email
     property :password
     property :confirm_password
-    property :starts_at, type: Types::Params::DateTime
-    property :active, type: Types::Params::Bool
+    property :starts_at, type: DRY_TYPES_CONSTANT::DateTime
+    property :active, type: DRY_TYPES_CONSTANT::Bool
     property :color
 
     validation do
