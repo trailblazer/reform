@@ -1,6 +1,8 @@
 # Provides the old API for Rails and friends.
 # Note that this might become an optional "deprecation" gem in Reform 3.
 class Reform::Contract::Result::Errors
+  @@index_errors = false
+
   def initialize(result, form)
     @result        = result # DISCUSS: we don't use this ATM?
     @form          = form
@@ -10,17 +12,44 @@ class Reform::Contract::Result::Errors
   end
 
   # PROTOTYPING. THIS WILL GO TO A SEPARATE GEM IN REFORM 2.4/3.0.
-  DottedErrors = ->(form, prefix, hash) do
+  DottedErrors = ->(form, prefix, hash, i = nil) do
     result = form.to_result
-    result.messages.collect { |k,v| hash[ [*prefix, k].join(".").to_sym] = v }
+    if indexed_errors?
+      result.messages.collect do |k,v|
+        indexed_errors(prefix, hash, k, v, i)
+      end
+    else
+      result.messages.collect { |k,v| hash[ [*prefix, k].join(".").to_sym] = v }
+    end
 
     form.schema.each(twin: true) { |dfn|
       Disposable::Twin::PropertyProcessor.new(dfn, form).() do |frm, i|
         # DottedErrors.(form.send(dfn[:name])[i], [*prefix, dfn[:name], i], hash) and next if i
-        DottedErrors.(form.send(dfn[:name])[i], [*prefix, dfn[:name]], hash) and next if i
+        DottedErrors.(form.send(dfn[:name])[i], [*prefix, dfn[:name]], hash, i) and next if i
         DottedErrors.(form.send(dfn[:name]), [*prefix, dfn[:name]], hash)
       end
     }
+  end
+
+  def self.indexed_errors?
+    @@index_errors
+  end
+
+  def self.index_errors=(value)
+    @@index_errors = value
+  end
+
+  def self.indexed_errors(prefix, hash, k, v, i = nil)
+    # if no index, means not collection, show the error
+    if i.nil?
+      hash[ [*prefix, k].join(".").to_sym] = v
+    # if it's a collection, index the errors
+    else
+      # create attribute prefix with all attributes joined
+      attribute_prefix = [ *prefix ].join(".")
+      # then join with index and it's attribute name
+      hash[ ["#{attribute_prefix}[#{i}]", k].join(".").to_sym] = v
+    end
   end
 
   def messages(*args)
