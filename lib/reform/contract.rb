@@ -1,5 +1,3 @@
-require "uber/inheritable_attr"
-
 module Reform
   # Define your form structure and its validations. Instantiate it with a model,
   # and then +validate+ this object graph.
