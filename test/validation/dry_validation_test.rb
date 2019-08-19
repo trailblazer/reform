@@ -1,143 +1,8 @@
-# encoding: utf-8
 require "test_helper"
 require "reform/form/dry"
 require "reform/form/coercion"
 
-#---
-# one "nested" Schema per form.
-class DryValidationErrorsAPITest < Minitest::Spec
-  Album  = Struct.new(:title, :artist, :songs)
-  Song   = Struct.new(:title)
-  Artist = Struct.new(:email, :label)
-  Label  = Struct.new(:location)
-
-  class AlbumForm < TestForm
-    property :title
-
-    validation do
-      # required(:title).filled
-      required(:title).filled(min_size?: 2)
-    end
-
-    property :artist do
-      property :email
-
-      validation do
-        required(:email).filled
-      end
-
-      property :label do
-        property :location
-
-        validation do
-          required(:location).filled
-        end
-      end
-    end
-
-    # note the validation block is *in* the collection block, per item, so to speak.
-    collection :songs do
-      property :title
-
-      validation do
-        configure do
-          config.messages_file = 'test/fixtures/dry_error_messages.yml'
-        end
-
-        required(:title).filled
-      end
-    end
-
-  end
-
-  let (:form) { AlbumForm.new(Album.new(nil, Artist.new(nil, Label.new), [Song.new(nil), Song.new(nil)])) }
-
-  it "everything wrong" do
-    result = form.({ title: nil, artist: { email: "" }, songs: [{ title: "Clams have feelings too" }, { title: "" }] })
-
-    result.success?.must_equal false
-
-    # errors.messages
-    form.errors.messages.must_equal({:title=>["must be filled", "size cannot be less than 2"], :"artist.email"=>["must be filled"], :"artist.label.location"=>["must be filled"], :"songs.title"=>["must be filled"]})
-    form.artist.errors.messages.must_equal({:email=>["must be filled"], :"label.location"=>["must be filled"]})
-    form.artist.label.errors.messages.must_equal({:location=>["must be filled"]})
-    form.songs[0].errors.messages.must_equal({})
-    form.songs[1].errors.messages.must_equal({:title=>["must be filled"]})
-
-    # #errors[]
-    form.errors[:nonsense].must_be_nil
-    form.errors[:title].must_equal ["must be filled", "size cannot be less than 2"]
-    form.artist.errors[:email].must_equal ["must be filled"]
-    form.artist.label.errors[:location].must_equal ["must be filled"]
-    form.songs[0].errors[:title].must_be_nil
-    form.songs[1].errors[:title].must_equal ["must be filled"]
-
-    # #to_result
-    form.to_result.errors.must_equal({:title=>["must be filled"]})
-    form.to_result.messages.must_equal({:title=>["must be filled", "size cannot be less than 2"]})
-    form.to_result.hints.must_equal({:title=>["size cannot be less than 2"]})
-    form.artist.to_result.errors.must_equal({:email=>["must be filled"]})
-    form.artist.to_result.messages.must_equal({:email=>["must be filled"]})
-    form.artist.to_result.hints.must_equal({:email=>[]})
-    form.artist.label.to_result.errors.must_equal({:location=>["must be filled"]})
-    form.artist.label.to_result.messages.must_equal({:location=>["must be filled"]})
-    form.artist.label.to_result.hints.must_equal({:location=>[]})
-    form.songs[0].to_result.errors.must_equal({})
-    form.songs[0].to_result.messages.must_equal({})
-    form.songs[0].to_result.hints.must_equal({})
-    form.songs[1].to_result.errors.must_equal({:title=>["must be filled"]})
-    form.songs[1].to_result.messages.must_equal({:title=>["must be filled"]})
-    form.songs[1].to_result.hints.must_equal({:title=>[]})
-    form.songs[1].to_result.errors(locale: :de).must_equal({:title=>["muss abgefüllt sein"]})
-    form.songs[1].to_result.messages(locale: :de).must_equal({:title=>["muss abgefüllt sein"]})
-    form.songs[1].to_result.hints(locale: :de).must_equal({:title=>[]})
-  end
-
-  it "only nested property is invalid." do
-    result = form.({ title: "Black Star", artist: { email: "" } })
-
-    result.success?.must_equal false
-
-    # errors.messages
-    form.errors.messages.must_equal({:"artist.email"=>["must be filled"], :"artist.label.location"=>["must be filled"], :"songs.title"=>["must be filled"]})
-    form.artist.errors.messages.must_equal({:email=>["must be filled"], :"label.location"=>["must be filled"]})
-    form.artist.label.errors.messages.must_equal({:location=>["must be filled"]})
-  end
-
-  it "nested collection invalid" do
-    result = form.({ title: "Black Star", artist: { email: "uhm", label: { location: "Hannover" } }, songs: [ { title: "" } ] })
-
-    result.success?.must_equal false
-    form.errors.messages.must_equal({:"songs.title"=>["must be filled"]})
-  end
-
-  #---
-  #- validation .each
-  class CollectionExternalValidationsForm < TestForm
-    collection :songs do
-      property :title
-    end
-
-    validation do
-      required(:songs).each do
-        schema do
-          required(:title).filled
-        end
-      end
-    end
-  end
-
-  it do
-    form = CollectionExternalValidationsForm.new(Album.new(nil, nil, [Song.new, Song.new]))
-    form.validate(songs: [ { title: "Liar"}, { title: ""} ])
-
-    form.errors.messages.must_equal({:"songs.title"=>["must be filled"]})
-    form.songs[0].errors.messages.must_equal({})
-    form.songs[1].errors.messages.must_equal({:title=>["must be filled"]})
-  end
-end
-
-class DryValidationExplicitSchemaTest < Minitest::Spec
+class DryValidationNoBlockTest < Minitest::Spec
   Session = Struct.new(:name, :email)
   SessionSchema = Dry::Validation.Schema do
     required(:name).filled
@@ -275,7 +140,7 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.must_equal({:username=>["must be filled"], :email=>["must be filled"], :special_class=>["must be filled", "must be ValidationGroupsTest::SomeClass"]})
+      form.errors.messages.inspect.must_equal "{:username=>[\"must be filled\"], :email=>[\"must be filled\"], :special_class=>[\"must be filled\", \"must be ValidationGroupsTest::SomeClass\"]}"
     end
 
     # partially invalid.
@@ -292,8 +157,8 @@ class ValidationGroupsTest < MiniTest::Spec
     end
     # 4th group with after: fails.
     it do
-      form.validate(username: "Helloween", email: "yo!", password: "1", confirm_password: "9", special_class: SomeClass.new(id: 15)).must_equal false
-      form.errors.messages.inspect.must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"size cannot be less than 2\"]}"
+      form.validate(username: "Helloween", email: "yo!", password: "", confirm_password: "9", special_class: SomeClass.new(id: 15)).must_equal false
+      form.errors.messages.inspect.must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
     end
   end
 
@@ -329,30 +194,24 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
-  #---
-  #- validation( schema: MySchema )
-  describe "with custom schema" do
-    Session2 = Struct.new(:username, :email, :password)
+  describe "with custom schema class" do
+    Session2 = Struct.new(:username, :email)
 
-    MySchema = Dry::Validation.Schema do
+    class CustomSchema < Dry::Validation::Schema
       configure do
         config.messages_file = 'test/fixtures/dry_error_messages.yml'
 
         def good_musical_taste?(val)
           val.is_a? String
         end
-
       end
-
-      required(:password).filled(:min_size? => 6)
     end
 
     class Session2Form < TestForm
       property :username
       property :email
-      property :password
 
-      validation schema: MySchema do
+      validation schema: CustomSchema do
         required(:username).filled
         required(:email).filled(:good_musical_taste?)
       end
@@ -362,23 +221,18 @@ class ValidationGroupsTest < MiniTest::Spec
 
     # valid.
     it do
-      form.validate({ username: "Helloween", email: "yep", password: "extrasafe" }).must_equal true
+      form.validate({ username: "Helloween", email: "yep" }).must_equal true
       form.errors.messages.inspect.must_equal "{}"
     end
 
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.must_equal({:password=>["must be filled", "size cannot be less than 6"], :username=>["must be filled"], :email=>["must be filled", "you're a bad person"]})
-    end
-
-    it do
-      form.validate({email: 1}).must_equal false
-      form.errors.messages.inspect.must_equal "{:password=>[\"must be filled\", \"size cannot be less than 6\"], :username=>[\"must be filled\"], :email=>[\"you're a bad person\"]}"
+      form.errors.messages.inspect.must_equal "{:username=>[\"must be filled\"], :email=>[\"must be filled\", \"you're a bad person\"]}"
     end
   end
 
-  describe "MIXED nested validations" do
+  describe "Nested validations" do
     class AlbumForm < TestForm
       property :title
 
@@ -390,6 +244,7 @@ class ValidationGroupsTest < MiniTest::Spec
         end
       end
 
+      # we test this by embedding a validation block
       collection :songs do
         property :title
 
@@ -406,7 +261,7 @@ class ValidationGroupsTest < MiniTest::Spec
       property :band do
         property :name
         property :label do
-          property :location
+          property :name
         end
       end
 
@@ -425,7 +280,7 @@ class ValidationGroupsTest < MiniTest::Spec
         required(:band).schema do
           required(:name).filled
           required(:label).schema do
-            required(:location).filled
+            required(:name).filled
           end
         end
 
@@ -442,41 +297,40 @@ class ValidationGroupsTest < MiniTest::Spec
       OpenStruct.new(
         :hit    => OpenStruct.new,
         :songs  => [OpenStruct.new, OpenStruct.new],
-        :band => Struct.new(:name, :label).new("", OpenStruct.new),
         :producers => [OpenStruct.new, OpenStruct.new, OpenStruct.new],
+        :band => Struct.new(:name, :label).new("", OpenStruct.new),
       )
     end
 
+    # let (:album) do
+    #   OpenStruct.new(
+    #     :title  => "Blackhawks Over Los Angeles",
+    #     :hit    => song,
+    #     :songs  => songs,
+    #     :producers => [ OpenStruct.new(name: 'some name'), OpenStruct.new() ],
+    #     :band => Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
+    #   )
+    # end
+    # let (:song)  { OpenStruct.new }
+    # let (:songs) { [ OpenStruct.new(:title => "Calling"),  OpenStruct.new] }
     let (:form)  { AlbumForm.new(album) }
 
     it "maps errors to form objects correctly" do
       result = form.validate(
-        "title"  => "Nickelback",
+        "title"  => "",
         "songs"  => [ {"title" => ""}, {"title" => ""} ],
-        "band"   => {"size" => "", "label" => {"location" => ""}},
+        "band"   => {"size" => "", "label" => {"name" => ""}},
         "producers" => [{"name" => ''}, {"name" => 'something lovely'}]
       )
 
       result.must_equal false
-      # from nested validation
-      form.errors.messages.must_equal({:title=>["you're a bad person"], :"hit.title"=>["must be filled"], :"songs.title"=>["must be filled"], :"producers.name"=>["must be filled"], :"band.name"=>["must be filled"], :"band.label.location"=>["must be filled"]})
-
       # songs have their own validation.
-      form.songs[0].errors.messages.must_equal({:title=>["must be filled"]})
-      # hit got its own validation group.
-      form.hit.errors.messages.must_equal({:title=>["must be filled"]})
-
-      form.band.label.errors.messages.must_equal({:location=>["must be filled"]})
-      form.band.errors.messages.must_equal({:name=>["must be filled"], :"label.location"=>["must be filled"]})
-      form.producers[0].errors.messages.must_equal({:name=>["must be filled"]})
-
-      # TODO: use the same form structure as the top one and do the same test against messages, errors and hints.
-      form.producers[0].to_result.errors.must_equal({:name=>["must be filled"]})
-      form.producers[0].to_result.messages.must_equal({:name=>["must be filled"]})
-      form.producers[0].to_result.hints.must_equal({:name=>[]})
+      form.songs[0].errors.messages.inspect.must_equal %{{:title=>[\"must be filled\"]}}
+      form.band.errors.messages.inspect.must_equal %({:name=>["must be filled"], :\"label.name\"=>[\"must be filled\"]})
+      form.band.label.errors.messages.inspect.must_equal %({:name=>["must be filled"]})
+      form.producers.first.errors.messages.inspect.must_equal %({:name=>[\"must be filled\"]})
+      form.errors.messages.inspect.must_equal %({:title=>["must be filled", "you're a bad person"], :"band.name"=>["must be filled"], :"band.label.name"=>["must be filled"], :"producers.name"=>[\"must be filled\"], :"hit.title"=>["must be filled"], :"songs.title"=>["must be filled"]})
     end
-
-    # FIXME: fix the "must be filled error"
 
     it "renders full messages correctly" do
       result = form.validate(
@@ -487,57 +341,10 @@ class ValidationGroupsTest < MiniTest::Spec
       )
 
       result.must_equal false
-      form.band.errors.full_messages.must_equal ["Name must be filled", "Label Location must be filled"]
-      form.band.label.errors.full_messages.must_equal ["Location must be filled"]
+      form.band.errors.full_messages.must_equal ["Name must be filled", "Label Name must be filled"]
+      form.band.label.errors.full_messages.must_equal ["Name must be filled"]
       form.producers.first.errors.full_messages.must_equal ["Name must be filled"]
-      form.errors.full_messages.must_equal ["Title must be filled", "Title you're a bad person", "Hit Title must be filled", "Songs Title must be filled", "Producers Name must be filled", "Band Name must be filled", "Band Label Location must be filled"]
-    end
-
-    describe "only 1 nested validation" do
-      class AlbumFormWith1NestedVal < TestForm
-        property :title
-        property :band do
-          property :name
-          property :label do
-            property :location
-          end
-        end
-
-        validation do
-          configure do
-            config.messages_file = 'test/fixtures/dry_error_messages.yml'
-          end
-
-          required(:title).filled
-
-          required(:band).schema do
-            required(:name).filled
-            required(:label).schema do
-              required(:location).filled
-            end
-          end
-        end
-      end
-
-      let (:form)  { AlbumFormWith1NestedVal.new(album) }
-
-      it "allows to access dry's result semantics per nested form" do
-        result = form.validate(
-          "title"  => "",
-          "songs"  => [ {"title" => ""}, {"title" => ""} ],
-          "band"   => {"size" => "", "label" => {"name" => ""}},
-          "producers" => [{"name" => ''}, {"name" => ''}, {"name" => 'something lovely'}]
-        )
-
-        form.to_result.errors.must_equal({:title=>["must be filled"]})
-        form.band.to_result.errors.must_equal({:name=>["must be filled"]})
-        form.band.label.to_result.errors.must_equal({:location=>["must be filled"]})
-
-        # with locale: "de"
-        form.to_result.errors(locale: :de).must_equal({:title=>["muss abgefüllt sein"]})
-        form.band.to_result.errors(locale: :de).must_equal({:name=>["muss abgefüllt sein"]})
-        form.band.label.to_result.errors(locale: :de).must_equal({:location=>["muss abgefüllt sein"]})
-      end
+      form.errors.full_messages.must_equal ["Title must be filled", "Title you're a bad person", "Band Name must be filled", "Band Label Name must be filled", "Producers Name must be filled", "Hit Title must be filled", "Songs Title must be filled"]
     end
   end
 
@@ -612,7 +419,7 @@ class ValidationGroupsTest < MiniTest::Spec
       end
 
       # run this is :email group is true.
-      validation name: :after_email, if: lambda { |results| results[:email].success? } do # extends the above.
+      validation name: :after_email, if: lambda { |results| results[:email]==true } do # extends the above.
         required(:username).filled
       end
 

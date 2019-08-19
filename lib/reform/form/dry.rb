@@ -9,6 +9,10 @@ module Reform::Form::Dry
   end
 
   module Validations
+    def build_errors
+      Reform::Contract::Errors.new(self)
+    end
+
     module ClassMethods
       def validation_group_class
         Group
@@ -38,25 +42,17 @@ module Reform::Form::Dry
           configure do
             keys.each { |k| option k }
           end
-        end
+        end unless keys.empty?
       end
 
-      def call(form)
+      def call(form, reform_errors)
         dynamic_options = {}
         dynamic_options[:form] = form if @schema_inject_params[:form]
         inject_options  = @schema_inject_params.merge(dynamic_options)
 
-        # TODO: only pass submitted values to Schema#call?
-        dry_result      = call_schema(inject_options, input_hash(form))
-        # dry_messages    = dry_result.messages
+        dry_errors = @validator.new(@validator.rules, inject_options).call(input_hash(form)).messages
 
-        return dry_result
-        reform_errors   = Reform::Contract::Errors.new(dry_result) # TODO: dry should be merged here.
-      end
-
-    private
-      def call_schema(inject_options, input)
-        @validator.new(@validator.rules, inject_options).(input)
+        process_errors(form, reform_errors, dry_errors)
       end
 
       # if dry_error is a hash rather than an array then it contains
@@ -70,6 +66,29 @@ module Reform::Form::Dry
       # Objects:
       # {:name=>["must be filled"]}
       # simply load up the object and attach the message to it
+      def process_errors(form, reform_errors, dry_errors)
+        dry_errors.each do |field, dry_error|
+          add_error_message(field, dry_error, reform_errors) and next if dry_error.is_a?(Array)
+          process_nested_errors(form.send(field), field, dry_error, reform_errors)
+        end
+      end
+
+      def process_nested_errors(nested_form, field, dry_errors, reform_errors)
+        if nested_form.is_a? Array
+          dry_errors.each do |index, object_errors|
+            process_nested_errors(nested_form[index], field, object_errors, reform_errors)
+          end
+        else
+          process_errors(nested_form, nested_form.errors, dry_errors)
+          reform_errors.merge!(nested_form.errors, [field])
+        end
+      end
+
+      def add_error_message(field, attr_errors, reform_errors)
+        attr_errors.each do |attr_error|
+          reform_errors.add(field, attr_error)
+        end
+      end
 
       # we can't use to_nested_hash as it get's messed up by composition.
       def input_hash(form)

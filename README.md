@@ -315,7 +315,9 @@ AlbumForm.new(album: album, cd: CD.find(1))
 
 Reform comes many more optional features, like hash fields, coercion, virtual fields, and so on. Check the [full documentation here](http://trailblazer.to/gems/reform).
 
-[![](http://trailblazer.to/images/3dbuch-freigestellt.png)](https://leanpub.com/trailblazer)
+<a href="https://leanpub.com/trailblazer">
+![](http://trailblazer.to/images/3dbuch-freigestellt.png)
+</a>
 
 Reform is part of the [Trailblazer project](http://trailblazer.to). Please [buy my book](https://leanpub.com/trailblazer) to support the development and learn everything about Reform - there's two chapters dedicated to Reform!
 

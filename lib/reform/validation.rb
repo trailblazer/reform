@@ -3,7 +3,7 @@
 module Reform::Validation
   module ClassMethods
     def validation_groups
-      @groups ||= Groups.new(validation_group_class)
+      @groups ||= Groups.new(validation_group_class) # TODO: inheritable_attr with Inheritable::Hash
     end
 
     # DSL.
@@ -38,6 +38,10 @@ module Reform::Validation
 
   def self.included(includer)
     includer.extend(ClassMethods)
+  end
+
+  def valid?
+    Groups::Result.(self.class.validation_groups, self, errors)
   end
 
   NoValidationLibraryError = Class.new(RuntimeError)

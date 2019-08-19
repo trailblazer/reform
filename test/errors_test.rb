@@ -1,9 +1,5 @@
 require "test_helper"
 
-# TODO:
-# This test should, at some point soon, only test the `Errors` object and its
-# Rails-ish API. No validation specifics, etc. to be tested here.
-
 class ErrorsTest < MiniTest::Spec
   class AlbumForm < TestForm
     property :title
@@ -43,6 +39,12 @@ class ErrorsTest < MiniTest::Spec
 
         required(:name).filled(:good_musical_taste?)
       end
+      # validate :music_taste_ok?
+
+    # private
+    #   def music_taste_ok?
+    #     errors.add(:base, "You are a bad person") if name == "Nickelback"
+    #   end
     end
 
     validation do
@@ -55,7 +57,8 @@ class ErrorsTest < MiniTest::Spec
       :title  => "Blackhawks Over Los Angeles",
       :hit    => song,
       :songs  => songs, # TODO: document this requirement,
-      :band   => Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
+
+      :band => Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
     )
   end
   let (:song)  { OpenStruct.new(:title => "Downtown") }
@@ -63,13 +66,7 @@ class ErrorsTest < MiniTest::Spec
   let (:form)  { AlbumForm.new(album) }
 
 
-  describe "#errors without #validate" do
-    it do
-      form.errors.size.must_equal 0
-    end
-  end
-
-  describe "blank everywhere" do
+  describe "incorrect #validate" do
     before { form.validate(
       "hit"   =>{"title" => ""},
       "title" => "",
@@ -100,7 +97,7 @@ class ErrorsTest < MiniTest::Spec
         :"songs.title"=> ["must be filled"],
         :"band.label.name"=>["must be filled"]
       })
-      form.errors.size.must_equal(4)
+      form.errors.count.must_equal(4)
     end
   end
 
@@ -109,7 +106,7 @@ class ErrorsTest < MiniTest::Spec
     it do
       form.validate("title"=>"", "band"=>{"label"=>{:name => "Fat Wreck"}}).must_equal false
       form.errors.messages.must_equal({:title=>["must be filled"]})
-      form.errors.size.must_equal(1)
+      form.errors.count.must_equal(1)
     end
   end
 
@@ -119,7 +116,7 @@ class ErrorsTest < MiniTest::Spec
 
     it { @result.must_equal false }
     it { form.errors.messages.must_equal({:"hit.title"=>["must be filled"]}) }
-    it { form.errors.size.must_equal(1) }
+    it { form.errors.count.must_equal(1) }
   end
 
 
@@ -128,7 +125,7 @@ class ErrorsTest < MiniTest::Spec
 
     it { @result.must_equal false }
     it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"]}) }
-    it { form.errors.size.must_equal(1) }
+    it { form.errors.count.must_equal(1) }
   end
 
 
@@ -137,7 +134,7 @@ class ErrorsTest < MiniTest::Spec
 
     it { @result.must_equal false }
     it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"], :"band.label.name"=>["must be filled"]}) }
-    it { form.errors.size.must_equal(2) }
+    it { form.errors.count.must_equal(2) }
   end
 
   describe "#validate with nested form using :base invalid" do
@@ -145,7 +142,7 @@ class ErrorsTest < MiniTest::Spec
       result = form.validate("songs"=>[{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}})
       result.must_equal false
       form.errors.messages.must_equal({:"band.name"=>["you're a bad person"]})
-      form.errors.size.must_equal(1)
+      form.errors.count.must_equal(1)
     end
   end
 
@@ -162,8 +159,7 @@ class ErrorsTest < MiniTest::Spec
     it { form.title.must_equal "Second Heat" }
     it { form.songs.first.title.must_equal "Heart Of A Lion" }
     it do
-      skip "WE DON'T NEED COUNT AND EMPTY? ON THE CORE ERRORS OBJECT"
-      form.errors.size.must_equal(0)
+      form.errors.count.must_equal(0)
       form.errors.empty?.must_equal(true)
     end
   end
@@ -173,8 +169,6 @@ class ErrorsTest < MiniTest::Spec
     before { form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
 
     # to_s is aliased to messages
-    it {
-      skip "why do we need Errors#to_s ?"
-      form.errors.to_s.must_equal "{:\"songs.title\"=>[\"must be filled\"], :\"band.label.name\"=>[\"must be filled\"]}" }
+    it { form.errors.to_s.must_equal "{:\"songs.title\"=>[\"must be filled\"], :\"band.label.name\"=>[\"must be filled\"]}" }
   end
 end

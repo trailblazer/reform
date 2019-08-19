@@ -1,59 +1,33 @@
-class Reform::Contract < Disposable::Twin
-  module Validate
-    def initialize(*)
-      # this will be removed in Reform 3.0. we need this for the presenting form, form builders
-      # call the Form#errors method before validation.
-      super
-      @result = Result.new([])
-    end
+module Reform::Contract::Validate
+  def initialize(*)
+    super
+    @errors = build_errors
+  end
 
-    def validate
-      validate!(nil).success?
-    end
+  attr_reader :errors
 
-    # The #errors method will be removed in Reform 2.4/3.0 core.
-    def errors(*args)
-      Result::Errors.new(@result, self)
-    end
+  def validate
+    validate!(errors, [])
 
-    #:private:
-    # only used in tests so far. this will be the new API in #call, where you will get @result.
-    def to_result
-      @result
-    end
+    errors.empty?
+  end
 
-    def validate!(name, pointers=[])
-      # run local validations. this could be nested schemas, too.
-      local_errors_by_group = Reform::Validation::Groups::Validate.(self.class.validation_groups, self).compact # TODO: discss compact
+  def validate!(errors, prefix)
+    validate_nested!(nested_errors = build_errors, prefix) # call valid? recursively and collect nested errors.
 
-      # blindly add injected pointers. will be readable via #errors.
-      # also, add pointers from local errors here.
-      pointers_for_nested = pointers + local_errors_by_group.collect { |errs| Result::Pointer.new(errs, []) }.compact
+    valid?  # calls AM/Lotus validators and invokes self.errors=.
 
-      nested_errors = validate_nested!(pointers_for_nested)
+    errors.merge!(self.errors, prefix) # local errors.
+    errors.merge!(nested_errors, [])
+  end
 
-      # Result: unified interface #success?, #messages, etc.
-      @result = Result.new(local_errors_by_group + pointers, nested_errors)
-    end
+private
 
-  private
-
-    # Recursively call validate! on nested forms.
-    # A pointer keeps an entire result object (e.g. Dry result) and
-    # the relevant path to its fragment, e.g. <Dry::result{.....} path=songs,0>
-    def validate_nested!(pointers)
-      arr = []
-
-      schema.each(twin: true) do |dfn|
-        # on collections, this calls validate! on each item form.
-        Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form, i|
-          nested_pointers = pointers.collect { |pointer| pointer.advance(dfn[:name].to_sym, i) }.compact # pointer contains fragment for us, so go deeper
-
-          arr << form.validate!(dfn[:name], nested_pointers)
-        }
-      end
-
-      arr
+  # runs form.validate! on all nested forms
+  def validate_nested!(errors, prefixes)
+    schema.each(twin: true) do |dfn|
+      # recursively call valid? on nested form.
+      Disposable::Twin::PropertyProcessor.new(dfn, self).() { |form| form.validate!(errors, prefixes+[dfn[:name]]) }
     end
   end
 end

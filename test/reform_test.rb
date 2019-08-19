@@ -90,6 +90,21 @@ class ReformTest < Minitest::Spec
     end
   end
 
+  # FIXME: add this test to reform-rails.
+  describe "#errors" do
+    before { form.validate({})}
+
+    it { form.errors.must_be_kind_of Reform::Contract::Errors }
+
+    it { form.errors.messages.must_equal({}) }
+
+    it do
+      form.validate({"name"=>""})
+      form.errors.messages.must_equal({:name=>["must be filled"]})
+    end
+  end
+
+
   describe "#save" do
     let (:comp) { OpenStruct.new }
     let (:form) { SongForm.new(comp) }
