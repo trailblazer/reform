@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: '2.2'
+  TargetRubyVersion: '2.3'
 
 inherit_from:
   - https://raw.githubusercontent.com/trailblazer/meta/master/rubocop.yml
