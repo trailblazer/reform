@@ -1,5 +1,6 @@
 require "test_helper"
 require "reform/form/coercion"
+require "disposable/twin/property/hash"
 
 class CoercionTest < BaseTest
   class Irreversible
@@ -10,6 +11,7 @@ class CoercionTest < BaseTest
 
   class Form < TestForm
     feature Coercion
+    include Disposable::Twin::Property::Hash
 
     property :released_at, type: DRY_TYPES_CONSTANT::DateTime
 
@@ -23,6 +25,12 @@ class CoercionTest < BaseTest
         property :value, type: Irreversible
       end
     end
+
+    property :metadata, field: :hash do
+      property :publication_settings do
+        property :featured, type: DRY_TYPES_CONSTANT::Bool
+      end
+    end
   end
 
   subject do
@@ -33,7 +41,8 @@ class CoercionTest < BaseTest
     OpenStruct.new(
       released_at: "31/03/1981",
       hit: OpenStruct.new(length: "312"),
-      band: Band.new(OpenStruct.new(value: "9999.99"))
+      band: Band.new(OpenStruct.new(value: "9999.99")),
+      metadata: {}
     )
   end
 
@@ -45,8 +54,20 @@ class CoercionTest < BaseTest
   let(:params) do
     {
       released_at: "30/03/1981",
-      hit: {length: "312"},
-      band: {label: {value: "9999.99"}}
+      hit: {
+        length: "312",
+        good: "0",
+      },
+      band: {
+        label: {
+          value: "9999.99"
+        }
+      },
+      metadata: {
+        publication_settings: {
+          featured: "0"
+        }
+      }
     }
   end
 
@@ -56,9 +77,22 @@ class CoercionTest < BaseTest
 
     it { subject.released_at.must_equal DateTime.parse("30/03/1981") }
     it { subject.hit.length.must_equal 312 }
-    it { assert_nil subject.hit.good }
+    it { subject.hit.good.must_equal false }
     it { subject.band.label.value.must_equal "9999.999999.99" } # coercion happened once.
+    it { subject.metadata.publication_settings.featured.must_equal false }
   end
 
-  # save
+  # sync
+  describe "#sync" do
+    before do
+      subject.validate(params).must_equal true
+      subject.sync
+    end
+
+    it { album.released_at.must_equal DateTime.parse("30/03/1981") }
+    it { album.hit.length.must_equal 312 }
+    it { album.hit.good.must_equal false }
+    it { assert_nil album.metadata[:publication_settings] }
+    it { album.metadata["publication_settings"]["featured"].must_equal false }
+  end
 end
