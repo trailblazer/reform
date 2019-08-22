@@ -36,7 +36,7 @@ class SkipIfTest < BaseTest
   it do
     form = AlbumForm.new(Album.new)
     form.validate("hit" => {"title" => ""}).must_equal true
-    form.hit.must_equal nil # hit hasn't been deserialised.
+    assert_nil form.hit # hit hasn't been deserialised.
   end
 
   # skips deserialization when not present.

@@ -37,9 +37,9 @@ class FormCompositionTest < MiniTest::Spec
   it { form.title.must_equal "Rio" }
   it { form.name.must_equal "Duran Duran" }
   it { form.requester_id.must_equal 2 }
-  it { form.channel.must_equal nil }
+  it { assert_nil form.channel }
   it { form.requester.must_equal "MCP" } # same name as composed model.
-  it { form.captcha.must_equal nil }
+  it { assert_nil form.captcha }
 
   # #model just returns <Composition>.
   it { form.mapper.must_be_kind_of Disposable::Composition }

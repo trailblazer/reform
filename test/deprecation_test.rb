@@ -21,7 +21,7 @@ class DeprecationRemoveMePopulatorTest < MiniTest::Spec
     form.validate(hash)
 
     form.songs.size.must_equal 2
-    form.songs[0].title.must_equal nil
+    assert_nil form.songs[0].title
     form.songs[1].title.must_equal "Bad"
   end
 end

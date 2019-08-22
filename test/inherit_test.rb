@@ -64,8 +64,8 @@ class InheritTest < BaseTest
 
   # it do
   #   subject.validate({})
-  #   subject.hit.title.must_equal nil
-  #   subject.hit.rating.must_equal nil
+  #   assert_nil subject.hit.title
+  #   assert_nil subject.hit.rating
   #   subject.errors.messages.must_equal({:"hit.title"=>["can't be blank"], :"hit.rating"=>["can't be blank"]})
   # end
 

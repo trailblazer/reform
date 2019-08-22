@@ -33,7 +33,7 @@ class SetupTest < MiniTest::Spec
 
       form.name.must_equal "The Dissent Of Man"
       form.songs[0].title.must_equal "Broken"
-      form.songs[0].composer.must_equal nil
+      assert_nil form.songs[0].composer
       form.songs[1].title.must_equal "Resist Stance"
       form.songs[1].composer.name.must_equal "Greg Graffin"
       form.artist.name.must_equal "Bad Religion"
