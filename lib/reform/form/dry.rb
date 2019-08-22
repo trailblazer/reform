@@ -1,5 +1,4 @@
 require "dry-validation"
-require "dry/validation/schema/form"
 require "reform/validation"
 
 module Reform::Form::Dry
@@ -45,13 +44,22 @@ module Reform::Form::Dry
       class Builder < Array
         def initialize(array)
           super(array)
-          @validator = Dry::Validation.Form({}, &shift)
+          @validator = dry_form(&shift)
+        end
+
+        DRY_V_VERSION = Gem::Version.new(Dry::Validation::VERSION)
+
+        def dry_form(&block)
+          if DRY_V_VERSION < Gem::Version.new("0.12.0")
+            Dry::Validation.Form({}, &block)
+          else
+            Dry::Validation.Params({}, &block)
+          end
         end
 
         def validation_graph
           build_graph(@validator)
         end
-
 
         private
 

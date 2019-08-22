@@ -11,11 +11,11 @@ class CoercionTest < BaseTest
   class Form < Reform::Form
     feature Coercion
 
-    property :released_at, type: Types::Form::DateTime
+    property :released_at, type: DRY_TYPES_CONSTANT::DateTime
 
     property :hit do
-      property :length, type: Types::Form::Int
-      property :good,   type: Types::Form::Bool
+      property :length, type: DRY_TYPES_INT_CONSTANT
+      property :good,   type: DRY_TYPES_CONSTANT::Bool
     end
 
     property :band do
