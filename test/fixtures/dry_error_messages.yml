@@ -20,7 +20,7 @@ inclusion?: "%{name} must be one of: %{list}"
 
 int?: "%{name} must be an integer"
 
-key?: "%{name} is missing"
+key?: "%{name} must be filled"
 
 lt?: "%{name} must be less than %{num} (%{value} was given)"
 

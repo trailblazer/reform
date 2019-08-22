@@ -69,7 +69,17 @@ class AsTest < BaseTest
         hash = nested_hash
       end
 
-      hash.must_equal({"title"=>"Best Of The Police", "hit"=>{"title"=>"So Lonely"}, "songs"=>[{"title"=>"Message In A Bottle"}, {"title"=>"Roxanne"}]})
+      hash.must_equal(
+        {
+          "title"=>"Best Of The Police",
+          "hit"=>{"title"=>"So Lonely"},
+          "songs"=>[
+            {"title"=>"Message In A Bottle"},
+            {"title"=>"Roxanne"}
+          ],
+          "band" => nil
+        }
+      )
     end
   end
 end

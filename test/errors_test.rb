@@ -29,8 +29,6 @@ class ErrorsTest < MiniTest::Spec
       # TODO: make band a required object.
 
       validation do
-        required(:name).filled(:music_taste_ok?)
-
         configure do
           config.messages_file = "test/validation/errors.yml"
 
@@ -39,6 +37,8 @@ class ErrorsTest < MiniTest::Spec
             # errors.add(:base, "You are a bad person") if name == "Nickelback"
           end
         end
+
+        required(:name).filled(:music_taste_ok?)
       end
       # validate :music_taste_ok?
 
@@ -78,7 +78,7 @@ class ErrorsTest < MiniTest::Spec
         :title  => ["must be filled"],
         :"hit.title"=>["must be filled"],
         :"songs.title"=>["must be filled"],
-        :"band.label.name"=>["is missing"]
+        :"band.label.name"=>["must be filled"]
       })
     end
 
@@ -96,7 +96,7 @@ class ErrorsTest < MiniTest::Spec
         :title        => ["must be filled"],
         :"hit.title"  => ["must be filled"],
         :"songs.title"=> ["must be filled"],
-        :"band.label.name"=>["is missing"]
+        :"band.label.name"=>["must be filled"]
       })
     end
   end
@@ -130,7 +130,7 @@ class ErrorsTest < MiniTest::Spec
     before { @result = form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
 
     it { @result.must_equal false }
-    it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"], :"band.label.name"=>["is missing"]}) }
+    it { form.errors.messages.must_equal({:"songs.title"=>["must be filled"], :"band.label.name"=>["must be filled"]}) }
   end
 
   describe "#validate with nested form using :base invalid" do
@@ -160,6 +160,6 @@ class ErrorsTest < MiniTest::Spec
     before { form.validate("songs"=>[{"title" => ""}], "band" => {"label" => {}}) }
 
     # to_s is aliased to messages
-    it { form.errors.to_s.must_equal "{:\"songs.title\"=>[\"must be filled\"], :\"band.label.name\"=>[\"is missing\"]}" }
+    it { form.errors.to_s.must_equal "{:\"songs.title\"=>[\"must be filled\"], :\"band.label.name\"=>[\"must be filled\"]}" }
   end
 end
