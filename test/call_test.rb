@@ -7,7 +7,7 @@ class CallTest < Minitest::Spec
     property :title
 
     validation do
-      key(:title).required
+      required(:title).filled
     end
   end
 

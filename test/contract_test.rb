@@ -16,19 +16,19 @@ class ContractTest < MiniTest::Spec
     properties :year, :style, readable: false
 
     validation do
-      key(:name).required
+      required(:name).filled
     end
 
     collection :songs do
       property :title
       validation do
-        key(:title).required
+        required(:title).filled
       end
 
       property :composer do
         property :name
         validation do
-          key(:name).required
+          required(:name).filled
         end
       end
     end

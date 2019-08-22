@@ -8,19 +8,19 @@ class SaveTest < BaseTest
   class AlbumForm < Reform::Form
     property :name
     validation do
-      key(:name).required
+      required(:name).filled
     end
 
     collection :songs do
       property :title
       validation do
-        key(:title).required
+        required(:title).filled
       end
 
       property :composer do
         property :name
         validation do
-          key(:name).required
+          required(:name).filled
         end
       end
     end

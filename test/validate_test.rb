@@ -8,18 +8,18 @@ class ContractValidateTest < MiniTest::Spec
   class AlbumForm < Reform::Contract
     property :name
     validation do
-      key(:name).required
+      required(:name).filled
     end
 
     collection :songs do
       property :title
       validation do
-        key(:title).required
+        required(:title).filled
       end
 
       property :composer do
         validation do
-          key(:name).required
+          required(:name).filled
         end
         property :name
       end
@@ -64,20 +64,20 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
   class AlbumForm < Reform::Form
     property :name
     validation do
-      key(:name).required
+      required(:name).filled
     end
 
     collection :songs do
 
       property :title
       validation do
-        key(:title).required
+        required(:title).filled
       end
 
       property :composer do
         property :name
         validation do
-          key(:name).required
+          required(:name).filled
         end
       end
     end
@@ -163,7 +163,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
   class AlbumForm < Reform::Form
     property :name
     validation do
-      key(:name).required
+      required(:name).filled
     end
 
     collection :songs,
@@ -173,13 +173,13 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
 
       property :title
       validation do
-        key(:title).required
+        required(:title).filled
       end
 
       property :composer, internal_populator: lambda { |input, options| (item = options[:represented].composer) ? item : Artist.new } do
         property :name
         validation do
-          key(:name).required
+          required(:name).filled
         end
       end
     end
@@ -187,7 +187,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     property :artist, internal_populator: lambda { |input, options| (item = options[:represented].artist) ? item : Artist.new } do
       property :name
       validation do
-        key(:name).required
+        required(:name).filled
       end
     end
   end

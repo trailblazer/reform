@@ -7,14 +7,14 @@ class ErrorsTest < MiniTest::Spec
     property :hit do
       property :title
       validation do
-        key(:title).required
+        required(:title).filled
       end
     end
 
     collection :songs do
       property :title
       validation do
-        key(:title).required
+        required(:title).filled
       end
     end
 
@@ -23,13 +23,13 @@ class ErrorsTest < MiniTest::Spec
       property :label do
         property :name
         validation do
-          key(:name).required
+          required(:name).filled
         end
       end
       # TODO: make band a required object.
 
       validation do
-        key(:name).required(:music_taste_ok?)
+        required(:name).filled(:music_taste_ok?)
 
         configure do
           config.messages_file = "test/validation/errors.yml"
@@ -49,7 +49,7 @@ class ErrorsTest < MiniTest::Spec
     end
 
     validation do
-      key(:title).required
+      required(:title).filled
     end
   end
 

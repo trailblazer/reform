@@ -13,8 +13,8 @@ class DryValidationDefaultGroupTest < Minitest::Spec
     property :confirm_password
 
     validation do
-      key(:username).required
-      key(:email).required
+      required(:username).filled
+      required(:email).filled
     end
   end
 
@@ -41,20 +41,20 @@ class ValidationGroupsTest < MiniTest::Spec
       property :confirm_password
 
       validation :default do
-        key(:username).required
-        key(:email).required
+        required(:username).filled
+        required(:email).filled
       end
 
       validation :email, if: :default do
-        key(:email).required(min_size?: 3)
+        required(:email).filled(min_size?: 3)
       end
 
       validation :nested, if: :default do
-        key(:password).required(min_size?: 2)
+        required(:password).filled(min_size?: 2)
       end
 
       validation :confirm, if: :default, after: :email do
-        key(:confirm_password).required(min_size?: 2)
+        required(:confirm_password).filled(min_size?: 2)
       end
     end
 
@@ -106,7 +106,7 @@ class ValidationGroupsTest < MiniTest::Spec
         # FIX ME: this doesn't work now, @apotonick said he knows why
         #  The error is that this validation block act as an AM:V instead of the Dry one.
         # validation :default do
-        #   key(:title, &:filled?)
+        #   required(:title, &:filled?)
         # end
       end
 
@@ -123,12 +123,12 @@ class ValidationGroupsTest < MiniTest::Spec
 
       validation :default do
 
-        key(:title).required
+        required(:title).filled
 
-        key(:band).schema do
-          key(:name).required
-          key(:label).schema do
-            key(:name).required
+        required(:band).schema do
+          required(:name).filled
+          required(:label).schema do
+            required(:name).filled
           end
         end
 
@@ -145,8 +145,8 @@ class ValidationGroupsTest < MiniTest::Spec
           end
         end
 
-        key(:title).required(:good_musical_taste?)
-        key(:title).required(:form_access_validation?)
+        required(:title).filled(:good_musical_taste?)
+        required(:title).filled(:form_access_validation?)
       end
     end
 
@@ -232,11 +232,11 @@ class ValidationGroupsTest < MiniTest::Spec
   #     property :email
 
   #     validation :email do # FIX ME: is this working for other validator or just bugging here?
-  #       key(:email, &:filled?) # it's not considered, overitten
+  #       required(:email, &:filled?) # it's not considered, overitten
   #     end
 
   #     validation :email do # just another group.
-  #       key(:username, &:filled?)
+  #       required(:username, &:filled?)
   #     end
   #   end
 
@@ -263,11 +263,11 @@ class ValidationGroupsTest < MiniTest::Spec
       property :email
 
       validation :email do
-        key(:email).required
+        required(:email).filled
       end
 
       validation :email, inherit: true do # extends the above.
-        key(:username).required
+        required(:username).filled
       end
     end
 
@@ -295,17 +295,17 @@ class ValidationGroupsTest < MiniTest::Spec
       property :password
 
       validation :email do
-        key(:email).required
+        required(:email).filled
       end
 
       # run this is :email group is true.
       validation :after_email, if: lambda { |results| results[:email]==true } do # extends the above.
-        key(:username).required
+        required(:username).filled
       end
 
       # block gets evaled in form instance context.
       validation :password, if: lambda { |results| email == "john@trb.org" } do
-        key(:password).required
+        required(:password).filled
       end
     end
 
@@ -335,7 +335,7 @@ class ValidationGroupsTest < MiniTest::Spec
   #     property :username
 
   #     validation :default do
-  #       key(:username) do |username|
+  #       required(:username) do |username|
   #         username.filled? | (username.min_size?(2) & username.max_size?(3))
   #       end
   #     end
