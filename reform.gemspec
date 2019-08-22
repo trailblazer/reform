@@ -5,8 +5,8 @@ require 'reform/version'
 Gem::Specification.new do |spec|
   spec.name          = "reform"
   spec.version       = Reform::VERSION
-  spec.authors       = ["Nick Sutterer", "Garrett Heinlen"]
-  spec.email         = ["apotonick@gmail.com", "heinleng@gmail.com"]
+  spec.authors       = ["Nick Sutterer"]
+  spec.email         = ["apotonick@gmail.com"]
   spec.description   = %q{Form object decoupled from models.}
   spec.summary       = %q{Form object decoupled from models with validation, population and presentation.}
   spec.homepage      = "https://github.com/apotonick/reform"
@@ -21,9 +21,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency             "representable", ">= 2.4.0", "< 3.1.0"
 
   spec.add_development_dependency "bundler"
-  spec.add_development_dependency "rake"
   spec.add_development_dependency "minitest"
-  spec.add_development_dependency "dry-types"
+  spec.add_development_dependency "byebug"
   spec.add_development_dependency "multi_json"
-  spec.add_development_dependency "dry-validation", ">= 0.10.0"
+  spec.add_development_dependency "rake"
+  spec.add_development_dependency "rubocop"
 end
