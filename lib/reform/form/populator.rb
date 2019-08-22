@@ -36,7 +36,9 @@ private
   end
 
   def handle_fail(twin, options)
-    raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options[:binding].name}`." if options[:binding][:nested] && !twin.is_a?(Reform::Form)
+    if options[:binding][:nested] && !twin.is_a?(Reform::Form)
+      raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options[:binding].name}`."
+    end
   end
 
   def get(options)
@@ -46,7 +48,9 @@ private
   def deprecate_positional_args(form, proc, options) # TODO: remove in 2.2.
     arity = proc.is_a?(Symbol) ? form.method(proc).arity : proc.arity
     return yield if arity == 1
-    warn "[Reform] Positional arguments for :populator and friends are deprecated. Please use ->(options) and enjoy the rest of your day. Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21"
+    warn "[Reform] Positional arguments for :populator in and friends are deprecated."\
+         " Please use ->(options) and enjoy the rest of your day. Called: #{form.class}. "\
+         "Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21" # TODO: update this link or remove it
     args = []
     args <<  options[:index] if  options[:index]
     args << options[:representable_options]
@@ -85,7 +89,9 @@ private
     def deprecate_positional_args(form, proc, options) # TODO: remove in 2.2.
       arity = proc.is_a?(Symbol) ? form.method(proc).arity : proc.arity
       return yield if arity == 1
-      warn "[Reform] Positional arguments for :prepopulate and friends are deprecated. Please use ->(options) and enjoy the rest of your day. Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21"
+      warn "[Reform] Positional arguments for :prepopulate and friends are deprecated."\
+           " Please use ->(options) and enjoy the rest of your day. " \
+           "Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21" # TODO: update this link or remove it
 
       @value.(form, options[:fragment], options[:user_options])
     end
