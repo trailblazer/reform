@@ -55,7 +55,14 @@ module Reform
 
         def advance(*path)
           path = @path + path.compact # remove index if nil.
-          return if traverse(@result.errors, path) == {}
+          traverse = traverse(@result.errors, path)
+          # when returns {} is because no errors are found
+          # when returns a String is because an error has been found on the main key not in the nested one.
+          #   Collection with custom rule will return a String here and does not need to be considered
+          #   as a nested error.
+          # when return an Array without an index is same as String but it's a property with a custom rule.
+          # Check test/validation/dry_validation_test.rb:685
+          return if traverse == {} || traverse.is_a?(String) || (traverse.is_a?(Array) && path.compact.size == 1)
 
           Pointer.new(@result, path)
         end

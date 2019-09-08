@@ -86,6 +86,9 @@ en:
             range: "length must be within %{size_left} - %{size_right}"
 
     good_musical_taste?: "you're a bad person"
+
+    a_song?: "must have at least one enabled song"
+    with_last_name?: "must have last name"
 de:
     errors:
         filled?: "muss abgefüllt sein"
