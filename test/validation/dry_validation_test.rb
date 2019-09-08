@@ -634,6 +634,54 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
+  class NestedSchemaValidationTest < MiniTest::Spec
+    AddressSchema = Dry::Validation.Schema do
+      required(:company).filled(:int?)
+    end
+
+    class OrderForm < TestForm
+      property :delivery_address do
+        property :company
+      end
+
+      validation do
+        required(:delivery_address).schema(AddressSchema)
+      end
+    end
+
+    let(:company) { Struct.new(:company) }
+    let(:order) { Struct.new(:delivery_address) }
+    let(:form)  { OrderForm.new(order.new(company.new)) }
+
+    it "has company error" do
+      form.validate({delivery_address: {company: "not int"}}).must_equal false
+      form.errors.messages.must_equal(:"delivery_address.company" => ["must be an integer"])
+    end
+  end
+
+  class NestedSchemaValidationWithFormTest < MiniTest::Spec
+    class CompanyForm < TestForm
+      property :company
+
+      validation do
+        required(:company).filled(:int?)
+      end
+    end
+
+    class OrderFormWithForm < TestForm
+      property :delivery_address, form: CompanyForm
+    end
+
+    let(:company) { Struct.new(:company) }
+    let(:order)   { Struct.new(:delivery_address) }
+    let(:form)    { OrderFormWithForm.new(order.new(company.new)) }
+
+    it "has company error" do
+      form.validate({delivery_address: {company: "not int"}}).must_equal false
+      form.errors.messages.must_equal(:"delivery_address.company" => ["must be an integer"])
+    end
+  end
+
   # Currenty dry-v don't support that option, it doesn't make sense
   #   I've talked to @solnic and he plans to add a "hint" feature to show
   #   more errors messages than only those that have failed.
