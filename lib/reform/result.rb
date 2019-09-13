@@ -19,6 +19,10 @@ module Reform
 
       def hints(*args);    filter_for(:hints, *args) end
 
+      def add_error(key, error_text)
+        CustomError.new(key, error_text, @results)
+      end
+
       private
 
       # this doesn't do nested errors (e.g. )
