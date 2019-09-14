@@ -17,7 +17,7 @@ You can upgrade from 2.2.0 without worries.
 * Reform now maintains a generic `Dry::Schema` class for global schema configuration. Can be overridden via `::validation`.
 * When validating with dry-validation, we now pass a symbolized hash. We also replaced `Dry::Validation::Form` with `Schema` which won't coerce values where it shouldn't.
 * [private] `Group#call` API now is: `call(form, errors)`.
-* Removed `Form#valid?`.
+* Modify `Form#valid?` - simply calls `validate({})`.
 * In `:if` for validation groups, you now get a hash of result objects, not just true/false.
 * Allow adding a custom error AFTER validate has been already called
 

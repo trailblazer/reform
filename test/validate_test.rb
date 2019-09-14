@@ -205,6 +205,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => "Sting"}}],
       "artist" => {"name" => "The Police"},
     ).must_equal true
+    form.valid?.must_equal true
 
     form.errors.messages.inspect.must_equal "{}"
 
@@ -230,6 +231,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => ""}}],
       "artist" => {"name" => ""},
     ).must_equal false
+    form.valid?.must_equal false
 
     form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"], :\"artist.name\"=>[\"must be filled\"]}"
   end
