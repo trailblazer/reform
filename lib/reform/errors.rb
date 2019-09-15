@@ -45,6 +45,14 @@ class Reform::Contract::Result::Errors
   def empty?
     messages.empty?
   end
+
+  # we need to delegate adding error to result because every time we call form.errors
+  # a new instance of this class is created so we need to update the @results array
+  # to be able to add custom errors here.
+  # This method will actually work only AFTER a validate call has been made
+  def add(key, error_test)
+    @result.add_error(key, error_test)
+  end
 end
 
 # Ensure that we can return Active Record compliant full messages when using dry
