@@ -682,6 +682,66 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
+  class CollectionPropertyWithCustomRuleTest < MiniTest::Spec
+    Artist = Struct.new(:first_name, :last_name)
+    Song   = Struct.new(:title, :enabled)
+    Album  = Struct.new(:title, :songs, :artist)
+
+    class AlbumForm < TestForm
+      property :title
+
+      collection :songs, virtual: true, populate_if_empty: Song do
+        property :title
+        property :enabled
+
+        validation do
+          required(:title).filled
+        end
+      end
+
+      property :artist, populate_if_empty: Artist do
+        property :first_name
+        property :last_name
+      end
+
+      validation do
+        configure do
+          config.messages_file = "test/fixtures/dry_error_messages.yml"
+
+          def a_song?(value)
+            value.any? { |el| el && el[:enabled] }
+          end
+
+          def with_last_name?(value)
+            !value[:last_name].nil?
+          end
+        end
+
+        required(:songs).filled(:a_song?)
+        required(:artist).filled(:with_last_name?)
+      end
+    end
+
+    it "validates fails and shows the correct errors" do
+      form = AlbumForm.new(Album.new(nil, [], nil))
+      form.validate(
+        "songs" => [
+          {"title" => "One", "enabled" => false},
+          {"title" => nil, "enabled" => false},
+          {"title" => "Three", "enabled" => false}
+        ],
+        "artist" => {"last_name" => nil}
+      ).must_equal false
+      form.songs.size.must_equal 3
+
+      form.errors.messages.must_equal(
+        :songs => ["must have at least one enabled song"],
+        :artist => ["must have last name"],
+        :"songs.title" => ["must be filled"]
+      )
+    end
+  end
+
   # Currenty dry-v don't support that option, it doesn't make sense
   #   I've talked to @solnic and he plans to add a "hint" feature to show
   #   more errors messages than only those that have failed.
