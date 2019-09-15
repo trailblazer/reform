@@ -7,6 +7,10 @@ require "test_helper"
 class ErrorsTest < MiniTest::Spec
   class AlbumForm < TestForm
     property :title
+    validation do
+      required(:title).filled
+    end
+
     property :artists, default: []
     property :producer do
       property :name
@@ -58,9 +62,10 @@ class ErrorsTest < MiniTest::Spec
     end
   end
 
+  let(:album_title) { "Blackhawks Over Los Angeles" }
   let(:album) do
     OpenStruct.new(
-      title: "Blackhawks Over Los Angeles",
+      title: album_title,
       hit: song,
       songs: songs, # TODO: document this requirement,
       band: Struct.new(:name, :label).new("Epitaph", OpenStruct.new),
@@ -172,6 +177,24 @@ class ErrorsTest < MiniTest::Spec
       result.must_equal false
       form.errors.messages.must_equal("band.name": ["you're a bad person"])
       form.errors.size.must_equal(1)
+    end
+  end
+
+  describe "#add" do
+    let(:album_title) { nil }
+    it do
+      result = form.validate("songs" => [{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}})
+      result.must_equal false
+      form.errors.messages.must_equal(title: ["must be filled"], "band.name": ["you're a bad person"])
+      # add a new custom error
+      form.errors.add(:policy, "error_text")
+      form.errors.messages.must_equal(title: ["must be filled"], "band.name": ["you're a bad person"], policy: ["error_text"])
+      # does not duplicate errors
+      form.errors.add(:title, "must be filled")
+      form.errors.messages.must_equal(title: ["must be filled"], "band.name": ["you're a bad person"], policy: ["error_text"])
+      # merge existing errors
+      form.errors.add(:policy, "another error")
+      form.errors.messages.must_equal(title: ["must be filled"], "band.name": ["you're a bad person"], policy: ["error_text", "another error"])
     end
   end
 

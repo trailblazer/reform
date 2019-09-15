@@ -2,6 +2,7 @@ module Reform
   # Define your form structure and its validations. Instantiate it with a model,
   # and then +validate+ this object graph.
   class Contract < Disposable::Twin
+    require "reform/contract/custom_error"
     require "disposable/twin/composition" # Expose.
     include Expose
 
