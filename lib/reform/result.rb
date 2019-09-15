@@ -31,15 +31,28 @@ module Reform
 
       # this doesn't do nested errors (e.g. )
       def filter_for(method, *args)
-        @results.collect { |r| r.public_send(method, *args) }
-                .inject({}) { |hah, err| hah.merge(err) { |key, old_v, new_v| (new_v.is_a?(Array) ? (old_v |= new_v) : old_v.merge(new_v)) } }
-                .find_all { |k, v| # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
-                  if v.is_a?(Hash)
-                    nested_errors = v.select { |attr_key, val| attr_key.is_a?(Integer) && val.is_a?(Array) && val.any? }
-                    v = nested_errors.to_a if nested_errors.any?
-                  end
-                  v.is_a?(Array)
-                }.to_h
+        prepare_results(method, *args).inject({}) { |hah, err| hah.merge(err) { |key, old_v, new_v| (new_v.is_a?(Array) ? (old_v |= new_v) : old_v.merge(new_v)) } }
+                                      .find_all { |k, v| # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
+                                        if v.is_a?(Hash)
+                                          nested_errors = v.select { |attr_key, val| attr_key.is_a?(Integer) && val.is_a?(Array) && val.any? }
+                                          v = nested_errors.to_a if nested_errors.any?
+                                        end
+                                        v.is_a?(Array)
+                                      }.to_h
+      end
+
+      def prepare_results(method, *args)
+        return @results.collect { |r| r.public_send(method, *args) } unless Gem::Version.new(Dry::Validation::VERSION) > Gem::Version.new("0.13.3")
+
+        case method
+          when :errors
+            @results.map { |r| r.errors(hints: false).to_h }
+          when :messages
+            @results.map { |r| r.errors(hints: true).to_h }
+          else
+            # TODO: FIXXXXXXXXX ME!!!!!!!!!!!!!!
+            []
+        end
       end
 
       # Note: this class will be redundant in Reform 3, where the public API
