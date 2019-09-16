@@ -1,5 +1,4 @@
 # encoding: utf-8
-require "test_helper"
 require "reform/form/dry"
 require "reform/form/coercion"
 
@@ -47,7 +46,6 @@ class DryValidationErrorsAPITest < Minitest::Spec
         required(:title).filled
       end
     end
-
   end
 
   let(:form) { AlbumForm.new(Album.new(nil, Artist.new(nil, Label.new), [Song.new(nil), Song.new(nil)])) }
@@ -105,10 +103,10 @@ class DryValidationErrorsAPITest < Minitest::Spec
   end
 
   it "nested collection invalid" do
-    result = form.({title: "Black Star", artist: {email: "uhm", label: {location: "Hannover"}}, songs: [{title: ""}]})
+    result = form.(title: "Black Star", artist: {email: "uhm", label: {location: "Hannover"}}, songs: [{title: ""}])
 
     result.success?.must_equal false
-    form.errors.messages.must_equal({"songs.title": ["must be filled"]})
+    form.errors.messages.must_equal("songs.title": ["must be filled"])
   end
 
   #---
@@ -131,9 +129,9 @@ class DryValidationErrorsAPITest < Minitest::Spec
     form = CollectionExternalValidationsForm.new(Album.new(nil, nil, [Song.new, Song.new]))
     form.validate(songs: [{title: "Liar"}, {title: ""}])
 
-    form.errors.messages.must_equal({"songs.title": ["must be filled"]})
+    form.errors.messages.must_equal("songs.title": ["must be filled"])
     form.songs[0].errors.messages.must_equal({})
-    form.songs[1].errors.messages.must_equal({title: ["must be filled"]})
+    form.songs[1].errors.messages.must_equal(title: ["must be filled"])
   end
 end
 
@@ -234,7 +232,6 @@ class ValidationGroupsTest < MiniTest::Spec
     SomeClass = Struct.new(:id)
 
     class SessionForm < TestForm
-
       property :username
       property :email
       property :password
@@ -264,11 +261,11 @@ class ValidationGroupsTest < MiniTest::Spec
 
     # valid.
     it do
-      form.validate({username: "Helloween",
-                     special_class: SomeClass.new(id: 15),
-                     email: "yep",
-                     password: "99",
-                     confirm_password: "99"}).must_equal true
+      form.validate(username: "Helloween",
+                    special_class: SomeClass.new(id: 15),
+                    email: "yep",
+                    password: "99",
+                    confirm_password: "99").must_equal true
       form.errors.messages.inspect.must_equal "{}"
     end
 
@@ -288,7 +285,7 @@ class ValidationGroupsTest < MiniTest::Spec
     it do
       form.validate(username: "Helloween", email: "yo!", confirm_password: "9", special_class: SomeClass.new(id: 15)).must_equal false
       form.errors.messages.inspect
-      .must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
+          .must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
     end
     # 4th group with after: fails.
     it do
@@ -317,13 +314,13 @@ class ValidationGroupsTest < MiniTest::Spec
 
       # valid.
       it do
-        form.validate({username: "Nick"}).must_equal true
+        form.validate(username: "Nick").must_equal true
         form.errors.messages.inspect.must_equal "{}"
       end
 
       # invalid.
       it do
-        form.validate({username: "Fred"}).must_equal false
+        form.validate(username: "Fred").must_equal false
         form.errors.messages.inspect.must_equal "{:username=>[\"must be equal to Nick\"]}"
       end
     end
@@ -341,7 +338,6 @@ class ValidationGroupsTest < MiniTest::Spec
         def good_musical_taste?(val)
           val.is_a? String
         end
-
       end
 
       required(:password).filled(min_size?: 6)
@@ -362,18 +358,18 @@ class ValidationGroupsTest < MiniTest::Spec
 
     # valid.
     it do
-      form.validate({username: "Helloween", email: "yep", password: "extrasafe"}).must_equal true
+      form.validate(username: "Helloween", email: "yep", password: "extrasafe").must_equal true
       form.errors.messages.inspect.must_equal "{}"
     end
 
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.must_equal({password: ["must be filled", "size cannot be less than 6"], username: ["must be filled"], email: ["must be filled", "you're a bad person"]})
+      form.errors.messages.must_equal(password: ["must be filled", "size cannot be less than 6"], username: ["must be filled"], email: ["must be filled", "you're a bad person"])
     end
 
     it do
-      form.validate({email: 1}).must_equal false
+      form.validate(email: 1).must_equal false
       form.errors.messages.inspect.must_equal "{:password=>[\"must be filled\", \"size cannot be less than 6\"], :username=>[\"must be filled\"], :email=>[\"you're a bad person\"]}"
     end
   end
@@ -434,7 +430,6 @@ class ValidationGroupsTest < MiniTest::Spec
             required(:name).filled
           end
         end
-
       end
     end
 
@@ -447,7 +442,7 @@ class ValidationGroupsTest < MiniTest::Spec
       )
     end
 
-    let(:form)  { AlbumForm.new(album) }
+    let(:form) { AlbumForm.new(album) }
 
     it "maps errors to form objects correctly" do
       result = form.validate(
@@ -519,7 +514,7 @@ class ValidationGroupsTest < MiniTest::Spec
         end
       end
 
-      let(:form)  { AlbumFormWith1NestedVal.new(album) }
+      let(:form) { AlbumFormWith1NestedVal.new(album) }
 
       it "allows to access dry's result semantics per nested form" do
         form.validate(
@@ -529,14 +524,14 @@ class ValidationGroupsTest < MiniTest::Spec
           "producers" => [{"name" => ""}, {"name" => ""}, {"name" => "something lovely"}]
         )
 
-        form.to_result.errors.must_equal({title: ["must be filled"]})
-        form.band.to_result.errors.must_equal({name: ["must be filled"]})
-        form.band.label.to_result.errors.must_equal({location: ["must be filled"]})
+        form.to_result.errors.must_equal(title: ["must be filled"])
+        form.band.to_result.errors.must_equal(name: ["must be filled"])
+        form.band.label.to_result.errors.must_equal(location: ["must be filled"])
 
         # with locale: "de"
-        form.to_result.errors(locale: :de).must_equal({title: ["muss abgefüllt sein"]})
-        form.band.to_result.errors(locale: :de).must_equal({name: ["muss abgefüllt sein"]})
-        form.band.label.to_result.errors(locale: :de).must_equal({location: ["muss abgefüllt sein"]})
+        form.to_result.errors(locale: :de).must_equal(title: ["muss abgefüllt sein"])
+        form.band.to_result.errors(locale: :de).must_equal(name: ["muss abgefüllt sein"])
+        form.band.label.to_result.errors(locale: :de).must_equal(location: ["muss abgefüllt sein"])
       end
     end
   end
@@ -589,7 +584,7 @@ class ValidationGroupsTest < MiniTest::Spec
 
     # valid.
     it do
-      form.validate({username: "Helloween", email: 9}).must_equal true
+      form.validate(username: "Helloween", email: 9).must_equal true
     end
 
     # invalid.
@@ -624,12 +619,12 @@ class ValidationGroupsTest < MiniTest::Spec
 
     # valid.
     it do
-      form.validate({username: "Strung Out", email: 9}).must_equal true
+      form.validate(username: "Strung Out", email: 9).must_equal true
     end
 
     # invalid.
     it do
-      form.validate({email: 9}).must_equal false
+      form.validate(email: 9).must_equal false
       form.errors.messages.inspect.must_equal "{:username=>[\"must be filled\"]}"
     end
   end
@@ -654,7 +649,7 @@ class ValidationGroupsTest < MiniTest::Spec
     let(:form)  { OrderForm.new(order.new(company.new)) }
 
     it "has company error" do
-      form.validate({delivery_address: {company: "not int"}}).must_equal false
+      form.validate(delivery_address: {company: "not int"}).must_equal false
       form.errors.messages.must_equal(:"delivery_address.company" => ["must be an integer"])
     end
   end
@@ -677,7 +672,7 @@ class ValidationGroupsTest < MiniTest::Spec
     let(:form)    { OrderFormWithForm.new(order.new(company.new)) }
 
     it "has company error" do
-      form.validate({delivery_address: {company: "not int"}}).must_equal false
+      form.validate(delivery_address: {company: "not int"}).must_equal false
       form.errors.messages.must_equal(:"delivery_address.company" => ["must be an integer"])
     end
   end

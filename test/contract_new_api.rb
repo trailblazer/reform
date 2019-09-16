@@ -1,5 +1,3 @@
-require "test_helper"
-
 class ContractTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :duration, :songs, :artist)
@@ -16,19 +14,19 @@ class ContractTest < MiniTest::Spec
     properties :year, :style, readable: false
 
     validation do
-      required(:name).filled
+      params { required(:name).filled }
     end
 
     collection :songs do
       property :title
       validation do
-        required(:title).filled
+        params { required(:title).filled }
       end
 
       property :composer do
         property :name
         validation do
-          required(:name).filled
+          params { required(:name).filled }
         end
       end
     end

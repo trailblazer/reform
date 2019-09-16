@@ -1,5 +1,3 @@
-require "test_helper"
-
 class ContractValidateTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
@@ -67,7 +65,6 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
     end
 
     collection :songs do
-
       property :title
       validation do
         required(:title).filled
@@ -96,13 +93,15 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
 
   # valid.
   it do
-    object_ids = {song: form.songs[0].object_id, song_with_composer: form.songs[1].object_id,
-      artist: form.artist.object_id, composer: form.songs[1].composer.object_id}
+    object_ids = {
+      song: form.songs[0].object_id, song_with_composer: form.songs[1].object_id,
+      artist: form.artist.object_id, composer: form.songs[1].composer.object_id
+    }
 
     form.validate(
       "name"   => "Best Of",
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => "Sting"}}],
-      "artist" => {"name" => "The Police"},
+      "artist" => {"name" => "The Police"}
     ).must_equal true
 
     form.errors.messages.inspect.must_equal "{}"
@@ -133,7 +132,7 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
     form.validate(
       name:   "Best Of",
       songs:  [{title: "The X-Creep"}, {title: "Trudging", composer: {name: "SNFU"}}],
-      artist: {name: "The Police"},
+      artist: {name: "The Police"}
     ).must_equal true
 
     form.name.must_equal "Best Of"
@@ -165,10 +164,10 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     end
 
     collection :songs,
-      internal_populator: ->(input, options) {
-              collection = options[:represented].songs
-              (item = collection[options[:index]]) ? item : collection.insert(options[:index], Song.new) } do
-
+               internal_populator: ->(input, options) {
+                 collection = options[:represented].songs
+                 (item = collection[options[:index]]) ? item : collection.insert(options[:index], Song.new)
+               } do
       property :title
       validation do
         required(:title).filled

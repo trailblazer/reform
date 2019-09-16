@@ -1,5 +1,3 @@
-require "test_helper"
-
 class FormOptionTest < MiniTest::Spec
   Song  = Struct.new(:title)
   Album = Struct.new(:song)
@@ -7,7 +5,7 @@ class FormOptionTest < MiniTest::Spec
   class SongForm < TestForm
     property :title
     validation do
-      required(:title).filled
+      params { required(:title).filled }
     end
   end
 

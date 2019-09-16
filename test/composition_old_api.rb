@@ -1,5 +1,3 @@
-require "test_helper"
-
 class FormCompositionInheritanceTest < MiniTest::Spec
   module SizePrice
     include Reform::Form::Module

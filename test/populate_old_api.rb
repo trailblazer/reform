@@ -1,5 +1,3 @@
-require "test_helper"
-
 class PopulatorTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
@@ -12,9 +10,9 @@ class PopulatorTest < MiniTest::Spec
     end
 
     collection :songs,
-      populator: ->(fragment:, model:, index:, **) {
-        (item = model[index]) ? item : model.insert(index, Song.new) } do
-
+               populator: ->(fragment:, model:, index:, **) {
+                 (item = model[index]) ? item : model.insert(index, Song.new)
+               } do
       property :title
       validation do
         required(:title).filled
