@@ -1,5 +1,3 @@
-require "test_helper"
-
 class CallTest < Minitest::Spec
   Song = Struct.new(:title)
 
@@ -19,5 +17,5 @@ class CallTest < Minitest::Spec
   it { form.(title: "").failure?.must_equal true }
 
   it { form.(title: "True North").errors.messages.must_equal({}) }
-  it { form.(title: "").errors.messages.must_equal({title: ["must be filled"]}) }
+  it { form.(title: "").errors.messages.must_equal(title: ["must be filled"]) }
 end

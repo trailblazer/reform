@@ -1,4 +1,3 @@
-require "test_helper"
 require "representable/json"
 
 class InheritTest < BaseTest
@@ -6,7 +5,7 @@ class InheritTest < BaseTest
 
   class SkipParse
     include Uber::Callable
-    def call(*args)
+    def call(*_args)
       false
     end
   end
@@ -26,7 +25,6 @@ class InheritTest < BaseTest
     end
 
     property :band, populate_if_empty: -> {} do
-
       def band_id
         1
       end
