@@ -38,6 +38,10 @@ module Reform::Validation
     includer.extend(ClassMethods)
   end
 
+  def valid?
+    validate({})
+  end
+
   NoValidationLibraryError = Class.new(RuntimeError)
 end
 
