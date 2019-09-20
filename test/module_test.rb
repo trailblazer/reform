@@ -5,6 +5,7 @@ class ModuleInclusionTest < MiniTest::Spec
   module BandPropertyForm
     include Reform::Form::Module
 
+    property :artist
     property :band do
       property :title
 
@@ -27,6 +28,13 @@ class ModuleInclusionTest < MiniTest::Spec
 
     include Dry::Types.module # allows using Types::* in module.
     property :cool, type: DRY_TYPES_CONSTANT::Bool # test coercion.
+
+    module InstanceMethods
+      def artist=(new_value)
+        errors.add(:artist, "this needs to be filled") if new_value.nil?
+        super(new_value)
+      end
+    end
   end
 
   # TODO: test if works, move stuff into inherit_schema!
@@ -57,10 +65,11 @@ class ModuleInclusionTest < MiniTest::Spec
     include BandPropertyForm
   end
 
-  let(:song) { OpenStruct.new(band: OpenStruct.new(title: "Time Again")) }
+  let(:song) { OpenStruct.new(band: OpenStruct.new(title: "Time Again"), artist: "Ketama") }
 
   # nested form from module is present and creates accessor.
   it { SongForm.new(song).band.title.must_equal "Time Again" }
+  it { SongForm.new(song).artist.must_equal "Ketama" }
 
   # methods from module get included.
   it { SongForm.new(song).id.must_equal 1 }
@@ -69,8 +78,8 @@ class ModuleInclusionTest < MiniTest::Spec
   # validators get inherited.
   it do
     form = SongForm.new(OpenStruct.new)
-    form.validate({})
-    form.errors.messages.must_equal(band: ["must be filled"])
+    form.validate(artist: nil)
+    form.errors.messages.must_equal(artist: ["this needs to be filled"], band: ["must be filled"])
   end
 
   # coercion works
