@@ -22,6 +22,10 @@ class Reform::Contract < Disposable::Twin
       @result
     end
 
+    def custom_errors
+      @result.to_results.select { |result| result.is_a? Reform::Contract::CustomError }
+    end
+
     def validate!(name, pointers = [])
       # run local validations. this could be nested schemas, too.
       local_errors_by_group = Reform::Validation::Groups::Validate.(self.class.validation_groups, self).compact # TODO: discss compact
@@ -33,7 +37,7 @@ class Reform::Contract < Disposable::Twin
       nested_errors = validate_nested!(pointers_for_nested)
 
       # Result: unified interface #success?, #messages, etc.
-      @result = Result.new(local_errors_by_group + pointers, nested_errors)
+      @result = Result.new(custom_errors + local_errors_by_group + pointers, nested_errors)
     end
 
     private
