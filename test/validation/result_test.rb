@@ -20,12 +20,14 @@ class ErrorsResultTest < Minitest::Spec
   describe "Contract::Result#errors" do
     let(:results) do
       [
+        MyResult.new(false, {length: ["no Int"]}),
         MyResult.new(false, {title: ["must be filled"], nested: {something: []}}),
-        MyResult.new(false, {length: ["no Int"]})
+        MyResult.new(false, {title: ["must be filled"], nested: {something: []}}),
+        MyResult.new(false, {title: ["something more"], nested: {something: []}})
       ]
     end
 
-    it { Reform::Contract::Result.new(results).errors.must_equal({title: ["must be filled"], length: ["no Int"]}) }
+    it { Reform::Contract::Result.new(results).errors.must_equal({title: ["must be filled", "something more"], length: ["no Int"]}) }
   end
 
   describe "Result::Pointer" do
