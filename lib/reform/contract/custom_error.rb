@@ -7,7 +7,7 @@ module Reform
       def initialize(key, error_text, results)
         @key        = key
         @error_text = error_text
-        @errors     = {key => [error_text]}
+        @errors     = {key => Array(error_text)}
         @messages   = @errors
         @hint       = {}
         @results    = results
@@ -28,7 +28,7 @@ module Reform
       def merge!
         @results.map(&:errors)
                 .detect { |hash| hash.key?(@key) }
-                .tap { |hash| hash.nil? ? @results << self : hash[@key] |= [@error_text] }
+                .tap { |hash| hash.nil? ? @results << self : hash[@key] |= Array(@error_text) }
       end
     end
   end

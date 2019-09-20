@@ -23,12 +23,16 @@ module Reform
         CustomError.new(key, error_text, @results)
       end
 
+      def to_results
+        @results
+      end
+
       private
 
       # this doesn't do nested errors (e.g. )
       def filter_for(method, *args)
         @results.collect { |r| r.public_send(method, *args) }
-                .inject({}) { |hsh, errs| hsh.merge(errs) }
+                .inject({}) { |hah, err| hah.merge(err) { |key, old_v, new_v| (new_v.is_a?(Array) ? (old_v |= new_v) : old_v.merge(new_v)) } }
                 .find_all { |k, v| # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
                   if v.is_a?(Hash)
                     nested_errors = v.select { |attr_key, val| attr_key.is_a?(Integer) && val.is_a?(Array) && val.any? }
