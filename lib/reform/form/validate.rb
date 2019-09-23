@@ -5,12 +5,19 @@ module Reform::Form::Validate
       include Uber::Callable
 
       def call(form, options)
-        params = options[:input]
         # TODO: Schema should provide property names as plain list.
-        properties = options[:binding][:nested].definitions.collect { |dfn| dfn[:name] }
+        # ensure param keys are strings.
+        params = options[:input].each_with_object({}) { |(k, v), hash|
+          hash[k.to_s] = v
+        }
 
-        properties.each { |name| (!params[name].nil? && params[name] != "") and return false }
-        true # skip
+        # return false if any property inputs are populated.
+        options[:binding][:nested].definitions.each do |definition|
+          value = params[definition.name.to_s]
+          return false if (!value.nil? && value != '')
+        end
+
+        true # skip this property
       end
     end
   end
