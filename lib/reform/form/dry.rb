@@ -45,10 +45,10 @@ module Reform::Form::Dry
       def call(form)
         dynamic_options = {}
         dynamic_options[:form] = form if @schema_inject_params[:form]
-        inject_options  = @schema_inject_params.merge(dynamic_options)
+        inject_options = @schema_inject_params.merge(dynamic_options)
 
         # TODO: only pass submitted values to Schema#call?
-        dry_result      = call_schema(inject_options, input_hash(form))
+        dry_result = call_schema(inject_options, input_hash(form))
         # dry_messages    = dry_result.messages
 
         return dry_result

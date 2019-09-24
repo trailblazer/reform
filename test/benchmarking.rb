@@ -38,7 +38,7 @@ songs_params = songs_params = 10.times.collect { {title: "Commando"} }
 
 Benchmark.ips do |x|
    x.report("2.2") { BandForm.new(band).validate("name" => "Ramones", "songs" => songs_params) }
-   x.report("2.3") { OptimizedBandForm.new(band).validate("name" => "Ramones", "songs" => songs_params)  }
+   x.report("2.3") { OptimizedBandForm.new(band).validate("name" => "Ramones", "songs" => songs_params) }
 end
 
 exit

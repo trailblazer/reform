@@ -5,7 +5,8 @@ module Reform
     # #success? returns validity of the branch.
     class Result
       def initialize(results, nested_results = []) # DISCUSS: do we like this?
-        @results = results # native Result objects, e.g. `#<Dry::Validation::Result output={:title=>"Fallout", :composer=>nil} errors={}>`
+        # native Result objects, e.g. `#<Dry::Validation::Result output={:title=>"Fallout", :composer=>nil} errors={}>`
+        @results = results
         @failure = (results + nested_results).find(&:failure?) # TODO: test nested.
       end
 
@@ -32,8 +33,9 @@ module Reform
       # this doesn't do nested errors (e.g. )
       def filter_for(method, *args)
         @results.collect { |r| r.public_send(method, *args) }
-                .inject({}) { |hah, err| hah.merge(err) { |key, old_v, new_v| (new_v.is_a?(Array) ? (old_v |= new_v) : old_v.merge(new_v)) } }
-                .find_all { |k, v| # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
+                .inject({}) { |hah, err|
+                  hah.merge(err) { |key, old_v, new_v| (new_v.is_a?(Array) ? (old_v |= new_v) : old_v.merge(new_v)) }
+                }.find_all { |k, v| # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
                   if v.is_a?(Hash)
                     nested_errors = v.select { |attr_key, val| attr_key.is_a?(Integer) && val.is_a?(Array) && val.any? }
                     v = nested_errors.to_a if nested_errors.any?

@@ -15,7 +15,8 @@ class DeserializeTest < MiniTest::Spec
       end
 
       def deserializer
-        Disposable::Rescheme.from(self.class,
+        Disposable::Rescheme.from(
+          self.class,
           include:          [Representable::JSON],
           superclass:       Representable::Decorator,
           definitions_from: ->(inline) { inline.definitions },
@@ -84,7 +85,8 @@ class ValidateWithBlockTest < MiniTest::Spec
     form  = AlbumForm.new(album)
     json  = MultiJson.dump({title: "Apocalypse Soon", artist: {name: "Mute"}})
 
-    deserializer = Disposable::Rescheme.from(AlbumForm,
+    deserializer = Disposable::Rescheme.from(
+      AlbumForm,
       include:          [Representable::JSON],
       superclass:       Representable::Decorator,
       definitions_from: ->(inline) { inline.definitions },

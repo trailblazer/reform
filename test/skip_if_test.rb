@@ -1,7 +1,6 @@
 require "test_helper"
 
 class SkipIfTest < BaseTest
-
   class AlbumForm < TestForm
     property :title
 
@@ -73,7 +72,7 @@ class SkipIfAllBlankTest < BaseTest
 
   it do
     form = AlbumForm.new(OpenStruct.new(songs: []))
-    form.validate(:songs => [{:title=>"", :length => ""}, {:title=>"Apathy"}]).must_equal true
+    form.validate(:songs => [{:title => "", :length => ""}, {:title=>"Apathy"}]).must_equal true
     form.songs.size.must_equal 1
     form.songs[0].title.must_equal "Apathy"
   end

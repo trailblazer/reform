@@ -28,8 +28,8 @@ class Reform::Contract::Result::Errors
 
   def full_messages
 	  @dotted_errors.collect { |path, errors|
-		  human_field = path.to_s.gsub(/([\.\_])+/, " ").gsub(/(\b\w)+/) { |s| s.capitalize }
-			 errors.collect { |message| "#{human_field} #{message}" }
+      human_field = path.to_s.gsub(/([\.\_])+/, " ").gsub(/(\b\w)+/) { |s| s.capitalize }
+			   errors.collect { |message| "#{human_field} #{message}" }
 		}.flatten
   end
 

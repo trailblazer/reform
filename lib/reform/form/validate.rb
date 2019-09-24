@@ -57,7 +57,8 @@ module Reform::Form::Validate
         superclass:       Representable::Decorator,
         definitions_from: ->(inline) { inline.definitions },
         options_from:     :deserializer,
-        exclude_options:  %i[default populator] # Reform must not copy Disposable/Reform-only options that might confuse representable.
+        # Reform must not copy Disposable/Reform-only options that might confuse representable.
+        exclude_options:  %i[default populator]
       }.merge(options)
     )
 

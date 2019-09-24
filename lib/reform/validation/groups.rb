@@ -27,12 +27,14 @@ module Reform::Validation
 
     def index_for(options)
       return find_index { |el| el.first == options[:after] } + 1 if options[:after]
+
       size # default index: append.
     end
 
     def [](name)
       cfg = find { |c| c.first == name }
       return unless cfg
+
       cfg[1]
     end
 
@@ -51,6 +53,7 @@ module Reform::Validation
       def self.evaluate?(depends_on, results, form)
         return true if depends_on.nil?
         return !results[depends_on].nil? && results[depends_on].success? if depends_on.is_a?(Symbol)
+
         form.instance_exec(results, &depends_on)
       end
     end

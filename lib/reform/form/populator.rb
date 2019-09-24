@@ -7,7 +7,8 @@
 class Reform::Form::Populator
   def initialize(user_proc)
     @user_proc = user_proc # the actual `populator: ->{}` block from the user, via ::property.
-    @value     = Declarative::Option(user_proc, instance_exec: true, callable: Object) # we can now process Callable, procs, :symbol.
+    # we can now process Callable, procs, :symbol.
+    @value = Declarative::Option(user_proc, instance_exec: true, callable: Object)
   end
 
   def call(input, options)
@@ -34,7 +35,9 @@ class Reform::Form::Populator
   end
 
   def handle_fail(twin, options)
-    raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options[:binding].name}`." if options[:binding][:nested] && !twin.is_a?(Reform::Form)
+    return if options[:binding][:nested] && !twin.is_a?(Reform::Form)
+
+    raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options[:binding].name}`."
   end
 
   def get(options)
@@ -43,7 +46,8 @@ class Reform::Form::Populator
 
   class IfEmpty < self # Populator
     def call!(options)
-      binding, twin, index, fragment = options[:binding], options[:model], options[:index], options[:fragment] # TODO: remove once we drop 2.0.
+      # TODO: remove once we drop 2.0.
+      binding, twin, index, fragment = options[:binding], options[:model], options[:index], options[:fragment]
       form = options[:represented]
 
       if binding.array?
@@ -73,7 +77,9 @@ class Reform::Form::Populator
     def deprecate_positional_args(form, proc, options) # TODO: remove in 2.2.
       arity = proc.is_a?(Symbol) ? form.method(proc).arity : proc.arity
       return yield if arity == 1
-      warn "[Reform] Positional arguments for :prepopulate and friends are deprecated. Please use ->(options) and enjoy the rest of your day. Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21"
+
+      warn "[Reform] Positional arguments for :prepopulate and friends are deprecated. Please use ->(options) and enjoy the "\
+           "rest of your day. Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21"
 
       @value.(form, options[:fragment], options[:user_options])
     end
@@ -84,6 +90,7 @@ class Reform::Form::Populator
   class Sync < self
     def call!(options)
       return options[:model][options[:index]] if options[:binding].array?
+
       options[:model]
     end
   end

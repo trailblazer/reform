@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 require "test_helper"
 require "reform/form/dry"
 require "reform/form/coercion"
@@ -47,7 +48,6 @@ class DryValidationErrorsAPITest < Minitest::Spec
         required(:title).filled
       end
     end
-
   end
 
   let(:form) { AlbumForm.new(Album.new(nil, Artist.new(nil, Label.new), [Song.new(nil), Song.new(nil)])) }
@@ -234,7 +234,6 @@ class ValidationGroupsTest < MiniTest::Spec
     SomeClass = Struct.new(:id)
 
     class SessionForm < TestForm
-
       property :username
       property :email
       property :password
@@ -288,7 +287,7 @@ class ValidationGroupsTest < MiniTest::Spec
     it do
       form.validate(username: "Helloween", email: "yo!", confirm_password: "9", special_class: SomeClass.new(id: 15)).must_equal false
       form.errors.messages.inspect
-      .must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
+          .must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
     end
     # 4th group with after: fails.
     it do
@@ -341,7 +340,6 @@ class ValidationGroupsTest < MiniTest::Spec
         def good_musical_taste?(val)
           val.is_a? String
         end
-
       end
 
       required(:password).filled(min_size?: 6)
@@ -434,7 +432,6 @@ class ValidationGroupsTest < MiniTest::Spec
             required(:name).filled
           end
         end
-
       end
     end
 
@@ -447,7 +444,7 @@ class ValidationGroupsTest < MiniTest::Spec
       )
     end
 
-    let(:form)  { AlbumForm.new(album) }
+    let(:form) { AlbumForm.new(album) }
 
     it "maps errors to form objects correctly" do
       result = form.validate(
@@ -519,7 +516,7 @@ class ValidationGroupsTest < MiniTest::Spec
         end
       end
 
-      let(:form)  { AlbumFormWith1NestedVal.new(album) }
+      let(:form) { AlbumFormWith1NestedVal.new(album) }
 
       it "allows to access dry's result semantics per nested form" do
         form.validate(

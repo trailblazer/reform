@@ -38,7 +38,7 @@ class BaseTest < MiniTest::Spec
 end
 
 module Types
-  DRY_MODULE =  Gem::Version.new(Dry::Types::VERSION) < Gem::Version.new("0.15.0") ? Dry::Types.module : Dry.Types()
+  DRY_MODULE = Gem::Version.new(Dry::Types::VERSION) < Gem::Version.new("0.15.0") ? Dry::Types.module : Dry.Types()
   include DRY_MODULE
 end
 

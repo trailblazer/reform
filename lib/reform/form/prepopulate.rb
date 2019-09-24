@@ -13,6 +13,7 @@ module Reform::Form::Prepopulate
   def prepopulate_local!(options)
     schema.each do |dfn|
       next unless block = dfn[:prepopulator]
+
       Declarative::Option(block, instance_exec: true).(self, options)
     end
   end

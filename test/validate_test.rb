@@ -67,7 +67,6 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
     end
 
     collection :songs do
-
       property :title
       validation do
         required(:title).filled
@@ -165,10 +164,10 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     end
 
     collection :songs,
-      internal_populator: ->(input, options) {
-              collection = options[:represented].songs
-              (item = collection[options[:index]]) ? item : collection.insert(options[:index], Song.new) } do
-
+               internal_populator: ->(input, options) {
+                 collection = options[:represented].songs
+                 (item = collection[options[:index]]) ? item : collection.insert(options[:index], Song.new)
+               } do
       property :title
       validation do
         required(:title).filled

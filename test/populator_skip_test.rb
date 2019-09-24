@@ -11,6 +11,7 @@ class PopulatorSkipTest < MiniTest::Spec
 
     def my_populator(options)
       return skip! if options[:fragment][:title] == "Good"
+
       songs[options[:index]]
     end
   end

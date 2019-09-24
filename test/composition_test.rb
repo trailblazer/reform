@@ -58,7 +58,7 @@ class FormCompositionTest < MiniTest::Spec
       required(:title).filled
     end
 
-    property :band,           on: :song do
+    property :band, on: :song do
       property :title
     end
   end
@@ -111,10 +111,9 @@ class FormCompositionTest < MiniTest::Spec
         hash = map
       end
 
-      hash.must_equal({
-                        song: {"title" => "Greyhound", "id" => 1, "channel" => "JJJ", "captcha" => "wonderful", "band" => {"title" => "Duran^2"}},
-                        requester: {"name" => "Frenzal Rhomb", "id" => 2, "requester" => "MCP"}
-                      }
+      hash.must_equal(
+        song: {"title" => "Greyhound", "id" => 1, "channel" => "JJJ", "captcha" => "wonderful", "band" => {"title" => "Duran^2"}},
+        requester: {"name" => "Frenzal Rhomb", "id" => 2, "requester" => "MCP"}
       )
     end
 
@@ -177,7 +176,7 @@ class FormCompositionCollectionTest < MiniTest::Spec
     end
   end
 
-  let(:form)   { LibraryForm.new(library: library) }
+  let(:form) { LibraryForm.new(library: library) }
   let(:library) { Library.new(2) }
 
   it { form.save { |hash| hash.must_equal({library: {"books" => [{"id" => 1, "name" => "My book"}]}}) } }

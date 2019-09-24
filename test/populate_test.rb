@@ -12,9 +12,7 @@ class PopulatorTest < MiniTest::Spec
     end
 
     collection :songs,
-      populator: ->(fragment:, model:, index:, **) {
-        (item = model[index]) ? item : model.insert(index, Song.new) } do
-
+               populator: ->(fragment:, model:, index:, **) { (item = model[index]) ? item : model.insert(index, Song.new) } do
       property :title
       validation do
         required(:title).filled
@@ -69,9 +67,11 @@ class PopulatorTest < MiniTest::Spec
   # valid.
   it "yyy" do
     form.validate(
-      "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"},
+      "songs"  => [
+        {"title" => "Fallout"}, {"title" => "Roxanne"},
         {"title" => "Rime Of The Ancient Mariner"}, # new song.
-        {"title" => "Re-Education", "composer" => {"name" => "Rise Against"}}], # new song with new composer.
+        {"title" => "Re-Education", "composer" => {"name" => "Rise Against"}}
+      ] # new song with new composer.
     ).must_equal true
 
     form.errors.messages.inspect.must_equal "{}"
@@ -179,9 +179,7 @@ class PopulateIfEmptyTest < MiniTest::Spec
   class AlbumForm < TestForm
     property :name
 
-    collection :songs,
-      populate_if_empty: Song do                                                # class name works.
-
+    collection :songs, populate_if_empty: Song do # class name works.
       property :title
       validation do
         required(:title).filled
@@ -194,7 +192,8 @@ class PopulateIfEmptyTest < MiniTest::Spec
         end
       end
 
-    private
+      private
+
       def populate_composer!(options)
         Artist.new
       end
@@ -205,9 +204,11 @@ class PopulateIfEmptyTest < MiniTest::Spec
     end
 
     private
+
     class Sting < Artist
       attr_accessor :args
     end
+
     def create_artist(input, user_options)
       Sting.new.tap { |artist| artist.args = ([input, user_options].to_s) }
     end
@@ -219,9 +220,11 @@ class PopulateIfEmptyTest < MiniTest::Spec
     form.songs.size.must_equal 2
 
     form.validate(
-      "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"},
+      "songs" => [
+        {"title" => "Fallout"}, {"title" => "Roxanne"},
         {"title" => "Rime Of The Ancient Mariner"}, # new song.
-        {"title" => "Re-Education", "composer" => {"name" => "Rise Against"}}], # new song with new composer.
+        {"title" => "Re-Education", "composer" => {"name" => "Rise Against"}}
+      ] # new song with new composer.
     ).must_equal true
 
     form.errors.messages.inspect.must_equal "{}"
@@ -274,9 +277,7 @@ class PopulateIfEmptyWithDeletionTest < MiniTest::Spec
   class AlbumForm < TestForm
     property :name
 
-    collection :songs,
-      populate_if_empty: Song, skip_if: :delete_song! do
-
+    collection :songs, populate_if_empty: Song, skip_if: :delete_song! do
       property :title
       validation do
         required(:title).filled

@@ -22,12 +22,12 @@ class AsTest < BaseTest
   let(:song2) { Song.new("Roxanne") }
 
   let(:params) do
-      {
-        "name" => "Best Of The Police",
-        "single" => {"title" => "So Lonely"},
-        "tracks" => [{"name" => "Message In A Bottle"}, {"name" => "Roxanne"}]
-      }
-    end
+    {
+      "name" => "Best Of The Police",
+      "single" => {"title" => "So Lonely"},
+      "tracks" => [{"name" => "Message In A Bottle"}, {"name" => "Roxanne"}]
+    }
+  end
 
   subject { AlbumForm.new(Album.new("Best Of", hit, [Song.new("Fallout"), song2])) }
 
@@ -37,7 +37,6 @@ class AsTest < BaseTest
   it { subject.tracks[1].name.must_equal "Roxanne" }
 
   describe "#validate" do
-
     before { subject.validate(params) }
 
     it { subject.name.must_equal "Best Of The Police" }

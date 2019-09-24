@@ -26,7 +26,6 @@ class InheritTest < BaseTest
     end
 
     property :band, populate_if_empty: -> {} do
-
       def band_id
         1
       end
@@ -98,7 +97,6 @@ class InheritTest < BaseTest
   class CDForm < AlbumForm
     # override :band's original populate_if_empty but with :inherit.
     property :band, inherit: true, populator: "CD Populator" do
-
     end
   end
 

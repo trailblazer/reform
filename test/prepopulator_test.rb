@@ -5,13 +5,13 @@ class PrepopulatorTest < MiniTest::Spec
   Band = Struct.new(:name)
 
   class AlbumForm < TestForm
-    property :title, prepopulator: ->(*) { self.title = "Another Day At Work" }                  # normal assignment.
+    property :title, prepopulator: ->(*) { self.title = "Another Day At Work" } # normal assignment.
     property :length
 
     property :hit, prepopulator: ->(options) { self.hit = Song.new(options[:title]) } do # use user options.
       property :title
 
-      property :band, prepopulator: ->(options) { self.band = my_band(options[:title]) } do                             # invoke your own code.
+      property :band, prepopulator: ->(options) { self.band = my_band(options[:title]) } do # invoke your own code.
         property :name
       end
 
@@ -25,6 +25,7 @@ class PrepopulatorTest < MiniTest::Spec
     end
 
     private
+
     def prepopulate_songs!(options)
       if songs == nil
         self.songs = [Song.new, Song.new]

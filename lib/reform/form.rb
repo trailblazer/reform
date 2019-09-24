@@ -39,7 +39,7 @@ module Reform
         # for virtual collection we need at least to have the collection equal to [] to
         # avoid issue when the populator
         if (options.keys & %i[collection virtual]).size == 2
-          options = { default: [] }.merge(options)
+          options = {default: []}.merge(options)
         end
 
         definition = super # letdisposable and declarative gems sort out inheriting of properties, and so on.
@@ -63,20 +63,49 @@ module Reform
         if definition[:nested]
           parse_pipeline = ->(input, opts) do
             functions = opts[:binding].send(:parse_functions)
-            pipeline  = Representable::Pipeline[*functions] # Pipeline[StopOnExcluded, AssignName, ReadFragment, StopOnNotFound, OverwriteOnNil, Collect[#<Representable::Function::CreateObject:0xa6148ec>, #<Representable::Function::Decorate:0xa6148b0>, Deserialize], Set]
+            # Pipeline[
+            #   StopOnExcluded,
+            #   AssignName,
+            #   ReadFragment,
+            #   StopOnNotFound,
+            #   OverwriteOnNil,
+            #   Collect[
+            #     #<Representable::Function::CreateObject:0xa6148ec>,
+            #     #<Representable::Function::Decorate:0xa6148b0>,
+            #     Deserialize
+            #   ],
+            #   Set
+            # ]
+            pipeline  = Representable::Pipeline[*functions]
 
-            pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,            replace: Representable::CreateObject::Instance)
-            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::Decorate,       delete: true)
-            pipeline  = Representable::Pipeline::Insert.(pipeline, Deserialize,                   replace: Representable::Deserialize)
-            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::SetValue,       delete: true) # FIXME: only diff to options without :populator
+            pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,      replace: Representable::CreateObject::Instance)
+            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::Decorate, delete: true)
+            pipeline  = Representable::Pipeline::Insert.(pipeline, Deserialize,             replace: Representable::Deserialize)
+            # FIXME: only diff to options without :populator
+            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::SetValue, delete: true)
           end
         else
           parse_pipeline = ->(input, opts) do
             functions = opts[:binding].send(:parse_functions)
-            pipeline  = Representable::Pipeline[*functions] # Pipeline[StopOnExcluded, AssignName, ReadFragment, StopOnNotFound, OverwriteOnNil, Collect[#<Representable::Function::CreateObject:0xa6148ec>, #<Representable::Function::Decorate:0xa6148b0>, Deserialize], Set]
+            # Pipeline[
+            #   StopOnExcluded,
+            #   AssignName,
+            #   ReadFragment,
+            #   StopOnNotFound,
+            #   OverwriteOnNil,
+            #   Collect[
+            #     #<Representable::Function::CreateObject:0xa6148ec>,
+            #     #<Representable::Function::Decorate:0xa6148b0>,
+            #     Deserialize
+            #   ],
+            #   Set
+            # ]
 
+            pipeline = Representable::Pipeline[*functions]
             # FIXME: this won't work with property :name, inherit: true (where there is a populator set already).
-            pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator, replace: Representable::SetValue) if definition[:populator] # FIXME: only diff to options without :populator
+            if definition[:populator] # FIXME: only diff to options without :populator
+              pipeline = Representable::Pipeline::Insert.(pipeline, external_populator, replace: Representable::SetValue)
+            end
             pipeline
           end
         end
@@ -88,7 +117,8 @@ module Reform
           deserializer_options.merge!(skip_parse: proc) # TODO: same with skip_parse ==> External
         end
 
-        # per default, everything should be writeable for the deserializer (we're only writing on the form). however, allow turning it off.
+        # per default, everything should be writeable for the deserializer (we're only writing on the form).
+        # however, allow turning it off.
         deserializer_options.merge!(writeable: true) unless deserializer_options.key?(:writeable)
 
         definition
