@@ -25,8 +25,10 @@ module Reform::Form::Dry
         end
 
         def instance_exec(&block)
-          Dry::Schema.load_extensions(:hints)
-          @validator = @validator.build(&block)
+          Dry::Validation.load_extensions(:hints)
+          # when passing options[:schema] the class instance is already created so we just need to call
+          # "call"
+          @validator = @validator.build(&block) if @validator == Reform::Form::Dry::NewApi::Contract
 
           # inject the keys into the configure block automatically
           # keys = @schema_inject_params.keys

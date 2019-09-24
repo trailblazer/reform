@@ -38,25 +38,20 @@ class ErrorsTest < MiniTest::Spec
       end
       # TODO: make band a required object.
 
-      # TODO NOW: fix me
-      # validation do
-      #   configure do
-      #     config.messages_file = "test/fixtures/dry_error_messages.yml"
+      validation do
+        config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
 
-      #     def good_musical_taste?(value)
-      #       value != "Nickelback"
-      #     end
-      #   end
+        params { required(:name).filled }
 
-      #   params { required(:name).filled(:good_musical_taste?) }
-      # end
+        rule(:name) { key.failure(:good_musical_taste?) if value == "Nickelback" }
+      end
     end
 
     validation do
       params do
         required(:title).filled
         required(:artists).each(:str?)
-        required(:producer).schema do
+        required(:producer).hash do
           required(:name).filled
         end
       end
