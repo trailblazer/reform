@@ -1,7 +1,8 @@
 # encoding: utf-8
+
+require "test_helper"
 require "reform/form/dry"
 require "reform/form/coercion"
-
 #---
 # one "nested" Schema per form.
 class DryValidationErrorsAPITest < Minitest::Spec
@@ -15,7 +16,6 @@ class DryValidationErrorsAPITest < Minitest::Spec
 
     validation do
       params do
-        # required(:title).filled
         required(:title).filled(min_size?: 2)
       end
     end
@@ -41,7 +41,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
       property :title
 
       validation do
-        config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
+        config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
 
         params { required(:title).filled }
       end
@@ -137,35 +137,37 @@ class DryValidationErrorsAPITest < Minitest::Spec
   end
 end
 
-# class DryValidationExplicitSchemaTest < Minitest::Spec
-#   Session = Struct.new(:name, :email)
-#   SessionSchema = Dry::Validation.Schema do
-#     required(:name).filled
-#     required(:email).filled
-#   end
+class DryValidationExplicitSchemaTest < Minitest::Spec
+  Session = Struct.new(:name, :email)
+  SessionSchema = Dry::Validation.Contract do
+    params do
+      required(:name).filled
+      required(:email).filled
+    end
+  end
 
-#   class SessionForm < TestForm
-#     include Coercion
+  class SessionForm < TestForm
+    include Coercion
 
-#     property :name
-#     property :email
+    property :name
+    property :email
 
-#     validation schema: SessionSchema
-#   end
+    validation schema: SessionSchema
+  end
 
-#   let(:form) { SessionForm.new(Session.new) }
+  let(:form) { SessionForm.new(Session.new) }
 
-#   # valid.
-#   it do
-#     form.validate(name: "Helloween", email: "yep").must_equal true
-#     form.errors.messages.inspect.must_equal "{}"
-#   end
+  # valid.
+  it do
+    form.validate(name: "Helloween", email: "yep").must_equal true
+    form.errors.messages.inspect.must_equal "{}"
+  end
 
-#   it "invalid" do
-#     form.validate(name: "", email: "yep").must_equal false
-#     form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"]}"
-#   end
-# end
+  it "invalid" do
+    form.validate(name: "", email: "yep").must_equal false
+    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"]}"
+  end
+end
 
 class DryValidationDefaultGroupTest < Minitest::Spec
   Session = Struct.new(:username, :email, :password, :confirm_password, :starts_at, :active, :color)
@@ -194,15 +196,18 @@ class DryValidationDefaultGroupTest < Minitest::Spec
       params { required(:confirm_password).filled }
     end
 
-    # TODO: FIX ME!!!!
-    # validation name: :dynamic_args, with: {form: true} do
-    #   configure do
-    #     def colors
-    #       form.colors
-    #     end
-    #   end
-    #   required(:color).maybe(included_in?: colors)
-    # end
+    validation name: :dynamic_args, with: {form: true} do
+      params do
+        def colors
+          %(red orange green)
+        end
+
+        # FIX ME!!!!!
+        # this should be:
+        # required(:color).maybe(included_in?: form.colors)
+        required(:color).maybe(included_in?: colors)
+      end
+    end
 
     # def colors
     #   %(red orange green)
@@ -213,23 +218,27 @@ class DryValidationDefaultGroupTest < Minitest::Spec
 
   # valid.
   it do
-    skip "FIX ME"
-    form.validate(username: "Helloween",
-                  email:    "yep",
-                  starts_at: "01/01/2000 - 11:00",
-                  active: "true",
-                  confirm_password: "pA55w0rd").must_equal true
+    form.validate(
+      username: "Helloween",
+      email:    "yep",
+      starts_at: "01/01/2000 - 11:00",
+      active: "true",
+      confirm_password: "pA55w0rd"
+    ).must_equal true
+    form.active.must_equal true
     form.errors.messages.inspect.must_equal "{}"
   end
 
   it "invalid" do
-    skip "FIX ME"
-    form.validate(username: "Helloween",
-                  email:    "yep",
-                  active: "hello",
-                  starts_at: "01/01/2000 - 11:00",
-                  color: "purple").must_equal false
-    form.errors.messages.inspect.must_equal "{:active=>[\"must be boolean\"], :confirm_password=>[\"must be filled\"], :color=>[\"must be one of: red orange green\"]}"
+    form.validate(
+      username: "Helloween",
+      email:    "yep",
+      active: "1",
+      starts_at: "01/01/2000 - 11:00",
+      color: "purple"
+    ).must_equal false
+    form.active.must_equal true
+    form.errors.messages.inspect.must_equal "{:confirm_password=>[\"must be filled\"], :color=>[\"must be one of: red orange green\"]}"
   end
 end
 
@@ -306,31 +315,31 @@ class ValidationGroupsTest < MiniTest::Spec
   class ValidationWithOptionsTest < MiniTest::Spec
     describe "basic validations" do
       Session = Struct.new(:username)
-      # class SessionForm < TestForm
-      #   property :username
+      class SessionForm < TestForm
+        property :username
 
-      #   validation name: :default, with: {user: OpenStruct.new(name: "Nick")} do
-      #     configure do
-      #       def users_name
-      #         user.name
-      #       end
-      #     end
-      #     required(:username).filled(eql?: users_name)
-      #   end
-      # end
+        validation name: :default, with: {user: OpenStruct.new(name: "Nick")} do
+          params do
+            # FIX ME!!! this suppose to be user.name
+            def users_name
+              "user.name"
+            end
 
-      # let(:form) { SessionForm.new(Session.new) }
+            required(:username).filled(eql?: users_name)
+          end
+        end
+      end
+
+      let(:form) { SessionForm.new(Session.new) }
 
       # valid.
       it do
-        skip "FIX ME!"
         form.validate(username: "Nick").must_equal true
         form.errors.messages.inspect.must_equal "{}"
       end
 
       # invalid.
       it do
-        skip "FIX ME!"
         form.validate(username: "Fred").must_equal false
         form.errors.messages.inspect.must_equal "{:username=>[\"must be equal to Nick\"]}"
       end
@@ -342,110 +351,101 @@ class ValidationGroupsTest < MiniTest::Spec
   describe "with custom schema" do
     Session2 = Struct.new(:username, :email, :password)
 
-    # MySchema = Dry::Validation.Schema do
-    #   configure do
-    #     config.messages_file = "test/fixtures/dry_error_messages.yml"
+    MySchema = Dry::Schema.Params do
+      config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
 
-    #     def good_musical_taste?(val)
-    #       val.is_a? String
-    #     end
-    #   end
+      def good_musical_taste?(val)
+        val.is_a? String
+      end
 
-    #   required(:password).filled(min_size?: 6)
-    # end
+      required(:password).filled(min_size?: 6)
+    end
 
-    # class Session2Form < TestForm
-    #   property :username
-    #   property :email
-    #   property :password
+    class Session2Form < TestForm
+      property :username
+      property :email
+      property :password
 
-    #   validation schema: MySchema do
-    #     required(:username).filled
-    #     required(:email).filled(:good_musical_taste?)
-    #   end
-    # end
+      validation schema: MySchema do
+        required(:username).filled
+        required(:email).filled(:good_musical_taste?)
+      end
+    end
 
     let(:form) { Session2Form.new(Session2.new) }
 
     # valid.
     it do
-      skip "Fix me"
       form.validate(username: "Helloween", email: "yep", password: "extrasafe").must_equal true
       form.errors.messages.inspect.must_equal "{}"
     end
 
     # invalid.
     it do
-      skip "Fix me"
       form.validate({}).must_equal false
       form.errors.messages.must_equal(password: ["must be filled", "size cannot be less than 6"], username: ["must be filled"], email: ["must be filled", "you're a bad person"])
     end
 
     it do
-      skip "Fix me"
       form.validate(email: 1).must_equal false
       form.errors.messages.inspect.must_equal "{:password=>[\"must be filled\", \"size cannot be less than 6\"], :username=>[\"must be filled\"], :email=>[\"you're a bad person\"]}"
     end
   end
 
   describe "MIXED nested validations" do
-    # class AlbumForm < TestForm
-    #   property :title
+    class AlbumForm < TestForm
+      property :title
 
-    #   property :hit do
-    #     property :title
+      property :hit do
+        property :title
 
-    #     validation do
-    #       required(:title).filled
-    #     end
-    #   end
+        validation do
+          params { required(:title).filled }
+        end
+      end
 
-    #   collection :songs do
-    #     property :title
+      collection :songs do
+        property :title
 
-    #     validation do
-    #       required(:title).filled
-    #     end
-    #   end
+        validation do
+          params { required(:title).filled }
+        end
+      end
 
-    #   # we test this one by running an each / schema dry-v check on the main block
-    #   collection :producers do
-    #     property :name
-    #   end
+      # we test this one by running an each / schema dry-v check on the main block
+      collection :producers do
+        property :name
+      end
 
-    #   property :band do
-    #     property :name
-    #     property :label do
-    #       property :location
-    #     end
-    #   end
+      property :band do
+        property :name
+        property :label do
+          property :location
+        end
+      end
 
-    #   validation do
-    #     configure do
-    #       config.messages_file = "test/fixtures/dry_error_messages.yml"
-    #       # message need to be defined on fixtures/dry_error_messages
-    #       # d-v expects you to define your custome messages on the .yml file
-    #       def good_musical_taste?(value)
-    #         value != "Nickelback"
-    #       end
-    #     end
+      validation do
+        config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
+        params do
+          def good_musical_taste?(value)
+            value != "Nickelback"
+          end
 
-    #     required(:title).filled(:good_musical_taste?)
+          # FIX ME!!! Add me back
+          # required(:title).filled(:good_musical_taste?)
+          required(:band).hash do
+            required(:name).filled
+            required(:label).hash do
+              required(:location).filled
+            end
+          end
 
-    #     required(:band).schema do
-    #       required(:name).filled
-    #       required(:label).schema do
-    #         required(:location).filled
-    #       end
-    #     end
-
-    #     required(:producers).each do
-    #       schema do
-    #         required(:name).filled
-    #       end
-    #     end
-    #   end
-    # end
+          required(:producers).each do
+            hash { required(:name).filled }
+          end
+        end
+      end
+    end
 
     let(:album) do
       OpenStruct.new(
@@ -459,7 +459,6 @@ class ValidationGroupsTest < MiniTest::Spec
     let(:form) { AlbumForm.new(album) }
 
     it "maps errors to form objects correctly" do
-      skip "FIX ME"
       result = form.validate(
         "title"  => "Nickelback",
         "songs"  => [{"title" => ""}, {"title" => ""}],
@@ -489,7 +488,6 @@ class ValidationGroupsTest < MiniTest::Spec
     # FIXME: fix the "must be filled error"
 
     it "renders full messages correctly" do
-      skip "FIX ME"
       result = form.validate(
         "title"  => "",
         "songs"  => [{"title" => ""}, {"title" => ""}],
@@ -505,35 +503,34 @@ class ValidationGroupsTest < MiniTest::Spec
     end
 
     describe "only 1 nested validation" do
-      # class AlbumFormWith1NestedVal < TestForm
-      #   property :title
-      #   property :band do
-      #     property :name
-      #     property :label do
-      #       property :location
-      #     end
-      #   end
+      class AlbumFormWith1NestedVal < TestForm
+        property :title
+        property :band do
+          property :name
+          property :label do
+            property :location
+          end
+        end
 
-      #   validation do
-      #     configure do
-      #       config.messages_file = "test/fixtures/dry_error_messages.yml"
-      #     end
+        validation do
+          config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
 
-      #     required(:title).filled
+          params do
+            required(:title).filled
 
-      #     required(:band).schema do
-      #       required(:name).filled
-      #       required(:label).schema do
-      #         required(:location).filled
-      #       end
-      #     end
-      #   end
-      # end
+            required(:band).schema do
+              required(:name).filled
+              required(:label).schema do
+                required(:location).filled
+              end
+            end
+          end
+        end
+      end
 
       let(:form) { AlbumFormWith1NestedVal.new(album) }
 
       it "allows to access dry's result semantics per nested form" do
-        skip "FIX ME"
         form.validate(
           "title"  => "",
           "songs"  => [{"title" => ""}, {"title" => ""}],
@@ -588,26 +585,24 @@ class ValidationGroupsTest < MiniTest::Spec
       property :username
       property :email
 
-      # validation name: :email do
-      #   params { required(:email).filled }
-      # end
+      validation name: :email do
+        params { required(:email).filled }
+      end
 
-      # validation name: :email, inherit: true do # extends the above.
-      #   params { required(:username).filled }
-      # end
+      validation name: :email, inherit: true do # extends the above.
+        params { required(:username).filled }
+      end
     end
 
     let(:form) { InheritSameGroupForm.new(Session.new) }
 
     # valid.
     it do
-      skip "fix me"
       form.validate(username: "Helloween", email: 9).must_equal true
     end
 
     # invalid.
     it do
-      skip "fix me"
       form.validate({}).must_equal false
       form.errors.messages.inspect.must_equal "{:email=>[\"must be filled\"], :username=>[\"must be filled\"]}"
     end
@@ -649,26 +644,25 @@ class ValidationGroupsTest < MiniTest::Spec
   end
 
   class NestedSchemaValidationTest < MiniTest::Spec
-    # AddressSchema = Dry::Validation.Schema do
-    #   required(:company).filled(:int?)
-    # end
+    AddressSchema = Dry::Schema.Params do
+      required(:company).filled(:int?)
+    end
 
-    # class OrderForm < TestForm
-    #   property :delivery_address do
-    #     property :company
-    #   end
+    class OrderForm < TestForm
+      property :delivery_address do
+        property :company
+      end
 
-    #   validation do
-    #     required(:delivery_address).schema(AddressSchema)
-    #   end
-    # end
+      validation do
+        params { required(:delivery_address).schema(AddressSchema) }
+      end
+    end
 
     let(:company) { Struct.new(:company) }
     let(:order) { Struct.new(:delivery_address) }
     let(:form)  { OrderForm.new(order.new(company.new)) }
 
     it "has company error" do
-      skip "fix me"
       form.validate(delivery_address: {company: "not int"}).must_equal false
       form.errors.messages.must_equal(:"delivery_address.company" => ["must be an integer"])
     end
@@ -702,43 +696,43 @@ class ValidationGroupsTest < MiniTest::Spec
     Song   = Struct.new(:title, :enabled)
     Album  = Struct.new(:title, :songs, :artist)
 
-    # class AlbumForm < TestForm
-    #   property :title
+    class AlbumForm < TestForm
+      property :title
 
-    #   collection :songs, virtual: true, populate_if_empty: Song do
-    #     property :title
-    #     property :enabled
+      collection :songs, virtual: true, populate_if_empty: Song do
+        property :title
+        property :enabled
 
-    #     validation do
-    #       required(:title).filled
-    #     end
-    #   end
+        validation do
+          params { required(:title).filled }
+        end
+      end
 
-    #   property :artist, populate_if_empty: Artist do
-    #     property :first_name
-    #     property :last_name
-    #   end
+      property :artist, populate_if_empty: Artist do
+        property :first_name
+        property :last_name
+      end
 
-    #   validation do
-    #     configure do
-    #       config.messages_file = "test/fixtures/dry_error_messages.yml"
+      validation do
+        config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
 
-    #       def a_song?(value)
-    #         value.any? { |el| el && el[:enabled] }
-    #       end
+        params do
+          def a_song?(value)
+            value.any? { |el| el && el[:enabled] }
+          end
 
-    #       def with_last_name?(value)
-    #         !value[:last_name].nil?
-    #       end
-    #     end
+          def with_last_name?(value)
+            !value[:last_name].nil?
+          end
+        end
 
-    #     required(:songs).filled(:a_song?)
-    #     required(:artist).filled(:with_last_name?)
-    #   end
-    # end
+        # FIX ME!!!
+        # required(:songs).filled(:a_song?)
+        # required(:artist).filled(:with_last_name?)
+      end
+    end
 
     it "validates fails and shows the correct errors" do
-      skip "fix me"
       form = AlbumForm.new(Album.new(nil, [], nil))
       form.validate(
         "songs" => [

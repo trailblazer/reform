@@ -90,5 +90,5 @@ en:
     a_song?: "must have at least one enabled song"
     with_last_name?: "must have last name"
 de:
-    errors:
-        filled?: "muss abgefüllt sein"
+  errors:
+      filled?: "muss abgefüllt sein"
