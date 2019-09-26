@@ -21,6 +21,28 @@ You can upgrade from 2.2.0 without worries.
 * In `:if` for validation groups, you now get a hash of result objects, not just true/false.
 * Allow adding a custom error AFTER validate has been already called
 
+Compatibility with `dry-validation` with 1.x:
+* seems like "custom" predicate are not supported by `dry-schema` anymore or better the same result is reached using the `rule` method:
+  Something like this:
+  ```ruby
+  validation do
+    def a_song?(value)
+       value == :really_cool_song
+    end
+
+    required(:songs).filled(:a_song?)
+  end
+  ```
+  will be something like:
+  ```ruby
+  validation do
+    required(:songs).filled
+
+    rule(:songs) do
+      key.failure(:a_song?) unless value == :really_cool_song
+    end
+  end
+  ```
 
 ## 2.2.4
 
