@@ -197,21 +197,12 @@ class DryValidationDefaultGroupTest < Minitest::Spec
     end
 
     validation name: :dynamic_args, with: {form: true} do
-      params do
-        def colors
-          %(red orange green)
-        end
-
-        # FIX ME!!!!!
-        # this should be:
-        # required(:color).maybe(included_in?: form.colors)
-        required(:color).maybe(included_in?: colors)
-      end
+      params { required(:color).maybe(included_in?: form.colors) }
     end
 
-    # def colors
-    #   %(red orange green)
-    # end
+    def colors
+      %(red orange green)
+    end
   end
 
   let(:form) { SessionForm.new(Session.new) }
@@ -320,12 +311,7 @@ class ValidationGroupsTest < MiniTest::Spec
 
         validation name: :default, with: {user: OpenStruct.new(name: "Nick")} do
           params do
-            # FIX ME!!! this suppose to be user.name
-            def users_name
-              "user.name"
-            end
-
-            required(:username).filled(eql?: users_name)
+            required(:username).filled(eql?: user.name)
           end
         end
       end
@@ -354,10 +340,6 @@ class ValidationGroupsTest < MiniTest::Spec
     MySchema = Dry::Schema.Params do
       config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
 
-      def good_musical_taste?(val)
-        val.is_a? String
-      end
-
       required(:password).filled(min_size?: 6)
     end
 
@@ -368,7 +350,11 @@ class ValidationGroupsTest < MiniTest::Spec
 
       validation schema: MySchema do
         required(:username).filled
-        required(:email).filled(:good_musical_taste?)
+        required(:email).filled
+
+        rule(:email) do
+          key.failure(:good_musical_taste?) unless value.is_a? String
+        end
       end
     end
 
@@ -425,14 +411,9 @@ class ValidationGroupsTest < MiniTest::Spec
       end
 
       validation do
-        config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
+        config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
         params do
-          def good_musical_taste?(value)
-            value != "Nickelback"
-          end
-
-          # FIX ME!!! Add me back
-          # required(:title).filled(:good_musical_taste?)
+          required(:title).filled
           required(:band).hash do
             required(:name).filled
             required(:label).hash do
@@ -443,6 +424,10 @@ class ValidationGroupsTest < MiniTest::Spec
           required(:producers).each do
             hash { required(:name).filled }
           end
+        end
+
+        rule(:title) do
+          key.failure(:good_musical_taste?) unless value != "Nickelback"
         end
       end
     end
@@ -499,7 +484,7 @@ class ValidationGroupsTest < MiniTest::Spec
       form.band.errors.full_messages.must_equal ["Name must be filled", "Label Location must be filled"]
       form.band.label.errors.full_messages.must_equal ["Location must be filled"]
       form.producers.first.errors.full_messages.must_equal ["Name must be filled"]
-      form.errors.full_messages.must_equal ["Title must be filled", "Title you're a bad person", "Hit Title must be filled", "Songs Title must be filled", "Producers Name must be filled", "Band Name must be filled", "Band Label Location must be filled"]
+      form.errors.full_messages.must_equal ["Title must be filled", "Hit Title must be filled", "Songs Title must be filled", "Producers Name must be filled", "Band Name must be filled", "Band Label Location must be filled"]
     end
 
     describe "only 1 nested validation" do
@@ -513,7 +498,7 @@ class ValidationGroupsTest < MiniTest::Spec
         end
 
         validation do
-          config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
+          config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
 
           params do
             required(:title).filled
@@ -532,9 +517,9 @@ class ValidationGroupsTest < MiniTest::Spec
 
       it "allows to access dry's result semantics per nested form" do
         form.validate(
-          "title"  => "",
-          "songs"  => [{"title" => ""}, {"title" => ""}],
-          "band"   => {"size" => "", "label" => {"name" => ""}},
+          "title" => "",
+          "songs" => [{"title" => ""}, {"title" => ""}],
+          "band" => {"size" => "", "label" => {"name" => ""}},
           "producers" => [{"name" => ""}, {"name" => ""}, {"name" => "something lovely"}]
         )
 
@@ -604,7 +589,7 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.inspect.must_equal "{:email=>[\"must be filled\"], :username=>[\"must be filled\"]}"
+      form.errors.messages.inspect.must_equal "{:username=>[\"must be filled\"], :email=>[\"must be filled\"]}"
     end
   end
 
@@ -714,21 +699,20 @@ class ValidationGroupsTest < MiniTest::Spec
       end
 
       validation do
-        config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
+        config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
 
         params do
-          def a_song?(value)
-            value.any? { |el| el && el[:enabled] }
-          end
-
-          def with_last_name?(value)
-            !value[:last_name].nil?
-          end
+          required(:songs).filled
+          required(:artist).filled
         end
 
-        # FIX ME!!!
-        # required(:songs).filled(:a_song?)
-        # required(:artist).filled(:with_last_name?)
+        rule(:songs) do
+          key.failure(:a_song?) unless value.any? { |el| el && el[:enabled] }
+        end
+
+        rule(:artist) do
+          key.failure(:with_last_name?) unless value[:last_name]
+        end
       end
     end
 
