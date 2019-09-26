@@ -87,12 +87,17 @@ en:
               range: "length must be within %{size_left} - %{size_right}"
 
 
-      a_song?: "must have at least one enabled song"
-      with_last_name?: "must have last name"
 
       rules:
         name:
           good_musical_taste?: "you're a bad person"
+        title:
+          good_musical_taste?: "you're a bad person"
+        songs:
+          a_song?: "must have at least one enabled song"
+        artist:
+          with_last_name?: "must have last name"
+
 de:
   dry_validation:
     errors:

@@ -26,23 +26,23 @@ module Reform::Form::Dry
 
         def instance_exec(&block)
           Dry::Validation.load_extensions(:hints)
-          # when passing options[:schema] the class instance is already created so we just need to call
-          # "call"
-          @validator = @validator.build(&block) if @validator == Reform::Form::Dry::NewApi::Contract
-
-          # inject the keys into the configure block automatically
-          # keys = @schema_inject_params.keys
-          # @validator.class_eval do
-          #   config do
-          #     keys.each { |k| option k }
-          #   end
-          # end
+          @block = block
         end
 
         def call(form)
           dynamic_options = {}
           dynamic_options[:form] = form if @schema_inject_params[:form]
           inject_options = @schema_inject_params.merge(dynamic_options)
+
+          Dry::Schema::DSL.class_eval do
+            inject_options.each do |key, value|
+              define_method(key) { value }
+            end
+          end
+
+          # when passing options[:schema] the class instance is already created so we just need to call
+          # "call"
+          @validator = @validator.build(&@block) if @validator == Reform::Form::Dry::NewApi::Contract
 
           # TODO: only pass submitted values to Schema#call?
           dry_result = @validator.call(input_hash(form))
