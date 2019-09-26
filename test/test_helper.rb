@@ -49,7 +49,7 @@ end
 
 TEST_WITH_OLD_AND_NEW_API = %w[
   validation/dry_validation call composition contract errors inherit module reform
-  save skip_if populate validate
+  save skip_if populate validate form
 ].freeze
 
 def require_test_files(api:)
