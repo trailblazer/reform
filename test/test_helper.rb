@@ -47,23 +47,6 @@ class BaseTest < MiniTest::Spec
   let(:hit) { Song.new("Roxanne") }
 end
 
-TEST_WITH_OLD_AND_NEW_API = %w[
-  validation/dry_validation call composition contract errors inherit module reform
-  save skip_if populate validate form
-].freeze
-
-def require_test_files(api:)
-  TEST_WITH_OLD_AND_NEW_API.each do |file|
-    require File.join(File.dirname(__FILE__), "#{file}_#{api}_api.rb")
-  end
-end
-
-if Gem::Version.new(Dry::Validation::VERSION) > Gem::Version.new("0.13.3")
-  require_test_files(api: "new")
-else
-  require_test_files(api: "old")
-end
-
 MiniTest::Spec.class_eval do
   module Saveable
     def save

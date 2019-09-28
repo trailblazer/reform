@@ -1,6 +1,4 @@
-# TODO:
-# This test should, at some point soon, only test the `Errors` object and its
-# Rails-ish API. No validation specifics, etc. to be tested here.
+require "test_helper"
 
 class ErrorsTest < MiniTest::Spec
   class AlbumForm < TestForm

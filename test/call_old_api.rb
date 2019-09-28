@@ -1,3 +1,5 @@
+require "test_helper"
+
 class CallTest < Minitest::Spec
   Song = Struct.new(:title)
 
