@@ -2,10 +2,6 @@ module Reform::Form::Dry
   module InputHash
     private
 
-    def call_schema(inject_options, input)
-      @validator.new(@validator.rules, inject_options).(input)
-    end
-
     # if dry_error is a hash rather than an array then it contains
     # the messages for a nested property
     # these messages need to be added to the correct collection

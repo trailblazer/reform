@@ -50,6 +50,12 @@ module Reform::Form::Dry
 
           _reform_errors = Reform::Contract::Errors.new(dry_result) # TODO: dry should be merged here.
         end
+
+        private
+
+        def call_schema(inject_options, input)
+          @validator.new(@validator.rules, inject_options).(input)
+        end
       end
     end
   end
