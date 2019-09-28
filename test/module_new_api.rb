@@ -1,3 +1,4 @@
+require "test_helper"
 require "reform/form/coercion"
 
 class ModuleInclusionTest < MiniTest::Spec

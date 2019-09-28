@@ -1,3 +1,5 @@
+require "test_helper"
+
 class ContractTest < MiniTest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :duration, :songs, :artist)

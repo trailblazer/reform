@@ -1,3 +1,5 @@
+require "test_helper"
+
 class SkipIfTest < BaseTest
   let(:hit) { Song.new }
   let(:album) { Album.new(nil, hit, [], nil) }

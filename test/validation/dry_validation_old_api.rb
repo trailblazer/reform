@@ -1,4 +1,4 @@
-# encoding: utf-8
+require "test_helper"
 require "reform/form/dry"
 require "reform/form/coercion"
 
