@@ -1,5 +1,3 @@
-require "test_helper"
-
 class FormTest < MiniTest::Spec
   Artist = Struct.new(:name)
 

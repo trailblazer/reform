@@ -1,5 +1,3 @@
-require "test_helper"
-
 class FeatureInheritanceTest < BaseTest
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
