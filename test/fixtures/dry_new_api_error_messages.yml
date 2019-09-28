@@ -101,4 +101,4 @@ en:
 de:
   dry_validation:
     errors:
-        filled?: "muss abgefüllt sein"
+      filled?: "muss abgefüllt sein"
