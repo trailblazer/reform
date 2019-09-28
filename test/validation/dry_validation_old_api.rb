@@ -570,13 +570,20 @@ class ValidationGroupsTest < MiniTest::Spec
     class InheritSameGroupForm < TestForm
       property :username
       property :email
+      property :full_name, virtual: true
 
-      validation name: :email do
-        required(:email).filled
+      validation name: :username do
+        configure do
+          config.messages_file = "test/fixtures/dry_error_messages.yml"
+        end
+
+        required(:username).filled
+        required(:full_name).filled
       end
 
-      validation name: :email, inherit: true do # extends the above.
-        required(:username).filled
+      validation name: :username, inherit: true do # overrides and extends the above.
+        optional(:username).maybe
+        required(:email).filled
       end
     end
 
@@ -584,13 +591,13 @@ class ValidationGroupsTest < MiniTest::Spec
 
     # valid.
     it do
-      form.validate(username: "Helloween", email: 9).must_equal true
+      form.validate(full_name: "My name", email: 9).must_equal true
     end
 
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.inspect.must_equal "{:email=>[\"must be filled\"], :username=>[\"must be filled\"]}"
+      form.errors.messages.must_equal email: ["must be filled"], full_name: ["must be filled"]
     end
   end
 

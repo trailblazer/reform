@@ -27,7 +27,6 @@ module Reform::Form::Dry
 
         def instance_exec(&block)
           @validator = Dry::Validation.Schema(@validator, build: false, &block)
-
           # inject the keys into the configure block automatically
           keys = @schema_inject_params.keys
           @validator.class_eval do

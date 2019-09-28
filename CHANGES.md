@@ -22,7 +22,7 @@ You can upgrade from 2.2.0 without worries.
 * Allow adding a custom error AFTER validate has been already called
 
 Compatibility with `dry-validation` with 1.x:
-* seems like "custom" predicate are not supported by `dry-schema` anymore or better the same result is reached using the `rule` method:
+* [CHANGE] seems like "custom" predicate are not supported by `dry-schema` anymore or better the same result is reached using the `rule` method:
   Something like this:
   ```ruby
   validation do
@@ -43,6 +43,7 @@ Compatibility with `dry-validation` with 1.x:
     end
   end
   ```
+* [BREAKING] inheriting/merging/overriding schema/rules is not supported by `dry-v` so the `inherit:` option is **NOT SUPPORTED** for now. Also extend a `schema:` option using a block is **NOT SUPPORTED** for now. Possible workaround is to use reform module to compose different validations but this won't override existing validations but just merge them
 
 ## 2.2.4
 
