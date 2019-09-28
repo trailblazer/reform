@@ -10,7 +10,8 @@ TEST_WITH_OLD_AND_NEW_API = %w[
 ].freeze
 
 def dry_v_test_files
-  api = ENV["DRY_VALIDATION"].to_f >= 1.0 ? "new" : "old"
+  dry_v_version = ENV.fetch("DRY_VALIDATION", "~> 0.13.0")
+  api = dry_v_version.gsub("~>", "").to_f >= 1.0 ? "new" : "old"
   TEST_WITH_OLD_AND_NEW_API.map { |file| "test/#{file}_#{api}_api.rb" }
 end
 
