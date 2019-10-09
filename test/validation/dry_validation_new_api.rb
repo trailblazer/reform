@@ -749,6 +749,55 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
+  class DryVWithSchemaAndParams < MiniTest::Spec
+    Foo = Struct.new(:age)
+
+    class ParamsForm < TestForm
+      property :age
+
+      validation do
+        params { required(:age).value(:integer) }
+
+        rule(:age) { key.failure("value exceeded") if value > 999 }
+      end
+    end
+
+    class SchemaForm < TestForm
+      property :age
+
+      validation do
+        schema { required(:age).value(:integer) }
+
+        rule(:age) { key.failure("value exceeded") if value > 999 }
+      end
+    end
+
+    it "using params" do
+      model = Foo.new
+      form = ParamsForm.new(model)
+      form.validate(age: "99").must_equal true
+      form.sync
+      model.age.must_equal "99"
+
+      form = ParamsForm.new(Foo.new)
+      form.validate(age: "1000").must_equal false
+      form.errors.messages.must_equal age: ["value exceeded"]
+    end
+
+    it "using schema" do
+      model = Foo.new
+      form = SchemaForm.new(model)
+      form.validate(age: "99").must_equal false
+      form.validate(age: 99).must_equal true
+      form.sync
+      model.age.must_equal 99
+
+      form = SchemaForm.new(Foo.new)
+      form.validate(age: 1000).must_equal false
+      form.errors.messages.must_equal age: ["value exceeded"]
+    end
+  end
+
   # Currenty dry-v don't support that option, it doesn't make sense
   #   I've talked to @solnic and he plans to add a "hint" feature to show
   #   more errors messages than only those that have failed.
