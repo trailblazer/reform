@@ -6,7 +6,7 @@ class InheritTest < BaseTest
 
   class SkipParse
     include Uber::Callable
-    def call(*args)
+    def call(*_args)
       false
     end
   end
@@ -17,7 +17,7 @@ class InheritTest < BaseTest
     property :hit, populate_if_empty: ->(*) { Song.new } do
       property :title
       validation do
-        required(:title).filled
+        params { required(:title).filled }
       end
     end
 
@@ -26,7 +26,6 @@ class InheritTest < BaseTest
     end
 
     property :band, populate_if_empty: -> {} do
-
       def band_id
         1
       end
@@ -38,7 +37,7 @@ class InheritTest < BaseTest
     property :hit, inherit: true, populate_if_empty: ->(*) { Song.new }, skip_if: SkipParse.new do
       property :rating
       validation do
-        required(:rating).filled
+        params { required(:rating).filled }
       end
     end
 

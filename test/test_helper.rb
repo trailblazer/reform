@@ -6,6 +6,7 @@ require "pp"
 require "byebug"
 
 require "reform/form/dry"
+
 # setup test classes so we can test without dry being included
 class TestForm < Reform::Form
   feature Reform::Form::Dry
@@ -14,6 +15,15 @@ end
 class TestContract < Reform::Contract
   feature Reform::Form::Dry
 end
+
+module Types
+  DRY_MODULE = Gem::Version.new(Dry::Types::VERSION) < Gem::Version.new("0.15.0") ? Dry::Types.module : Dry.Types()
+  include DRY_MODULE
+end
+
+DRY_TYPES_VERSION = Gem::Version.new(Dry::Types::VERSION)
+DRY_TYPES_CONSTANT = DRY_TYPES_VERSION < Gem::Version.new("0.13.0") ? Types::Form : Types::Params
+DRY_TYPES_INT_CONSTANT = DRY_TYPES_VERSION < Gem::Version.new("0.13.0") ? Types::Form::Int : Types::Params::Integer
 
 class BaseTest < MiniTest::Spec
   class AlbumForm < TestForm
@@ -36,15 +46,6 @@ class BaseTest < MiniTest::Spec
 
   let(:hit) { Song.new("Roxanne") }
 end
-
-module Types
-  DRY_MODULE =  Gem::Version.new(Dry::Types::VERSION) < Gem::Version.new("0.15.0") ? Dry::Types.module : Dry.Types()
-  include DRY_MODULE
-end
-
-DRY_TYPES_VERSION = Gem::Version.new(Dry::Types::VERSION)
-DRY_TYPES_CONSTANT = DRY_TYPES_VERSION < Gem::Version.new("0.13.0") ? Types::Form : Types::Params
-DRY_TYPES_INT_CONSTANT = DRY_TYPES_VERSION < Gem::Version.new("0.13.0") ? Types::Form::Int : Types::Params::Integer
 
 MiniTest::Spec.class_eval do
   module Saveable

@@ -12,9 +12,9 @@ class PopulatorTest < MiniTest::Spec
     end
 
     collection :songs,
-      populator: ->(fragment:, model:, index:, **) {
-        (item = model[index]) ? item : model.insert(index, Song.new) } do
-
+               populator: ->(fragment:, model:, index:, **) {
+                 (item = model[index]) ? item : model.insert(index, Song.new)
+               } do
       property :title
       validation do
         required(:title).filled

@@ -1,6 +1,5 @@
 require "test_helper"
 
-# TODO: this test should be removed.
 class ReformTest < Minitest::Spec
   let(:comp) { OpenStruct.new(name: "Duran Duran", title: "Rio") }
 

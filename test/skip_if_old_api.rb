@@ -1,6 +1,8 @@
 require "test_helper"
 
 class SkipIfTest < BaseTest
+  let(:hit) { Song.new }
+  let(:album) { Album.new(nil, hit, [], nil) }
 
   class AlbumForm < TestForm
     property :title
@@ -20,9 +22,6 @@ class SkipIfTest < BaseTest
       options[:fragment]["title"].nil?
     end
   end
-
-  let(:hit) { Song.new }
-  let(:album) { Album.new(nil, hit, [], nil) }
 
   # deserializes when present.
   it do
