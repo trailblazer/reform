@@ -7,6 +7,39 @@ class ErrorsResultTest < Minitest::Spec
 
   # TODO: errors(args) not tested.
 
+  describe "Contract::Result#failure" do
+    let(:failed) { MyResult.new(false) }
+    let(:succeeded) { MyResult.new(true) }
+
+    it { Reform::Contract::Result.new([succeeded, failed]).failure.must_equal failed }
+    it { Reform::Contract::Result.new([succeeded, succeeded], [failed]).failure.must_equal failed }
+  end
+
+  describe "Contract::Result#failure?" do
+    let(:failed) { MyResult.new(false) }
+    let(:succeeded) { MyResult.new(true) }
+
+    it { Reform::Contract::Result.new([failed, failed]).failure?.must_equal true }
+    it { Reform::Contract::Result.new([succeeded, failed]).failure?.must_equal true }
+    it { Reform::Contract::Result.new([failed, succeeded]).failure?.must_equal true }
+    it { Reform::Contract::Result.new([succeeded, succeeded]).failure?.must_equal false }
+  end
+
+  describe "Contract::Result#nested_results" do
+    let(:failed) { MyResult.new(false) }
+    let(:nested) { MyResult.new(true) }
+
+    it { Reform::Contract::Result.new([failed], [nested]).nested_results.must_equal [nested] }
+  end
+
+  describe "Contract::Result#results" do
+    let(:failed) { MyResult.new(false) }
+    let(:succeeded) { MyResult.new(true) }
+
+    it { Reform::Contract::Result.new([succeeded, failed]).results.must_equal [succeeded, failed] }
+    it { Reform::Contract::Result.new([succeeded, succeeded], [failed]).results.must_equal [succeeded, succeeded] }
+  end
+
   describe "Contract::Result#success?" do
     let(:failed) { MyResult.new(false) }
     let(:succeeded) { MyResult.new(true) }
