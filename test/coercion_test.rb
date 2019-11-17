@@ -13,11 +13,11 @@ class CoercionTest < BaseTest
     feature Coercion
     include Disposable::Twin::Property::Hash
 
-    property :released_at, type: DRY_TYPES_CONSTANT::DateTime
+    property :released_at, type: Types::Params::DateTime
 
     property :hit do
-      property :length, type: DRY_TYPES_INT_CONSTANT
-      property :good,   type: DRY_TYPES_CONSTANT::Bool
+      property :length, type: Types::Params::Integer
+      property :good,   type: Types::Params::Bool
     end
 
     property :band do
@@ -28,7 +28,7 @@ class CoercionTest < BaseTest
 
     property :metadata, field: :hash do
       property :publication_settings do
-        property :featured, type: DRY_TYPES_CONSTANT::Bool
+        property :featured, type: Types::Params::Bool
       end
     end
   end

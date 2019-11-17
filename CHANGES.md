@@ -1,5 +1,6 @@
 ## 3.0.0
 
+* [BREAKING] Dropping compatibility of dry-validation < 1.x
 [* Removed `Reform::Contract` ?]
 [* Move Form#deserializer to Form::deserializer]
 
