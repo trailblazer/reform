@@ -7,9 +7,6 @@ rvm:
   - 2.6
   - 2.5
   - 2.4
-gemfile:
-  - gemfiles/1.5.0.gemfile
-  - gemfiles/0.13.0.gemfile
 matrix:
   fast_finish: true
   allow_failures:

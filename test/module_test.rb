@@ -5,12 +5,11 @@ class ModuleInclusionTest < MiniTest::Spec
   module BandPropertyForm
     include Reform::Form::Module
 
-    property :artist
     property :band do
       property :title
 
       validation do
-        required(:title).filled
+        params { required(:title).filled }
       end
 
       def id # gets mixed into Form, too.
@@ -23,18 +22,11 @@ class ModuleInclusionTest < MiniTest::Spec
     end
 
     validation do
-      required(:band).filled
+      params { required(:band).filled }
     end
 
     include Dry::Types.module # allows using Types::* in module.
-    property :cool, type: DRY_TYPES_CONSTANT::Bool # test coercion.
-
-    module InstanceMethods
-      def artist=(new_value)
-        errors.add(:artist, "this needs to be filled") if new_value.nil?
-        super(new_value)
-      end
-    end
+    property :cool, type: Types::Params::Bool # test coercion.
   end
 
   # TODO: test if works, move stuff into inherit_schema!
@@ -44,11 +36,11 @@ class ModuleInclusionTest < MiniTest::Spec
     collection :airplays do
       property :station
       validation do
-        required(:station).filled
+        params { required(:station).filled }
       end
     end
     validation do
-      required(:airplays).filled
+      params { required(:airplays).filled }
     end
   end
 
@@ -65,11 +57,10 @@ class ModuleInclusionTest < MiniTest::Spec
     include BandPropertyForm
   end
 
-  let(:song) { OpenStruct.new(band: OpenStruct.new(title: "Time Again"), artist: "Ketama") }
+  let(:song) { OpenStruct.new(band: OpenStruct.new(title: "Time Again")) }
 
   # nested form from module is present and creates accessor.
   it { SongForm.new(song).band.title.must_equal "Time Again" }
-  it { SongForm.new(song).artist.must_equal "Ketama" }
 
   # methods from module get included.
   it { SongForm.new(song).id.must_equal 1 }
@@ -78,14 +69,14 @@ class ModuleInclusionTest < MiniTest::Spec
   # validators get inherited.
   it do
     form = SongForm.new(OpenStruct.new)
-    form.validate(artist: nil)
-    form.errors.messages.must_equal(artist: ["this needs to be filled"], band: ["must be filled"])
+    form.validate({})
+    form.errors.messages.must_equal(band: ["must be filled"])
   end
 
   # coercion works
   it do
     form = SongForm.new(OpenStruct.new)
-    form.validate({cool: "1"})
+    form.validate(cool: "1")
     form.cool.must_equal true
   end
 
@@ -96,7 +87,7 @@ class ModuleInclusionTest < MiniTest::Spec
 
     property :name
     validation do
-      required(:name).filled
+      params { required(:name).filled }
     end
   end
 
@@ -107,7 +98,7 @@ class ModuleInclusionTest < MiniTest::Spec
     property :band, inherit: true do
       property :label
       validation do
-        required(:label).filled
+        params { required(:label).filled }
       end
     end
   end
