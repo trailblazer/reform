@@ -7,20 +7,10 @@ rvm:
   - 2.6
   - 2.5
   - 2.4
-env:
-  - "DRY_VALIDATION='~> 1.5.0'"
-  - "DRY_VALIDATION='~> 1.4.0'"
-  - "DRY_VALIDATION='~> 1.3.0'"
-  - "DRY_VALIDATION='~> 1.2.0'"
-  - "DRY_VALIDATION='~> 1.1.0'"
-  - "DRY_VALIDATION='~> 1.0.0'"
-  - "DRY_VALIDATION='~> 0.13.0'"
-  - "DRY_VALIDATION='~> 0.12.0'"
+gemfile:
+  - gemfiles/1.5.0.gemfile
+  - gemfiles/0.13.0.gemfile
 matrix:
   fast_finish: true
   allow_failures:
     - rvm: ruby-head
-  include:
-    - { rvm: 2.2, env: "DRY_VALIDATION='~> 0.11.0'" }
-    - { rvm: 2.3, env: "DRY_VALIDATION='~> 0.12.0'" }
-    - { rvm: 2.3, env: "DRY_VALIDATION='~> 0.13.0'" }

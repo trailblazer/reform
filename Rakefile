@@ -1,6 +1,7 @@
 require "bundler/gem_tasks"
 require "rake/testtask"
 require "rubocop/rake_task"
+require "dry/types/version"
 
 task default: %i[test]
 
@@ -10,8 +11,8 @@ TEST_WITH_OLD_AND_NEW_API = %w[
 ].freeze
 
 def dry_v_test_files
-  dry_v_version = ENV.fetch("DRY_VALIDATION", "~> 0.13.0")
-  api = dry_v_version.gsub("~>", "").to_f >= 1.0 ? "new" : "old"
+  dry_v_version = Gem::Version.new(Dry::Types::VERSION)
+  api = dry_v_version > Gem::Version.new("0.13.3") ? "new" : "old"
   TEST_WITH_OLD_AND_NEW_API.map { |file| "test/#{file}_#{api}_api.rb" }
 end
 
