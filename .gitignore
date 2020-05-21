@@ -19,3 +19,4 @@ tmp
 .byebug_history
 .idea
 *.iml
+gemfiles/*.gemfile.lock

@@ -11,8 +11,7 @@ TEST_WITH_OLD_AND_NEW_API = %w[
 ].freeze
 
 def dry_v_test_files
-  dry_v_version = Gem::Version.new(Dry::Types::VERSION)
-  api = dry_v_version > Gem::Version.new("0.13.3") ? "new" : "old"
+  api = Gem::Version.new(Dry::Types::VERSION).to_s.split('.').first.to_i >= 1 ? "new" : "old"
   TEST_WITH_OLD_AND_NEW_API.map { |file| "test/#{file}_#{api}_api.rb" }
 end
 
