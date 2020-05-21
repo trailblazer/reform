@@ -196,7 +196,13 @@ class DryValidationDefaultGroupTest < Minitest::Spec
     end
 
     validation name: :dynamic_args, with: {form: true} do
-      params { required(:color).maybe(included_in?: form.colors) }
+      option :form
+      params { optional(:color) }
+      rule(:color) do
+        if value
+          key.failure("must be one of: #{form.colors}") unless form.colors.include? value
+        end
+      end
     end
 
     def colors
@@ -208,15 +214,15 @@ class DryValidationDefaultGroupTest < Minitest::Spec
 
   # valid.
   it do
-    form.validate(
+    assert form.validate(
       username: "Helloween",
       email:    "yep",
       starts_at: "01/01/2000 - 11:00",
       active: "true",
       confirm_password: "pA55w0rd"
-    ).must_equal true
-    form.active.must_equal true
-    form.errors.messages.inspect.must_equal "{}"
+    )
+    assert form.active
+    assert_equal "{}", form.errors.messages.inspect
   end
 
   it "invalid" do
@@ -309,8 +315,12 @@ class ValidationGroupsTest < MiniTest::Spec
         property :username
 
         validation name: :default, with: {user: OpenStruct.new(name: "Nick")} do
+          option :user
           params do
-            required(:username).filled(eql?: user.name)
+            required(:username).filled
+          end
+          rule(:username) do
+            key.failure("must be equal to #{user.name}") unless user.name == value
           end
         end
       end
