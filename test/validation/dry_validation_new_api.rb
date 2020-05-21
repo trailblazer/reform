@@ -12,31 +12,36 @@ class DryValidationErrorsAPITest < Minitest::Spec
   class AlbumForm < TestForm
     property :title
 
-    property :artist do
-      property :email
-
-      property :label do
-        property :location
+    validation do
+      params do
+        required(:title).filled(min_size?: 2)
       end
     end
 
-    collection :songs do
-      property :title
+    property :artist do
+      property :email
+
+      validation do
+        params { required(:email).filled }
+      end
+
+      property :label do
+        property :location
+
+        validation do
+          params { required(:location).filled }
+        end
+      end
     end
 
-    validation do
-      config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
-      params do
-        required(:title).filled(min_size?: 2)
-        required(:artist).hash do
-          required(:email).filled
-          required(:label).hash do
-            required(:location).filled
-          end
-        end
-        required(:songs).array(:hash) do
-          required(:title).filled
-        end
+    # note the validation block is *in* the collection block, per item, so to speak.
+    collection :songs do
+      property :title
+
+      validation do
+        config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
+
+        params { required(:title).filled }
       end
     end
   end
@@ -68,21 +73,21 @@ class DryValidationErrorsAPITest < Minitest::Spec
     form.to_result.hints.must_equal(title: ["size cannot be less than 2"])
     form.artist.to_result.errors.must_equal(email: ["must be filled"])
     form.artist.to_result.messages.must_equal(email: ["must be filled"])
-    form.artist.to_result.hints.must_equal(email: [])
+    form.artist.to_result.hints.must_equal({})
     form.artist.label.to_result.errors.must_equal(location: ["must be filled"])
     form.artist.label.to_result.messages.must_equal(location: ["must be filled"])
-    form.artist.label.to_result.hints.must_equal(location: [])
+    form.artist.label.to_result.hints.must_equal({})
     form.songs[0].to_result.errors.must_equal({})
     form.songs[0].to_result.messages.must_equal({})
     form.songs[0].to_result.hints.must_equal({})
     form.songs[1].to_result.errors.must_equal(title: ["must be filled"])
     form.songs[1].to_result.messages.must_equal(title: ["must be filled"])
-    form.songs[1].to_result.hints.must_equal(title: [])
+    form.songs[1].to_result.hints.must_equal({})
     form.songs[1].to_result.errors(locale: :de).must_equal(title: ["muss abgefüllt sein"])
     # seems like dry-v when calling Dry::Schema::Result#messages locale option is ignored
     # started a topic in their forum https://discourse.dry-rb.org/t/dry-result-messages-ignore-locale-option/910
     # form.songs[1].to_result.messages(locale: :de).must_equal(title: ["muss abgefüllt sein"])
-    form.songs[1].to_result.hints(locale: :de).must_equal(title: [])
+    form.songs[1].to_result.hints(locale: :de).must_equal({})
   end
 
   it "only nested property is invalid." do
@@ -466,7 +471,7 @@ class ValidationGroupsTest < MiniTest::Spec
       # TODO: use the same form structure as the top one and do the same test against messages, errors and hints.
       form.producers[0].to_result.errors.must_equal(name: ["must be filled"])
       form.producers[0].to_result.messages.must_equal(name: ["must be filled"])
-      form.producers[0].to_result.hints.must_equal(name: [])
+      form.producers[0].to_result.hints.must_equal({})
     end
 
     # FIXME: fix the "must be filled error"
