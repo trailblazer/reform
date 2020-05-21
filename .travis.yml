@@ -1,6 +1,5 @@
 language: ruby
 cache: bundler
-before_install: bundle update --bundler
 bundler_args: --without benchmarks tools
 rvm:
   - ruby-head
