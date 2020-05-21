@@ -12,36 +12,31 @@ class DryValidationErrorsAPITest < Minitest::Spec
   class AlbumForm < TestForm
     property :title
 
-    validation do
-      params do
-        required(:title).filled(min_size?: 2)
-      end
-    end
-
     property :artist do
       property :email
 
-      validation do
-        params { required(:email).filled }
-      end
-
       property :label do
         property :location
-
-        validation do
-          params { required(:location).filled }
-        end
       end
     end
 
-    # note the validation block is *in* the collection block, per item, so to speak.
     collection :songs do
       property :title
+    end
 
-      validation do
-        config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
-
-        params { required(:title).filled }
+    validation do
+      config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
+      params do
+        required(:title).filled(min_size?: 2)
+        required(:artist).hash do
+          required(:email).filled
+          required(:label).hash do
+            required(:location).filled
+          end
+        end
+        required(:songs).array(:hash) do
+          required(:title).filled
+        end
       end
     end
   end
