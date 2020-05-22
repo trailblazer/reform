@@ -195,7 +195,7 @@ class DryValidationDefaultGroupTest < Minitest::Spec
       params { required(:confirm_password).filled }
     end
 
-    validation name: :dynamic_args, with: {form: true} do
+    validation name: :dynamic_args do
       option :form
       params { optional(:color) }
       rule(:color) do
