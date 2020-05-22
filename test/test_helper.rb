@@ -3,7 +3,7 @@ require "minitest/autorun"
 require "representable/debug"
 require "declarative/testing"
 require "pp"
-require "byebug"
+require "pry-byebug"
 
 require "reform/form/dry"
 

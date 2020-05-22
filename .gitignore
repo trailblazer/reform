@@ -4,7 +4,6 @@
 .config
 .yardoc
 Gemfile.lock
-gemfiles/*.lock
 InstalledFiles
 _yardoc
 coverage
@@ -18,3 +17,6 @@ test/version_tmp
 tmp
 .rubocop-https*
 .byebug_history
+.idea
+*.iml
+gemfiles/*.gemfile.lock

@@ -73,21 +73,21 @@ class DryValidationErrorsAPITest < Minitest::Spec
     form.to_result.hints.must_equal(title: ["size cannot be less than 2"])
     form.artist.to_result.errors.must_equal(email: ["must be filled"])
     form.artist.to_result.messages.must_equal(email: ["must be filled"])
-    form.artist.to_result.hints.must_equal(email: [])
+    form.artist.to_result.hints.must_equal({})
     form.artist.label.to_result.errors.must_equal(location: ["must be filled"])
     form.artist.label.to_result.messages.must_equal(location: ["must be filled"])
-    form.artist.label.to_result.hints.must_equal(location: [])
+    form.artist.label.to_result.hints.must_equal({})
     form.songs[0].to_result.errors.must_equal({})
     form.songs[0].to_result.messages.must_equal({})
     form.songs[0].to_result.hints.must_equal({})
     form.songs[1].to_result.errors.must_equal(title: ["must be filled"])
     form.songs[1].to_result.messages.must_equal(title: ["must be filled"])
-    form.songs[1].to_result.hints.must_equal(title: [])
+    form.songs[1].to_result.hints.must_equal({})
     form.songs[1].to_result.errors(locale: :de).must_equal(title: ["muss abgefüllt sein"])
     # seems like dry-v when calling Dry::Schema::Result#messages locale option is ignored
     # started a topic in their forum https://discourse.dry-rb.org/t/dry-result-messages-ignore-locale-option/910
     # form.songs[1].to_result.messages(locale: :de).must_equal(title: ["muss abgefüllt sein"])
-    form.songs[1].to_result.hints(locale: :de).must_equal(title: [])
+    form.songs[1].to_result.hints(locale: :de).must_equal({})
   end
 
   it "only nested property is invalid." do
@@ -196,7 +196,13 @@ class DryValidationDefaultGroupTest < Minitest::Spec
     end
 
     validation name: :dynamic_args, with: {form: true} do
-      params { required(:color).maybe(included_in?: form.colors) }
+      option :form
+      params { optional(:color) }
+      rule(:color) do
+        if value
+          key.failure("must be one of: #{form.colors}") unless form.colors.include? value
+        end
+      end
     end
 
     def colors
@@ -208,15 +214,15 @@ class DryValidationDefaultGroupTest < Minitest::Spec
 
   # valid.
   it do
-    form.validate(
+    assert form.validate(
       username: "Helloween",
       email:    "yep",
       starts_at: "01/01/2000 - 11:00",
       active: "true",
       confirm_password: "pA55w0rd"
-    ).must_equal true
-    form.active.must_equal true
-    form.errors.messages.inspect.must_equal "{}"
+    )
+    assert form.active
+    assert_equal "{}", form.errors.messages.inspect
   end
 
   it "invalid" do
@@ -309,8 +315,12 @@ class ValidationGroupsTest < MiniTest::Spec
         property :username
 
         validation name: :default, with: {user: OpenStruct.new(name: "Nick")} do
+          option :user
           params do
-            required(:username).filled(eql?: user.name)
+            required(:username).filled
+          end
+          rule(:username) do
+            key.failure("must be equal to #{user.name}") unless user.name == value
           end
         end
       end
@@ -471,7 +481,7 @@ class ValidationGroupsTest < MiniTest::Spec
       # TODO: use the same form structure as the top one and do the same test against messages, errors and hints.
       form.producers[0].to_result.errors.must_equal(name: ["must be filled"])
       form.producers[0].to_result.messages.must_equal(name: ["must be filled"])
-      form.producers[0].to_result.hints.must_equal(name: [])
+      form.producers[0].to_result.hints.must_equal({})
     end
 
     # FIXME: fix the "must be filled error"
