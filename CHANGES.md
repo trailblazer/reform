@@ -3,6 +3,11 @@
 [* Removed `Reform::Contract` ?]
 [* Move Form#deserializer to Form::deserializer]
 
+## 2.3.1
+* With dry-validation 1.5 the form is always injected. Just add option :form to access it in the schema.
+* Removed global monkey patching of Dry::Schema::DSL
+* Tests in ruby 2.7
+
 ## 2.3.0
 
 You can upgrade from 2.2.0 without worries.

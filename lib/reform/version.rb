@@ -1,3 +1,3 @@
 module Reform
-  VERSION = "2.3.0.rc3".freeze
+  VERSION = "2.3.1".freeze
 end
