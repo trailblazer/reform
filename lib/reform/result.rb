@@ -15,7 +15,8 @@ module Reform
 
       def errors(*args);   filter_for(:errors, *args) end
 
-      def messages(*args); filter_for(:messages, *args) end
+      # using filter_for(:messages, *args) pulls also the hints for DRY validation
+      alias messages errors
 
       def hints(*args);    filter_for(:hints, *args) end
 
@@ -57,7 +58,7 @@ module Reform
 
         def errors(*args);   traverse_for(:errors, *args) end
 
-        def messages(*args); traverse_for(:messages, *args) end
+        alias messages errors
 
         def hints(*args);    traverse_for(:hints, *args) end
 

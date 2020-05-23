@@ -56,7 +56,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
     result.success?.must_equal false
 
     # errors.messages
-    form.errors.messages.must_equal(title: ["must be filled", "size cannot be less than 2"], "artist.email": ["must be filled"], "artist.label.location": ["must be filled"], "songs.title": ["must be filled"])
+    form.errors.messages.must_equal(title: ["must be filled"], "artist.email": ["must be filled"], "artist.label.location": ["must be filled"], "songs.title": ["must be filled"])
     form.artist.errors.messages.must_equal(email: ["must be filled"], "label.location": ["must be filled"])
     form.artist.label.errors.messages.must_equal(location: ["must be filled"])
     form.songs[0].errors.messages.must_equal({})
@@ -64,7 +64,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
 
     # #errors[]
     form.errors[:nonsense].must_equal []
-    form.errors[:title].must_equal ["must be filled", "size cannot be less than 2"]
+    form.errors[:title].must_equal ["must be filled"]
     form.artist.errors[:email].must_equal ["must be filled"]
     form.artist.label.errors[:location].must_equal ["must be filled"]
     form.songs[0].errors[:title].must_equal []
@@ -72,7 +72,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
 
     # #to_result
     form.to_result.errors.must_equal(title: ["must be filled"])
-    form.to_result.messages.must_equal(title: ["must be filled", "size cannot be less than 2"])
+    form.to_result.messages.must_equal(title: ["must be filled"])
     form.to_result.hints.must_equal(title: ["size cannot be less than 2"])
     form.artist.to_result.errors.must_equal(email: ["must be filled"])
     form.artist.to_result.messages.must_equal(email: ["must be filled"])
@@ -272,7 +272,13 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.must_equal({username: ["must be filled"], email: ["must be filled"], special_class: ["must be filled", "must be ValidationGroupsTest::SomeClass"]})
+      form.errors.messages.must_equal({username: ["must be filled"], email: ["must be filled"], special_class: ["must be filled"]})
+    end
+
+    # invalid due wrong special class type
+    it do
+      form.validate(username: "Helloween", email: "yo", confirm_password: "9", special_class: Session.new).must_equal false
+      form.errors.messages.must_equal(special_class: ["must be ValidationGroupsTest::SomeClass"])
     end
 
     # partially invalid.
@@ -285,7 +291,7 @@ class ValidationGroupsTest < MiniTest::Spec
     it do
       form.validate(username: "Helloween", email: "yo!", confirm_password: "9", special_class: SomeClass.new(id: 15)).must_equal false
       form.errors.messages.inspect
-          .must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
+          .must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\"]}"
     end
     # 4th group with after: fails.
     it do
@@ -365,12 +371,12 @@ class ValidationGroupsTest < MiniTest::Spec
     # invalid.
     it do
       form.validate({}).must_equal false
-      form.errors.messages.must_equal(password: ["must be filled", "size cannot be less than 6"], username: ["must be filled"], email: ["must be filled", "you're a bad person"])
+      form.errors.messages.must_equal(password: ["must be filled"], username: ["must be filled"], email: ["must be filled"])
     end
 
     it do
       form.validate(email: 1).must_equal false
-      form.errors.messages.inspect.must_equal "{:password=>[\"must be filled\", \"size cannot be less than 6\"], :username=>[\"must be filled\"], :email=>[\"you're a bad person\"]}"
+      form.errors.messages.inspect.must_equal "{:password=>[\"must be filled\"], :username=>[\"must be filled\"], :email=>[\"you're a bad person\"]}"
     end
   end
 
@@ -485,7 +491,7 @@ class ValidationGroupsTest < MiniTest::Spec
       form.band.errors.full_messages.must_equal ["Name must be filled", "Label Location must be filled"]
       form.band.label.errors.full_messages.must_equal ["Location must be filled"]
       form.producers.first.errors.full_messages.must_equal ["Name must be filled"]
-      form.errors.full_messages.must_equal ["Title must be filled", "Title you're a bad person", "Hit Title must be filled", "Songs Title must be filled", "Producers Name must be filled", "Band Name must be filled", "Band Label Location must be filled"]
+      form.errors.full_messages.must_equal ["Title must be filled", "Hit Title must be filled", "Songs Title must be filled", "Producers Name must be filled", "Band Name must be filled", "Band Label Location must be filled"]
     end
 
     describe "only 1 nested validation" do
