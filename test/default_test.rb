@@ -16,7 +16,7 @@ class DefaultTest < Minitest::Spec
   it do
     form = AlbumForm.new(Album.new(nil, [Song.new]))
 
-    form.name.must_equal "Wrong"
-    form.songs[0].title.must_equal "It's Catching Up"
+    _(form.name).must_equal "Wrong"
+    _(form.songs[0].title).must_equal "It's Catching Up"
   end
 end

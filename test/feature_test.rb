@@ -45,8 +45,8 @@ class FeatureInheritanceTest < BaseTest
   let(:form) { AlbumForm.new(album) }
 
   it do
-    form.date.must_equal "May 16"
-    form.songs[0].date.must_equal "May 16"
+    _(form.date).must_equal "May 16"
+    _(form.songs[0].date).must_equal "May 16"
   end
 
   # it { subject.class.include?(Reform::Form::ActiveModel) }

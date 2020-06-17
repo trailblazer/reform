@@ -52,46 +52,46 @@ class InheritTest < BaseTest
 
   it do
     subject.validate("hit" => {"title" => "LA Drone", "rating" => 10})
-    subject.hit.title.must_equal "LA Drone"
-    subject.hit.rating.must_equal 10
-    subject.errors.messages.must_equal({})
+    _(subject.hit.title).must_equal "LA Drone"
+    _(subject.hit.rating).must_equal 10
+    _(subject.errors.messages).must_equal({})
   end
 
   it do
     subject.validate({})
     assert_nil subject.model.hit.title
     assert_nil subject.model.hit.rating
-    subject.errors.messages.must_equal("hit.title": ["must be filled"], "hit.rating": ["must be filled"])
+    _(subject.errors.messages).must_equal("hit.title": ["must be filled"], "hit.rating": ["must be filled"])
   end
 
   it "xxx" do
     # sub hashes like :deserializer must be properly cloned when inheriting.
-    AlbumForm.options_for(:title)[:deserializer].object_id.wont_equal CompilationForm.options_for(:title)[:deserializer].object_id
+    _(AlbumForm.options_for(:title)[:deserializer].object_id).wont_equal CompilationForm.options_for(:title)[:deserializer].object_id
 
     # don't overwrite direct deserializer: {} configuration.
-    AlbumForm.options_for(:title)[:internal_populator].must_be_instance_of Reform::Form::Populator::Sync
-    AlbumForm.options_for(:title)[:deserializer][:skip_parse].must_equal "skip_if in AlbumForm"
+    _(AlbumForm.options_for(:title)[:internal_populator]).must_be_instance_of Reform::Form::Populator::Sync
+    _(AlbumForm.options_for(:title)[:deserializer][:skip_parse]).must_equal "skip_if in AlbumForm"
 
     # AlbumForm.options_for(:hit)[:internal_populator].inspect.must_match /Reform::Form::Populator:.+ @user_proc="Populator"/
     # AlbumForm.options_for(:hit)[:deserializer][:instance].inspect.must_be_instance_with Reform::Form::Populator, user_proc: "Populator"
 
-    AlbumForm.options_for(:songs)[:internal_populator].must_be_instance_of Reform::Form::Populator::IfEmpty
-    AlbumForm.options_for(:songs)[:deserializer][:skip_parse].must_be_instance_of Reform::Form::Validate::Skip::AllBlank
+    _(AlbumForm.options_for(:songs)[:internal_populator]).must_be_instance_of Reform::Form::Populator::IfEmpty
+    _(AlbumForm.options_for(:songs)[:deserializer][:skip_parse]).must_be_instance_of Reform::Form::Validate::Skip::AllBlank
 
-    AlbumForm.options_for(:band)[:internal_populator].must_be_instance_of Reform::Form::Populator::IfEmpty
+    _(AlbumForm.options_for(:band)[:internal_populator]).must_be_instance_of Reform::Form::Populator::IfEmpty
 
-    CompilationForm.options_for(:title)[:deserializer][:skip_parse].must_equal "skip_if from CompilationForm"
+    _(CompilationForm.options_for(:title)[:deserializer][:skip_parse]).must_equal "skip_if from CompilationForm"
     # pp CompilationForm.options_for(:songs)
-    CompilationForm.options_for(:songs)[:internal_populator].must_be_instance_of Reform::Form::Populator::IfEmpty
+    _(CompilationForm.options_for(:songs)[:internal_populator]).must_be_instance_of Reform::Form::Populator::IfEmpty
 
-    CompilationForm.options_for(:band)[:internal_populator].must_be_instance_of Reform::Form::Populator::IfEmpty
+    _(CompilationForm.options_for(:band)[:internal_populator]).must_be_instance_of Reform::Form::Populator::IfEmpty
 
     # completely overwrite inherited.
-    CompilationForm.options_for(:hit)[:deserializer][:skip_parse].must_be_instance_of SkipParse
+    _(CompilationForm.options_for(:hit)[:deserializer][:skip_parse]).must_be_instance_of SkipParse
 
     # inherit: true with block will still inherit the original class.
-    AlbumForm.new(OpenStruct.new(band: OpenStruct.new)).band.band_id.must_equal 1
-    CompilationForm.new(OpenStruct.new(band: OpenStruct.new)).band.band_id.must_equal 1
+    _(AlbumForm.new(OpenStruct.new(band: OpenStruct.new)).band.band_id).must_equal 1
+    _(CompilationForm.new(OpenStruct.new(band: OpenStruct.new)).band.band_id).must_equal 1
   end
 
   class CDForm < AlbumForm
@@ -101,5 +101,5 @@ class InheritTest < BaseTest
     end
   end
 
-  it { CDForm.options_for(:band)[:internal_populator].instance_variable_get(:@user_proc).must_equal "CD Populator" }
+  it { _(CDForm.options_for(:band)[:internal_populator].instance_variable_get(:@user_proc)).must_equal "CD Populator" }
 end

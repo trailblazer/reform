@@ -26,23 +26,23 @@ class SkipIfTest < BaseTest
   # deserializes when present.
   it do
     form = AlbumForm.new(album)
-    form.validate("hit" => {"title" => "Altar Of Sacrifice"}).must_equal true
-    form.hit.title.must_equal "Altar Of Sacrifice"
+    _(form.validate("hit" => {"title" => "Altar Of Sacrifice"})).must_equal true
+    _(form.hit.title).must_equal "Altar Of Sacrifice"
   end
 
   # skips deserialization when not present.
   it do
     form = AlbumForm.new(Album.new)
-    form.validate("hit" => {"title" => ""}).must_equal true
+    _(form.validate("hit" => {"title" => ""})).must_equal true
     assert_nil form.hit # hit hasn't been deserialised.
   end
 
   # skips deserialization when not present.
   it do
     form = AlbumForm.new(Album.new(nil, nil, []))
-    form.validate("songs" => [{"title" => "Waste Of Breath"}, {"title" => nil}]).must_equal true
-    form.songs.size.must_equal 1
-    form.songs[0].title.must_equal "Waste Of Breath"
+    _(form.validate("songs" => [{"title" => "Waste Of Breath"}, {"title" => nil}])).must_equal true
+    _(form.songs.size).must_equal 1
+    _(form.songs[0].title).must_equal "Waste Of Breath"
   end
 end
 
@@ -58,16 +58,16 @@ class SkipIfAllBlankTest < BaseTest
   # create only one object.
   it do
     form = AlbumForm.new(OpenStruct.new(songs: []))
-    form.validate("songs" => [{"title" => "Apathy"}, {"title" => "", "length" => ""}]).must_equal true
-    form.songs.size.must_equal 1
-    form.songs[0].title.must_equal "Apathy"
+    _(form.validate("songs" => [{"title" => "Apathy"}, {"title" => "", "length" => ""}])).must_equal true
+    _(form.songs.size).must_equal 1
+    _(form.songs[0].title).must_equal "Apathy"
   end
 
   it do
     form = AlbumForm.new(OpenStruct.new(songs: []))
-    form.validate("songs" => [{"title" => "", "length" => ""}, {"title" => "Apathy"}]).must_equal true
-    form.songs.size.must_equal 1
-    form.songs[0].title.must_equal "Apathy"
+    _(form.validate("songs" => [{"title" => "", "length" => ""}, {"title" => "Apathy"}])).must_equal true
+    _(form.songs.size).must_equal 1
+    _(form.songs[0].title).must_equal "Apathy"
   end
 end
 

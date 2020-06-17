@@ -1,19 +1,12 @@
+gem "dry-validation", "~> 1.0"
 require "dry-validation"
-require "dry/validation/version"
 require "reform/validation"
 require "reform/form/dry/input_hash"
+require "reform/form/dry/api"
+
 
 module Reform::Form::Dry
   def self.included(includer)
-    if Gem::Version.new(Dry::Validation::VERSION) > Gem::Version.new("0.13.3")
-      require "reform/form/dry/new_api"
-      validations = Reform::Form::Dry::NewApi::Validations
-    else
-      require "reform/form/dry/old_api"
-      validations = Reform::Form::Dry::OldApi::Validations
-    end
-
-    includer.send :include, validations
-    includer.extend validations::ClassMethods
+    includer.send :include, Reform::Form::Dry::Api::Validations
   end
 end

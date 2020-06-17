@@ -53,9 +53,9 @@ class SaveTest < BaseTest
 
     form.save
 
-    album.saved?.must_equal true
-    album.songs[0].title.must_equal "Fixed"
-    album.songs[0].saved?.must_equal true
+    _(album.saved?).must_equal true
+    _(album.songs[0].title).must_equal "Fixed"
+    _(album.songs[0].saved?).must_equal true
     assert_nil album.artist.saved?
   end
 
@@ -70,7 +70,7 @@ class SaveTest < BaseTest
         nested_hash = hash
       end
 
-      nested_hash.must_equal({"name" => nil, "artist" => nil})
+      _(nested_hash).must_equal({"name" => nil, "artist" => nil})
     end
   end
 end

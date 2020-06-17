@@ -40,8 +40,8 @@ class ContractValidateTest < MiniTest::Spec
 
   # valid
   it do
-    form.validate.must_equal true
-    form.errors.messages.inspect.must_equal "{}"
+    _(form.validate).must_equal true
+    _(form.errors.messages.inspect).must_equal "{}"
   end
 
   # invalid
@@ -49,8 +49,8 @@ class ContractValidateTest < MiniTest::Spec
     album.songs[1].composer.name = nil
     album.name = nil
 
-    form.validate.must_equal false
-    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"]}"
+    _(form.validate).must_equal false
+    _(form.errors.messages.inspect).must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"]}"
   end
 end
 
@@ -100,48 +100,48 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
       artist: form.artist.object_id, composer: form.songs[1].composer.object_id
     }
 
-    form.validate(
+    _(form.validate(
       "name"   => "Best Of",
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => "Sting"}}],
       "artist" => {"name" => "The Police"}
-    ).must_equal true
+    )).must_equal true
 
-    form.errors.messages.inspect.must_equal "{}"
+    _(form.errors.messages.inspect).must_equal "{}"
 
     # form has updated.
-    form.name.must_equal "Best Of"
-    form.songs[0].title.must_equal "Fallout"
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[1].composer.name.must_equal "Sting"
-    form.artist.name.must_equal "The Police"
+    _(form.name).must_equal "Best Of"
+    _(form.songs[0].title).must_equal "Fallout"
+    _(form.songs[1].title).must_equal "Roxanne"
+    _(form.songs[1].composer.name).must_equal "Sting"
+    _(form.artist.name).must_equal "The Police"
 
     # objects are still the same.
-    form.songs[0].object_id.must_equal object_ids[:song]
-    form.songs[1].object_id.must_equal object_ids[:song_with_composer]
-    form.songs[1].composer.object_id.must_equal object_ids[:composer]
-    form.artist.object_id.must_equal object_ids[:artist]
+    _(form.songs[0].object_id).must_equal object_ids[:song]
+    _(form.songs[1].object_id).must_equal object_ids[:song_with_composer]
+    _(form.songs[1].composer.object_id).must_equal object_ids[:composer]
+    _(form.artist.object_id).must_equal object_ids[:artist]
 
     # model has not changed, yet.
-    album.name.must_equal "The Dissent Of Man"
-    album.songs[0].title.must_equal "Broken"
-    album.songs[1].title.must_equal "Resist Stance"
-    album.songs[1].composer.name.must_equal "Greg Graffin"
-    album.artist.name.must_equal "Bad Religion"
+    _(album.name).must_equal "The Dissent Of Man"
+    _(album.songs[0].title).must_equal "Broken"
+    _(album.songs[1].title).must_equal "Resist Stance"
+    _(album.songs[1].composer.name).must_equal "Greg Graffin"
+    _(album.artist.name).must_equal "Bad Religion"
   end
 
   # with symbols.
   it do
-    form.validate(
+    _(form.validate(
       name:   "Best Of",
       songs:  [{title: "The X-Creep"}, {title: "Trudging", composer: {name: "SNFU"}}],
       artist: {name: "The Police"}
-    ).must_equal true
+    )).must_equal true
 
-    form.name.must_equal "Best Of"
-    form.songs[0].title.must_equal "The X-Creep"
-    form.songs[1].title.must_equal "Trudging"
-    form.songs[1].composer.name.must_equal "SNFU"
-    form.artist.name.must_equal "The Police"
+    _(form.name).must_equal "Best Of"
+    _(form.songs[0].title).must_equal "The X-Creep"
+    _(form.songs[1].title).must_equal "Trudging"
+    _(form.songs[1].composer.name).must_equal "SNFU"
+    _(form.artist.name).must_equal "The Police"
   end
 
   # throws exception when no populators.
@@ -201,66 +201,66 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
 
   # valid.
   it("xxx") do
-    form.validate(
+    _(form.validate(
       "name"   => "Best Of",
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => "Sting"}}],
       "artist" => {"name" => "The Police"},
-    ).must_equal true
+    )).must_equal true
 
-    form.errors.messages.inspect.must_equal "{}"
+    _(form.errors.messages.inspect).must_equal "{}"
 
     # form has updated.
-    form.name.must_equal "Best Of"
-    form.songs[0].title.must_equal "Fallout"
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[1].composer.name.must_equal "Sting"
-    form.artist.name.must_equal "The Police"
+    _(form.name).must_equal "Best Of"
+    _(form.songs[0].title).must_equal "Fallout"
+    _(form.songs[1].title).must_equal "Roxanne"
+    _(form.songs[1].composer.name).must_equal "Sting"
+    _(form.artist.name).must_equal "The Police"
 
     # model has not changed, yet.
-    album.name.must_equal "The Dissent Of Man"
-    album.songs[0].title.must_equal "Broken"
-    album.songs[1].title.must_equal "Resist Stance"
-    album.songs[1].composer.name.must_equal "Greg Graffin"
-    album.artist.name.must_equal "Bad Religion"
+    _(album.name).must_equal "The Dissent Of Man"
+    _(album.songs[0].title).must_equal "Broken"
+    _(album.songs[1].title).must_equal "Resist Stance"
+    _(album.songs[1].composer.name).must_equal "Greg Graffin"
+    _(album.artist.name).must_equal "Bad Religion"
   end
 
   # invalid.
   it do
-    form.validate(
+    _(form.validate(
       "name"   => "",
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => ""}}],
       "artist" => {"name" => ""},
-    ).must_equal false
+    )).must_equal false
 
-    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"], :\"artist.name\"=>[\"must be filled\"]}"
+    _(form.errors.messages.inspect).must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"], :\"artist.name\"=>[\"must be filled\"]}"
   end
 
   # adding to collection via :instance.
   # valid.
   it do
-    form.validate(
+    _(form.validate(
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"}, {"title" => "Rime Of The Ancient Mariner"}],
-    ).must_equal true
+    )).must_equal true
 
-    form.errors.messages.inspect.must_equal "{}"
+    _(form.errors.messages.inspect).must_equal "{}"
 
     # form has updated.
-    form.name.must_equal "The Dissent Of Man"
-    form.songs[0].title.must_equal "Fallout"
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[1].composer.name.must_equal "Greg Graffin"
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[2].title.must_equal "Rime Of The Ancient Mariner" # new song added.
-    form.songs.size.must_equal 3
-    form.artist.name.must_equal "Bad Religion"
+    _(form.name).must_equal "The Dissent Of Man"
+    _(form.songs[0].title).must_equal "Fallout"
+    _(form.songs[1].title).must_equal "Roxanne"
+    _(form.songs[1].composer.name).must_equal "Greg Graffin"
+    _(form.songs[1].title).must_equal "Roxanne"
+    _(form.songs[2].title).must_equal "Rime Of The Ancient Mariner" # new song added.
+    _(form.songs.size).must_equal 3
+    _(form.artist.name).must_equal "Bad Religion"
 
     # model has not changed, yet.
-    album.name.must_equal "The Dissent Of Man"
-    album.songs[0].title.must_equal "Broken"
-    album.songs[1].title.must_equal "Resist Stance"
-    album.songs[1].composer.name.must_equal "Greg Graffin"
-    album.songs.size.must_equal 2
-    album.artist.name.must_equal "Bad Religion"
+    _(album.name).must_equal "The Dissent Of Man"
+    _(album.songs[0].title).must_equal "Broken"
+    _(album.songs[1].title).must_equal "Resist Stance"
+    _(album.songs[1].composer.name).must_equal "Greg Graffin"
+    _(album.songs.size).must_equal 2
+    _(album.artist.name).must_equal "Bad Religion"
   end
 
   # allow writeable: false even in the deserializer.
@@ -274,7 +274,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     assert_nil form.title
     form.title = "Unopened"
     form.sync # only the deserializer is marked as not-writeable.
-    song.title.must_equal "Unopened"
+    _(song.title).must_equal "Unopened"
   end
 end
 

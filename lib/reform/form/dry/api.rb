@@ -1,11 +1,7 @@
 ::Dry::Validation.load_extensions(:hints)
 
 module Reform::Form::Dry
-  module NewApi
-
-    class Contract < ::Dry::Validation::Contract
-    end
-
+  module Api
     module Validations
       module ClassMethods
         def validation_group_class
@@ -21,7 +17,7 @@ module Reform::Form::Dry
         include InputHash
 
         def initialize(options = {})
-          @validator = options.fetch(:schema, Contract)
+          @validator = options.fetch(:schema, ::Dry::Validation::Contract)
           @schema_inject_params = options.fetch(:with, {})
         end
 

@@ -22,38 +22,6 @@ Layout/AccessModifierIndentation:
   Exclude:
     - 'test/populate_test.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: with_first_argument, with_fixed_indentation
-Layout/AlignArguments:
-  Exclude:
-    - 'test/deserialize_test.rb'
-    - 'test/populate_test.rb'
-    - 'test/validate_test.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Layout/AlignArray:
-  Exclude:
-    - 'test/populate_test.rb'
-
-# Offense count: 56
-# Cop supports --auto-correct.
-# Configuration parameters: AllowMultipleStyles, EnforcedHashRocketStyle, EnforcedColonStyle, EnforcedLastArgumentHashStyle.
-# SupportedHashRocketStyles: key, separator, table
-# SupportedColonStyles: key, separator, table
-# SupportedLastArgumentHashStyles: always_inspect, always_ignore, ignore_implicit, ignore_explicit
-Layout/AlignHash:
-  Exclude:
-    - 'test/coercion_test.rb'
-    - 'test/composition_test.rb'
-    - 'test/errors_test.rb'
-    - 'test/populate_test.rb'
-    - 'test/validate_test.rb'
-    - 'test/validation/dry_validation_test.rb'
-    - 'test/validation/result_test.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleAlignWith.
@@ -221,14 +189,6 @@ Layout/SpaceInsideHashLiteralBraces:
     - 'Gemfile'
     - 'lib/reform/form.rb'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: IndentationWidth.
-Layout/Tab:
-  Exclude:
-    - 'lib/reform/errors.rb'
-    - 'test/benchmarking.rb'
-
 # Offense count: 3
 Lint/IneffectiveAccessModifier:
   Exclude:
@@ -289,22 +249,6 @@ Metrics/LineLength:
 Naming/MemoizedInstanceVariableName:
   Exclude:
     - 'lib/reform/validation.rb'
-
-# Offense count: 39
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: braces, no_braces, context_dependent
-Style/BracesAroundHashParameters:
-  Exclude:
-    - 'test/call_test.rb'
-    - 'test/composition_test.rb'
-    - 'test/deserialize_test.rb'
-    - 'test/from_test.rb'
-    - 'test/module_test.rb'
-    - 'test/reform_test.rb'
-    - 'test/save_test.rb'
-    - 'test/validation/dry_validation_test.rb'
-    - 'test/validation/result_test.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.

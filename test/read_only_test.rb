@@ -9,6 +9,6 @@ class ReadonlyTest < MiniTest::Spec
 
   let(:form) { SongForm.new(OpenStruct.new) }
 
-  it { form.readonly?(:artist).must_equal false }
-  it { form.readonly?(:title).must_equal true }
+  it { _(form.readonly?(:artist)).must_equal false }
+  it { _(form.readonly?(:title)).must_equal true }
 end

@@ -25,7 +25,7 @@ class ModuleInclusionTest < MiniTest::Spec
       params { required(:band).filled }
     end
 
-    include Dry::Types.module # allows using Types::* in module.
+    include Dry::Types() # allows using Types::* in module.
     property :cool, type: DRY_TYPES_CONSTANT::Bool # test coercion.
   end
 
@@ -60,24 +60,24 @@ class ModuleInclusionTest < MiniTest::Spec
   let(:song) { OpenStruct.new(band: OpenStruct.new(title: "Time Again")) }
 
   # nested form from module is present and creates accessor.
-  it { SongForm.new(song).band.title.must_equal "Time Again" }
+  it { _(SongForm.new(song).band.title).must_equal "Time Again" }
 
   # methods from module get included.
-  it { SongForm.new(song).id.must_equal 1 }
-  it { SongForm.new(song).band.id.must_equal 2 }
+  it { _(SongForm.new(song).id).must_equal 1 }
+  it { _(SongForm.new(song).band.id).must_equal 2 }
 
   # validators get inherited.
   it do
     form = SongForm.new(OpenStruct.new)
     form.validate({})
-    form.errors.messages.must_equal(band: ["must be filled"])
+    _(form.errors.messages).must_equal(band: ["must be filled"])
   end
 
   # coercion works
   it do
     form = SongForm.new(OpenStruct.new)
     form.validate(cool: "1")
-    form.cool.must_equal true
+    _(form.cool).must_equal true
   end
 
   # include a module into a module into a class :)
@@ -106,7 +106,7 @@ class ModuleInclusionTest < MiniTest::Spec
   it do
     form = AlbumForm.new(OpenStruct.new(band: OpenStruct.new))
     form.validate("band" => {})
-    form.errors.messages.must_equal("band.title": ["must be filled"], "band.label": ["must be filled"], name: ["must be filled"])
+    _(form.errors.messages).must_equal("band.title": ["must be filled"], "band.label": ["must be filled"], name: ["must be filled"])
   end
 
   describe "module with custom accessors" do
@@ -130,8 +130,8 @@ class ModuleInclusionTest < MiniTest::Spec
     let(:song) { OpenStruct.new(id: 1, title: "Instant Mash") }
 
     it do
-      IncludingSongForm.new(song).id.must_equal 1
-      IncludingSongForm.new(song).title.must_equal "INSTANT MASH"
+      _(IncludingSongForm.new(song).id).must_equal 1
+      _(IncludingSongForm.new(song).title).must_equal "INSTANT MASH"
     end
   end
 end

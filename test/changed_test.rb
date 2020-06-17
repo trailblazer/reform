@@ -26,16 +26,16 @@ class ChangedTest < MiniTest::Spec
 
   # nothing changed after setup.
   it do
-    form.changed?(:name).must_equal false
-    form.songs[0].changed?(:title).must_equal false
-    form.songs[0].composer.changed?(:name).must_equal false
+    _(form.changed?(:name)).must_equal false
+    _(form.songs[0].changed?(:title)).must_equal false
+    _(form.songs[0].composer.changed?(:name)).must_equal false
   end
 
   # after validate, things might have changed.
   it do
     form.validate("name" => "Out Of Bounds", "songs" => [{"composer" => {"name" => "Ingemar Jansson & Mikael Danielsson"}}])
-    form.changed?(:name).must_equal true
-    form.songs[0].changed?(:title).must_equal false
-    form.songs[0].composer.changed?(:name).must_equal true
+    _(form.changed?(:name)).must_equal true
+    _(form.songs[0].changed?(:title)).must_equal false
+    _(form.songs[0].composer.changed?(:name)).must_equal true
   end
 end

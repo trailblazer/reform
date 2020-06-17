@@ -1,7 +1,9 @@
 ## 3.0.0
+* [Removed `Reform::Contract` ?]
+* [Move Form#deserializer to Form::deserializer]
 
-[* Removed `Reform::Contract` ?]
-[* Move Form#deserializer to Form::deserializer]
+## 2.5.0
+* [BREAKING] Drop compatibility of dry-validation < 1.x
 
 ## 2.3.1
 * With dry-validation 1.5 the form is always injected. Just add option :form to access it in the schema.
