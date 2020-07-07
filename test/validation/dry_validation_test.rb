@@ -51,61 +51,61 @@ class DryValidationErrorsAPITest < Minitest::Spec
   it "everything wrong" do
     result = form.(title: nil, artist: {email: ""}, songs: [{title: "Clams have feelings too"}, {title: ""}])
 
-    result.success?.must_equal false
+    assert_equal result.success?, false
 
-    form.errors.messages.must_equal(title: ["must be filled", "size cannot be less than 2"], "artist.email": ["must be filled"], "artist.label.location": ["must be filled"], "songs.title": ["must be filled"])
-    form.artist.errors.messages.must_equal(email: ["must be filled"], "label.location": ["must be filled"])
-    form.artist.label.errors.messages.must_equal(location: ["must be filled"])
-    form.songs[0].errors.messages.must_equal({})
-    form.songs[1].errors.messages.must_equal(title: ["must be filled"])
+    assert_equal form.errors.messages, title: ["must be filled", "size cannot be less than 2"], "artist.email": ["must be filled"], "artist.label.location": ["must be filled"], "songs.title": ["must be filled"]
+    assert_equal form.artist.errors.messages, email: ["must be filled"], "label.location": ["must be filled"]
+    assert_equal form.artist.label.errors.messages, location: ["must be filled"]
+    assert_equal form.songs[0].errors.messages, {}
+    assert_equal form.songs[1].errors.messages, title: ["must be filled"]
 
     # #errors[]
-    form.errors[:nonsense].must_equal []
-    form.errors[:title].must_equal ["must be filled", "size cannot be less than 2"]
-    form.artist.errors[:email].must_equal ["must be filled"]
-    form.artist.label.errors[:location].must_equal ["must be filled"]
-    form.songs[0].errors[:title].must_equal []
-    form.songs[1].errors[:title].must_equal ["must be filled"]
+    assert_equal form.errors[:nonsense],  []
+    assert_equal form.errors[:title],  ["must be filled", "size cannot be less than 2"]
+    assert_equal form.artist.errors[:email],  ["must be filled"]
+    assert_equal form.artist.label.errors[:location],  ["must be filled"]
+    assert_equal form.songs[0].errors[:title],  []
+    assert_equal form.songs[1].errors[:title],  ["must be filled"]
 
     # #to_result
-    form.to_result.errors.must_equal(title: ["must be filled"])
-    form.to_result.messages.must_equal(title: ["must be filled", "size cannot be less than 2"])
-    form.to_result.hints.must_equal(title: ["size cannot be less than 2"])
-    form.artist.to_result.errors.must_equal(email: ["must be filled"])
-    form.artist.to_result.messages.must_equal(email: ["must be filled"])
-    form.artist.to_result.hints.must_equal({})
-    form.artist.label.to_result.errors.must_equal(location: ["must be filled"])
-    form.artist.label.to_result.messages.must_equal(location: ["must be filled"])
-    form.artist.label.to_result.hints.must_equal({})
-    form.songs[0].to_result.errors.must_equal({})
-    form.songs[0].to_result.messages.must_equal({})
-    form.songs[0].to_result.hints.must_equal({})
-    form.songs[1].to_result.errors.must_equal(title: ["must be filled"])
-    form.songs[1].to_result.messages.must_equal(title: ["must be filled"])
-    form.songs[1].to_result.hints.must_equal({})
-    form.songs[1].to_result.errors(locale: :de).must_equal(title: ["muss abgefüllt sein"])
+    assert_equal form.to_result.errors, title: ["must be filled"]
+    assert_equal form.to_result.messages, title: ["must be filled", "size cannot be less than 2"]
+    assert_equal form.to_result.hints, title: ["size cannot be less than 2"]
+    assert_equal form.artist.to_result.errors, email: ["must be filled"]
+    assert_equal form.artist.to_result.messages, email: ["must be filled"]
+    assert_equal form.artist.to_result.hints, {}
+    assert_equal form.artist.label.to_result.errors, location: ["must be filled"]
+    assert_equal form.artist.label.to_result.messages, location: ["must be filled"]
+    assert_equal form.artist.label.to_result.hints, {}
+    assert_equal form.songs[0].to_result.errors, {}
+    assert_equal form.songs[0].to_result.messages, {}
+    assert_equal form.songs[0].to_result.hints, {}
+    assert_equal form.songs[1].to_result.errors, title: ["must be filled"]
+    assert_equal form.songs[1].to_result.messages, title: ["must be filled"]
+    assert_equal form.songs[1].to_result.hints, {}
+    assert_equal form.songs[1].to_result.errors(locale: :de), title: ["muss abgefüllt sein"]
     # seems like dry-v when calling Dry::Schema::Result#messages locale option is ignored
     # started a topic in their forum https://discourse.dry-rb.org/t/dry-result-messages-ignore-locale-option/910
-    # form.songs[1].to_result.messages(locale: :de).must_equal(title: ["muss abgefüllt sein"])
-    form.songs[1].to_result.hints(locale: :de).must_equal({})
+    # assert_equal form.songs[1].to_result.messages(locale: :de), (title: ["muss abgefüllt sein"])
+    assert_equal form.songs[1].to_result.hints(locale: :de), ({})
   end
 
   it "only nested property is invalid." do
     result = form.(title: "Black Star", artist: {email: ""})
 
-    result.success?.must_equal false
+    assert_equal result.success?, false
 
     # errors.messages
-    form.errors.messages.must_equal("artist.email": ["must be filled"], "artist.label.location": ["must be filled"], "songs.title": ["must be filled"])
-    form.artist.errors.messages.must_equal(email: ["must be filled"], "label.location": ["must be filled"])
-    form.artist.label.errors.messages.must_equal(location: ["must be filled"])
+    assert_equal form.errors.messages, "artist.email": ["must be filled"], "artist.label.location": ["must be filled"], "songs.title": ["must be filled"]
+    assert_equal form.artist.errors.messages, email: ["must be filled"], "label.location": ["must be filled"]
+    assert_equal form.artist.label.errors.messages, location: ["must be filled"]
   end
 
   it "nested collection invalid" do
     result = form.(title: "Black Star", artist: {email: "uhm", label: {location: "Hannover"}}, songs: [{title: ""}])
 
-    result.success?.must_equal false
-    form.errors.messages.must_equal("songs.title": ["must be filled"])
+    assert_equal result.success?, false
+    assert_equal form.errors.messages, "songs.title": ["must be filled"]
   end
 
   #---
@@ -130,9 +130,9 @@ class DryValidationErrorsAPITest < Minitest::Spec
     form = CollectionExternalValidationsForm.new(Album.new(nil, nil, [Song.new, Song.new]))
     form.validate(songs: [{title: "Liar"}, {title: ""}])
 
-    form.errors.messages.must_equal("songs.title": ["must be filled"])
-    form.songs[0].errors.messages.must_equal({})
-    form.songs[1].errors.messages.must_equal(title: ["must be filled"])
+    assert_equal form.errors.messages, "songs.title": ["must be filled"]
+    assert_equal form.songs[0].errors.messages, {}
+    assert_equal form.songs[1].errors.messages, title: ["must be filled"]
   end
 end
 
@@ -158,13 +158,13 @@ class DryValidationExplicitSchemaTest < Minitest::Spec
 
   # valid.
   it do
-    form.validate(name: "Helloween", email: "yep").must_equal true
-    form.errors.messages.inspect.must_equal "{}"
+    assert form.validate(name: "Helloween", email: "yep")
+    assert_equal form.errors.messages.inspect, "{}"
   end
 
   it "invalid" do
-    form.validate(name: "", email: "yep").must_equal false
-    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"]}"
+    assert_equal form.validate(name: "", email: "yep"), false
+    assert_equal form.errors.messages.inspect, "{:name=>[\"must be filled\"]}"
   end
 end
 
@@ -226,15 +226,15 @@ class DryValidationDefaultGroupTest < Minitest::Spec
   end
 
   it "invalid" do
-    form.validate(
+    assert_equal form.validate(
       username: "Helloween",
       email:    "yep",
       active: "1",
       starts_at: "01/01/2000 - 11:00",
       color: "purple"
-    ).must_equal false
-    form.active.must_equal true
-    form.errors.messages.inspect.must_equal "{:confirm_password=>[\"must be filled\"], :color=>[\"must be one of: red orange green\"]}"
+    ), false
+    assert form.active
+    assert_equal form.errors.messages.inspect, "{:confirm_password=>[\"must be filled\"], :color=>[\"must be one of: red orange green\"]}"
   end
 end
 
@@ -275,36 +275,37 @@ class ValidationGroupsTest < MiniTest::Spec
 
     # valid.
     it do
-      form.validate(username: "Helloween",
-                    special_class: SomeClass.new(id: 15),
-                    email: "yep",
-                    password: "99",
-                    confirm_password: "99").must_equal true
-      form.errors.messages.inspect.must_equal "{}"
+      assert form.validate(
+        username: "Helloween",
+        special_class: SomeClass.new(id: 15),
+        email: "yep",
+        password: "99",
+        confirm_password: "99"
+      )
+      assert_equal form.errors.messages.inspect, "{}"
     end
 
     # invalid.
     it do
-      form.validate({}).must_equal false
-      form.errors.messages.must_equal({username: ["must be filled"], email: ["must be filled"], special_class: ["must be filled", "must be ValidationGroupsTest::SomeClass"]})
+      assert_equal form.validate({}), false
+      assert_equal form.errors.messages, username: ["must be filled"], email: ["must be filled"], special_class: ["must be filled", "must be ValidationGroupsTest::SomeClass"]
     end
 
     # partially invalid.
     # 2nd group fails.
     it do
-      form.validate(username: "Helloween", email: "yo", confirm_password: "9", special_class: SomeClass.new(id: 15)).must_equal false
-      form.errors.messages.inspect.must_equal "{:email=>[\"size cannot be less than 3\"], :confirm_password=>[\"size cannot be less than 2\"]}"
+      assert_equal form.validate(username: "Helloween", email: "yo", confirm_password: "9", special_class: SomeClass.new(id: 15)), false
+      assert_equal form.errors.messages.inspect, "{:email=>[\"size cannot be less than 3\"], :confirm_password=>[\"size cannot be less than 2\"]}"
     end
     # 3rd group fails.
     it do
-      form.validate(username: "Helloween", email: "yo!", confirm_password: "9", special_class: SomeClass.new(id: 15)).must_equal false
-      form.errors.messages.inspect
-          .must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
+      assert_equal form.validate(username: "Helloween", email: "yo!", confirm_password: "9", special_class: SomeClass.new(id: 15)), false
+      assert_equal form.errors.messages.inspect, "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
     end
     # 4th group with after: fails.
     it do
-      form.validate(username: "Helloween", email: "yo!", password: "1", confirm_password: "9", special_class: SomeClass.new(id: 15)).must_equal false
-      form.errors.messages.inspect.must_equal "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"size cannot be less than 2\"]}"
+      assert_equal form.validate(username: "Helloween", email: "yo!", password: "1", confirm_password: "9", special_class: SomeClass.new(id: 15)), false
+      assert_equal form.errors.messages.inspect, "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"size cannot be less than 2\"]}"
     end
   end
 
@@ -329,14 +330,14 @@ class ValidationGroupsTest < MiniTest::Spec
 
       # valid.
       it do
-        form.validate(username: "Nick").must_equal true
-        form.errors.messages.inspect.must_equal "{}"
+        assert form.validate(username: "Nick")
+        assert_equal form.errors.messages.inspect, "{}"
       end
 
       # invalid.
       it do
-        form.validate(username: "Fred").must_equal false
-        form.errors.messages.inspect.must_equal "{:username=>[\"must be equal to Nick\"]}"
+        assert_equal form.validate(username: "Fred"), false
+        assert_equal form.errors.messages.inspect, "{:username=>[\"must be equal to Nick\"]}"
       end
     end
   end
@@ -374,21 +375,21 @@ class ValidationGroupsTest < MiniTest::Spec
     # valid.
     it do
       skip "waiting dry-v to add this as feature https://github.com/dry-rb/dry-schema/issues/33"
-      form.validate(username: "Helloween", email: "yep", password: "extrasafe").must_equal true
-      form.errors.messages.inspect.must_equal "{}"
+      assert form.validate(username: "Helloween", email: "yep", password: "extrasafe")
+      assert_equal form.errors.messages.inspect, "{}"
     end
 
     # invalid.
     it do
       skip "waiting dry-v to add this as feature https://github.com/dry-rb/dry-schema/issues/33"
-      form.validate({}).must_equal false
-      form.errors.messages.must_equal(password: ["must be filled", "size cannot be less than 6"], username: ["must be filled"], email: ["must be filled", "you're a bad person"])
+      assert_equal form.validate({}), false
+      assert_equal form.errors.messages, password: ["must be filled", "size cannot be less than 6"], username: ["must be filled"], email: ["must be filled", "you're a bad person"]
     end
 
     it do
       skip "waiting dry-v to add this as feature https://github.com/dry-rb/dry-schema/issues/33"
-      form.validate(email: 1).must_equal false
-      form.errors.messages.inspect.must_equal "{:password=>[\"must be filled\", \"size cannot be less than 6\"], :username=>[\"must be filled\"], :email=>[\"you're a bad person\"]}"
+      assert_equal form.validate(email: 1), false
+      assert_equal form.errors.messages.inspect, "{:password=>[\"must be filled\", \"size cannot be less than 6\"], :username=>[\"must be filled\"], :email=>[\"you're a bad person\"]}"
     end
   end
 
@@ -465,23 +466,23 @@ class ValidationGroupsTest < MiniTest::Spec
         "producers" => [{"name" => ""}, {"name" => "something lovely"}]
       )
 
-      result.must_equal false
+      assert_equal result, false
       # from nested validation
-      form.errors.messages.must_equal(title: ["you're a bad person"], "hit.title": ["must be filled"], "songs.title": ["must be filled"], "producers.name": ["must be filled"], "band.name": ["must be filled"], "band.label.location": ["must be filled"])
+      assert_equal form.errors.messages, title: ["you're a bad person"], "hit.title": ["must be filled"], "songs.title": ["must be filled"], "producers.name": ["must be filled"], "band.name": ["must be filled"], "band.label.location": ["must be filled"]
 
       # songs have their own validation.
-      form.songs[0].errors.messages.must_equal(title: ["must be filled"])
+      assert_equal form.songs[0].errors.messages, title: ["must be filled"]
       # hit got its own validation group.
-      form.hit.errors.messages.must_equal(title: ["must be filled"])
+      assert_equal form.hit.errors.messages, title: ["must be filled"]
 
-      form.band.label.errors.messages.must_equal(location: ["must be filled"])
-      form.band.errors.messages.must_equal(name: ["must be filled"], "label.location": ["must be filled"])
-      form.producers[0].errors.messages.must_equal(name: ["must be filled"])
+      assert_equal form.band.label.errors.messages, location: ["must be filled"]
+      assert_equal form.band.errors.messages, name: ["must be filled"], "label.location": ["must be filled"]
+      assert_equal form.producers[0].errors.messages, name: ["must be filled"]
 
       # TODO: use the same form structure as the top one and do the same test against messages, errors and hints.
-      form.producers[0].to_result.errors.must_equal(name: ["must be filled"])
-      form.producers[0].to_result.messages.must_equal(name: ["must be filled"])
-      form.producers[0].to_result.hints.must_equal({})
+      assert_equal form.producers[0].to_result.errors, name: ["must be filled"]
+      assert_equal form.producers[0].to_result.messages, name: ["must be filled"]
+      assert_equal form.producers[0].to_result.hints, {}
     end
 
     # FIXME: fix the "must be filled error"
@@ -494,11 +495,11 @@ class ValidationGroupsTest < MiniTest::Spec
         "producers" => [{"name" => ""}, {"name" => ""}, {"name" => "something lovely"}]
       )
 
-      result.must_equal false
-      form.band.errors.full_messages.must_equal ["Name must be filled", "Label Location must be filled"]
-      form.band.label.errors.full_messages.must_equal ["Location must be filled"]
-      form.producers.first.errors.full_messages.must_equal ["Name must be filled"]
-      form.errors.full_messages.must_equal ["Title must be filled", "Hit Title must be filled", "Songs Title must be filled", "Producers Name must be filled", "Band Name must be filled", "Band Label Location must be filled"]
+      assert_equal result, false
+      assert_equal form.band.errors.full_messages, ["Name must be filled", "Label Location must be filled"]
+      assert_equal form.band.label.errors.full_messages, ["Location must be filled"]
+      assert_equal form.producers.first.errors.full_messages, ["Name must be filled"]
+      assert_equal form.errors.full_messages, ["Title must be filled", "Hit Title must be filled", "Songs Title must be filled", "Producers Name must be filled", "Band Name must be filled", "Band Label Location must be filled"]
     end
 
     describe "only 1 nested validation" do
@@ -537,14 +538,14 @@ class ValidationGroupsTest < MiniTest::Spec
           "producers" => [{"name" => ""}, {"name" => ""}, {"name" => "something lovely"}]
         )
 
-        form.to_result.errors.must_equal(title: ["must be filled"])
-        form.band.to_result.errors.must_equal(name: ["must be filled"])
-        form.band.label.to_result.errors.must_equal(location: ["must be filled"])
+        assert_equal form.to_result.errors, title: ["must be filled"]
+        assert_equal form.band.to_result.errors, name: ["must be filled"]
+        assert_equal form.band.label.to_result.errors, location: ["must be filled"]
 
         # with locale: "de"
-        form.to_result.errors(locale: :de).must_equal(title: ["muss abgefüllt sein"])
-        form.band.to_result.errors(locale: :de).must_equal(name: ["muss abgefüllt sein"])
-        form.band.label.to_result.errors(locale: :de).must_equal(location: ["muss abgefüllt sein"])
+        assert_equal form.to_result.errors(locale: :de), title: ["muss abgefüllt sein"]
+        assert_equal form.band.to_result.errors(locale: :de), name: ["muss abgefüllt sein"]
+        assert_equal form.band.label.to_result.errors(locale: :de), location: ["muss abgefüllt sein"]
       end
     end
   end
@@ -605,14 +606,14 @@ class ValidationGroupsTest < MiniTest::Spec
     # valid.
     it do
       skip "waiting dry-v to add this as feature https://github.com/dry-rb/dry-schema/issues/33"
-      form.validate(email: 9).must_equal true
+      assert form.validate(email: 9)
     end
 
     # invalid.
     it do
       skip "waiting dry-v to add this as feature https://github.com/dry-rb/dry-schema/issues/33"
-      form.validate({}).must_equal false
-      form.errors.messages.must_equal email: ["must be filled"], full_name: ["must be filled"]
+      assert_equal form.validate({}), false
+      assert_equal form.errors.messages, email: ["must be filled"], full_name: ["must be filled"]
     end
   end
 
@@ -641,13 +642,13 @@ class ValidationGroupsTest < MiniTest::Spec
 
     # valid.
     it do
-      form.validate(username: "Strung Out", email: 9).must_equal true
+      assert form.validate(username: "Strung Out", email: 9)
     end
 
     # invalid.
     it do
-      form.validate(email: 9).must_equal false
-      form.errors.messages.inspect.must_equal "{:username=>[\"must be filled\"]}"
+      assert_equal form.validate(email: 9), false
+      assert_equal form.errors.messages.inspect, "{:username=>[\"must be filled\"]}"
     end
   end
 
@@ -671,8 +672,8 @@ class ValidationGroupsTest < MiniTest::Spec
     let(:form)  { OrderForm.new(order.new(company.new)) }
 
     it "has company error" do
-      form.validate(delivery_address: {company: "not int"}).must_equal false
-      form.errors.messages.must_equal(:"delivery_address.company" => ["must be an integer"])
+      assert_equal form.validate(delivery_address: {company: "not int"}), false
+      assert_equal form.errors.messages, :"delivery_address.company" => ["must be an integer"]
     end
   end
 
@@ -694,8 +695,8 @@ class ValidationGroupsTest < MiniTest::Spec
     let(:form)    { OrderFormWithForm.new(order.new(company.new)) }
 
     it "has company error" do
-      form.validate(delivery_address: {company: "not int"}).must_equal false
-      form.errors.messages.must_equal(:"delivery_address.company" => ["must be an integer"])
+      assert_equal form.validate(delivery_address: {company: "not int"}), false
+      assert_equal form.errors.messages, :"delivery_address.company" => ["must be an integer"]
     end
   end
 
@@ -741,21 +742,21 @@ class ValidationGroupsTest < MiniTest::Spec
 
     it "validates fails and shows the correct errors" do
       form = AlbumForm.new(Album.new(nil, [], nil))
-      form.validate(
+      assert_equal form.validate(
         "songs" => [
           {"title" => "One", "enabled" => false},
           {"title" => nil, "enabled" => false},
           {"title" => "Three", "enabled" => false}
         ],
         "artist" => {"last_name" => nil}
-      ).must_equal false
-      form.songs.size.must_equal 3
+      ), false
+      assert_equal form.songs.size, 3
 
-      form.errors.messages.must_equal(
+      assert_equal form.errors.messages, {
         :songs => ["must have at least one enabled song"],
         :artist => ["must have last name"],
         :"songs.title" => ["must be filled"]
-      )
+      }
     end
   end
 
@@ -785,26 +786,26 @@ class ValidationGroupsTest < MiniTest::Spec
     it "using params" do
       model = Foo.new
       form = ParamsForm.new(model)
-      form.validate(age: "99").must_equal true
+      assert form.validate(age: "99")
       form.sync
-      model.age.must_equal "99"
+      assert_equal model.age, "99"
 
       form = ParamsForm.new(Foo.new)
-      form.validate(age: "1000").must_equal false
-      form.errors.messages.must_equal age: ["value exceeded"]
+      assert_equal form.validate(age: "1000"), false
+      assert_equal form.errors.messages, age: ["value exceeded"]
     end
 
     it "using schema" do
       model = Foo.new
       form = SchemaForm.new(model)
-      form.validate(age: "99").must_equal false
-      form.validate(age: 99).must_equal true
+      assert_equal form.validate(age: "99"), false
+      assert form.validate(age: 99)
       form.sync
-      model.age.must_equal 99
+      assert_equal model.age, 99
 
       form = SchemaForm.new(Foo.new)
-      form.validate(age: 1000).must_equal false
-      form.errors.messages.must_equal age: ["value exceeded"]
+      assert_equal form.validate(age: 1000), false
+      assert_equal form.errors.messages, age: ["value exceeded"]
     end
   end
 

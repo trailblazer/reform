@@ -47,9 +47,9 @@ class CoercionTest < BaseTest
   end
 
   # it { subject.released_at.must_be_kind_of DateTime }
-  it { subject.released_at.must_equal "31/03/1981" } # NO coercion in setup.
-  it { subject.hit.length.must_equal "312" }
-  it { subject.band.label.value.must_equal "9999.99" }
+  it { assert_equal subject.released_at, "31/03/1981" } # NO coercion in setup.
+  it { assert_equal subject.hit.length, "312" }
+  it { assert_equal subject.band.label.value, "9999.99" }
 
   let(:params) do
     {
@@ -75,24 +75,24 @@ class CoercionTest < BaseTest
   describe "#validate" do
     before { subject.validate(params) }
 
-    it { subject.released_at.must_equal DateTime.parse("30/03/1981") }
-    it { subject.hit.length.must_equal 312 }
-    it { subject.hit.good.must_equal false }
-    it { subject.band.label.value.must_equal "9999.999999.99" } # coercion happened once.
-    it { subject.metadata.publication_settings.featured.must_equal false }
+    it { assert_equal subject.released_at, DateTime.parse("30/03/1981") }
+    it { assert_equal subject.hit.length, 312 }
+    it { assert_equal subject.hit.good, false }
+    it { assert_equal subject.band.label.value, "9999.999999.99" } # coercion happened once.
+    it { assert_equal subject.metadata.publication_settings.featured, false }
   end
 
   # sync
   describe "#sync" do
     before do
-      subject.validate(params).must_equal true
+      assert subject.validate(params)
       subject.sync
     end
 
-    it { album.released_at.must_equal DateTime.parse("30/03/1981") }
-    it { album.hit.length.must_equal 312 }
-    it { album.hit.good.must_equal false }
+    it { assert_equal album.released_at, DateTime.parse("30/03/1981") }
+    it { assert_equal album.hit.length, 312 }
+    it { assert_equal album.hit.good, false }
     it { assert_nil album.metadata[:publication_settings] }
-    it { album.metadata["publication_settings"]["featured"].must_equal false }
+    it { assert_equal album.metadata["publication_settings"]["featured"], false }
   end
 end

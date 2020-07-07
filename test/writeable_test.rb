@@ -11,20 +11,20 @@ class WriteableTest < MiniTest::Spec
   let(:form) { LocationForm.new(loc) }
 
   it do
-    form.country.must_equal "Australia"
+    assert_equal form.country, "Australia"
 
     form.validate("country" => "Germany") # this usually won't change when submitting.
-    form.country.must_equal "Germany"
+    assert_equal form.country, "Germany"
 
     form.sync
-    loc.country.must_equal "Australia" # the writer wasn't called.
+    assert_equal loc.country, "Australia" # the writer wasn't called.
 
     hash = {}
     form.save do |nested|
       hash = nested
     end
 
-    hash.must_equal("country" => "Germany")
+    assert_equal hash, "country" => "Germany"
   end
 end
 
@@ -40,19 +40,19 @@ class WritableTest < MiniTest::Spec
   let(:form) { LocationForm.new(loc) }
 
   it do
-    form.country.must_equal "Australia"
+    assert_equal form.country, "Australia"
 
     form.validate("country" => "Germany") # this usually won't change when submitting.
-    form.country.must_equal "Germany"
+    assert_equal form.country, "Germany"
 
     form.sync
-    loc.country.must_equal "Australia" # the writer wasn't called.
+    assert_equal loc.country, "Australia" # the writer wasn't called.
 
     hash = {}
     form.save do |nested|
       hash = nested
     end
 
-    hash.must_equal("country" => "Germany")
+    assert_equal hash, "country" => "Germany"
   end
 end

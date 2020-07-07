@@ -26,23 +26,23 @@ class SkipIfTest < BaseTest
   # deserializes when present.
   it do
     form = AlbumForm.new(album)
-    form.validate("hit" => {"title" => "Altar Of Sacrifice"}).must_equal true
-    form.hit.title.must_equal "Altar Of Sacrifice"
+    assert form.validate("hit" => {"title" => "Altar Of Sacrifice"})
+    assert_equal form.hit.title, "Altar Of Sacrifice"
   end
 
   # skips deserialization when not present.
   it do
     form = AlbumForm.new(Album.new)
-    form.validate("hit" => {"title" => ""}).must_equal true
+    assert form.validate("hit" => {"title" => ""})
     assert_nil form.hit # hit hasn't been deserialised.
   end
 
   # skips deserialization when not present.
   it do
     form = AlbumForm.new(Album.new(nil, nil, []))
-    form.validate("songs" => [{"title" => "Waste Of Breath"}, {"title" => nil}]).must_equal true
-    form.songs.size.must_equal 1
-    form.songs[0].title.must_equal "Waste Of Breath"
+    assert form.validate("songs" => [{"title" => "Waste Of Breath"}, {"title" => nil}])
+    assert_equal form.songs.size, 1
+    assert_equal form.songs[0].title, "Waste Of Breath"
   end
 end
 
@@ -58,16 +58,16 @@ class SkipIfAllBlankTest < BaseTest
   # create only one object.
   it do
     form = AlbumForm.new(OpenStruct.new(songs: []))
-    form.validate("songs" => [{"title" => "Apathy"}, {"title" => "", "length" => ""}]).must_equal true
-    form.songs.size.must_equal 1
-    form.songs[0].title.must_equal "Apathy"
+    assert form.validate("songs" => [{"title" => "Apathy"}, {"title" => "", "length" => ""}])
+    assert_equal form.songs.size, 1
+    assert_equal form.songs[0].title, "Apathy"
   end
 
   it do
     form = AlbumForm.new(OpenStruct.new(songs: []))
-    form.validate("songs" => [{"title" => "", "length" => ""}, {"title" => "Apathy"}]).must_equal true
-    form.songs.size.must_equal 1
-    form.songs[0].title.must_equal "Apathy"
+    assert form.validate("songs" => [{"title" => "", "length" => ""}, {"title" => "Apathy"}])
+    assert_equal form.songs.size, 1
+    assert_equal form.songs[0].title, "Apathy"
   end
 end
 

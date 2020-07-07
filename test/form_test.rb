@@ -25,8 +25,8 @@ class FormTest < MiniTest::Spec
     let(:cloned) { AlbumForm.clone }
 
     # #dup is called in Op.inheritable_attr(:contract_class), it must be subclass of the original one.
-    it { cloned.wont_equal AlbumForm }
-    it { AlbumForm.definitions.wont_equal cloned.definitions }
+    it { refute_equal cloned, AlbumForm }
+    it { refute_equal AlbumForm.definitions, cloned.definitions }
 
     it do
       # currently, forms need a name for validation, even without AM.
@@ -51,7 +51,7 @@ class FormTest < MiniTest::Spec
     end
 
     it "allows injecting :virtual options" do
-      ArtistForm.new(Artist.new, current_user: Object).current_user.must_equal Object
+      assert_equal ArtistForm.new(Artist.new, current_user: Object).current_user, Object
     end
   end
 end

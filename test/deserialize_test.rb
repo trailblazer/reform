@@ -41,9 +41,9 @@ class DeserializeTest < MiniTest::Spec
 
     form.validate(json)
 
-    form.title.must_equal "Apocalypse Soon"
-    form.artist.name.must_equal "Mute"
-    form.artist.model.object_id.must_equal artist_id
+    assert_equal form.title, "Apocalypse Soon"
+    assert_equal form.artist.name, "Mute"
+    assert_equal form.artist.model.object_id, artist_id
   end
 
   describe "infering the deserializer from another form should NOT copy its populators" do
@@ -62,7 +62,7 @@ class DeserializeTest < MiniTest::Spec
       form = CompilationForm.new(Album.new)
       form.validate("artist" => {"name" => "Horowitz"}) # the deserializer doesn't know symbols.
       form.sync
-      form.artist.model.must_equal Artist.new("Horowitz", %{{"name"=>"Horowitz"}})
+      assert_equal form.artist.model, Artist.new("Horowitz", %{{"name"=>"Horowitz"}})
     end
   end
 end
@@ -91,11 +91,11 @@ class ValidateWithBlockTest < MiniTest::Spec
       options_from:     :deserializer
     )
 
-    form.validate(json) { |params|
+    assert form.validate(json) { |params|
       deserializer.new(form).from_json(params)
-    }.must_equal true # with block must return result, too.
+    } # with block must return result, too.
 
-    form.title.must_equal "Apocalypse Soon"
-    form.artist.name.must_equal "Mute"
+    assert_equal form.title, "Apocalypse Soon"
+    assert_equal form.artist.name, "Mute"
   end
 end
