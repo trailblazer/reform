@@ -278,6 +278,51 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
   end
 end
 
+class ValidateUsingDifferentFormObject < MiniTest::Spec
+  Album = Struct.new(:name)
+
+  class AlbumForm < TestForm
+    property :name
+
+    validation do
+      option :form
+
+      params { required(:name).filled(:str?) }
+
+      rule(:name) do
+        if form.name == 'invalid'
+          key.failure('Invalid name')
+        end
+      end
+    end
+  end
+
+  let(:album) { Album.new }
+
+  let(:form) { AlbumForm.new(album) }
+
+  it 'sets name correctly' do
+    assert form.validate(name: 'valid')
+    form.sync
+    assert_equal form.model.name, 'valid'
+  end
+
+  it 'validates presence of name' do
+    refute form.validate(name: nil)
+    assert_equal form.errors[:name], ["must be filled"]
+  end
+
+  it 'validates type of name' do
+    refute form.validate(name: 1)
+    assert_equal form.errors[:name], ["must be a string"]
+  end
+
+  it 'when name is invalid' do
+    refute form.validate(name: 'invalid')
+    assert_equal form.errors[:name], ["Invalid name"]
+  end
+end
+
 #   # not sure if we should catch that in Reform or rather do that in disposable. this is https://github.com/trailblazer/reform/pull/104
 #   # describe ":populator with :empty" do
 #   #   let(:form) {
