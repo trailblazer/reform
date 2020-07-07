@@ -32,6 +32,8 @@ module Reform::Form::Dry
         @schema_inject_params = options.fetch(:with, {})
       end
 
+      attr_reader :validator, :schema_inject_params, :block
+
       def instance_exec(&block)
         @block = block
       end
@@ -39,13 +41,12 @@ module Reform::Form::Dry
       def call(form)
         # when passing options[:schema] the class instance is already created so we just need to call
         # "call"
-        if @validator.is_a?(Class) && @validator <= ::Dry::Validation::Contract
-          dynamic_options = { form: form }
-          inject_options = @schema_inject_params.merge(dynamic_options)
-          @validator = @validator.build(inject_options, &@block)
-        end
+        return validator.call(input_hash(form)) unless validator.is_a?(Class) && @validator <= ::Dry::Validation::Contract
 
-        @validator.call(input_hash(form))
+        dynamic_options = { form: form }
+        inject_options = schema_inject_params.merge(dynamic_options)
+
+        validator.build(inject_options, &block).call(input_hash(form))
       end
     end
   end

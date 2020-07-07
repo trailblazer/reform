@@ -43,7 +43,6 @@ module Reform::Validation
 
         groups.collect do |(name, group, options)|
           next unless evaluate?(options[:if], results, form)
-
           results[name] = group.(form) # run validation for group. store and collect <Result>.
         end
       end
