@@ -40,7 +40,7 @@ module Reform::Form::Dry
         # when passing options[:schema] the class instance is already created so we just need to call
         # "call"
         if @validator.is_a?(Class) && @validator <= ::Dry::Validation::Contract
-          dynamic_options = {form: form}
+          dynamic_options = { form: form }
           inject_options = @schema_inject_params.merge(dynamic_options)
           @validator = @validator.build(inject_options, &@block)
         end

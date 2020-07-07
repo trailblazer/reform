@@ -1,10 +1,6 @@
 require "test_helper"
 
 class ContractValidateTest < MiniTest::Spec
-  Song  = Struct.new(:title, :album, :composer)
-  Album = Struct.new(:name, :songs, :artist)
-  Artist = Struct.new(:name)
-
   class AlbumForm < TestContract
     property :name
     validation do
@@ -56,10 +52,6 @@ end
 
 # no configuration results in "sync" (formerly known as parse_strategy: :sync).
 class ValidateWithoutConfigurationTest < MiniTest::Spec
-  Song  = Struct.new(:title, :album, :composer)
-  Album = Struct.new(:name, :songs, :artist)
-  Artist = Struct.new(:name)
-
   class AlbumForm < TestForm
     property :name
     validation do
@@ -155,10 +147,6 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
 end
 
 class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
-  Song  = Struct.new(:title, :album, :composer)
-  Album = Struct.new(:name, :songs, :artist)
-  Artist = Struct.new(:name)
-
   class AlbumForm < TestForm
     property :name
     validation do
@@ -275,6 +263,50 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     form.title = "Unopened"
     form.sync # only the deserializer is marked as not-writeable.
     assert_equal song.title, "Unopened"
+  end
+end
+
+# memory leak test
+class ValidateUsingDifferentFormObject < MiniTest::Spec
+  class AlbumForm < TestForm
+    property :name
+
+    validation do
+      option :form
+
+      params { required(:name).filled(:str?) }
+
+      rule(:name) do
+        if form.name == 'invalid'
+          key.failure('Invalid name')
+        end
+      end
+    end
+  end
+
+  let(:album) { Album.new }
+
+  let(:form) { AlbumForm.new(album) }
+
+  it 'sets name correctly' do
+    assert form.validate(name: 'valid')
+    form.sync
+    assert_equal form.model.name, 'valid'
+  end
+
+  it 'validates presence of name' do
+    refute form.validate(name: nil)
+    assert_equal form.errors[:name], ["must be filled"]
+  end
+
+  it 'validates type of name' do
+    refute form.validate(name: 1)
+    assert_equal form.errors[:name], ["must be a string"]
+  end
+
+  it 'when name is invalid' do
+    refute form.validate(name: 'invalid')
+    assert_equal form.errors[:name], ["Invalid name"]
   end
 end
 

@@ -43,6 +43,10 @@ class BaseTest < MiniTest::Spec
 end
 
 MiniTest::Spec.class_eval do
+  Song  = Struct.new(:title, :album, :composer)
+  Album = Struct.new(:name, :songs, :artist)
+  Artist = Struct.new(:name)
+
   module Saveable
     def save
       @saved = true
