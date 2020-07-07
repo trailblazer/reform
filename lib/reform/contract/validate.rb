@@ -11,7 +11,7 @@ class Reform::Contract < Disposable::Twin
       validate!(nil).success?
     end
 
-    # The #errors method will be removed in Reform 2.4/3.0 core.
+    # The #errors method will be removed in Reform 3.0 core.
     def errors(*args)
       Result::Errors.new(@result, self)
     end

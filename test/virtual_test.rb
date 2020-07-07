@@ -13,8 +13,8 @@ class VirtualTest < MiniTest::Spec
   it {
     form.validate(credit_card_number: "123", transactions: [id: 1])
 
-    form.credit_card_number.must_equal "123" # this is still readable in the UI.
-    form.transactions.first.id.must_equal 1 # this is still readable in the UI.
+    assert_equal form.credit_card_number, "123" # this is still readable in the UI.
+    assert_equal form.transactions.first.id, 1 # this is still readable in the UI.
 
     form.sync
 
@@ -23,7 +23,7 @@ class VirtualTest < MiniTest::Spec
       hash = nested
     end
 
-    hash.must_equal("credit_card_number" => "123", "transactions" => ["id" => 1])
+    assert_equal hash, "credit_card_number" => "123", "transactions" => ["id" => 1]
   }
 end
 
@@ -49,16 +49,16 @@ class VirtualAndDefaultTest < MiniTest::Spec
     form = CreditCardForm.new(Object.new)
     form.validate({})
 
-    hash(form).must_equal("credit_card_number" => "123", "transactions" => ["id" => 2])
+    assert_equal hash(form), "credit_card_number" => "123", "transactions" => ["id" => 2]
 
     form = CreditCardForm.new(Object.new)
     form.validate(credit_card_number: "123", transactions: [id: 1])
 
-    form.credit_card_number.must_equal "123" # this is still readable in the UI.
-    form.transactions.first.id.must_equal 1 # this is still readable in the UI.
+    assert_equal form.credit_card_number,  "123" # this is still readable in the UI.
+    assert_equal form.transactions.first.id,  1 # this is still readable in the UI.
 
     form.sync
 
-    hash(form).must_equal("credit_card_number" => "123", "transactions" => ["id" => 1])
+    assert_equal hash(form), "credit_card_number" => "123", "transactions" => ["id" => 1]
   }
 end

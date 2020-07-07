@@ -17,13 +17,8 @@ class TestContract < Reform::Contract
 end
 
 module Types
-  DRY_MODULE = Gem::Version.new(Dry::Types::VERSION) < Gem::Version.new("0.15.0") ? Dry::Types.module : Dry.Types()
-  include DRY_MODULE
+  include Dry.Types()
 end
-
-DRY_TYPES_VERSION = Gem::Version.new(Dry::Types::VERSION)
-DRY_TYPES_CONSTANT = DRY_TYPES_VERSION < Gem::Version.new("0.13.0") ? Types::Form : Types::Params
-DRY_TYPES_INT_CONSTANT = DRY_TYPES_VERSION < Gem::Version.new("0.13.0") ? Types::Form::Int : Types::Params::Integer
 
 class BaseTest < MiniTest::Spec
   class AlbumForm < TestForm
@@ -48,6 +43,10 @@ class BaseTest < MiniTest::Spec
 end
 
 MiniTest::Spec.class_eval do
+  Song  = Struct.new(:title, :album, :composer)
+  Album = Struct.new(:name, :songs, :artist)
+  Artist = Struct.new(:name)
+
   module Saveable
     def save
       @saved = true

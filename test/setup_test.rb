@@ -31,18 +31,18 @@ class SetupTest < MiniTest::Spec
     it do
       form = AlbumForm.new(album)
 
-      form.name.must_equal "The Dissent Of Man"
-      form.songs[0].title.must_equal "Broken"
+      assert_equal form.name, "The Dissent Of Man"
+      assert_equal form.songs[0].title, "Broken"
       assert_nil form.songs[0].composer
-      form.songs[1].title.must_equal "Resist Stance"
-      form.songs[1].composer.name.must_equal "Greg Graffin"
-      form.artist.name.must_equal "Bad Religion"
+      assert_equal form.songs[1].title, "Resist Stance"
+      assert_equal form.songs[1].composer.name, "Greg Graffin"
+      assert_equal form.artist.name, "Bad Religion"
 
       # make sure all is wrapped in forms.
-      form.songs[0].must_be_kind_of Reform::Form
-      form.songs[1].must_be_kind_of Reform::Form
-      form.songs[1].composer.must_be_kind_of Reform::Form
-      form.artist.must_be_kind_of Reform::Form
+      assert form.songs[0].is_a? Reform::Form
+      assert form.songs[1].is_a? Reform::Form
+      assert form.songs[1].composer.is_a? Reform::Form
+      assert form.artist.is_a? Reform::Form
     end
   end
 end

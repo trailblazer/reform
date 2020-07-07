@@ -1,25 +1,21 @@
 require "test_helper"
 
 class ContractValidateTest < MiniTest::Spec
-  Song  = Struct.new(:title, :album, :composer)
-  Album = Struct.new(:name, :songs, :artist)
-  Artist = Struct.new(:name)
-
   class AlbumForm < TestContract
     property :name
     validation do
-      required(:name).filled
+      params { required(:name).filled }
     end
 
     collection :songs do
       property :title
       validation do
-        required(:title).filled
+        params { required(:title).filled }
       end
 
       property :composer do
         validation do
-          required(:name).filled
+          params { required(:name).filled }
         end
         property :name
       end
@@ -40,8 +36,8 @@ class ContractValidateTest < MiniTest::Spec
 
   # valid
   it do
-    form.validate.must_equal true
-    form.errors.messages.inspect.must_equal "{}"
+    assert form.validate
+    assert_equal form.errors.messages.inspect, "{}"
   end
 
   # invalid
@@ -49,33 +45,29 @@ class ContractValidateTest < MiniTest::Spec
     album.songs[1].composer.name = nil
     album.name = nil
 
-    form.validate.must_equal false
-    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"]}"
+    assert_equal form.validate, false
+    assert_equal form.errors.messages.inspect, "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"]}"
   end
 end
 
 # no configuration results in "sync" (formerly known as parse_strategy: :sync).
 class ValidateWithoutConfigurationTest < MiniTest::Spec
-  Song  = Struct.new(:title, :album, :composer)
-  Album = Struct.new(:name, :songs, :artist)
-  Artist = Struct.new(:name)
-
   class AlbumForm < TestForm
     property :name
     validation do
-      required(:name).filled
+      params { required(:name).filled }
     end
 
     collection :songs do
       property :title
       validation do
-        required(:title).filled
+        params { required(:title).filled }
       end
 
       property :composer do
         property :name
         validation do
-          required(:name).filled
+          params { required(:name).filled }
         end
       end
     end
@@ -100,48 +92,48 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
       artist: form.artist.object_id, composer: form.songs[1].composer.object_id
     }
 
-    form.validate(
+    assert form.validate(
       "name"   => "Best Of",
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => "Sting"}}],
       "artist" => {"name" => "The Police"}
-    ).must_equal true
+    )
 
-    form.errors.messages.inspect.must_equal "{}"
+    assert_equal form.errors.messages.inspect, "{}"
 
     # form has updated.
-    form.name.must_equal "Best Of"
-    form.songs[0].title.must_equal "Fallout"
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[1].composer.name.must_equal "Sting"
-    form.artist.name.must_equal "The Police"
+    assert_equal form.name, "Best Of"
+    assert_equal form.songs[0].title, "Fallout"
+    assert_equal form.songs[1].title, "Roxanne"
+    assert_equal form.songs[1].composer.name, "Sting"
+    assert_equal form.artist.name, "The Police"
 
     # objects are still the same.
-    form.songs[0].object_id.must_equal object_ids[:song]
-    form.songs[1].object_id.must_equal object_ids[:song_with_composer]
-    form.songs[1].composer.object_id.must_equal object_ids[:composer]
-    form.artist.object_id.must_equal object_ids[:artist]
+    assert_equal form.songs[0].object_id, object_ids[:song]
+    assert_equal form.songs[1].object_id, object_ids[:song_with_composer]
+    assert_equal form.songs[1].composer.object_id, object_ids[:composer]
+    assert_equal form.artist.object_id, object_ids[:artist]
 
     # model has not changed, yet.
-    album.name.must_equal "The Dissent Of Man"
-    album.songs[0].title.must_equal "Broken"
-    album.songs[1].title.must_equal "Resist Stance"
-    album.songs[1].composer.name.must_equal "Greg Graffin"
-    album.artist.name.must_equal "Bad Religion"
+    assert_equal album.name, "The Dissent Of Man"
+    assert_equal album.songs[0].title, "Broken"
+    assert_equal album.songs[1].title, "Resist Stance"
+    assert_equal album.songs[1].composer.name, "Greg Graffin"
+    assert_equal album.artist.name, "Bad Religion"
   end
 
   # with symbols.
   it do
-    form.validate(
+    assert form.validate(
       name:   "Best Of",
       songs:  [{title: "The X-Creep"}, {title: "Trudging", composer: {name: "SNFU"}}],
       artist: {name: "The Police"}
-    ).must_equal true
+    )
 
-    form.name.must_equal "Best Of"
-    form.songs[0].title.must_equal "The X-Creep"
-    form.songs[1].title.must_equal "Trudging"
-    form.songs[1].composer.name.must_equal "SNFU"
-    form.artist.name.must_equal "The Police"
+    assert_equal form.name, "Best Of"
+    assert_equal form.songs[0].title, "The X-Creep"
+    assert_equal form.songs[1].title, "Trudging"
+    assert_equal form.songs[1].composer.name, "SNFU"
+    assert_equal form.artist.name, "The Police"
   end
 
   # throws exception when no populators.
@@ -155,14 +147,10 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
 end
 
 class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
-  Song  = Struct.new(:title, :album, :composer)
-  Album = Struct.new(:name, :songs, :artist)
-  Artist = Struct.new(:name)
-
   class AlbumForm < TestForm
     property :name
     validation do
-      required(:name).filled
+      params { required(:name).filled }
     end
 
     collection :songs,
@@ -172,13 +160,13 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
                } do
       property :title
       validation do
-        required(:title).filled
+        params { required(:title).filled }
       end
 
       property :composer, internal_populator: ->(input, options) { (item = options[:represented].composer) ? item : Artist.new } do
         property :name
         validation do
-          required(:name).filled
+          params { required(:name).filled }
         end
       end
     end
@@ -186,7 +174,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     property :artist, internal_populator: ->(input, options) { (item = options[:represented].artist) ? item : Artist.new } do
       property :name
       validation do
-        required(:name).filled
+        params { required(:name).filled }
       end
     end
   end
@@ -201,68 +189,66 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
 
   # valid.
   it("xxx") do
-    form.validate(
+    assert form.validate(
       "name"   => "Best Of",
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => "Sting"}}],
-      "artist" => {"name" => "The Police"},
-    ).must_equal true
-    form.valid?.must_equal true
+      "artist" => {"name" => "The Police"}
+    )
 
-    form.errors.messages.inspect.must_equal "{}"
+    assert_equal form.errors.messages.inspect, "{}"
 
     # form has updated.
-    form.name.must_equal "Best Of"
-    form.songs[0].title.must_equal "Fallout"
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[1].composer.name.must_equal "Sting"
-    form.artist.name.must_equal "The Police"
+    assert_equal form.name, "Best Of"
+    assert_equal form.songs[0].title, "Fallout"
+    assert_equal form.songs[1].title, "Roxanne"
+    assert_equal form.songs[1].composer.name, "Sting"
+    assert_equal form.artist.name, "The Police"
 
     # model has not changed, yet.
-    album.name.must_equal "The Dissent Of Man"
-    album.songs[0].title.must_equal "Broken"
-    album.songs[1].title.must_equal "Resist Stance"
-    album.songs[1].composer.name.must_equal "Greg Graffin"
-    album.artist.name.must_equal "Bad Religion"
+    assert_equal album.name, "The Dissent Of Man"
+    assert_equal album.songs[0].title, "Broken"
+    assert_equal album.songs[1].title, "Resist Stance"
+    assert_equal album.songs[1].composer.name, "Greg Graffin"
+    assert_equal album.artist.name, "Bad Religion"
   end
 
   # invalid.
   it do
-    form.validate(
+    assert_equal form.validate(
       "name"   => "",
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne", "composer" => {"name" => ""}}],
       "artist" => {"name" => ""},
-    ).must_equal false
-    form.valid?.must_equal false
+    ), false
 
-    form.errors.messages.inspect.must_equal "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"], :\"artist.name\"=>[\"must be filled\"]}"
+    assert_equal form.errors.messages.inspect, "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"], :\"artist.name\"=>[\"must be filled\"]}"
   end
 
   # adding to collection via :instance.
   # valid.
   it do
-    form.validate(
-      "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"}, {"title" => "Rime Of The Ancient Mariner"}],
-    ).must_equal true
+    assert form.validate(
+      "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"}, {"title" => "Rime Of The Ancient Mariner"}]
+    )
 
-    form.errors.messages.inspect.must_equal "{}"
+    assert_equal form.errors.messages.inspect, "{}"
 
     # form has updated.
-    form.name.must_equal "The Dissent Of Man"
-    form.songs[0].title.must_equal "Fallout"
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[1].composer.name.must_equal "Greg Graffin"
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[2].title.must_equal "Rime Of The Ancient Mariner" # new song added.
-    form.songs.size.must_equal 3
-    form.artist.name.must_equal "Bad Religion"
+    assert_equal form.name, "The Dissent Of Man"
+    assert_equal form.songs[0].title, "Fallout"
+    assert_equal form.songs[1].title, "Roxanne"
+    assert_equal form.songs[1].composer.name, "Greg Graffin"
+    assert_equal form.songs[1].title, "Roxanne"
+    assert_equal form.songs[2].title, "Rime Of The Ancient Mariner" # new song added.
+    assert_equal form.songs.size, 3
+    assert_equal form.artist.name, "Bad Religion"
 
     # model has not changed, yet.
-    album.name.must_equal "The Dissent Of Man"
-    album.songs[0].title.must_equal "Broken"
-    album.songs[1].title.must_equal "Resist Stance"
-    album.songs[1].composer.name.must_equal "Greg Graffin"
-    album.songs.size.must_equal 2
-    album.artist.name.must_equal "Bad Religion"
+    assert_equal album.name, "The Dissent Of Man"
+    assert_equal album.songs[0].title, "Broken"
+    assert_equal album.songs[1].title, "Resist Stance"
+    assert_equal album.songs[1].composer.name, "Greg Graffin"
+    assert_equal album.songs.size, 2
+    assert_equal album.artist.name, "Bad Religion"
   end
 
   # allow writeable: false even in the deserializer.
@@ -276,7 +262,51 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
     assert_nil form.title
     form.title = "Unopened"
     form.sync # only the deserializer is marked as not-writeable.
-    song.title.must_equal "Unopened"
+    assert_equal song.title, "Unopened"
+  end
+end
+
+# memory leak test
+class ValidateUsingDifferentFormObject < MiniTest::Spec
+  class AlbumForm < TestForm
+    property :name
+
+    validation do
+      option :form
+
+      params { required(:name).filled(:str?) }
+
+      rule(:name) do
+        if form.name == 'invalid'
+          key.failure('Invalid name')
+        end
+      end
+    end
+  end
+
+  let(:album) { Album.new }
+
+  let(:form) { AlbumForm.new(album) }
+
+  it 'sets name correctly' do
+    assert form.validate(name: 'valid')
+    form.sync
+    assert_equal form.model.name, 'valid'
+  end
+
+  it 'validates presence of name' do
+    refute form.validate(name: nil)
+    assert_equal form.errors[:name], ["must be filled"]
+  end
+
+  it 'validates type of name' do
+    refute form.validate(name: 1)
+    assert_equal form.errors[:name], ["must be a string"]
+  end
+
+  it 'when name is invalid' do
+    refute form.validate(name: 'invalid')
+    assert_equal form.errors[:name], ["Invalid name"]
   end
 end
 

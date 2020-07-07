@@ -37,25 +37,25 @@ class PrepopulatorTest < MiniTest::Spec
   it do
     form = AlbumForm.new(OpenStruct.new(length: 1)).prepopulate!(title: "Potemkin City Limits")
 
-    form.length.must_equal 1
-    form.title.must_equal "Another Day At Work"
-    form.hit.model.must_equal Song.new("Potemkin City Limits")
-    form.songs.size.must_equal 2
-    form.songs[0].model.must_equal Song.new
-    form.songs[1].model.must_equal Song.new
-    form.songs[1].model.must_equal Song.new
+    assert_equal form.length, 1
+    assert_equal form.title, "Another Day At Work"
+    assert_equal form.hit.model, Song.new("Potemkin City Limits")
+    assert_equal form.songs.size, 2
+    assert_equal form.songs[0].model, Song.new
+    assert_equal form.songs[1].model, Song.new
+    assert_equal form.songs[1].model, Song.new
     # prepopulate works more than 1 level, recursive.
     # it also passes options properly down there.
-    form.hit.band.model.must_equal Band.new("Potemkin City Limits")
+    assert_equal form.hit.band.model, Band.new("Potemkin City Limits")
   end
 
   # add to existing collection.
   it do
     form = AlbumForm.new(OpenStruct.new(songs: [Song.new])).prepopulate!
 
-    form.songs.size.must_equal 2
-    form.songs[0].model.must_equal Song.new
-    form.songs[1].model.must_equal Song.new
+    assert_equal form.songs.size, 2
+    assert_equal form.songs[0].model, Song.new
+    assert_equal form.songs[1].model, Song.new
   end
 end
 
@@ -75,7 +75,7 @@ class PrepopulateWithoutConfiguration < MiniTest::Spec
 
   subject { AlbumForm.new(OpenStruct.new(songs: [], hit: nil)).prepopulate! }
 
-  it { subject.songs.size.must_equal 0 }
+  it { assert_equal subject.songs.size, 0 }
 end
 
 class ManualPrepopulatorOverridingTest < MiniTest::Spec
@@ -104,8 +104,8 @@ class ManualPrepopulatorOverridingTest < MiniTest::Spec
   it do
     form = AlbumForm.new(OpenStruct.new(length: 1)).prepopulate!(title: "Potemkin City Limits")
 
-    form.length.must_equal 1
-    form.hit.model.must_equal Song.new("Potemkin City Limits")
-    form.hit.title.must_equal "Potemkin City Limits"
+    assert_equal form.length, 1
+    assert_equal form.hit.model, Song.new("Potemkin City Limits")
+    assert_equal form.hit.title, "Potemkin City Limits"
   end
 end
