@@ -1,6 +1,5 @@
 require "bundler/gem_tasks"
 require "rake/testtask"
-require "rubocop/rake_task"
 require "dry/types/version"
 
 task default: %i[test]
@@ -11,4 +10,3 @@ Rake::TestTask.new(:test) do |test|
   test.verbose = true
 end
 
-RuboCop::RakeTask.new(:rubocop)

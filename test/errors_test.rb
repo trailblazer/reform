@@ -37,7 +37,7 @@ class ErrorsTest < MiniTest::Spec
       # TODO: make band a required object.
 
       validation do
-        config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
+        config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
 
         params { required(:name).filled }
 

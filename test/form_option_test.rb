@@ -7,7 +7,7 @@ class FormOptionTest < MiniTest::Spec
   class SongForm < TestForm
     property :title
     validation do
-      required(:title).filled
+      params { required(:title).filled }
     end
   end
 
@@ -17,7 +17,7 @@ class FormOptionTest < MiniTest::Spec
 
   it do
     form = AlbumForm.new(Album.new(Song.new("When It Comes To You")))
-    form.song.title.must_equal "When It Comes To You"
+    assert_equal "When It Comes To You", form.song.title
 
     form.validate(song: {title: "Run For Cover"})
   end

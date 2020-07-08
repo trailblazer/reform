@@ -1,3 +1,4 @@
+gem 'dry-validation', '~> 1.5'
 require "dry-validation"
 require "reform/validation"
 require "reform/form/dry/input_hash"
