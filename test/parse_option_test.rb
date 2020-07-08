@@ -13,13 +13,13 @@ class ParseOptionTest < MiniTest::Spec
   let(:form) { CommentForm.new(Comment.new, user: current_user) }
 
   it do
-    form.user.must_equal current_user
+    _(form.user).must_equal current_user
 
     lorem = "Lorem ipsum dolor sit amet..."
     form.validate("content" => lorem, "user" => "not the current user")
 
-    form.content.must_equal lorem
-    form.user.must_equal current_user
+    _(form.content).must_equal lorem
+    _(form.user).must_equal current_user
   end
 
   describe "using ':parse' option doesn't override other ':deserialize' options" do
@@ -30,11 +30,11 @@ class ParseOptionTest < MiniTest::Spec
     end
 
     it do
-      ArticleCommentForm.definitions.get(:user)[:deserializer][:writeable].must_equal false
-      ArticleCommentForm.definitions.get(:user)[:deserializer][:instance].must_equal "Instance"
+      _(ArticleCommentForm.definitions.get(:user)[:deserializer][:writeable]).must_equal false
+      _(ArticleCommentForm.definitions.get(:user)[:deserializer][:instance]).must_equal "Instance"
 
-      ArticleCommentForm.definitions.get(:article)[:deserializer][:writeable].must_equal true
-      ArticleCommentForm.definitions.get(:article)[:deserializer][:instance].must_equal "Instance"
+      _(ArticleCommentForm.definitions.get(:article)[:deserializer][:writeable]).must_equal true
+      _(ArticleCommentForm.definitions.get(:article)[:deserializer][:instance]).must_equal "Instance"
     end
   end
 end

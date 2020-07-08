@@ -31,19 +31,19 @@ class AsTest < BaseTest
 
   subject { AlbumForm.new(Album.new("Best Of", hit, [Song.new("Fallout"), song2])) }
 
-  it { subject.name.must_equal "Best Of" }
-  it { subject.single.title.must_equal "Roxanne" }
-  it { subject.tracks[0].name.must_equal "Fallout" }
-  it { subject.tracks[1].name.must_equal "Roxanne" }
+  it { _(subject.name).must_equal "Best Of" }
+  it { _(subject.single.title).must_equal "Roxanne" }
+  it { _(subject.tracks[0].name).must_equal "Fallout" }
+  it { _(subject.tracks[1].name).must_equal "Roxanne" }
 
   describe "#validate" do
 
     before { subject.validate(params) }
 
-    it { subject.name.must_equal "Best Of The Police" }
-    it { subject.single.title.must_equal "So Lonely" }
-    it { subject.tracks[0].name.must_equal "Message In A Bottle" }
-    it { subject.tracks[1].name.must_equal "Roxanne" }
+    it { _(subject.name).must_equal "Best Of The Police" }
+    it { _(subject.single.title).must_equal "So Lonely" }
+    it { _(subject.tracks[0].name).must_equal "Message In A Bottle" }
+    it { _(subject.tracks[1].name).must_equal "Roxanne" }
   end
 
   describe "#sync" do
@@ -52,7 +52,7 @@ class AsTest < BaseTest
       subject.sync
     end
 
-    it { song2.title.must_equal "Livin' Ain't No Crime" }
+    it { _(song2.title).must_equal "Livin' Ain't No Crime" }
   end
 
   describe "#save (nested hash)" do
@@ -65,7 +65,7 @@ class AsTest < BaseTest
         hash = nested_hash
       end
 
-      hash.must_equal({"title" => "Best Of The Police", "hit" => {"title" => "So Lonely"}, "songs" => [{"title" => "Message In A Bottle"}, {"title" => "Roxanne"}], "band" => nil})
+      _(hash).must_equal({"title" => "Best Of The Police", "hit" => {"title" => "So Lonely"}, "songs" => [{"title" => "Message In A Bottle"}, {"title" => "Roxanne"}], "band" => nil})
     end
   end
 end

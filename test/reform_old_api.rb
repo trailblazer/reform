@@ -19,7 +19,7 @@ class ReformTest < Minitest::Spec
 
     it "returns empty fields" do
       assert_nil form.title
-      form.name.must_be_nil
+      _(form.name).must_be_nil
     end
 
     describe "and submitted values" do
@@ -27,15 +27,15 @@ class ReformTest < Minitest::Spec
         form.validate("name" => "Duran Duran")
 
         assert_nil form.title
-        form.name.must_equal "Duran Duran"
+        _(form.name).must_equal "Duran Duran"
       end
     end
   end
 
   describe "(edit) form with existing models" do
     it "returns filled-out fields" do
-      form.name.must_equal  "Duran Duran"
-      form.title.must_equal "Rio"
+      _(form.name).must_equal  "Duran Duran"
+      _(form.title).must_equal "Rio"
     end
   end
 
@@ -50,13 +50,13 @@ class ReformTest < Minitest::Spec
     end
 
     it "returns true when valid" do
-      form.validate("name" => "Duran Duran").must_equal true
+      _(form.validate("name" => "Duran Duran")).must_equal true
     end
 
     it "exposes input via property accessors" do
       form.validate("name" => "Duran Duran")
 
-      form.name.must_equal "Duran Duran"
+      _(form.name).must_equal "Duran Duran"
     end
 
     it "doesn't change model properties" do
@@ -79,12 +79,12 @@ class ReformTest < Minitest::Spec
       let(:form) { ValidatingForm.new(comp) }
 
       it "returns false when invalid" do
-        form.validate({}).must_equal false
+        _(form.validate({})).must_equal false
       end
 
       it "populates errors" do
         form.validate({})
-        form.errors.messages.must_equal({name: ["must be filled"], title: ["must be filled"]})
+        _(form.errors.messages).must_equal({name: ["must be filled"], title: ["must be filled"]})
       end
     end
   end
@@ -98,7 +98,7 @@ class ReformTest < Minitest::Spec
     it "xxpushes data to models" do
       form.save
 
-      comp.name.must_equal "Diesel Boy"
+      _(comp.name).must_equal "Diesel Boy"
       assert_nil comp.title
     end
 
@@ -110,13 +110,13 @@ class ReformTest < Minitest::Spec
           hash = map
         end
 
-        hash.must_equal({"name" => "Diesel Boy", "title" => nil})
+        _(hash).must_equal({"name" => "Diesel Boy", "title" => nil})
       end
     end
   end
 
   describe "#model" do
-    it { form.model.must_equal comp }
+    it { _(form.model).must_equal comp }
   end
 
   describe "inheritance" do
@@ -130,9 +130,9 @@ class ReformTest < Minitest::Spec
     let(:form) { HitForm.new(OpenStruct.new()) }
     it do
       form.validate({"title" => "The Body"})
-      form.title.must_equal "The Body"
+      _(form.title).must_equal "The Body"
       assert_nil form.position
-      form.errors.messages.must_equal({name: ["must be filled"], position: ["must be filled"]})
+      _(form.errors.messages).must_equal({name: ["must be filled"], position: ["must be filled"]})
     end
   end
 end
@@ -154,18 +154,18 @@ class OverridingAccessorsTest < BaseTest
   subject { SongForm.new(song) }
 
   # override reader for presentation.
-  it { subject.title.must_equal "pray" }
+  it { _(subject.title).must_equal "pray" }
 
   describe "#save" do
     before { subject.validate("title" => "Hey Little World") }
 
     # reader always used
-    it { subject.title.must_equal "hey little worldhey little world" }
+    it { _(subject.title).must_equal "hey little worldhey little world" }
 
     # the reader is not used when saving/syncing.
     it do
       subject.save do |hash|
-        hash["title"].must_equal "Hey Little WorldHey Little World"
+        _(hash["title"]).must_equal "Hey Little WorldHey Little World"
       end
     end
 
@@ -173,7 +173,7 @@ class OverridingAccessorsTest < BaseTest
     it do
       song.extend(Saveable)
       subject.save
-      song.title.must_equal "Hey Little WorldHey Little World"
+      _(song.title).must_equal "Hey Little WorldHey Little World"
     end
   end
 end
@@ -197,6 +197,6 @@ class MethodInFormTest < MiniTest::Spec
 
   # methods can be used instead of created accessors.
   subject { AlbumForm.new(OpenStruct.new(hit: OpenStruct.new)) }
-  it { subject.title.must_equal "The Suffer And The Witness" }
-  it { subject.hit.title.must_equal "Drones" }
+  it { _(subject.title).must_equal "The Suffer And The Witness" }
+  it { _(subject.hit.title).must_equal "Drones" }
 end

@@ -37,17 +37,17 @@ class SetupSkipSetterAndGetterTest < MiniTest::Spec
     album = Album.new("Greatest Hits", artist)
     form  = AlbumForm.new(album)
 
-    form.title.must_equal "GREATEST HITS"
-    form.artist.name.must_equal "bad religion"
+    _(form.title).must_equal "GREATEST HITS"
+    _(form.artist.name).must_equal "bad religion"
 
     form.validate("title" => "Resiststance", "artist" => {"name" => "Greg Graffin"})
 
-    form.title.must_equal "ECNATSTSISER" # first, setter called, then getter.
-    form.artist.name.must_equal "greg graffi"
+    _(form.title).must_equal "ECNATSTSISER" # first, setter called, then getter.
+    _(form.artist.name).must_equal "greg graffi"
 
     form.sync
 
-    album.title.must_equal "ecnatstsiseR" # setter called, but not getter.
-    album.artist.name.must_equal "Greg Graffi"
+    _(album.title).must_equal "ecnatstsiseR" # setter called, but not getter.
+    _(album.artist.name).must_equal "Greg Graffi"
   end
 end

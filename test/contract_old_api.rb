@@ -46,32 +46,32 @@ class ContractTest < MiniTest::Spec
 
   # accept `property form: SongForm`.
   it do
-    form.artist.must_be_instance_of ArtistForm
+    _(form.artist).must_be_instance_of ArtistForm
   end
 
   describe ".properties" do
     it "defines a property when called with one argument" do
-      form.must_respond_to :duration
+      _(form).must_respond_to :duration
     end
 
     it "defines several properties when called with multiple arguments" do
-      form.must_respond_to :year
-      form.must_respond_to :style
+      _(form).must_respond_to :year
+      _(form).must_respond_to :style
     end
 
     it "passes options to each property when options are provided" do
       readable = AlbumForm.new(album).options_for(:style)[:readable]
-      readable.must_equal false
+      _(readable).must_equal false
     end
 
     it "returns the list of defined properties" do
       returned_value = AlbumForm.properties(:hello, :world, virtual: true)
-      returned_value.must_equal %i[hello world]
+      _(returned_value).must_equal %i[hello world]
     end
   end
 
   describe "#options_for" do
-    it { AlbumForm.options_for(:name).extend(Declarative::Inspect).inspect.must_equal "#<Disposable::Twin::Definition: @options={:private_name=>:name, :name=>\"name\"}>" }
-    it { AlbumForm.new(album).options_for(:name).extend(Declarative::Inspect).inspect.must_equal "#<Disposable::Twin::Definition: @options={:private_name=>:name, :name=>\"name\"}>" }
+    it { _(AlbumForm.options_for(:name).extend(Declarative::Inspect).inspect).must_equal "#<Disposable::Twin::Definition: @options={:private_name=>:name, :name=>\"name\"}>" }
+    it { _(AlbumForm.new(album).options_for(:name).extend(Declarative::Inspect).inspect).must_equal "#<Disposable::Twin::Definition: @options={:private_name=>:name, :name=>\"name\"}>" }
   end
 end

@@ -48,7 +48,7 @@ class PopulatorTest < MiniTest::Spec
       "name" => "override me!"
     )
 
-    form.name.must_equal "!em edirrevo"
+    _(form.name).must_equal "!em edirrevo"
   end
 
   # changing existing property :artist.
@@ -60,7 +60,7 @@ class PopulatorTest < MiniTest::Spec
       "artist" => {"name" => "Marcus Miller"}
     )
 
-    form.artist.model.object_id.must_equal old_id
+    _(form.artist.model.object_id).must_equal old_id
   end
 
   # use populator for default value on scalars?
@@ -68,36 +68,36 @@ class PopulatorTest < MiniTest::Spec
   # adding to collection via :populator.
   # valid.
   it "yyy" do
-    form.validate(
+    _(form.validate(
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"},
         {"title" => "Rime Of The Ancient Mariner"}, # new song.
         {"title" => "Re-Education", "composer" => {"name" => "Rise Against"}}], # new song with new composer.
-    ).must_equal true
+    )).must_equal true
 
-    form.errors.messages.inspect.must_equal "{}"
+    _(form.errors.messages.inspect).must_equal "{}"
 
     # form has updated.
-    form.name.must_equal "The Dissent Of Man"
-    form.songs[0].title.must_equal "Fallout"
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[1].composer.name.must_equal "Greg Graffin"
+    _(form.name).must_equal "The Dissent Of Man"
+    _(form.songs[0].title).must_equal "Fallout"
+    _(form.songs[1].title).must_equal "Roxanne"
+    _(form.songs[1].composer.name).must_equal "Greg Graffin"
 
-    form.songs[1].composer.model.must_be_instance_of Artist
+    _(form.songs[1].composer.model).must_be_instance_of Artist
 
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[2].title.must_equal "Rime Of The Ancient Mariner" # new song added.
-    form.songs[3].title.must_equal "Re-Education"
-    form.songs[3].composer.name.must_equal "Rise Against"
-    form.songs.size.must_equal 4
-    form.artist.name.must_equal "Bad Religion"
+    _(form.songs[1].title).must_equal "Roxanne"
+    _(form.songs[2].title).must_equal "Rime Of The Ancient Mariner" # new song added.
+    _(form.songs[3].title).must_equal "Re-Education"
+    _(form.songs[3].composer.name).must_equal "Rise Against"
+    _(form.songs.size).must_equal 4
+    _(form.artist.name).must_equal "Bad Religion"
 
     # model has not changed, yet.
-    album.name.must_equal "The Dissent Of Man"
-    album.songs[0].title.must_equal "Broken"
-    album.songs[1].title.must_equal "Resist Stance"
-    album.songs[1].composer.name.must_equal "Greg Graffin"
-    album.songs.size.must_equal 2
-    album.artist.name.must_equal "Bad Religion"
+    _(album.name).must_equal "The Dissent Of Man"
+    _(album.songs[0].title).must_equal "Broken"
+    _(album.songs[1].title).must_equal "Resist Stance"
+    _(album.songs[1].composer.name).must_equal "Greg Graffin"
+    _(album.songs.size).must_equal 2
+    _(album.artist.name).must_equal "Bad Religion"
   end
 end
 
@@ -117,7 +117,7 @@ class PopulateWithMethodTest < Minitest::Spec
   it "runs populator method" do
     form.validate("title" => "override me!")
 
-    form.title.must_equal "!em edirrevo"
+    _(form.title).must_equal "!em edirrevo"
   end
 end
 
@@ -141,7 +141,7 @@ class PopulateWithCallableTest < Minitest::Spec
   it "runs populator method" do
     form.validate("title" => "override me!")
 
-    form.title.must_equal "!em edirrevo"
+    _(form.title).must_equal "!em edirrevo"
   end
 end
 
@@ -161,7 +161,7 @@ class PopulateWithProcTest < Minitest::Spec
   it "runs populator method" do
     form.validate("title" => "override me!")
 
-    form.title.must_equal "!em edirrevo"
+    _(form.title).must_equal "!em edirrevo"
   end
 end
 
@@ -216,35 +216,35 @@ class PopulateIfEmptyTest < MiniTest::Spec
   let(:form) { AlbumForm.new(album) }
 
   it do
-    form.songs.size.must_equal 2
+    _(form.songs.size).must_equal 2
 
-    form.validate(
+    _(form.validate(
       "songs" => [{"title" => "Fallout"}, {"title" => "Roxanne"},
         {"title" => "Rime Of The Ancient Mariner"}, # new song.
         {"title" => "Re-Education", "composer" => {"name" => "Rise Against"}}], # new song with new composer.
-    ).must_equal true
+    )).must_equal true
 
-    form.errors.messages.inspect.must_equal "{}"
+    _(form.errors.messages.inspect).must_equal "{}"
 
     # form has updated.
-    form.name.must_equal "The Dissent Of Man"
-    form.songs[0].title.must_equal "Fallout"
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[1].composer.name.must_equal "Greg Graffin"
-    form.songs[1].title.must_equal "Roxanne"
-    form.songs[2].title.must_equal "Rime Of The Ancient Mariner" # new song added.
-    form.songs[3].title.must_equal "Re-Education"
-    form.songs[3].composer.name.must_equal "Rise Against"
-    form.songs.size.must_equal 4
-    form.artist.name.must_equal "Bad Religion"
+    _(form.name).must_equal "The Dissent Of Man"
+    _(form.songs[0].title).must_equal "Fallout"
+    _(form.songs[1].title).must_equal "Roxanne"
+    _(form.songs[1].composer.name).must_equal "Greg Graffin"
+    _(form.songs[1].title).must_equal "Roxanne"
+    _(form.songs[2].title).must_equal "Rime Of The Ancient Mariner" # new song added.
+    _(form.songs[3].title).must_equal "Re-Education"
+    _(form.songs[3].composer.name).must_equal "Rise Against"
+    _(form.songs.size).must_equal 4
+    _(form.artist.name).must_equal "Bad Religion"
 
     # model has not changed, yet.
-    album.name.must_equal "The Dissent Of Man"
-    album.songs[0].title.must_equal "Broken"
-    album.songs[1].title.must_equal "Resist Stance"
-    album.songs[1].composer.name.must_equal "Greg Graffin"
-    album.songs.size.must_equal 2
-    album.artist.name.must_equal "Bad Religion"
+    _(album.name).must_equal "The Dissent Of Man"
+    _(album.songs[0].title).must_equal "Broken"
+    _(album.songs[1].title).must_equal "Resist Stance"
+    _(album.songs[1].composer.name).must_equal "Greg Graffin"
+    _(album.songs.size).must_equal 2
+    _(album.artist.name).must_equal "Bad Religion"
   end
 
   # trigger artist populator. lambda calling form instance method.
@@ -252,11 +252,11 @@ class PopulateIfEmptyTest < MiniTest::Spec
     form = AlbumForm.new(album = Album.new)
     form.validate("artist" => {"name" => "From Autumn To Ashes"})
 
-    form.artist.name.must_equal "From Autumn To Ashes"
+    _(form.artist.name).must_equal "From Autumn To Ashes"
     # test lambda was executed in form context.
-    form.artist.model.must_be_instance_of AlbumForm::Sting
+    _(form.artist.model).must_be_instance_of AlbumForm::Sting
     # test lambda block arguments.
-    form.artist.model.args.to_s.must_equal "[{\"name\"=>\"From Autumn To Ashes\"}, nil]"
+    _(form.artist.model.args.to_s).must_equal "[{\"name\"=>\"From Autumn To Ashes\"}, nil]"
 
     assert_nil album.artist
   end
@@ -292,13 +292,13 @@ class PopulateIfEmptyWithDeletionTest < MiniTest::Spec
   let(:form) { AlbumForm.new(album) }
 
   it do
-    form.validate(
+    _(form.validate(
       "songs" => [{"title" => "Broken, delete me!"}, {"title" => "Roxanne"}]
-    ).must_equal true
+    )).must_equal true
 
-    form.errors.messages.inspect.must_equal "{}"
+    _(form.errors.messages.inspect).must_equal "{}"
 
-    form.songs.size.must_equal 1
-    form.songs[0].title.must_equal "Roxanne"
+    _(form.songs.size).must_equal 1
+    _(form.songs[0].title).must_equal "Roxanne"
   end
 end
