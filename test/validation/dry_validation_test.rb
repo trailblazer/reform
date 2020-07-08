@@ -39,7 +39,7 @@ class DryValidationErrorsAPITest < Minitest::Spec
       property :title
 
       validation do
-        config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
+        config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
 
         params { required(:title).filled }
       end
@@ -426,7 +426,7 @@ class ValidationGroupsTest < MiniTest::Spec
       end
 
       validation do
-        config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
+        config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
         params do
           required(:title).filled
           required(:band).hash do
@@ -513,7 +513,7 @@ class ValidationGroupsTest < MiniTest::Spec
         end
 
         validation do
-          config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
+          config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
 
           params do
             required(:title).filled
@@ -723,7 +723,7 @@ class ValidationGroupsTest < MiniTest::Spec
       end
 
       validation do
-        config.messages.load_paths << "test/fixtures/dry_new_api_error_messages.yml"
+        config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
 
         params do
           required(:songs).filled
