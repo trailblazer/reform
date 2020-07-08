@@ -33,8 +33,8 @@ class FormCompositionInheritanceTest < MiniTest::Spec
   Tshirt = Struct.new(:price, :size)
   Measurement = Struct.new(:size)
 
-  it { form.price.must_equal 6 }
-  it { form.price(for_size: :s).must_equal 2 }
+  it { _(form.price).must_equal 6 }
+  it { _(form.price(for_size: :s)).must_equal 2 }
 end
 
 class FormCompositionTest < MiniTest::Spec
@@ -69,24 +69,24 @@ class FormCompositionTest < MiniTest::Spec
   let(:band)       { Band.new("Duran^2") }
 
   # delegation form -> composition works
-  it { form.id.must_equal 1 }
-  it { form.title.must_equal "Rio" }
-  it { form.name.must_equal "Duran Duran" }
-  it { form.requester_id.must_equal 2 }
+  it { _(form.id).must_equal 1 }
+  it { _(form.title).must_equal "Rio" }
+  it { _(form.name).must_equal "Duran Duran" }
+  it { _(form.requester_id).must_equal 2 }
   it { assert_nil form.channel }
-  it { form.requester.must_equal "MCP" } # same name as composed model.
+  it { _(form.requester).must_equal "MCP" } # same name as composed model.
   it { assert_nil form.captcha }
 
   # #model just returns <Composition>.
-  it { form.mapper.must_be_kind_of Disposable::Composition }
+  it { _(form.mapper).must_be_kind_of Disposable::Composition }
 
   # #model[] -> composed models
-  it { form.model[:requester].must_equal requester }
-  it { form.model[:song].must_equal song }
+  it { _(form.model[:requester]).must_equal requester }
+  it { _(form.model[:song]).must_equal song }
 
   it "creates Composition for you" do
-    form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb").must_equal true
-    form.validate("title" => "", "name" => "Frenzal Rhomb").must_equal false
+    _(form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb")).must_equal true
+    _(form.validate("title" => "", "name" => "Frenzal Rhomb")).must_equal false
   end
 
   describe "#save" do
@@ -99,7 +99,7 @@ class FormCompositionTest < MiniTest::Spec
         hash[:title]  = form.title
       end
 
-      hash.must_equal({name: "Duran Duran", title: "Rio"})
+      _(hash).must_equal({name: "Duran Duran", title: "Rio"})
     end
 
     it "provides nested symbolized hash as second block argument" do
@@ -111,7 +111,7 @@ class FormCompositionTest < MiniTest::Spec
         hash = map
       end
 
-      hash.must_equal({
+      _(hash).must_equal({
                         song: {"title" => "Greyhound", "id" => 1, "channel" => "JJJ", "captcha" => "wonderful", "band" => {"title" => "Duran^2"}},
                         requester: {"name" => "Frenzal Rhomb", "id" => 2, "requester" => "MCP"}
                       }
@@ -124,16 +124,16 @@ class FormCompositionTest < MiniTest::Spec
       band.extend(Saveable)
 
       form.validate("title" => "Greyhound", "name" => "Frenzal Rhomb", "captcha" => "1337")
-      form.captcha.must_equal "1337" # TODO: move to separate test.
+      _(form.captcha).must_equal "1337" # TODO: move to separate test.
 
       form.save
 
-      requester.name.must_equal "Frenzal Rhomb"
-      requester.saved?.must_equal true
-      song.title.must_equal "Greyhound"
-      song.saved?.must_equal true
-      song.band.title.must_equal "Duran^2"
-      song.band.saved?.must_equal true
+      _(requester.name).must_equal "Frenzal Rhomb"
+      _(requester.saved?).must_equal true
+      _(song.title).must_equal "Greyhound"
+      _(song.saved?).must_equal true
+      _(song.band.title).must_equal "Duran^2"
+      _(song.band.saved?).must_equal true
     end
 
     it "returns true when models all save successfully" do
@@ -141,7 +141,7 @@ class FormCompositionTest < MiniTest::Spec
       requester.extend(Saveable)
       band.extend(Saveable)
 
-      form.save.must_equal true
+      _(form.save).must_equal true
     end
 
     it "returns false when one or more models don't save successfully" do
@@ -155,7 +155,7 @@ class FormCompositionTest < MiniTest::Spec
       requester.extend(Saveable)
       band.extend(Saveable)
 
-      form.save.must_equal false
+      _(form.save).must_equal false
     end
   end
 end
@@ -180,5 +180,5 @@ class FormCompositionCollectionTest < MiniTest::Spec
   let(:form)   { LibraryForm.new(library: library) }
   let(:library) { Library.new(2) }
 
-  it { form.save { |hash| hash.must_equal({library: {"books" => [{"id" => 1, "name" => "My book"}]}}) } }
+  it { form.save { |hash| _(hash).must_equal({library: {"books" => [{"id" => 1, "name" => "My book"}]}}) } }
 end

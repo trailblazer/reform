@@ -37,25 +37,25 @@ class PrepopulatorTest < MiniTest::Spec
   it do
     form = AlbumForm.new(OpenStruct.new(length: 1)).prepopulate!(title: "Potemkin City Limits")
 
-    form.length.must_equal 1
-    form.title.must_equal "Another Day At Work"
-    form.hit.model.must_equal Song.new("Potemkin City Limits")
-    form.songs.size.must_equal 2
-    form.songs[0].model.must_equal Song.new
-    form.songs[1].model.must_equal Song.new
-    form.songs[1].model.must_equal Song.new
+    _(form.length).must_equal 1
+    _(form.title).must_equal "Another Day At Work"
+    _(form.hit.model).must_equal Song.new("Potemkin City Limits")
+    _(form.songs.size).must_equal 2
+    _(form.songs[0].model).must_equal Song.new
+    _(form.songs[1].model).must_equal Song.new
+    _(form.songs[1].model).must_equal Song.new
     # prepopulate works more than 1 level, recursive.
     # it also passes options properly down there.
-    form.hit.band.model.must_equal Band.new("Potemkin City Limits")
+    _(form.hit.band.model).must_equal Band.new("Potemkin City Limits")
   end
 
   # add to existing collection.
   it do
     form = AlbumForm.new(OpenStruct.new(songs: [Song.new])).prepopulate!
 
-    form.songs.size.must_equal 2
-    form.songs[0].model.must_equal Song.new
-    form.songs[1].model.must_equal Song.new
+    _(form.songs.size).must_equal 2
+    _(form.songs[0].model).must_equal Song.new
+    _(form.songs[1].model).must_equal Song.new
   end
 end
 
@@ -75,7 +75,7 @@ class PrepopulateWithoutConfiguration < MiniTest::Spec
 
   subject { AlbumForm.new(OpenStruct.new(songs: [], hit: nil)).prepopulate! }
 
-  it { subject.songs.size.must_equal 0 }
+  it { _(subject.songs.size).must_equal 0 }
 end
 
 class ManualPrepopulatorOverridingTest < MiniTest::Spec
@@ -104,8 +104,8 @@ class ManualPrepopulatorOverridingTest < MiniTest::Spec
   it do
     form = AlbumForm.new(OpenStruct.new(length: 1)).prepopulate!(title: "Potemkin City Limits")
 
-    form.length.must_equal 1
-    form.hit.model.must_equal Song.new("Potemkin City Limits")
-    form.hit.title.must_equal "Potemkin City Limits"
+    _(form.length).must_equal 1
+    _(form.hit.model).must_equal Song.new("Potemkin City Limits")
+    _(form.hit.title).must_equal "Potemkin City Limits"
   end
 end

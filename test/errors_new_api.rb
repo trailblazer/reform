@@ -72,22 +72,22 @@ class ErrorsTest < MiniTest::Spec
 
   describe "#validate with invalid array property" do
     it do
-      form.validate(
+      _(form.validate(
         title: "Swimming Pool - EP",
         band: {
           name: "Marie Madeleine",
           label: {name: "Ekler'o'shocK"}
         },
         artists: [42, "Good Charlotte", 43]
-      ).must_equal false
-      form.errors.messages.must_equal(artists: {0 => ["must be a string"], 2 => ["must be a string"]})
-      form.errors.size.must_equal(1)
+      )).must_equal false
+      _(form.errors.messages).must_equal(artists: {0 => ["must be a string"], 2 => ["must be a string"]})
+      _(form.errors.size).must_equal(1)
     end
   end
 
   describe "#errors without #validate" do
     it do
-      form.errors.size.must_equal 0
+      _(form.errors.size).must_equal 0
     end
   end
 
@@ -102,7 +102,7 @@ class ErrorsTest < MiniTest::Spec
     end
 
     it do
-      form.errors.messages.must_equal(
+      _(form.errors.messages).must_equal(
         title: ["must be filled"],
         "hit.title": ["must be filled"],
         "songs.title": ["must be filled"],
@@ -117,60 +117,60 @@ class ErrorsTest < MiniTest::Spec
     # end
 
     # nested forms keep their own Errors:
-    it { form.producer.errors.messages.must_equal(name: ["must be filled"]) }
-    it { form.hit.errors.messages.must_equal(title: ["must be filled"]) }
-    it { form.songs[0].errors.messages.must_equal(title: ["must be filled"]) }
+    it { _(form.producer.errors.messages).must_equal(name: ["must be filled"]) }
+    it { _(form.hit.errors.messages).must_equal(title: ["must be filled"]) }
+    it { _(form.songs[0].errors.messages).must_equal(title: ["must be filled"]) }
 
     it do
-      form.errors.messages.must_equal(
+      _(form.errors.messages).must_equal(
         title: ["must be filled"],
         "hit.title": ["must be filled"],
         "songs.title": ["must be filled"],
         "band.label.name": ["must be filled"],
         "producer.name": ["must be filled"]
       )
-      form.errors.size.must_equal(5)
+      _(form.errors.size).must_equal(5)
     end
   end
 
   describe "#validate with main form invalid" do
     it do
-      form.validate("title" => "", "band" => {"label" => {name: "Fat Wreck"}}, "producer" => nil).must_equal false
-      form.errors.messages.must_equal(title: ["must be filled"], producer: ["must be a hash"])
-      form.errors.size.must_equal(2)
+      _(form.validate("title" => "", "band" => {"label" => {name: "Fat Wreck"}}, "producer" => nil)).must_equal false
+      _(form.errors.messages).must_equal(title: ["must be filled"], producer: ["must be a hash"])
+      _(form.errors.size).must_equal(2)
     end
   end
 
   describe "#validate with middle nested form invalid" do
     before { @result = form.validate("hit" => {"title" => ""}, "band" => {"label" => {name: "Fat Wreck"}}) }
 
-    it { @result.must_equal false }
-    it { form.errors.messages.must_equal("hit.title": ["must be filled"]) }
-    it { form.errors.size.must_equal(1) }
+    it { _(@result).must_equal false }
+    it { _(form.errors.messages).must_equal("hit.title": ["must be filled"]) }
+    it { _(form.errors.size).must_equal(1) }
   end
 
   describe "#validate with collection form invalid" do
     before { @result = form.validate("songs" => [{"title" => ""}], "band" => {"label" => {name: "Fat Wreck"}}) }
 
-    it { @result.must_equal false }
-    it { form.errors.messages.must_equal("songs.title": ["must be filled"]) }
-    it { form.errors.size.must_equal(1) }
+    it { _(@result).must_equal false }
+    it { _(form.errors.messages).must_equal("songs.title": ["must be filled"]) }
+    it { _(form.errors.size).must_equal(1) }
   end
 
   describe "#validate with collection and 2-level-nested invalid" do
     before { @result = form.validate("songs" => [{"title" => ""}], "band" => {"label" => {}}) }
 
-    it { @result.must_equal false }
-    it { form.errors.messages.must_equal("songs.title": ["must be filled"], "band.label.name": ["must be filled"]) }
-    it { form.errors.size.must_equal(2) }
+    it { _(@result).must_equal false }
+    it { _(form.errors.messages).must_equal("songs.title": ["must be filled"], "band.label.name": ["must be filled"]) }
+    it { _(form.errors.size).must_equal(2) }
   end
 
   describe "#validate with nested form using :base invalid" do
     it do
       result = form.validate("songs" => [{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}})
-      result.must_equal false
-      form.errors.messages.must_equal("band.name": ["you're a bad person"])
-      form.errors.size.must_equal(1)
+      _(result).must_equal false
+      _(form.errors.messages).must_equal("band.name": ["you're a bad person"])
+      _(form.errors.size).must_equal(1)
     end
   end
 
@@ -178,17 +178,17 @@ class ErrorsTest < MiniTest::Spec
     let(:album_title) { nil }
     it do
       result = form.validate("songs" => [{"title" => "Someday"}], "band" => {"name" => "Nickelback", "label" => {"name" => "Roadrunner Records"}})
-      result.must_equal false
-      form.errors.messages.must_equal(title: ["must be filled"], "band.name": ["you're a bad person"])
+      _(result).must_equal false
+      _(form.errors.messages).must_equal(title: ["must be filled"], "band.name": ["you're a bad person"])
       # add a new custom error
       form.errors.add(:policy, "error_text")
-      form.errors.messages.must_equal(title: ["must be filled"], "band.name": ["you're a bad person"], policy: ["error_text"])
+      _(form.errors.messages).must_equal(title: ["must be filled"], "band.name": ["you're a bad person"], policy: ["error_text"])
       # does not duplicate errors
       form.errors.add(:title, "must be filled")
-      form.errors.messages.must_equal(title: ["must be filled"], "band.name": ["you're a bad person"], policy: ["error_text"])
+      _(form.errors.messages).must_equal(title: ["must be filled"], "band.name": ["you're a bad person"], policy: ["error_text"])
       # merge existing errors
       form.errors.add(:policy, "another error")
-      form.errors.messages.must_equal(title: ["must be filled"], "band.name": ["you're a bad person"], policy: ["error_text", "another error"])
+      _(form.errors.messages).must_equal(title: ["must be filled"], "band.name": ["you're a bad person"], policy: ["error_text", "another error"])
     end
   end
 
@@ -202,14 +202,14 @@ class ErrorsTest < MiniTest::Spec
       )
     end
 
-    it { @result.must_equal true }
-    it { form.hit.title.must_equal "Sacrifice" }
-    it { form.title.must_equal "Second Heat" }
-    it { form.songs.first.title.must_equal "Heart Of A Lion" }
+    it { _(@result).must_equal true }
+    it { _(form.hit.title).must_equal "Sacrifice" }
+    it { _(form.title).must_equal "Second Heat" }
+    it { _(form.songs.first.title).must_equal "Heart Of A Lion" }
     it do
       skip "WE DON'T NEED COUNT AND EMPTY? ON THE CORE ERRORS OBJECT"
-      form.errors.size.must_equal(0)
-      form.errors.empty?.must_equal(true)
+      _(form.errors.size).must_equal(0)
+      _(form.errors.empty?).must_equal(true)
     end
   end
 
@@ -219,7 +219,7 @@ class ErrorsTest < MiniTest::Spec
     # to_s is aliased to messages
     it {
       skip "why do we need Errors#to_s ?"
-      form.errors.to_s.must_equal "{:\"songs.title\"=>[\"must be filled\"], :\"band.label.name\"=>[\"must be filled\"]}"
+      _(form.errors.to_s).must_equal "{:\"songs.title\"=>[\"must be filled\"], :\"band.label.name\"=>[\"must be filled\"]}"
     }
   end
 end

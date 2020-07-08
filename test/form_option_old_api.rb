@@ -17,7 +17,7 @@ class FormOptionTest < MiniTest::Spec
 
   it do
     form = AlbumForm.new(Album.new(Song.new("When It Comes To You")))
-    form.song.title.must_equal "When It Comes To You"
+    _(form.song.title).must_equal "When It Comes To You"
 
     form.validate(song: {title: "Run For Cover"})
   end

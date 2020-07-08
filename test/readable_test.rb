@@ -15,16 +15,16 @@ class ReadableTest < MiniTest::Spec
 
     form.validate("password" => "123")
 
-    form.password.must_equal "123"
+    _(form.password).must_equal "123"
 
     form.sync
-    cred.password.must_equal "123" # password written.
+    _(cred.password).must_equal "123" # password written.
 
     hash = {}
     form.save do |nested|
       hash = nested
     end
 
-    hash.must_equal("password" => "123")
+    _(hash).must_equal("password" => "123")
   }
 end

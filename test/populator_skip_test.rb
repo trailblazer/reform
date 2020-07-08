@@ -21,8 +21,8 @@ class PopulatorSkipTest < MiniTest::Spec
 
     form.validate(hash)
 
-    form.songs.size.must_equal 2
+    _(form.songs.size).must_equal 2
     assert_nil form.songs[0].title
-    form.songs[1].title.must_equal "Bad"
+    _(form.songs[1].title).must_equal "Bad"
   end
 end
