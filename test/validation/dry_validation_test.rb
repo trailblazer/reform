@@ -138,7 +138,7 @@ end
 
 class DryValidationExplicitSchemaTest < Minitest::Spec
   Session = Struct.new(:name, :email)
-  SessionSchema = Dry::Validation.Contract do
+  SessionContract = Dry::Validation.Contract do
     params do
       required(:name).filled
       required(:email).filled
@@ -151,7 +151,7 @@ class DryValidationExplicitSchemaTest < Minitest::Spec
     property :name
     property :email
 
-    validation schema: SessionSchema
+    validation contract: SessionContract
   end
 
   let(:form) { SessionForm.new(Session.new) }
@@ -343,11 +343,10 @@ class ValidationGroupsTest < MiniTest::Spec
   end
 
   #---
-  #- validation( schema: MySchema )
   describe "with custom schema" do
     Session2 = Struct.new(:username, :email, :password)
 
-    MySchema = Dry::Schema.Params do
+    MyContract = Dry::Schema.Params do
       config.messages.load_paths << "test/fixtures/dry_error_messages.yml"
 
       required(:password).filled(min_size?: 6)
@@ -358,7 +357,7 @@ class ValidationGroupsTest < MiniTest::Spec
       property :email
       property :password
 
-      validation schema: MySchema do
+      validation contract: MyContract do
         params do
           required(:username).filled
           required(:email).filled

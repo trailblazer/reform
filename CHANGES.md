@@ -4,6 +4,10 @@
 [* Removed `Reform::Contract` ?]
 [* Move Form#deserializer to Form::deserializer]
 
+## 2.3.3
+
+* Rename validation option for dry-v 1+ to `contract` instead of `schema`
+
 ## 2.3.2
 
 * Fix Validation block option :form incorrectly memoized between tests
