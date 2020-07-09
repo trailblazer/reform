@@ -20,8 +20,8 @@ module Reform::Form::Dry
       class Group
         include InputHash
 
-        def initialize(options = {})
-          @validator = options.fetch(:schema, Contract)
+        def initialize(**options)
+          @validator = options.fetch(:contract, Contract)
           @schema_inject_params = options.fetch(:with, {})
         end
 
@@ -32,8 +32,6 @@ module Reform::Form::Dry
         end
 
         def call(form)
-          # when passing options[:schema] the class instance is already created so we just need to call
-          # "call"
           return validator.call(input_hash(form)) unless validator.is_a?(Class) && @validator <= ::Dry::Validation::Contract
 
           dynamic_options = { form: form }
