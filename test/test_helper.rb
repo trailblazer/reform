@@ -42,8 +42,6 @@ class BaseTest < MiniTest::Spec
   let(:hit) { Song.new("Roxanne") }
 end
 
-
-
 MiniTest::Spec.class_eval do
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
