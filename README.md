@@ -14,7 +14,7 @@ Although reform can be used in any Ruby framework, it comes with [Rails support]
 
 ## Full Documentation
 
-Reform is part of the [Trailblazer](http://trailblazer.to) framework. [Full documentation](http://trailblazer.to/gems/reform) is available on the project site.
+Reform is part of the [Trailblazer](http://trailblazer.to) framework. [Full documentation](http://trailblazer.to/2.1/docs/reform.html) is available on the project site.
 
 ## Reform 2.2
 
@@ -250,7 +250,7 @@ The manual saving with block is not encouraged. You should rather check the Disp
 
 ## Populating Forms
 
-Very often, you need to give Reform some information how to create or find nested objects when `validate`ing. This directive is called _populator_ and [documented here](http://trailblazer.to/gems/reform/populator.html).
+Very often, you need to give Reform some information how to create or find nested objects when `validate`ing. This directive is called _populator_ and [documented here](http://trailblazer.to/2.1/docs/reform.html#reform-populators).
 
 ## Installation
 
@@ -313,7 +313,7 @@ AlbumForm.new(album: album, cd: CD.find(1))
 
 ## More
 
-Reform comes many more optional features, like hash fields, coercion, virtual fields, and so on. Check the [full documentation here](http://trailblazer.to/gems/reform).
+Reform comes many more optional features, like hash fields, coercion, virtual fields, and so on. Check the [full documentation here](http://trailblazer.to/2.1/docs/reform.html).
 
 [![](http://trailblazer.to/images/3dbuch-freigestellt.png)](https://leanpub.com/trailblazer)
 
@@ -330,7 +330,7 @@ Temporary note: This is the README and API for Reform 2. On the public API, only
 
 Anyway, please upgrade and _report problems_ and do not simply assume that we will magically find out what needs to get fixed. When in trouble, join us on [Gitter](https://gitter.im/trailblazer/chat).
 
-[Full documentation for Reform](http://trailblazer.to/gems/reform) is available online, or support us and grab the [Trailblazer book](https://leanpub.com/trailblazer). There is an [Upgrading Guide](http://trailblazer.to/gems/reform/upgrading-guide.html) to help you migrate from Reform 1.x.
+[Full documentation for Reform](http://trailblazer.to/2.1/docs/reform.html) is available online, or support us and grab the [Trailblazer book](https://leanpub.com/trailblazer). There is an [Upgrading Guide](http://trailblazer.to/2.1/docs/reform.html#reform-upgrading-guide) to help you migrate through versions.
 
 ### Attributions!!!
 
