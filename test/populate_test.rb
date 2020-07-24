@@ -302,3 +302,62 @@ class PopulateIfEmptyWithDeletionTest < MiniTest::Spec
     assert_equal form.songs[0].title, "Roxanne"
   end
 end
+
+class PopulateWithFormKeyTest < MiniTest::Spec
+  Song  = Struct.new(:title, :album, :composer)
+  Album = Struct.new(:name, :songs, :artist)
+
+  let(:song)  { Song.new('Broken') }
+  let(:song2) { Song.new('Resist Stance') }
+  let(:album) { Album.new('The Dissent Of Man', [song, song2]) }
+
+  class SongForm < TestForm
+    property :title
+
+    validation do
+      params { required(:title).filled }
+    end
+  end
+
+  class AlbumForm < TestForm
+    property :name
+
+    collection :songs, form: SongForm, populator: :populator!, model_identifier: :title
+
+    def populator!(fragment:, **)
+      item = songs.find { |song| song.title == fragment['title'] }
+      if item && fragment['delete'] == '1'
+        songs.delete(item)
+        return skip!
+      end
+      item || songs.append(Song.new)
+    end
+  end
+
+  let(:form) { AlbumForm.new(album) }
+
+  it do
+    assert_equal 2, form.songs.size
+
+    assert form.validate(
+      'songs' => [
+        { 'title' => 'Broken' },
+        { 'title' => 'Resist Stance' },
+        { 'title' => 'Rime Of The Ancient Mariner' }
+      ]
+    )
+
+    assert_equal 3, form.songs.size
+
+    assert form.validate(
+      'songs' => [
+        { 'title' => 'Broken', 'delete' => '1' },
+        { 'title' => 'Resist Stance' },
+        { 'title' => 'Rime Of The Ancient Mariner' }
+      ]
+    )
+    assert_equal 2, form.songs.size
+    assert_equal 'Resist Stance', form.songs.first.title
+    assert_equal 'Rime Of The Ancient Mariner', form.songs.last.title
+  end
+end
