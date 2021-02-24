@@ -46,8 +46,11 @@ module Reform::Form::Dry
 
         dynamic_options = { form: form }
         inject_options = schema_inject_params.merge(dynamic_options)
+        contract.new(inject_options).call(input_hash(form))
+      end
 
-        validator.build(inject_options, &block).call(input_hash(form))
+      def contract
+        @contract ||= Class.new(validator, &block)
       end
     end
   end

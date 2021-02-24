@@ -25,7 +25,7 @@ class ModuleInclusionTest < MiniTest::Spec
       params { required(:band).filled }
     end
 
-    include Dry::Types.module # allows using Types::* in module.
+    include Dry.Types(default: :nominal) # allows using Types::* in module.
     property :cool, type: Types::Params::Bool # test coercion.
   end
 
