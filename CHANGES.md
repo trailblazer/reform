@@ -1,3 +1,6 @@
+## 2.5.0
+*  fix memory leak with Dry validation (#525)
+
 ## 2.4.0
 
 * [BREAKING] Dropping compatibility of dry-validation < 1.x
