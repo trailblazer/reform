@@ -28,10 +28,11 @@ module Reform::Form::Dry
     class Group
       include InputHash
 
-      def initialize(**options)
+      def initialize(options)
         @validator = options.fetch(:contract, Contract)
         @schema_inject_params = options.fetch(:with, {})
       end
+      ruby2_keywords :initialize if respond_to?(:ruby2_keywords, true)
 
       attr_reader :validator, :schema_inject_params, :block
 
@@ -46,7 +47,7 @@ module Reform::Form::Dry
 
         dynamic_options = { form: form }
         inject_options = schema_inject_params.merge(dynamic_options)
-        contract.new(inject_options).call(input_hash(form))
+        contract.new(**inject_options).call(input_hash(form))
       end
 
       def contract
