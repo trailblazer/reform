@@ -51,7 +51,7 @@ class PrepopulatorTest < MiniTest::Spec
 
   # add to existing collection.
   it do
-    form = AlbumForm.new(OpenStruct.new(songs: [Song.new])).prepopulate!
+    form = AlbumForm.new(OpenStruct.new(songs: [Song.new])).prepopulate!(title: "Potemkin City Limits")
 
     assert_equal form.songs.size, 2
     assert_equal form.songs[0].model, Song.new

@@ -28,7 +28,7 @@ module Reform::Form::Dry
     class Group
       include InputHash
 
-      def initialize(**options)
+      def initialize(options)
         @validator = options.fetch(:contract, Contract)
         @schema_inject_params = options.fetch(:with, {})
       end
@@ -46,7 +46,7 @@ module Reform::Form::Dry
 
         dynamic_options = { form: form }
         inject_options = schema_inject_params.merge(dynamic_options)
-        contract.new(inject_options).call(input_hash(form))
+        contract.new(**inject_options).call(input_hash(form))
       end
 
       def contract

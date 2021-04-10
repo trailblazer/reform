@@ -7,7 +7,7 @@
 class Reform::Form::Populator
   def initialize(user_proc)
     @user_proc = user_proc # the actual `populator: ->{}` block from the user, via ::property.
-    @value     = Declarative::Option(user_proc, instance_exec: true, callable: Object) # we can now process Callable, procs, :symbol.
+    @value     = ::Representable::Option(user_proc) # we can now process Callable, procs, :symbol.
   end
 
   def call(input, options)
@@ -30,7 +30,7 @@ class Reform::Form::Populator
 
   def call!(options)
     form = options[:represented]
-    @value.(form, options) # Declarative::Option call.
+    @value.(exec_context: form, keyword_arguments: options) # Representable::Option call.
   end
 
   def handle_fail(twin, options)
@@ -66,7 +66,7 @@ class Reform::Form::Populator
       return @user_proc.new if @user_proc.is_a?(Class) # handle populate_if_empty: Class. this excludes using Callables, though.
 
       deprecate_positional_args(form, @user_proc, options) do
-        @value.(form, options)
+        @value.(exec_context: form, keyword_arguments: options)
       end
     end
 

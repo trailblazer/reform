@@ -127,8 +127,8 @@ class PopulateWithCallableTest < Minitest::Spec
   class TitlePopulator
     include Uber::Callable
 
-    def call(form, options)
-      form.title = options[:fragment].reverse
+    def call(options)
+      options[:represented].title = options[:fragment].reverse
     end
   end
 
