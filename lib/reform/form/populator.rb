@@ -30,7 +30,17 @@ class Reform::Form::Populator
 
   def call!(options)
     form = options[:represented]
-    @value.(exec_context: form, keyword_arguments: options) # Representable::Option call.
+    evaluate_option(form, options)
+  end
+
+  def evaluate_option(form, options)
+    if @user_proc.is_a?(Uber::Callable) && @user_proc.method(:call).arity == 2 # def call(form, options)
+      warn %{[Reform] Accepting `form` as a positional argument in `:populator` will be deprecated. Please use `def call(form:, **options)` signature instead.}
+
+      return @value.(form, exec_context: form, keyword_arguments: options)
+    end
+
+    @value.(exec_context: form, keyword_arguments: options.merge(form: form)) # Representable::Option call
   end
 
   def handle_fail(twin, options)
@@ -66,7 +76,7 @@ class Reform::Form::Populator
       return @user_proc.new if @user_proc.is_a?(Class) # handle populate_if_empty: Class. this excludes using Callables, though.
 
       deprecate_positional_args(form, @user_proc, options) do
-        @value.(exec_context: form, keyword_arguments: options)
+        evaluate_option(form, options)
       end
     end
 
