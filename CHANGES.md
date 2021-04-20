@@ -1,3 +1,9 @@
+## 2.6.0
+
+* Support ruby-3 by using `Representable::Option` to handle `keyword_arguments` forwarding :tada:
+* Upgrade `representable` and `disposable` dependencies which uses `trailblazer-option` over `declarative-option`.
+* Deprecate populator's callable signature which accepts `form` as a separate positional argument. Make all callable (proc, method, `Uber::Callable`) signatures identical.
+
 ## 2.5.0
 *  fix memory leak with Dry validation (#525)
 
