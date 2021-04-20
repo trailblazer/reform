@@ -127,6 +127,14 @@ class PopulateWithCallableTest < Minitest::Spec
   class TitlePopulator
     include Uber::Callable
 
+    def call(form:, **options)
+      form.title = options[:fragment].reverse
+    end
+  end
+
+  class TitlePopulatorWithOldSignature
+    include Uber::Callable
+
     def call(form, options)
       form.title = options[:fragment].reverse
     end
@@ -136,12 +144,28 @@ class PopulateWithCallableTest < Minitest::Spec
     property :title, populator: TitlePopulator.new
   end
 
+  class AlbumFormWithOldPopulator < TestForm
+    property :title, populator: TitlePopulatorWithOldSignature.new
+  end
+
   let(:form) { AlbumForm.new(Album.new) }
 
   it "runs populator method" do
     form.validate("title" => "override me!")
 
     assert_equal form.title, "!em edirrevo"
+  end
+
+  it "gives warning when `form` is accepted as a positional argument" do
+    _, warnings = capture_io do
+      form = AlbumFormWithOldPopulator.new(Album.new)
+      form.validate("title" => "override me!")
+
+      assert_equal form.title, "!em edirrevo"
+    end
+
+    assert_equal warnings, %{[Reform] Accepting `form` as a positional argument in `:populator` will be deprecated. Please use `def call(form:, **options)` signature instead.
+}
   end
 end
 

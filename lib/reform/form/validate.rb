@@ -4,15 +4,15 @@ module Reform::Form::Validate
     class AllBlank
       include Uber::Callable
 
-      def call(form, options)
+      def call(input:, binding:, **)
         # TODO: Schema should provide property names as plain list.
         # ensure param keys are strings.
-        params = options[:input].each_with_object({}) { |(k, v), hash|
+        params = input.each_with_object({}) { |(k, v), hash|
           hash[k.to_s] = v
         }
 
         # return false if any property inputs are populated.
-        options[:binding][:nested].definitions.each do |definition|
+        binding[:nested].definitions.each do |definition|
           value = params[definition.name.to_s]
           return false if (!value.nil? && value != '')
         end
