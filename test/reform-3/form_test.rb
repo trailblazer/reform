@@ -74,6 +74,7 @@ class FormTest < Minitest::Spec
     # * a separate step does coercion, using whatever code you want (or automatically via Dry::Types)
     # * we have all values separately after the deserialization and can assign it to a Twin as we need it. This allows
     #   to pass the coerced <DateTime> to the validation, but still show  the original "12" in the form when we error.
+    # * it's possible to access all *pipeline variables* such as {invoice_date.parse_user_date} using {Form#[]}. It would be cool if this was probably routed to a "new" datastructure that only represents "validated" state.
     #
     # NOTES
     # * the architecture of Contract#validate is great since we can easily replace the parsing of Form#validate.

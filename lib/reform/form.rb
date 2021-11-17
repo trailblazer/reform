@@ -122,7 +122,7 @@ module Reform
             ctx[:value] = input[key]
           end
 
-          step method(:read), output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}} # TODO: what if not existing etc?
+          step method(:read), id: :read, output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}} # TODO: what if not existing etc?
 
         end # Property
 
@@ -157,9 +157,6 @@ module Reform
 
     require "disposable/twin/save"
     feature Disposable::Twin::Save
-
-    require "reform/form/prepopulate"
-    include Prepopulate
 
     def skip!
       Representable::Pipeline::Stop

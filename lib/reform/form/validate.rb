@@ -44,7 +44,7 @@ module Reform::Form::Validate
       self.send("#{field}=", value) # FIXME: hahaha: this actually sets the scalar values on the form
     end # FIXME: this creates two sources for {invoice_date}, sucks
 
-    @arbitrary_bullshit = ctx
+    @arbitrary_bullshit = ctx # TODO: do we need the entire {Context} instance here?
 
     values
   end
