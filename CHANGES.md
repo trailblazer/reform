@@ -1,3 +1,7 @@
+## 2.6.1
+
+* Loosen `disposable` dependency to `>= 0.5.0`.
+
 ## 2.6.0
 
 * Support ruby-3 by using `Representable::Option` to handle `keyword_arguments` forwarding :tada:
