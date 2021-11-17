@@ -1,3 +1,6 @@
+require "trailblazer/activity/dsl/linear"
+require "trailblazer/developer"
+
 module Reform
   class Form < Contract
     class InvalidOptionsCombinationError < StandardError; end
@@ -17,8 +20,7 @@ module Reform
 
     module Property
       # Add macro logic, e.g. for :populator.
-      # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
-      def property(name, options = {}, &block)
+      def property(name, parse_block: ->(*) {}, **options, &block)
         if (options.keys & %i[skip_if populator]).size == 2
           raise InvalidOptionsCombinationError.new(
             "[Reform] #{self}:property:#{name} Do not use skip_if and populator together, use populator with skip! instead"
@@ -43,8 +45,12 @@ module Reform
         end
 
         definition = super # letdisposable and declarative gems sort out inheriting of properties, and so on.
-        definition.merge!(deserializer: {}) unless definition[:deserializer] # always keep :deserializer per property.
 
+
+
+        add_property_to_deserializer!(name, deserializer_activity, parse_block: parse_block)
+
+=begin
         deserializer_options = definition[:deserializer]
 
         # Populators
@@ -90,10 +96,49 @@ module Reform
 
         # per default, everything should be writeable for the deserializer (we're only writing on the form). however, allow turning it off.
         deserializer_options.merge!(writeable: true) unless deserializer_options.key?(:writeable)
+=end
 
         definition
       end
-      # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+
+      def deserializer_activity
+        @deserializer_activity ||= Class.new(Trailblazer::Activity::Railway) # FIXME: how to do that without ||=?
+        @deserializer_activity.extend(Deserialize::Call)
+        @deserializer_activity
+      end
+
+      module Deserialize
+        # Base steps for deserializing a property field.
+        #
+        # TODO: currently only with hash input.
+        class Property < Trailblazer::Activity::Railway
+          def self.read(ctx, key:, input:, **)
+            ctx[:value] = input[key]
+          end
+
+          step method(:read), output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}} # TODO: what if not existing etc?
+
+        end # Property
+
+        # Override {Railway#call} and always use the top-most {:exec_context},
+        # which is the currently validated form.
+        module Call
+          def call(*args, exec_context:, **kws)
+            @activity.(*args, **kws.merge(exec_context: exec_context))
+          end
+        end
+      end
+
+      def add_property_to_deserializer!(field, deserializer_activity, parse_block:)
+        property_activity = Class.new(Deserialize::Property)
+        property_activity.instance_exec(&parse_block)
+        property_activity.extend(Deserialize::Call)
+
+        # DISCUSS: we're mutating here.
+        deserializer_activity.instance_exec do
+          step Subprocess(property_activity), id: field, input: [:input], inject: [{key: ->(*) { field }}], output: {:"value.parsed" => :"#{field}.parsed", :"value.read" => :"#{field}.read", :"value.coerced" => :"#{field}.coerced", :value => field}
+        end
+      end
     end
     extend Property
 

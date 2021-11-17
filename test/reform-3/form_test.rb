@@ -1,6 +1,5 @@
 require "test_helper"
-require "trailblazer/activity/dsl/linear"
-require "trailblazer/developer"
+
 
 require "dry/validation"
 require "dry/types"
@@ -11,8 +10,36 @@ end
 class FormTest < Minitest::Spec
   it "what" do
     class Form < Reform::Form
-      property :invoice_date
+      property :invoice_date,
+        parse_block: -> do
+          # this goes after the {read} step.
+          step :parse_user_date, output: ->(ctx, value:, **) { {:value => value, :"value.parsed" => value}}
+          step :coerce, output: ->(ctx, value:, **) { {:value => value, :"value.coerced" => value}}
+
+
+        end # :parse_block
       property :description
+
+          def parse_user_date(ctx, value:, **)
+            now_year = Time.now.strftime("%Y") # TODO: make injectable
+
+            # allow dates like 24/12 or 24/12/17 because it's super handy.
+            formatted = if match = value.match(/\d{1,2}[^\d]+\d{1,2}[^\d]+(\d{2})$/)
+              value.sub(/#{match[1]}$/, "20#{match[1]}") # assuming this app won't be run in 21xx.
+            elsif value.match(/\d{1,2}[^\d]+\d{1,2}$/)
+              "#{value}/#{now_year}"
+            else
+              value
+            end
+
+            ctx[:value] = formatted
+          end
+
+          def coerce(ctx, value:, **)
+            date = Types::Params::DateTime[value] # Does something along {DateTime.parse}.
+
+            ctx[:value] = date
+          end
 
       require "reform/form/dry"
       feature Reform::Form::Dry
@@ -58,61 +85,7 @@ class FormTest < Minitest::Spec
     # * the architecture of Contract#validate is great since we can easily replace the parsing of Form#validate.
 
 
-    module Deserialize
-      # Base steps for deserializing a property field.
-      #
-      # TODO: currently only with hash input.
-      class Property < Trailblazer::Activity::Railway
-        step :read, output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}} # TODO: what if not existing etc?
 
-        def read(ctx, key:, input:, **)
-          ctx[:value] = input[key]
-        end
-      end # Property
-
-    end
-
-    deserialize =
-      {
-        invoice_date: {
-          parse: Class.new(Deserialize::Property) do
-            # this goes after the {read} step.
-            step :parse_user_date, output: ->(ctx, value:, **) { {:value => value, :"value.parsed" => value}}
-            step :coerce, output: ->(ctx, value:, **) { {:value => value, :"value.coerced" => value}}
-
-
-            def parse_user_date(ctx, value:, **)
-              now_year = Time.now.strftime("%Y") # TODO: make injectable
-
-              # allow dates like 24/12 or 24/12/17 because it's super handy.
-              formatted = if match = value.match(/\d{1,2}[^\d]+\d{1,2}[^\d]+(\d{2})$/)
-                value.sub(/#{match[1]}$/, "20#{match[1]}") # assuming this app won't be run in 21xx.
-              elsif value.match(/\d{1,2}[^\d]+\d{1,2}$/)
-                "#{value}/#{now_year}"
-              else
-                value
-              end
-
-              ctx[:value] = formatted
-            end
-
-            def coerce(ctx, value:, **)
-              date = Types::Params::DateTime[value] # Does something along {DateTime.parse}.
-
-              ctx[:value] = date
-            end
-          end
-        },
-        description: {
-          parse: Class.new(Deserialize::Property)
-        }
-      }
-
-    deserializer = Class.new(Trailblazer::Activity::Railway) do
-      deserialize.each do |field, options|
-        step Subprocess(options[:parse]), id: field, input: [:input], inject: [{key: ->(*) { field }}], output: {:"value.parsed" => :"#{field}.parsed", :"value.read" => :"#{field}.read", :"value.coerced" => :"#{field}.coerced", :value => field}
-      end
-    end
 
 
     form_params = {
@@ -121,8 +94,13 @@ class FormTest < Minitest::Spec
       idont_exist: "true",
     }
 
+
+    form = Form.new(twin.new)
+
+  # unit test: {deserializer}
+    deserializer = Form.deserializer_activity
     ctx = Trailblazer::Context({input: form_params}, {data: {}})
-    signal, (ctx, _) = Trailblazer::Developer.wtf?(deserializer, [ctx, {}])
+    signal, (ctx, _) = Trailblazer::Developer.wtf?(deserializer, [ctx, {}], exec_context: form)
 
     assert_equal "12/11",             ctx[:"invoice_date.read"]
     assert_equal "12/11/2021",        ctx[:"invoice_date.parsed"]
@@ -132,7 +110,6 @@ class FormTest < Minitest::Spec
 
     # def validate!(name, pointers = [], values: self, form: self)
 
-    form = Form.new(twin.new)
     fields = form.instance_variable_get(:@fields).keys # FIXME: use schema!
 
     values = fields.collect { |field| ctx.key?(field) ? [field, ctx[field]] : nil }.compact.to_h
