@@ -7,8 +7,8 @@ class Reform::Contract < Disposable::Twin
       @result = Result.new([])
     end
 
-    def validate
-      validate!(nil).success?
+    def validate(values: self)
+      validate!(nil, values: values).success?
     end
 
     # The #errors method will be removed in Reform 3.0 core.
@@ -26,7 +26,7 @@ class Reform::Contract < Disposable::Twin
       @result.to_results.select { |result| result.is_a? Reform::Contract::CustomError }
     end
 
-    def validate!(name, pointers = [], values: self, form: self)
+    def validate!(name, pointers = [], values: , form: self)
       # run local validations. this could be nested schemas, too.
       local_errors_by_group = Reform::Validation::Groups::Validate.(self.class.validation_groups, values: values, form: form).compact # TODO: discss compact
 

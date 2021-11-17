@@ -59,11 +59,6 @@ class FormTest < Minitest::Spec
         # required(:txn_direction).value( included_in?: %w(incoming outgoing) )
       end
 
-      def validate(input)
-
-
-      end
-
 
       # def validate!(name, pointers = [], values: self)
       #   super(name, pointers, values: bla)
@@ -96,6 +91,17 @@ class FormTest < Minitest::Spec
 
 
     form = Form.new(twin.new)
+
+    result = form.validate(form_params)
+    assert_equal true, result
+    assert_equal "#<DateTime: 2021-11-12T", form.invoice_date.inspect[0..22]
+
+
+    result = form.validate({})
+    assert_equal false, result
+    assert_equal nil, form.invoice_date
+    assert_equal %{{:invoice_date=>["must be DateTime"]}}, form.errors.messages.inspect
+
 
   # unit test: {deserializer}
     deserializer = Form.deserializer_activity

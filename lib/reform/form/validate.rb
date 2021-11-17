@@ -24,15 +24,31 @@ module Reform::Form::Validate
   end
 
   def validate(params)
-    block_given? ? yield(params) : deserialize(params)
+    values = block_given? ? yield(params) : deserialize(params)
 
-    super() # run the actual validation on self.
+    super(values: values) # run the actual validation on self.
   end
 
   def deserialize(params)
     # params = deserialize!(params)
     # deserializer.new(self).from_hash(params)
+    ctx = Trailblazer::Context({input: params}, {data: {}})
 
+    signal, (ctx, _) = Trailblazer::Developer.wtf?(self.class.deserializer_activity, [ctx, {}], exec_context: self)
+
+    fields = @fields.keys # FIXME: use schema!
+
+  # FIXME: this is usually done via SetValue in the pipeline (also important with populators)
+    values = fields.collect { |field| ctx.key?(field) ? [field, ctx[field]] : nil }.compact.to_h
+    values.each do |field, value|
+      self.send("#{field}=", value) # FIXME: hahaha: this actually sets the scalar values on the form
+    end # FIXME: this creates two sources for {invoice_date}, sucks
+
+    values
+
+
+    # pp values
+    # result = form.validate!("bla", values: values)
 
   end
 
