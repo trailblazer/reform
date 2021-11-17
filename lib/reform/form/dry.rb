@@ -25,8 +25,6 @@ module Reform::Form::Dry
     end
 
     class Group
-      include InputHash
-
       def initialize(options)
         @validator = options.fetch(:contract, Contract)
         @schema_inject_params = options.fetch(:with, {})

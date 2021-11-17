@@ -57,17 +57,29 @@ class FormTest < Minitest::Spec
     # NOTES
     # * the architecture of Contract#validate is great since we can easily replace the parsing of Form#validate.
 
+
+    module Deserialize
+      # Base steps for deserializing a property field.
+      #
+      # TODO: currently only with hash input.
+      class Property < Trailblazer::Activity::Railway
+        step :read, output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}} # TODO: what if not existing etc?
+
+        def read(ctx, key:, input:, **)
+          ctx[:value] = input[key]
+        end
+      end # Property
+
+    end
+
     deserialize =
       {
         invoice_date: {
-          parse: Class.new(Trailblazer::Activity::Railway) do
-            step :read, output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}} # TODO: what if not existing etc?
+          parse: Class.new(Deserialize::Property) do
+            # this goes after the {read} step.
             step :parse_user_date, output: ->(ctx, value:, **) { {:value => value, :"value.parsed" => value}}
             step :coerce, output: ->(ctx, value:, **) { {:value => value, :"value.coerced" => value}}
 
-            def read(ctx, key:, input:, **)
-              ctx[:value] = input[key]
-            end
 
             def parse_user_date(ctx, value:, **)
               now_year = Time.now.strftime("%Y") # TODO: make injectable
@@ -92,15 +104,7 @@ class FormTest < Minitest::Spec
           end
         },
         description: {
-          parse: Class.new(Trailblazer::Activity::Railway) do
-            step :read, output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}} # TODO: what if not existing etc?
-            # step :parse_user_date
-            # step :coerce
-
-            def read(ctx, key:, input:, **)
-              ctx[:value] = input[key]
-            end
-          end
+          parse: Class.new(Deserialize::Property)
         }
       }
 

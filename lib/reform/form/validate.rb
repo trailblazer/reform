@@ -1,7 +1,8 @@
-# Mechanics for writing to forms in #validate.
+# Parse the incoming {#validate} input, deserialize it (using populators, TODO)
+# and write parse-pipelined values to their field in the form.
 module Reform::Form::Validate
   module Skip
-    class AllBlank
+    class AllBlank # FIXME: what the fuck is this?
       include Uber::Callable
 
       def call(input:, binding:, **)
@@ -23,53 +24,27 @@ module Reform::Form::Validate
   end
 
   def validate(params)
-    # allow an external deserializer.
-    @input_params = params # we want to store these for access via dry later
     block_given? ? yield(params) : deserialize(params)
 
     super() # run the actual validation on self.
   end
-  attr_reader :input_params # make the raw input params public
 
   def deserialize(params)
-    params = deserialize!(params)
-    deserializer.new(self).from_hash(params)
+    # params = deserialize!(params)
+    # deserializer.new(self).from_hash(params)
+
+
   end
 
   private
 
-  # Meant to return params processable by the representer. This is the hook for munching date fields, etc.
-  def deserialize!(params)
-    # NOTE: it is completely up to the form user how they want to deserialize (e.g. using an external JSON-API representer).
-    # use the deserializer as an external instance to operate on the Twin API,
-    # e.g. adding new items in collections using #<< etc.
-    # DISCUSS: using self here will call the form's setters like title= which might be overridden.
-    params
-  end
-
-  # Default deserializer for hash.
-  # This is input-specific, e.g. Hash, JSON, or XML.
-  def deserializer!(source = self.class, options = {}) # called on top-level, only, for now.
-    deserializer = Disposable::Rescheme.from(
-      source,
-      {
-        include:          [Representable::Hash::AllowSymbols, Representable::Hash],
-        superclass:       Representable::Decorator,
-        definitions_from: ->(inline) { inline.definitions },
-        options_from:     :deserializer,
-        exclude_options:  %i[default populator] # Reform must not copy Disposable/Reform-only options that might confuse representable.
-      }.merge(options)
-    )
-
-    deserializer
-  end
-
-  def deserializer(*args)
-    # DISCUSS: should we simply delegate to class and sort out memoizing there?
-    self.class.deserializer_class || self.class.deserializer_class = deserializer!(*args)
-  end
-
-  def self.included(includer)
-    includer.singleton_class.send :attr_accessor, :deserializer_class
-  end
+#  TODO: eg. rails form accessor shit
+  # # Meant to return params processable by the representer. This is the hook for munching date fields, etc.
+  # def deserialize!(params)
+  #   # NOTE: it is completely up to the form user how they want to deserialize (e.g. using an external JSON-API representer).
+  #   # use the deserializer as an external instance to operate on the Twin API,
+  #   # e.g. adding new items in collections using #<< etc.
+  #   # DISCUSS: using self here will call the form's setters like title= which might be overridden.
+  #   params
+  # end
 end
