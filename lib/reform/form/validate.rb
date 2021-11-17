@@ -44,12 +44,9 @@ module Reform::Form::Validate
       self.send("#{field}=", value) # FIXME: hahaha: this actually sets the scalar values on the form
     end # FIXME: this creates two sources for {invoice_date}, sucks
 
+    @arbitrary_bullshit = ctx
+
     values
-
-
-    # pp values
-    # result = form.validate!("bla", values: values)
-
   end
 
   private

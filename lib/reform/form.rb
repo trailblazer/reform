@@ -14,6 +14,12 @@ module Reform
 
     require "reform/form/populator"
 
+    # FIXME: move
+    def [](name)
+      @arbitrary_bullshit ||= {} # FIXME
+      @arbitrary_bullshit[name]
+    end
+
     # called after populator: form.deserialize(params)
     # as this only included in the typed pipeline, it's not applied for scalars.
     Deserialize = ->(input, options) { input.deserialize(options[:fragment]) } # TODO: (result:, fragment:, **o) once we drop 2.0.
@@ -103,7 +109,7 @@ module Reform
 
       def deserializer_activity
         @deserializer_activity ||= Class.new(Trailblazer::Activity::Railway) # FIXME: how to do that without ||=?
-        @deserializer_activity.extend(Deserialize::Call)
+        @deserializer_activity.extend(Deserialize::Call) # FIXME: always done
         @deserializer_activity
       end
 

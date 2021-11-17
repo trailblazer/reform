@@ -15,9 +15,8 @@ class FormTest < Minitest::Spec
           # this goes after the {read} step.
           step :parse_user_date, output: ->(ctx, value:, **) { {:value => value, :"value.parsed" => value}}
           step :coerce, output: ->(ctx, value:, **) { {:value => value, :"value.coerced" => value}}
-
-
         end # :parse_block
+
       property :description
 
           def parse_user_date(ctx, value:, **)
@@ -95,6 +94,12 @@ class FormTest < Minitest::Spec
     result = form.validate(form_params)
     assert_equal true, result
     assert_equal "#<DateTime: 2021-11-12T", form.invoice_date.inspect[0..22]
+
+    assert_equal "12/11",             form[:"invoice_date.read"]
+    assert_equal "12/11/2021",        form[:"invoice_date.parsed"]
+    assert_equal "#<DateTime: 2021-11-12T", form[:"invoice_date.coerced"].inspect[0..22]
+    assert_equal "#<DateTime: 2021-11-12T", form[:"invoice_date"].inspect[0..22] # form[:invoice_date] is the "effective" value for validation
+    assert_equal "Lagavulin or whatever", form[:description]
 
 
     result = form.validate({})
