@@ -1,7 +1,6 @@
 gem 'dry-validation', '~> 1.5'
 require "dry-validation"
 require "reform/validation"
-require "reform/form/dry/input_hash"
 
 ::Dry::Validation.load_extensions(:hints)
 
@@ -44,7 +43,7 @@ module Reform::Form::Dry
         # "call"
         return @validator.call(values) unless @validator.is_a?(Class) && @validator <= ::Dry::Validation::Contract
 
-        puts pp values
+        # puts pp values
 
         dynamic_options = { form: form }
         inject_options = @schema_inject_params.merge(dynamic_options)

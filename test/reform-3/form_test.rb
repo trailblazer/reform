@@ -113,7 +113,8 @@ class FormTest < Minitest::Spec
 
     form_params = {
       invoice_date: "12/11",
-      description: "Lagavulin or whatever"
+      description: "Lagavulin or whatever",
+      idont_exist: "true",
     }
 
     ctx = Trailblazer::Context({input: form_params}, {data: {}})
@@ -126,7 +127,13 @@ class FormTest < Minitest::Spec
     assert_equal "Lagavulin or whatever", ctx[:description]
 
     # def validate!(name, pointers = [], values: self, form: self)
-    result = Form.new(twin.new).validate!("bla", values: ctx)
+
+    form = Form.new(twin.new)
+    fields = form.instance_variable_get(:@fields).keys # FIXME: use schema!
+
+    values = fields.collect { |field| ctx.key?(field) ? [field, ctx[field]] : nil }.compact.to_h
+    # pp values
+    result = form.validate!("bla", values: values)
 
     pp result
     pp ctx
