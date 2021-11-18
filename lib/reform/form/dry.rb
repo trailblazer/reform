@@ -1,4 +1,4 @@
-gem 'dry-validation', '~> 1.5'
+gem 'dry-validation'
 require "dry-validation"
 require "reform/validation"
 

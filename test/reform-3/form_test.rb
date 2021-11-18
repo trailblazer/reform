@@ -13,11 +13,17 @@ class FormTest < Minitest::Spec
       property :invoice_date,
         parse_block: -> do
           # this goes after the {read} step.
-          step :parse_user_date, output: ->(ctx, value:, **) { {:value => value, :"value.parsed" => value}}
-          step :coerce, output: ->(ctx, value:, **) { {:value => value, :"value.coerced" => value}}
+          step :nilify # When {nilify} "fails" it means {:value} was a blank string.
+          step :parse_user_date, output: ->(ctx, value:, **) { {:value => value, :"value.parse_user_date" => value}}, provides: [:"value.parse_user_date"]
+          step :coerce, output: ->(ctx, value:, **) { {:value => value, :"value.coerce" => value}}, provides: [:"value.coerce"]
         end # :parse_block
 
       property :description
+
+          def nilify(ctx, value:, **) # DISCUSS: move to lib? Do we want this here?
+            ctx[:value] = nil if value == ""
+            ctx[:value]
+          end
 
           def parse_user_date(ctx, value:, **)
             now_year = Time.now.strftime("%Y") # TODO: make injectable
@@ -78,7 +84,17 @@ class FormTest < Minitest::Spec
     #
     # NOTES
     # * the architecture of Contract#validate is great since we can easily replace the parsing of Form#validate.
+    # * check "REFORM - What went wrong?" talk
+    #
+    # RENDERING LAYER
 
+    # * overriding form readers for presentation/rendering with {#form_for} sucks:
+=begin
+    invalid do
+      property :invoice_date => :"invoice_date.read" # use the original value when field is invalid
+    # if form is invalid but {:invoice_date} is valid, show {:"invoice_date.parsed"}
+    end
+=end
 
 
 
@@ -93,17 +109,23 @@ class FormTest < Minitest::Spec
     form = Form.new(twin.new)
 
     result = form.validate(form_params)
+
+    assert_equal "12/11",             form[:"invoice_date.value.read"]
+    assert_equal "12/11/2021",        form[:"invoice_date.value.parse_user_date"]
+    assert_equal "#<DateTime: 2021-11-12T", form[:"invoice_date.value.coerce"].inspect[0..22]
+    assert_equal "#<DateTime: 2021-11-12T", form[:"invoice_date"].inspect[0..22] # form[:invoice_date] is the "effective" value for validation
+    assert_equal "Lagavulin or whatever", form[:description]
     assert_equal true, result
     assert_equal "#<DateTime: 2021-11-12T", form.invoice_date.inspect[0..22]
 
-    assert_equal "12/11",             form[:"invoice_date.read"]
-    assert_equal "12/11/2021",        form[:"invoice_date.parsed"]
-    assert_equal "#<DateTime: 2021-11-12T", form[:"invoice_date.coerced"].inspect[0..22]
-    assert_equal "#<DateTime: 2021-11-12T", form[:"invoice_date"].inspect[0..22] # form[:invoice_date] is the "effective" value for validation
-    assert_equal "Lagavulin or whatever", form[:description]
 
 
     result = form.validate({})
+    assert_equal false, result
+    assert_equal nil, form.invoice_date
+    assert_equal %{{:invoice_date=>["must be DateTime"]}}, form.errors.messages.inspect
+
+    result = form.validate({invoice_date: ""}) # TODO: date: "asdfasdf"
     assert_equal false, result
     assert_equal nil, form.invoice_date
     assert_equal %{{:invoice_date=>["must be DateTime"]}}, form.errors.messages.inspect
@@ -114,9 +136,9 @@ class FormTest < Minitest::Spec
     ctx = Trailblazer::Context({input: form_params}, {data: {}})
     signal, (ctx, _) = Trailblazer::Developer.wtf?(deserializer, [ctx, {}], exec_context: form)
 
-    assert_equal "12/11",             ctx[:"invoice_date.read"]
-    assert_equal "12/11/2021",        ctx[:"invoice_date.parsed"]
-    assert_equal "#<DateTime: 2021-", ctx[:"invoice_date.coerced"].inspect[0..16]
+    assert_equal "12/11",             ctx[:"invoice_date.value.read"]
+    assert_equal "12/11/2021",        ctx[:"invoice_date.value.parse_user_date"]
+    assert_equal "#<DateTime: 2021-", ctx[:"invoice_date.value.coerce"].inspect[0..16]
     assert_equal "#<DateTime: 2021-", ctx[:"invoice_date"].inspect[0..16] # ctx[:invoice_date] is the "effective" value for validation
     assert_equal "Lagavulin or whatever", ctx[:description]
 

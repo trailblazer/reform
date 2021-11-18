@@ -20,10 +20,7 @@ module Reform
       @arbitrary_bullshit[name]
     end
 
-    # called after populator: form.deserialize(params)
-    # as this only included in the typed pipeline, it's not applied for scalars.
-    Deserialize = ->(input, options) { input.deserialize(options[:fragment]) } # TODO: (result:, fragment:, **o) once we drop 2.0.
-
+    # DISCUSS: should this be {form/property.rb}?
     module Property
       # Add macro logic, e.g. for :populator.
       def property(name, parse_block: ->(*) {}, **options, &block)
@@ -108,21 +105,24 @@ module Reform
       end
 
       def deserializer_activity
-        @deserializer_activity ||= Class.new(Trailblazer::Activity::Railway) # FIXME: how to do that without ||=?
-        @deserializer_activity.extend(Deserialize::Call) # FIXME: always done
-        @deserializer_activity
+        @deserializer_activity ||= Class.new(Trailblazer::Activity::Railway) do # FIXME: how to do that without ||=?
+          extend(Deserialize::Call)
+        end
       end
 
       module Deserialize
-        # Base steps for deserializing a property field.
+        # Base steps for deserializing a particular property field (e.g. {invoice_date}).
         #
         # TODO: currently only with hash input.
         class Property < Trailblazer::Activity::Railway
+          # Default steps
+          # Read the property value from the fragment.
           def self.read(ctx, key:, input:, **)
             ctx[:value] = input[key]
           end
 
-          step method(:read), id: :read, output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}} # TODO: what if not existing etc?
+          step method(:read), id: :read, output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}}, provides: [:"value.read"] # TODO: what if not existing etc?
+
 
         end # Property
 
@@ -133,23 +133,40 @@ module Reform
             @activity.(*args, **kws.merge(exec_context: exec_context))
           end
         end
+
+
       end
 
       def add_property_to_deserializer!(field, deserializer_activity, parse_block:)
-        property_activity = Class.new(Deserialize::Property)
+        property_activity = Class.new(Deserialize::Property) # this activity represents one particulr property's pipeline {ppp}.
         property_activity.instance_exec(&parse_block)
         property_activity.extend(Deserialize::Call)
 
+        # Find all variables provided by this property pipeline.
+        # E.g. {[:"value.read", :"value.parse_user_date", :"value.coerce"]}
+        # We need to rename those in the activities {:output}, see below.
+        # TODO: in future TRB versions, {:output} could know what variables it returns?
+        provided_variables = property_activity.to_h[:nodes].collect { |n| n.data[:provides] }.flatten(1).compact
+
+        # E.g. {:"value.read"=>:"invoice_date.value.read", ..., :value=>:invoice_date}
+        output_hash = (provided_variables.collect { |inner_name| [inner_name, :"#{field}.#{inner_name}"] } + [[:value, field]]).to_h
+
         # DISCUSS: we're mutating here.
         deserializer_activity.instance_exec do
-          step Subprocess(property_activity), id: field, input: [:input], inject: [{key: ->(*) { field }}], output: {:"value.parsed" => :"#{field}.parsed", :"value.read" => :"#{field}.read", :"value.coerced" => :"#{field}.coerced", :value => field}
+          step Subprocess(property_activity),
+            id:     field,
+            input:  [:input],
+            inject: [{key: ->(*) { field }}],
+            # output: {:"value.parsed" => :"#{field}.parsed", :"value.read" => :"#{field}.read", :"value.coerced" => :"#{field}.coerced", :value => field},
+            output: output_hash,
+            Output(:failure) => Track(:success) # a failing {read} shouldn't skip the remaining properties # FIXME: test me!
         end
       end
     end
     extend Property
 
-    require "disposable/twin/changed"
-    feature Disposable::Twin::Changed
+    # require "disposable/twin/changed"
+    # feature Disposable::Twin::Changed
 
     require "disposable/twin/sync"
     feature Disposable::Twin::Sync
