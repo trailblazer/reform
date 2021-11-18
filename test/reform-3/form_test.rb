@@ -14,8 +14,8 @@ class FormTest < Minitest::Spec
         parse_block: -> do
           # this goes after the {read} step.
           step :nilify # When {nilify} "fails" it means {:value} was a blank string.
-          step :parse_user_date, output: ->(ctx, value:, **) { {:value => value, :"value.parse_user_date" => value}}, provides: [:"value.parse_user_date"]
-          step :coerce, output: ->(ctx, value:, **) { {:value => value, :"value.coerce" => value}}, provides: [:"value.coerce"]
+          step :parse_user_date#, output: ->(ctx, value:, **) { {:value => value, :"value.parse_user_date" => value}}, provides: [:"value.parse_user_date"]
+          step :coerce#, output: ->(ctx, value:, **) { {:value => value, :"value.coerce" => value}}, provides: [:"value.coerce"]
         end # :parse_block
 
       property :description
@@ -109,6 +109,7 @@ class FormTest < Minitest::Spec
     form = Form.new(twin.new)
 
     result = form.validate(form_params)
+# pp form.instance_variable_get(:@arbitrary_bullshit)
 
     assert_equal "12/11",             form[:"invoice_date.value.read"]
     assert_equal "12/11/2021",        form[:"invoice_date.value.parse_user_date"]
@@ -133,7 +134,7 @@ class FormTest < Minitest::Spec
 
   # unit test: {deserializer}
     deserializer = Form.deserializer_activity
-    ctx = Trailblazer::Context({input: form_params}, {data: {}})
+    ctx = Trailblazer::Context({input: form_params}, {})
     signal, (ctx, _) = Trailblazer::Developer.wtf?(deserializer, [ctx, {}], exec_context: form)
 
     assert_equal "12/11",             ctx[:"invoice_date.value.read"]

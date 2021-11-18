@@ -115,14 +115,27 @@ module Reform
         #
         # TODO: currently only with hash input.
         class Property < Trailblazer::Activity::Railway
+          module StepMethod
+            def step(name, field_name: name, **kws)
+
+              output_options = { # TODO: example doc
+                output:   ->(ctx, value:, **) { {:value => value, :"value.#{field_name}" => value}},
+                provides: [:"value.#{field_name}"]
+              }
+
+              super(name, **output_options, **kws)
+            end
+          end
+
+          extend StepMethod # we have an extended {#step} method now.
+
           # Default steps
           # Read the property value from the fragment.
           def self.read(ctx, key:, input:, **)
             ctx[:value] = input[key]
           end
 
-          step method(:read), id: :read, output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}}, provides: [:"value.read"] # TODO: what if not existing etc?
-
+          step method(:read), id: :read, field_name: :read # output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}}, provides: [:"value.read"] # TODO: what if not existing etc?
 
         end # Property
 
