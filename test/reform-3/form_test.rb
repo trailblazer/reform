@@ -77,6 +77,7 @@ class FormTest < Minitest::Spec
     # extendable and customizable. E.g. you can add steps for your own parsing etc.
     # * we can use Reform's {read}
     # * we apply custom parsing to invoice_date, e.g. "12" --> "12/10/2021"
+    #   this is not possible using "filters" in dry-v where you can only apply a pattern, then coerce: https://dry-rb.org/gems/dry-schema/1.5/advanced/filtering/
     # * a separate step does coercion, using whatever code you want (or automatically via Dry::Types)
     # * we have all values separately after the deserialization and can assign it to a Twin as we need it. This allows
     #   to pass the coerced <DateTime> to the validation, but still show  the original "12" in the form when we error.
@@ -95,6 +96,15 @@ class FormTest < Minitest::Spec
     # if form is invalid but {:invoice_date} is valid, show {:"invoice_date.parsed"}
     end
 =end
+
+    # TODO
+    # * allow injecting an Errors object
+    # * easy injection of dependencies
+    # * how to access form instance in dry-v, e.g. for currency list?
+    #
+    # * {parse: false} option
+    # * two steps Deserialize and Validate, so OPs could add steps? or allow steps in contracts?
+    #   e.g. the {txn_direction} column could be set after the {type} parsing
 
 
 
