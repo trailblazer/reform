@@ -117,6 +117,8 @@ module Reform
         class Property < Trailblazer::Activity::Railway
           module StepMethod
             def step(name, field_name: name, **kws)
+              # TODO: test {:field_name} overriding
+              # TODO: test {:output}, {:provides} overriding
 
               output_options = { # TODO: example doc
                 output:   ->(ctx, value:, **) { {:value => value, :"value.#{field_name}" => value}},
