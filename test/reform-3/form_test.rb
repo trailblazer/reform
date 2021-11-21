@@ -130,12 +130,13 @@ class FormTest < Minitest::Spec
     assert_equal "#<DateTime: 2021-11-12T", form.invoice_date.inspect[0..22]
 
 
-
+form = Form.new(twin.new)
     result = form.validate({})
     assert_equal false, result
     assert_equal nil, form.invoice_date
     assert_equal %{{:invoice_date=>["must be DateTime"]}}, form.errors.messages.inspect
 
+form = Form.new(twin.new)
     result = form.validate({invoice_date: ""}) # TODO: date: "asdfasdf"
     assert_equal false, result
     assert_equal nil, form.invoice_date

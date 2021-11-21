@@ -8,7 +8,8 @@ class Reform::Contract < Disposable::Twin
     # end
 
     def validate(deserialized_values:) # FIXME: {self} values is for AMV
-      validate!(nil, deserialized_values: deserialized_values).success?
+      # DISCUSS: we don't need {deserialized_values} here as it's stored in form:@deserialized_values
+      Validate.validate!(nil, values_object: self, form: self, validation_groups: self.class.validation_groups).success?
     end
 
     # The #errors method will be removed in Reform 3.0 core.
@@ -33,6 +34,7 @@ class Reform::Contract < Disposable::Twin
                                                                   # FIXME: do we need the {name} argument here?
     def self.validate!(name, form:, validation_groups:, schema: form.schema, values_object:, deserialized_values: values_object.instance_variable_get(:@deserialized_values))
       # run local validations. this could be nested schemas, too.
+      puts "@@@@@ #{values_object.inspect}"
       local_errors_by_group = Reform::Validation::Groups::Validate.(validation_groups, form: form, values_object: values_object, deserialized_values: deserialized_values).compact # TODO: discss compact
 
 puts "local_errors_by_group::::: #{ local_errors_by_group.inspect}"

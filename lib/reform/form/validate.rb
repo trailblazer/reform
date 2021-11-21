@@ -24,29 +24,34 @@ module Reform::Form::Validate
   end
 
   def validate(params)
-    deserialized_values = block_given? ? yield(params) : deserialize(params)
+    deserialized_values, ctx = block_given? ? yield(params) : Reform::Form::Validate.deserialize(params, fields: @fields, twin: self) # FIXME: call deserialize! on every form?
 
-    super(deserialized_values: deserialized_values) # run the actual validation on self.
+    # FIXME: only one level
+    @arbitrary_bullshit = ctx # TODO: do we need the entire {Context} instance here?
+    @deserialized_values = deserialized_values
+
+    super(deserialized_values: deserialized_values) # run the actual validation using {Contract#validate}.
   end
 
-  def deserialize(params)
+  # {:twin} where do we write to (currently)
+  def self.deserialize(params, fields:, twin:)
     # params = deserialize!(params)
     # deserializer.new(self).from_hash(params)
     ctx = Trailblazer::Context({input: params}, {data: {}})
 
-    signal, (ctx, _) = Trailblazer::Developer.wtf?(self.class.deserializer_activity, [ctx, {}], exec_context: self)
+    signal, (ctx, _) = Trailblazer::Developer.wtf?(twin.class.deserializer_activity, [ctx, {}], exec_context: twin)
 
-    fields = @fields.keys # FIXME: use schema!
+    fields = fields.keys # FIXME: use schema!
 
   # FIXME: this is usually done via SetValue in the pipeline (also important with populators)
     deserialized_values = fields.collect { |field| ctx.key?(field) ? [field, ctx[field]] : nil }.compact.to_h
     deserialized_values.each do |field, value|
-      self.send("#{field}=", value) # FIXME: hahaha: this actually sets the scalar values on the form
+      twin.send("#{field}=", value) # FIXME: hahaha: this actually sets the scalar values on the form
     end # FIXME: this creates two sources for {invoice_date}, sucks
 
-    @arbitrary_bullshit = ctx # TODO: do we need the entire {Context} instance here?
+    # arbitrary_bullshit = ctx # TODO: do we need the entire {Context} instance here?
 
-    deserialized_values # These are only fields from params # TODO: see how we can collect those when populators are in place
+    [deserialized_values, ctx] # These are only fields from params # TODO: see how we can collect those when populators are in place
   end
 
   private
