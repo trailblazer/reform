@@ -1,5 +1,5 @@
 module Reform::Validation
-  # A Group is a set of native validations, targeting a validation backend (AM, Lotus, Dry).
+  # A Group is a set of native validations, targeting a validation backend (ActiveModel::Validation, Dry::Validation).
   # Group receives configuration via #validates and #validate and translates that to its
   # internal backend.
   #
@@ -38,12 +38,12 @@ module Reform::Validation
 
     # Runs all validations groups according to their rules and returns all Result objects.
     class Validate
-      def self.call(groups, form:, values:)
+      def self.call(groups, form:, deserialized_values:, values_object:)
         results = {}
 
         groups.collect do |(name, group, options)|
           next unless evaluate?(options[:if], results, form)
-          results[name] = group.(form, values) # run validation for group. store and collect <Result>.
+          results[name] = group.(form, deserialized_values) # run validation for group. store and collect <Result>.
         end
       end
 

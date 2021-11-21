@@ -23,7 +23,10 @@ module Reform
     # DISCUSS: should this be {form/property.rb}?
     module Property
       # Add macro logic, e.g. for :populator.
-      def property(name, parse_block: ->(*) {}, **options, &block)
+      def property(name, options={}, &block)
+        parse_block = options[:parse_block] || ->(*) {} # FIXME: use fucking kwargs everywhere!
+
+
         if (options.keys & %i[skip_if populator]).size == 2
           raise InvalidOptionsCombinationError.new(
             "[Reform] #{self}:property:#{name} Do not use skip_if and populator together, use populator with skip! instead"
@@ -47,7 +50,7 @@ module Reform
           options = { default: [] }.merge(options)
         end
 
-        definition = super # letdisposable and declarative gems sort out inheriting of properties, and so on.
+        definition = super(name, options, &block) # letdisposable and declarative gems sort out inheriting of properties, and so on.
 
 
 

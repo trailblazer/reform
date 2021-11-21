@@ -24,9 +24,9 @@ module Reform::Form::Validate
   end
 
   def validate(params)
-    values = block_given? ? yield(params) : deserialize(params)
+    deserialized_values = block_given? ? yield(params) : deserialize(params)
 
-    super(values: values) # run the actual validation on self.
+    super(deserialized_values: deserialized_values) # run the actual validation on self.
   end
 
   def deserialize(params)
@@ -39,14 +39,14 @@ module Reform::Form::Validate
     fields = @fields.keys # FIXME: use schema!
 
   # FIXME: this is usually done via SetValue in the pipeline (also important with populators)
-    values = fields.collect { |field| ctx.key?(field) ? [field, ctx[field]] : nil }.compact.to_h
-    values.each do |field, value|
+    deserialized_values = fields.collect { |field| ctx.key?(field) ? [field, ctx[field]] : nil }.compact.to_h
+    deserialized_values.each do |field, value|
       self.send("#{field}=", value) # FIXME: hahaha: this actually sets the scalar values on the form
     end # FIXME: this creates two sources for {invoice_date}, sucks
 
     @arbitrary_bullshit = ctx # TODO: do we need the entire {Context} instance here?
 
-    values
+    deserialized_values # These are only fields from params # TODO: see how we can collect those when populators are in place
   end
 
   private

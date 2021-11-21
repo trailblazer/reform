@@ -1,14 +1,14 @@
 class Reform::Contract < Disposable::Twin
   module Validate
-    def initialize(*)
-      # this will be removed in Reform 3.0. we need this for the presenting form, form builders
-      # call the Form#errors method before validation.
-      super
-      @result = Result.new([])
-    end
+    # def initialize(*)
+    #   # this will be removed in Reform 3.0. we need this for the presenting form, form builders
+    #   # call the Form#errors method before validation.
+    #   super
+    #   @result = Result.new([])
+    # end
 
-    def validate(values: self)
-      validate!(nil, values: values).success?
+    def validate(deserialized_values:) # FIXME: {self} values is for AMV
+      validate!(nil, deserialized_values: deserialized_values).success?
     end
 
     # The #errors method will be removed in Reform 3.0 core.
@@ -22,38 +22,46 @@ class Reform::Contract < Disposable::Twin
       @result
     end
 
+# FIXME: what the hell is this?
     def custom_errors
       @result.to_results.select { |result| result.is_a? Reform::Contract::CustomError }
     end
 
-    def validate!(name, pointers = [], values: , form: self)
+    # Validate the current form instance.
+    # NOTE: consider polymorphism here
+                                                                  # DISCUSS: ZZdo we like that?
+                                                                  # FIXME: do we need the {name} argument here?
+    def self.validate!(name, form:, validation_groups:, schema: form.schema, values_object:, deserialized_values: values_object.instance_variable_get(:@deserialized_values))
       # run local validations. this could be nested schemas, too.
-      local_errors_by_group = Reform::Validation::Groups::Validate.(self.class.validation_groups, values: values, form: form).compact # TODO: discss compact
+      local_errors_by_group = Reform::Validation::Groups::Validate.(validation_groups, form: form, values_object: values_object, deserialized_values: deserialized_values).compact # TODO: discss compact
 
-      # blindly add injected pointers. will be readable via #errors.
-      # also, add pointers from local errors here.
-      pointers_for_nested = pointers + local_errors_by_group.collect { |errs| Result::Pointer.new(errs, []) }.compact
+puts "local_errors_by_group::::: #{ local_errors_by_group.inspect}"
 
-      nested_errors = validate_nested!(pointers_for_nested)
+      nested_errors = validate_nested!(schema: schema, values_object: values_object, deserialized_values: deserialized_values)
+
+puts "nested_errors ........... #{nested_errors.inspect}"
 
       # Result: unified interface #success?, #messages, etc.
-      @result = Result.new(custom_errors + local_errors_by_group + pointers, nested_errors)
+      result = Result.new(
+        # custom_errors +  # FIXME
+        local_errors_by_group, nested_errors
+      )
     end
 
     private
 
     # Recursively call validate! on nested forms.
-    # A pointer keeps an entire result object (e.g. Dry result) and
-    # the relevant path to its fragment, e.g. <Dry::result{.....} path=songs,0>
-    def validate_nested!(pointers)
+    def self.validate_nested!(schema:, deserialized_values:, values_object:)
       arr = []
 
       schema.each(twin: true) do |dfn|
         # on collections, this calls validate! on each item form.
-        Disposable::Twin::PropertyProcessor.new(dfn, self).() do |form, i|
-          nested_pointers = pointers.collect { |pointer| pointer.advance(dfn[:name].to_sym, i) }.compact # pointer contains fragment for us, so go deeper
+        Disposable::Twin::PropertyProcessor.new(dfn, values_object).() do |form, i|
+          nested_schema   = dfn[:nested].schema
 
-          arr << form.validate!(dfn[:name], nested_pointers)
+          nested_result = validate!(dfn[:name], values_object: form, schema: nested_schema, validation_groups: dfn[:nested].validation_groups, form:nil)
+
+          arr << [dfn[:name], i, nested_result]
         end
       end
 
