@@ -67,7 +67,9 @@ song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song
       )
 
     pp result
-    # result.errors.inspect.must_equal %{}
+
+    result.errors[:title].inspect.must_equal %{[]}
+    result.errors[:album_id].inspect.must_equal %{["is missing"]}
 
   end
 end

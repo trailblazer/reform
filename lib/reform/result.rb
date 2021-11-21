@@ -14,34 +14,71 @@ module Reform
 
       def success?; !failure? end
 
-      def errors(*args);   filter_for(:errors, *args) end
+      # Errors compatible with ActiveModel::Errors.
+      class Errors
+        def initialize(hash)
+          @hash = hash
+        end
 
-      def messages(*args); filter_for(:messages, *args) end
+        def [](name)
+          dry_messages = @hash[name] or return [] # FIXME: to_sym
 
-      def hints(*args);    filter_for(:hints, *args) end
+          dry_messages.collect { |msg| msg.dry_message.text } #  FIXME: dry::Message specific.
+        end
 
-      def add_error(key, error_text)
-        CustomError.new(key, error_text, @results)
+        class Error < Struct.new(:dry_message)
+
+        end
       end
 
-      def to_results
-        @results
+      def errors#(*args)
+        # TODO: do that after validate or something?
+        name2errors = {}
+        @results.collect do |result| # result currently is a {#<Dry::Validation::Result{:title=>"Apocalypse soon"} errors={:album_id=>["is missing"]}>}
+          result.errors.each do |m|
+            name = m.path[0]
+
+            name2errors[name] ||= []
+            name2errors[name] << Errors::Error.new(m)
+          end
+        end
+
+
+        Result::Errors.new(name2errors) # DISCUSS: what about nested?
       end
 
-      private
+      # def messages(*args); filter_for(:messages, *args) end
 
-      # this doesn't do nested errors (e.g. )
-      def filter_for(method, *args)
-        @results.collect { |r| r.public_send(method, *args).to_h }
-                .inject({}) { |hah, err| hah.merge(err) { |key, old_v, new_v| (new_v.is_a?(Array) ? (old_v |= new_v) : old_v.merge(new_v)) } }
-                .find_all { |k, v| # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
-                  if v.is_a?(Hash)
-                    nested_errors = v.select { |attr_key, val| attr_key.is_a?(Integer) && val.is_a?(Array) && val.any? }
-                    v = nested_errors.to_a if nested_errors.any?
-                  end
-                  v.is_a?(Array)
-                }.to_h
-      end
+      # def hints(*args);    filter_for(:hints, *args) end
+
+      # def add_error(key, error_text)
+      #   CustomError.new(key, error_text, @results)
+      # end
+
+      # def to_results
+      #   @results
+      # end
+
+      # private
+
+      # # this doesn't do nested errors (e.g. )
+      # def filter_for(method, *args)
+
+
+
+
+
+
+      #   @results.collect { |r| r.public_send(method, *args).to_h }
+      #           .inject({}) { |hah, err| hah.merge(err) { |key, old_v, new_v| (new_v.is_a?(Array) ? (old_v |= new_v) : old_v.merge(new_v)) } }
+      #           .find_all { |k, v| # filter :nested=>{:something=>["too nested!"]} #DISCUSS: do we want that here?
+      #             if v.is_a?(Hash)
+      #               nested_errors = v.select { |attr_key, val| attr_key.is_a?(Integer) && val.is_a?(Array) && val.any? }
+      #               v = nested_errors.to_a if nested_errors.any?
+      #             end
+      #             v.is_a?(Array)
+      #           }.to_h
+      # end
     end
   end
 end

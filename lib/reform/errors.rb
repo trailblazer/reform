@@ -1,6 +1,6 @@
 # Provides the old API for Rails and friends.
 # Note that this might become an optional "deprecation" gem in Reform 3.
-class Reform::Contract::Result::Errors
+class Reform::Contract::Result::Errors_
   def initialize(result, form)
     @result        = result # DISCUSS: we don't use this ATM?
     @form          = form
