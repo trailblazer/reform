@@ -19,6 +19,11 @@ class FormTest < Minitest::Spec
         end # :parse_block
 
       property :description
+      property :currency,
+        parse_block: -> do
+          def self.default(ctx, **); true; end
+          step method(:default), after: :read, magnetic_to: :failure, Output(:success) => Track(:success), inject: [{ value: ->(ctx, **) {"EUR"} }], input: [:key], id: :default, field_name: :default  # we don't need {:value} here, do we?
+        end
 
           def nilify(ctx, value:, **) # DISCUSS: move to lib? Do we want this here?
             ctx[:value] = nil if value == ""
@@ -71,7 +76,7 @@ class FormTest < Minitest::Spec
     end
 
 
-    twin = Struct.new(:invoice_date, :description)
+    twin = Struct.new(:invoice_date, :description, :currency)
 
     # Goal is to replace Reform's crazy horrible parsing layer with something traceable, easily
     # extendable and customizable. E.g. you can add steps for your own parsing etc.
@@ -106,6 +111,7 @@ class FormTest < Minitest::Spec
     # * two steps Deserialize and Validate, so OPs could add steps? or allow steps in contracts?
     #   e.g. the {txn_direction} column could be set after the {type} parsing
     # * What're we doing with {Form#call}/{call.rb}?
+    # * custom_errors
 
 
 
@@ -113,6 +119,7 @@ class FormTest < Minitest::Spec
       invoice_date: "12/11",
       description: "Lagavulin or whatever",
       idont_exist: "true",
+      # {:currency} is not present
     }
 
 
@@ -128,6 +135,10 @@ class FormTest < Minitest::Spec
     assert_equal "Lagavulin or whatever", form[:description]
     assert_equal true, result
     assert_equal "#<DateTime: 2021-11-12T", form.invoice_date.inspect[0..22]
+
+    assert_equal "EUR", form.currency
+    assert_equal nil, form[:"currency.value.read"]
+    assert_equal "EUR", form[:"currency.value.default"]
 
 
 form = Form.new(twin.new)
