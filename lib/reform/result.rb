@@ -17,13 +17,17 @@ module Reform
       # Errors compatible with ActiveModel::Errors.
       class Errors
         def initialize(hash)
-          @hash = hash
+          @name2errors = hash
         end
 
         def [](name)
-          dry_messages = @hash[name] or return [] # FIXME: to_sym
+          dry_messages = @name2errors[name] or return [] # FIXME: to_sym
 
           dry_messages.collect { |msg| msg.dry_message.text } #  FIXME: dry::Message specific.
+        end
+
+        def messages
+          @name2errors.collect { |name, errors| [name, errors.collect { |err| err.dry_message.text }] }.to_h
         end
 
         class Error < Struct.new(:dry_message)
@@ -46,8 +50,6 @@ module Reform
 
         Result::Errors.new(name2errors) # DISCUSS: what about nested?
       end
-
-      # def messages(*args); filter_for(:messages, *args) end
 
       # def hints(*args);    filter_for(:hints, *args) end
 

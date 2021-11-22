@@ -1,3 +1,12 @@
+## 3.0.0
+
+* Remove `Result::Pointer` for tracking errors in nested forms. TODO: describe how it's done now.
+* Validate.validate! (no instance method)
+* `deserialize` parses using Trailblazer::Activity::Railway and not the crazy Representable::Pipeline
+* Drop dotted errors support (and the associated pointers crap code) in `Errors`
+* Compute `Errors.new` at `#validate` time, not at instantiation
+
+
 ## 2.6.1
 
 * Loosen `disposable` dependency to `>= 0.5.0`.

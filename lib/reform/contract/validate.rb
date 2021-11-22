@@ -9,12 +9,17 @@ class Reform::Contract < Disposable::Twin
 
     def validate(deserialized_values:) # FIXME: {self} values is for AMV
       # DISCUSS: we don't need {deserialized_values} here as it's stored in form:@deserialized_values
-      Validate.validate!(nil, values_object: self, form: self, validation_groups: self.class.validation_groups).success?
+      result = Validate.validate!(nil, values_object: self, form: self, validation_groups: self.class.validation_groups)
+
+      @errors = result.errors
+      @result = result
+      result.success?
     end
 
     # The #errors method will be removed in Reform 3.0 core.
     def errors(*args)
-      Result::Errors.new(@result, self)
+      #Result::Errors.new(@result, self)
+      @errors
     end
 
     #:private:
@@ -48,6 +53,8 @@ puts "nested_errors ........... #{nested_errors.inspect}"
         # custom_errors +  # FIXME
         local_errors_by_group, nested_errors
       )
+puts "@@@@@ ++++ #{result.inspect}"
+      result
     end
 
     private

@@ -1,5 +1,5 @@
 module Reform::Form::Call
-  def call(params, &block)
+  def call(params, &block) # FIXME: make this part of the public API
     bool = validate(params, &block)
 
     Result.new(bool, self)
