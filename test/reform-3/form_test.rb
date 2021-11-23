@@ -21,8 +21,9 @@ class FormTest < Minitest::Spec
       property :description
       property :currency,
         parse_block: -> do
-          def self.default(ctx, **); true; end
-          step method(:default), after: :read, magnetic_to: :failure, Output(:success) => Track(:success), inject: [{ value: ->(ctx, **) {"EUR"} }], input: [:key], id: :default, field_name: :default  # we don't need {:value} here, do we?
+          # def self.default(ctx, **); true; end
+          # step method(:default), after: :read, magnetic_to: :failure, Output(:success) => Track(:success), inject: [{ value: ->(ctx, **) {"EUR"} }], input: [:key], id: :default, field_name: :default  # we don't need {:value} here, do we?
+          step Reform::Form::Property::Deserialize::Macro::Default(:currency, "EUR")
         end
 
           def nilify(ctx, value:, **) # DISCUSS: move to lib? Do we want this here?
@@ -138,6 +139,8 @@ class FormTest < Minitest::Spec
 
     assert_equal "EUR", form.currency
     assert_equal nil, form[:"currency.value.read"]
+    # puts
+    # puts form.instance_variable_get(:@arbitrary_bullshit).keys
     assert_equal "EUR", form[:"currency.value.default"]
 
 

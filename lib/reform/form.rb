@@ -114,23 +114,76 @@ module Reform
       end
 
       module Deserialize
+        module Macro
+          module_function
+
+          def self.default(*args); return Trailblazer::Activity::Right, *args end # this step doesn't do anything!
+
+          def Default(field_name, static_value)
+            {
+              task: method(:default),
+              after: :read, magnetic_to: :failure, Trailblazer::Activity::Railway.Output(:success) => Trailblazer::Activity::Railway.Track(:success),
+              inject: [{ value: ->(ctx, **) {static_value} }],# input: [:key],
+              id: :default, field_name: :default  # we don't need {:value} here, do we?
+            }
+          end
+        end
+
+        def self.normalize_field_name((ctx, flow_options), **)
+          ctx = ctx.merge(
+            field_name: ctx[:field_name] || ctx[:id] # Default to {:id} which is already set by the normalizer.
+          )
+          return Trailblazer::Activity::Right, [ctx, flow_options]
+        end
+
+        # Build our own {step} normalizer so we can add new options like {:provides} and defaulted {:output}.
+        def self.normalize_output_options((ctx, flow_options), **)
+          output_filter = ctx[:output_filter]
+          return Trailblazer::Activity::Right, [ctx, flow_options] if output_filter == false # don't do this if {:output_filter} is {false}.
+
+          # TODO: test {:field_name} overriding
+              # TODO: test {:output}, {:provides} overriding
+          field_name = ctx[:field_name]
+
+          output_options = { # TODO: example doc
+            output:   ->(ctx, value:, **) { {:value => value, :"value.#{field_name}" => value}},
+            provides: [:"value.#{field_name}"]
+          }
+
+          ctx = ctx.merge(output_options)
+
+          return Trailblazer::Activity::Right, [ctx, flow_options]
+        end
+
+        linear = Trailblazer::Activity::DSL::Linear
+
+        railway_step_normalizer_seq = linear::Normalizer.activity_normalizer( Trailblazer::Activity::Railway::DSL.normalizer ) # FIXME: no other way to retrieve the "configuration" of Railway normalizer then to re-compute it.
+
+        seq = Trailblazer::Activity::Path::DSL.prepend_to_path( # this doesn't particularly put the steps after the Path steps.
+              railway_step_normalizer_seq,
+
+              {
+              "form.property.normalize_field_name"       => Deserialize.method(:normalize_field_name),      # first
+              "form.property.normalize_output_options"       => Deserialize.method(:normalize_output_options),      # second
+              },
+
+              linear::Insert.method(:Append), "activity.inherit_option" # add our steps after this one.
+            )
+
+        normalizers = linear::State::Normalizer.new( # TODO: cache
+          step:  linear::Normalizer.activity_normalizer(seq)
+       )
+
+
+
         # Base steps for deserializing a particular property field (e.g. {invoice_date}).
         #
         # TODO: currently only with hash input.
-        class Property < Trailblazer::Activity::Railway
+        class Property < Trailblazer::Activity::Railway(normalizers: normalizers)
+
           module StepMethod
-            def step(name, field_name: name, output_filter: true, **kws)
-              # TODO: test {:field_name} overriding
-              # TODO: test {:output}, {:provides} overriding
-
-              return super(name, **kws) if output_filter == false # FIXME: allow calling the fucking original "super"!
-
-              output_options = { # TODO: example doc
-                output:   ->(ctx, value:, **) { {:value => value, :"value.#{field_name}" => value}},
-                provides: [:"value.#{field_name}"]
-              }
-
-              super(name, **output_options, **kws)
+            def step(name, output_filter: true, **kws)
+              super(name, output_filter: output_filter, **kws) # TODO: defaulting in Normalizer?
             end
           end
 
