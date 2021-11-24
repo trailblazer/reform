@@ -88,6 +88,7 @@ class FormTest < Minitest::Spec
     # * we have all values separately after the deserialization and can assign it to a Twin as we need it. This allows
     #   to pass the coerced <DateTime> to the validation, but still show  the original "12" in the form when we error.
     # * it's possible to access all *pipeline variables* such as {invoice_date.parse_user_date} using {Form#[]}. It would be cool if this was probably routed to a "new" datastructure that only represents "validated" state.
+    # * presenter layer has default readers for form builder, form itself is only other stuff
     #
     # NOTES
     # * the architecture of Contract#validate is great since we can easily replace the parsing of Form#validate.
@@ -113,6 +114,7 @@ class FormTest < Minitest::Spec
     #   e.g. the {txn_direction} column could be set after the {type} parsing
     # * What're we doing with {Form#call}/{call.rb}?
     # * custom_errors
+    # * readers in Form::New should be able to lookup {Default} value, or at least get a hint. also, TODO: can we use instance methods receiving ctx etc to compute {:default}?
 
 
 

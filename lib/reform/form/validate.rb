@@ -37,8 +37,10 @@ module Reform::Form::Validate
   def self.deserialize(params, fields:, twin:)
     # params = deserialize!(params)
     # deserializer.new(self).from_hash(params)
-    ctx = Trailblazer::Context({input: params}, {data: {}})
+    ctx = Trailblazer::Context({input: params}, {})
 
+    # Run the form's deserializer, which is a simple Trailblazer::Activity.
+    # This is where all parsing, defaulting, populating etc happens.
     signal, (ctx, _) = Trailblazer::Developer.wtf?(twin.class.deserializer_activity, [ctx, {}], exec_context: twin)
 
     fields = fields.keys # FIXME: use schema!
