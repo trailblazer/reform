@@ -16,7 +16,8 @@ class FormTest < Minitest::Spec
           step :nilify # When {nilify} "fails" it means {:value} was a blank string.
           step :parse_user_date#, output: ->(ctx, value:, **) { {:value => value, :"value.parse_user_date" => value}}, provides: [:"value.parse_user_date"]
           step :coerce#, output: ->(ctx, value:, **) { {:value => value, :"value.coerce" => value}}, provides: [:"value.coerce"]
-        end # :parse_block
+        end, # :parse_block
+        parse_inject: [:now]
 
       property :description
       property :currency,
@@ -25,14 +26,18 @@ class FormTest < Minitest::Spec
           # step method(:default), after: :read, magnetic_to: :failure, Output(:success) => Track(:success), inject: [{ value: ->(ctx, **) {"EUR"} }], input: [:key], id: :default, field_name: :default  # we don't need {:value} here, do we?
           step Reform::Form::Property::Deserialize::Macro::Default(:currency, "EUR")
         end
+      # TODO: {parse: false}
+      # property :created_at,
+      #   parse_block:
+
 
           def nilify(ctx, value:, **) # DISCUSS: move to lib? Do we want this here?
             ctx[:value] = nil if value == ""
             ctx[:value]
           end
 
-          def parse_user_date(ctx, value:, **)
-            now_year = Time.now.strftime("%Y") # TODO: make injectable
+          def parse_user_date(ctx, value:, now: Time.now, **)
+            now_year = now.strftime("%Y")
 
             # allow dates like 24/12 or 24/12/17 because it's super handy.
             formatted = if match = value.match(/\d{1,2}[^\d]+\d{1,2}[^\d]+(\d{2})$/)
@@ -89,6 +94,7 @@ class FormTest < Minitest::Spec
     #   to pass the coerced <DateTime> to the validation, but still show  the original "12" in the form when we error.
     # * it's possible to access all *pipeline variables* such as {invoice_date.parse_user_date} using {Form#[]}. It would be cool if this was probably routed to a "new" datastructure that only represents "validated" state.
     # * presenter layer has default readers for form builder, form itself is only other stuff
+    # * property :created_at, inject: [:now]
     #
     # NOTES
     # * the architecture of Contract#validate is great since we can easily replace the parsing of Form#validate.
@@ -157,6 +163,14 @@ form = Form.new(twin.new)
     assert_equal false, result
     assert_equal nil, form.invoice_date
     assert_equal %{{:invoice_date=>["must be DateTime"]}}, form.errors.messages.inspect
+
+
+# test {:inject}
+form = Form.new(twin.new)
+    injections = {now: Time.parse("23/11/2000")}
+    result = form.validate(form_params, injections)
+    assert_equal "12/11/2000",        form[:"invoice_date.value.parse_user_date"]
+
 
 
   # unit test: {deserializer}
