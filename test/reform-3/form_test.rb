@@ -27,8 +27,9 @@ class FormTest < Minitest::Spec
           step Reform::Form::Property::Deserialize::Macro::Default(:currency, "EUR")
         end
       # TODO: {parse: false}
-      # property :created_at,
-      #   parse_block:
+      property :created_at,
+        parse: false,
+        parse_block: -> { step :populate_created_at }
 
 
           def nilify(ctx, value:, **) # DISCUSS: move to lib? Do we want this here?
@@ -57,6 +58,10 @@ class FormTest < Minitest::Spec
             ctx[:value] = date
           end
 
+          def populate_created_at(ctx, **)
+            ctx[:value] = "Hello!" # TODO: test if we can access other shit
+          end
+
       require "reform/form/dry"
       feature Reform::Form::Dry
 
@@ -82,7 +87,7 @@ class FormTest < Minitest::Spec
     end
 
 
-    twin = Struct.new(:invoice_date, :description, :currency)
+    twin = Struct.new(:invoice_date, :description, :currency, :created_at)
 
     # Goal is to replace Reform's crazy horrible parsing layer with something traceable, easily
     # extendable and customizable. E.g. you can add steps for your own parsing etc.
@@ -171,6 +176,10 @@ form = Form.new(twin.new)
     result = form.validate(form_params, injections)
     assert_equal "12/11/2000",        form[:"invoice_date.value.parse_user_date"]
 
+# test {parse: false}
+form = Form.new(twin.new)
+    result = form.validate({created_at: "rubbish, don't read me!"})
+    assert_equal "Hello!", form.created_at
 
 
   # unit test: {deserializer}

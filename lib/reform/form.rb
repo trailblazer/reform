@@ -38,9 +38,12 @@ module Reform
         # to correctly inherit modules
         options[:_inherited] = options[:inherit] if options.key?(:on) && options.key?(:inherit)
 
-        if options.key?(:parse)
-          options[:deserializer] ||= {}
-          options[:deserializer][:writeable] = options.delete(:parse)
+        kws = {}
+
+        # When {parse: false} is set, meaning we shall *not* read the property's value from the input fragment,
+        # we simply use a slightly slimmer PPP which doesn't have {#key?} and {#read}.
+        if options[:parse] == false
+          kws[:property_activity] = Deserialize::Property # normally this is {Deserialize::Property::Read}.
         end
 
         options[:writeable] ||= options.delete(:writable) if options.key?(:writable)
@@ -55,7 +58,7 @@ module Reform
 
 
 
-        add_property_to_deserializer!(name, deserializer_activity, parse_block: parse_block, inject: parse_inject)
+        add_property_to_deserializer!(name, deserializer_activity, parse_block: parse_block, inject: parse_inject, **kws)
 
 =begin
         deserializer_options = definition[:deserializer]
@@ -93,8 +96,6 @@ module Reform
             pipeline
           end
         end
-
-        deserializer_options[:parse_pipeline] ||= parse_pipeline
 
         if proc = definition[:skip_if]
           proc = Reform::Form::Validate::Skip::AllBlank.new if proc == :all_blank
@@ -190,20 +191,22 @@ module Reform
 
           extend StepMethod # we have an extended {#step} method now.
 
-          # Default steps
-          # Simple check if {key} is present in the incoming document/input.
-          def self.key?(ctx, key:, input:, **)
-            input.key?(key)
+          # The default property that uses {#key?} and {#read} to read from the fragment.
+          class Read < Property
+            # Default steps
+            # Simple check if {key} is present in the incoming document/input.
+            def self.key?(ctx, key:, input:, **)
+              input.key?(key)
+            end
+
+            # Read the property value from the fragment.
+            def self.read(ctx, key:, input:, **)
+              ctx[:value] = input[key]
+            end
+
+            step method(:key?), id: :key?, output_filter: false
+            step method(:read), id: :read, field_name: :read # output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}}, provides: [:"value.read"]
           end
-
-          # Read the property value from the fragment.
-          def self.read(ctx, key:, input:, **)
-            ctx[:value] = input[key]
-          end
-
-          step method(:key?), id: :key?, output_filter: false
-          step method(:read), id: :read, field_name: :read # output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}}, provides: [:"value.read"]
-
         end # Property
 
         # Override {Railway#call} and always use the top-most {:exec_context},
@@ -217,8 +220,8 @@ module Reform
 
       end
 
-      def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:)
-        property_activity = Class.new(Deserialize::Property) # this activity represents one particulr property's pipeline {ppp}.
+      def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read)
+        property_activity = Class.new(property_activity) # this activity represents one particulr property's pipeline {ppp}.
         property_activity.instance_exec(&parse_block)
         property_activity.extend(Deserialize::Call)
 
