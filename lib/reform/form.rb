@@ -1,6 +1,7 @@
 require "trailblazer/activity/dsl/linear"
 require "trailblazer/developer"
 
+# PPP: property parsing pipeline :)
 module Reform
   class Form < Contract
     class InvalidOptionsCombinationError < StandardError; end
@@ -24,8 +25,8 @@ module Reform
     module Property
       # Add macro logic, e.g. for :populator.
       def property(name, options={}, &block)
-        parse_block = options[:parse_block] || ->(*) {} # FIXME: use fucking kwargs everywhere!
-
+        parse_block   = options[:parse_block] || ->(*) {} # FIXME: use fucking kwargs everywhere!
+        parse_inject  = options[:parse_inject] || [] # per {#property} we can define injection variables for the PPP.
 
         if (options.keys & %i[skip_if populator]).size == 2
           raise InvalidOptionsCombinationError.new(
@@ -54,7 +55,7 @@ module Reform
 
 
 
-        add_property_to_deserializer!(name, deserializer_activity, parse_block: parse_block)
+        add_property_to_deserializer!(name, deserializer_activity, parse_block: parse_block, inject: parse_inject)
 
 =begin
         deserializer_options = definition[:deserializer]
@@ -172,7 +173,7 @@ module Reform
 
         normalizers = linear::State::Normalizer.new( # TODO: cache
           step:  linear::Normalizer.activity_normalizer(seq)
-       )
+        )
 
 
 
@@ -216,12 +217,12 @@ module Reform
 
       end
 
-      def add_property_to_deserializer!(field, deserializer_activity, parse_block:)
+      def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:)
         property_activity = Class.new(Deserialize::Property) # this activity represents one particulr property's pipeline {ppp}.
         property_activity.instance_exec(&parse_block)
         property_activity.extend(Deserialize::Call)
 
-        # Find all variables provided by this property pipeline.
+        # Find all variables provided by this PPP.
         # E.g. {[:"value.read", :"value.parse_user_date", :"value.coerce"]}
         # We need to rename those in the activities {:output}, see below.
         # TODO: in future TRB versions, {:output} could know what variables it returns?
@@ -235,7 +236,7 @@ module Reform
           step Subprocess(property_activity),
             id:     field,
             input:  [:input],
-            inject: [{key: ->(*) { field }}],
+            inject: [*inject, {key: ->(*) { field }}],
             # output: {:"value.parsed" => :"#{field}.parsed", :"value.read" => :"#{field}.read", :"value.coerced" => :"#{field}.coerced", :value => field},
             output: output_hash,
             Output(:failure) => Track(:success) # a failing {read} shouldn't skip the remaining properties # FIXME: test me!

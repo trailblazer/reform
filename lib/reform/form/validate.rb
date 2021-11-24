@@ -23,21 +23,22 @@ module Reform::Form::Validate
     end
   end
 
-  def validate(params)
-    deserialized_values, ctx = block_given? ? yield(params) : Reform::Form::Validate.deserialize(params, fields: @fields, twin: self) # FIXME: call deserialize! on every form?
+  def validate(params, ctx={})
+    deserialized_values, deserialize_ctx = block_given? ? yield(params) : Reform::Form::Validate.deserialize(params, ctx, fields: @fields, twin: self) # FIXME: call deserialize! on every form?
 
     # FIXME: only one level
-    @arbitrary_bullshit = ctx # TODO: do we need the entire {Context} instance here?
+    @arbitrary_bullshit = deserialize_ctx # TODO: do we need the entire {Context} instance here?
     @deserialized_values = deserialized_values
 
     super(deserialized_values: deserialized_values) # run the actual validation using {Contract#validate}.
   end
 
   # {:twin} where do we write to (currently)
-  def self.deserialize(params, fields:, twin:)
+  def self.deserialize(params, ctx, fields:, twin:)
+    puts "@@@@@ /// #{ctx.inspect}"
     # params = deserialize!(params)
     # deserializer.new(self).from_hash(params)
-    ctx = Trailblazer::Context({input: params}, {})
+    ctx = Trailblazer::Context({input: params}, ctx)
 
     # Run the form's deserializer, which is a simple Trailblazer::Activity.
     # This is where all parsing, defaulting, populating etc happens.
