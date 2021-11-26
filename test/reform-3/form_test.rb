@@ -30,7 +30,8 @@ class FormTest < Minitest::Spec
       property :created_at,
         parse: false,
         parse_block: -> { step :populate_created_at }
-
+      property :updated_at,
+        parse_block: -> { step :parse_updated_at }
 
           def nilify(ctx, value:, **) # DISCUSS: move to lib? Do we want this here?
             ctx[:value] = nil if value == ""
@@ -62,6 +63,10 @@ class FormTest < Minitest::Spec
             ctx[:value] = "Hello!" # TODO: test if we can access other shit
           end
 
+          def parse_updated_at(ctx, deserialized_fields:, **)
+            ctx[:value] = deserialized_fields.keys
+          end
+
       require "reform/form/dry"
       feature Reform::Form::Dry
 
@@ -87,7 +92,7 @@ class FormTest < Minitest::Spec
     end
 
 
-    twin = Struct.new(:invoice_date, :description, :currency, :created_at)
+    twin = Struct.new(:invoice_date, :description, :currency, :created_at, :updated_at)
 
     # Goal is to replace Reform's crazy horrible parsing layer with something traceable, easily
     # extendable and customizable. E.g. you can add steps for your own parsing etc.
@@ -134,6 +139,7 @@ class FormTest < Minitest::Spec
       description: "Lagavulin or whatever",
       idont_exist: "true",
       # {:currency} is not present
+      updated_at: "nil"
     }
 
 
@@ -155,6 +161,8 @@ class FormTest < Minitest::Spec
     # puts
     # puts form.instance_variable_get(:@arbitrary_bullshit).keys
     assert_equal "EUR", form[:"currency.value.default"]
+
+    assert_equal %{[:input, :"invoice_date.value.read", :"invoice_date.value.nilify", :"invoice_date.value.parse_user_date", :"invoice_date.value.coerce", :invoice_date, :"description.value.read", :description, :"currency.value.read", :"currency.value.default", :currency, :"created_at.value.populate_created_at", :created_at]}, form.updated_at.inspect
 
 
 form = Form.new(twin.new)

@@ -238,10 +238,14 @@ module Reform
         deserializer_activity.instance_exec do
           step Subprocess(property_activity),
             id:     field,
-            input:  [:input],
+            # input:  [:input],
+            # The {:input} filter passes the actual fragment as {:input} and already deserialized
+            # field values from earlier steps in {:deserialized_ctx}.
+            input:  ->(ctx, input:, **) { {input: input, deserialized_fields: ctx} },
             inject: [*inject, {key: ->(*) { field }}],
-            # output: {:"value.parsed" => :"#{field}.parsed", :"value.read" => :"#{field}.read", :"value.coerced" => :"#{field}.coerced", :value => field},
-            output: output_hash,
+            # The {:output} filter adds all values from the property steps to the original ctx,
+            # prefixed with the property name, such as {:"invoice_date.value.parsed"}
+            output: output_hash, # {:"value.parsed" => :"invoice_date.value.parsed", ..}
             Output(:failure) => Track(:success) # a failing {read} shouldn't skip the remaining properties # FIXME: test me!
         end
       end

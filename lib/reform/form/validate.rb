@@ -44,11 +44,16 @@ module Reform::Form::Validate
     # This is where all parsing, defaulting, populating etc happens.
     signal, (ctx, _) = Trailblazer::Developer.wtf?(twin.class.deserializer_activity, [ctx, {}], exec_context: twin)
 
-    fields = fields.keys # FIXME: use schema!
+    fields = []
+    twin.schema.each do |dfn|
+      fields << dfn[:name]
+    end
 
   # FIXME: this is usually done via SetValue in the pipeline (also important with populators)
+  puts "!!!!!!!@@@@@ #{fields.inspect}"
     deserialized_values = fields.collect { |field| ctx.key?(field) ? [field, ctx[field]] : nil }.compact.to_h
     deserialized_values.each do |field, value|
+      puts "@@@@@ #{field.inspect} ===> #{value}"
       twin.send("#{field}=", value) # FIXME: hahaha: this actually sets the scalar values on the form
     end # FIXME: this creates two sources for {invoice_date}, sucks
 
