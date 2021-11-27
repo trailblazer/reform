@@ -147,21 +147,19 @@ module Reform
 
         linear = Trailblazer::Activity::DSL::Linear
 
-        railway_step_normalizer_seq = linear::Normalizer.activity_normalizer( Trailblazer::Activity::Railway::DSL.normalizer ) # FIXME: no other way to retrieve the "configuration" of Railway normalizer then to re-compute it.
+        railway_step_normalizer_pipe = linear::Normalizer.activity_normalizer( Trailblazer::Activity::Railway::DSL.normalizer ) # FIXME: no other way to retrieve the "configuration" of Railway normalizer then to re-compute it.
 
-        seq = Trailblazer::Activity::Path::DSL.prepend_to_path( # this doesn't particularly put the steps after the Path steps.
-              railway_step_normalizer_seq,
+        pipe = Trailblazer::Activity::TaskWrap::Pipeline.prepend(
+          railway_step_normalizer_pipe,
+          "path.outputs",
+          {
+          "form.property.normalize_field_name"       => linear::Normalizer.Task(Deserialize.method(:normalize_field_name)),      # first
+          "form.property.normalize_output_options"   => linear::Normalizer.Task(Deserialize.method(:normalize_output_options)),  # second
+          }
+        )
 
-              {
-              "form.property.normalize_field_name"       => linear::Normalizer.Task(Deserialize.method(:normalize_field_name)),      # first
-              "form.property.normalize_output_options"   => linear::Normalizer.Task(Deserialize.method(:normalize_output_options)),  # second
-              },
-
-              linear::Insert.method(:Append), "activity.inherit_option" # add our steps after this one.
-            )
-
-        normalizers = linear::State::Normalizer.new( # TODO: cache
-          step:  linear::Normalizer.activity_normalizer(seq)
+        normalizers = linear::State::Normalizer.new(
+          step:  pipe
         )
 
 
