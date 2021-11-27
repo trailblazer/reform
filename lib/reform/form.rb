@@ -131,30 +131,18 @@ module Reform
           end
         end
 
-        def self.normalize_field_name((ctx, flow_options), **)
-          ctx = ctx.merge(
-            field_name: ctx[:field_name] || ctx[:id] # Default to {:id} which is already set by the normalizer.
-          )
-          return Trailblazer::Activity::Right, [ctx, flow_options]
+        def self.normalize_field_name(ctx, field_name: nil, id:, **)
+          ctx[:field_name] = field_name || id # Default to {:id} which is already set by the normalizer.
         end
 
         # Build our own {step} normalizer so we can add new options like {:provides} and defaulted {:output}.
-        def self.normalize_output_options((ctx, flow_options), **)
-          output_filter = ctx[:output_filter]
-          return Trailblazer::Activity::Right, [ctx, flow_options] if output_filter == false # don't do this if {:output_filter} is {false}.
+        def self.normalize_output_options(ctx, output_filter:, field_name:, **)
+          return if output_filter == false
 
           # TODO: test {:field_name} overriding
               # TODO: test {:output}, {:provides} overriding
-          field_name = ctx[:field_name]
-
-          output_options = { # TODO: example doc
-            output:   ->(ctx, value:, **) { {:value => value, :"value.#{field_name}" => value}},
-            provides: [:"value.#{field_name}"]
-          }
-
-          ctx = ctx.merge(output_options)
-
-          return Trailblazer::Activity::Right, [ctx, flow_options]
+          ctx[:output]   = ->(ctx, value:, **) { {:value => value, :"value.#{field_name}" => value}}
+          ctx[:provides] = [:"value.#{field_name}"]
         end
 
         linear = Trailblazer::Activity::DSL::Linear
@@ -165,8 +153,8 @@ module Reform
               railway_step_normalizer_seq,
 
               {
-              "form.property.normalize_field_name"       => Deserialize.method(:normalize_field_name),      # first
-              "form.property.normalize_output_options"       => Deserialize.method(:normalize_output_options),      # second
+              "form.property.normalize_field_name"       => linear::Normalizer.Task(Deserialize.method(:normalize_field_name)),      # first
+              "form.property.normalize_output_options"   => linear::Normalizer.Task(Deserialize.method(:normalize_output_options)),  # second
               },
 
               linear::Insert.method(:Append), "activity.inherit_option" # add our steps after this one.
