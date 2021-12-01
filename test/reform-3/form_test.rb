@@ -121,7 +121,7 @@ class FormTest < Minitest::Spec
 =end
 
     # TODO
-    # * allow injecting an Errors object
+    # * allow injecting an Errors object (operation/workflow wide)
     # * easy injection of dependencies
     # * how to access form instance in dry-v, e.g. for currency list?
     #
@@ -205,12 +205,14 @@ form = Form.new(twin.new)
 
     fields = form.instance_variable_get(:@fields).keys # FIXME: use schema!
 
-    values = fields.collect { |field| ctx.key?(field) ? [field, ctx[field]] : nil }.compact.to_h
-    # pp values
-    result = form.validate!("bla", values: values)
 
-    pp result
-    pp ctx
+
+    # values = fields.collect { |field| ctx.key?(field) ? [field, ctx[field]] : nil }.compact.to_h
+    # # pp values
+    # result = form.validate!("bla", values: values)
+
+    # pp result
+    # pp ctx
   end
 
 
