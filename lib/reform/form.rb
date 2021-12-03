@@ -141,7 +141,7 @@ module Reform
 
           # TODO: test {:field_name} overriding
               # TODO: test {:output}, {:provides} overriding
-          ctx[:output]   = ->(ctx, value:, **) { {:value => value, :"value.#{field_name}" => value}}
+          ctx[:output]   = ->(ctx, value:, **) { {:value => value, :"value.#{field_name}" => value} }
           ctx[:provides] = [:"value.#{field_name}"]
         end
 
@@ -170,6 +170,8 @@ module Reform
         class Property < Trailblazer::Activity::Railway(normalizers: normalizers)
 
           module StepMethod
+            # Per default, step adds an {:output} filter that only returns {:value} and {value.field_name}.
+            # Can be turned off with {output_filter: false}. That means a step like {set} will return the original ctx with all fields.
             def step(name, output_filter: true, **kws)
               super(name, output_filter: output_filter, **kws) # TODO: defaulting in Normalizer?
             end
@@ -207,9 +209,25 @@ module Reform
       end
 
       def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read)
-        property_activity = Class.new(property_activity) # this activity represents one particulr property's pipeline {ppp}.
+        property_activity = Class.new(property_activity) # this activity represents one particular property's pipeline {ppp}.
         property_activity.instance_exec(&parse_block)
         property_activity.extend(Deserialize::Call)
+
+        # DISCUSS: it would be better to have :set in the {property_activity} before we execute {&parse_block}
+        #          because it would allow tweaking it using your {:parse_block}.
+
+        def self.set(ctx, populated_instance:, value:, key:, **)
+          # TODO: handle populators
+
+          # standard populator:
+          # populated_instance[key] = value
+          ctx[:populated_instance] = populated_instance.merge(key => value) # TODO: this {populated_instance} is supposed to be the form twin. in only use the immutable version to test if we use a proper clean output filter.
+
+          true
+        end
+
+        property_activity.step(method(:set), id: :set, output_filter: false) # FIXME: needs to be at the very end
+
 
         # Find all variables provided by this PPP.
         # E.g. {[:"value.read", :"value.parse_user_date", :"value.coerce"]}
@@ -227,11 +245,12 @@ module Reform
             # input:  [:input],
             # The {:input} filter passes the actual fragment as {:input} and already deserialized
             # field values from earlier steps in {:deserialized_ctx}.
-            input:  ->(ctx, input:, **) { {input: input, deserialized_fields: ctx} },
+            input:  ->(ctx, input:, **) { {input: input, deserialized_fields: ctx, populated_instance: ctx[:populated_instance]} },
             inject: [*inject, {key: ->(*) { field }}],
             # The {:output} filter adds all values from the property steps to the original ctx,
             # prefixed with the property name, such as {:"invoice_date.value.parsed"}
-            output: output_hash, # {:"value.parsed" => :"invoice_date.value.parsed", ..}
+            output: output_hash. # {:"value.parsed" => :"invoice_date.value.parsed", ..}
+              merge(populated_instance: :populated_instance),
             Output(:failure) => Track(:success) # a failing {read} shouldn't skip the remaining properties # FIXME: test me!
         end
       end

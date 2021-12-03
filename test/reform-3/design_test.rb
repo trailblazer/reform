@@ -71,5 +71,19 @@ song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song
     result.errors[:title].inspect.must_equal %{[]}
     result.errors[:album_id].inspect.must_equal %{["is missing"]}
 
+
+    # test blank "" validation
+  song_form_instance = song_form.new(song)
+  song_form_instance.instance_variable_set(:@deserialized_values, {title: ""} )
+  result = Reform::Contract::Validate.validate!("nil", form: song_form_instance, validation_groups: song_form.validation_groups,
+
+      values_object: song_form_instance,
+      )
+
+    # pp result
+
+    result.errors[:title].inspect.must_equal %{["must be filled"]} # correct message for blank string.
+    result.errors[:album_id].inspect.must_equal %{["is missing"]}
+
   end
 end

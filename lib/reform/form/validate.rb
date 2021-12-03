@@ -24,7 +24,9 @@ module Reform::Form::Validate
   end
 
   def validate(params, ctx={})
-    deserialized_values, deserialize_ctx = block_given? ? yield(params) : Reform::Form::Validate.deserialize(params, ctx, fields: @fields, twin: self) # FIXME: call deserialize! on every form?
+    populated_instance = DeserializedFields.new # DISCUSS: this is (part of) the Twin. "write-to"
+
+    deserialized_values, deserialize_ctx = block_given? ? yield(params) : Reform::Form::Validate.deserialize(params, ctx, twin: self, populated_instance: populated_instance) # FIXME: call deserialize! on every form?
 
     # FIXME: only one level
     @arbitrary_bullshit = deserialize_ctx # TODO: do we need the entire {Context} instance here?
@@ -33,16 +35,20 @@ module Reform::Form::Validate
     super(deserialized_values: deserialized_values) # run the actual validation using {Contract#validate}.
   end
 
+  # we need a closed structure taht only contains read values. we need values associated with their form (eg. nested, right?)
+
   # {:twin} where do we write to (currently)
-  def self.deserialize(params, ctx, fields:, twin:)
+  def self.deserialize(params, ctx, populated_instance:, twin:)
     # puts "@@@@@ deserialize /// #{ctx.inspect}"
     # params = deserialize!(params)
     # deserializer.new(self).from_hash(params)
-    ctx = Trailblazer::Context({input: params}, ctx)
+    ctx = Trailblazer::Context({input: params, populated_instance: populated_instance}, ctx)
 
     # Run the form's deserializer, which is a simple Trailblazer::Activity.
     # This is where all parsing, defaulting, populating etc happens.
     signal, (ctx, _) = Trailblazer::Developer.wtf?(twin.class.deserializer_activity, [ctx, {}], exec_context: twin)
+
+    raise ctx[:populated_instance].inspect
 
     fields = []
     twin.schema.each do |dfn|
@@ -60,6 +66,17 @@ module Reform::Form::Validate
     # arbitrary_bullshit = ctx # TODO: do we need the entire {Context} instance here?
 
     [deserialized_values, ctx] # These are only fields from params # TODO: see how we can collect those when populators are in place
+  end
+
+  # This structure only stores fields set by the deserialization.
+  class DeserializedFields < Hash
+    # def initialize
+    #   @fields = {}
+    # end
+
+    # def []=(name, value)
+    #   @fields[name] = value
+    # end
   end
 
   private
