@@ -23,23 +23,51 @@ module Reform::Form::Validate
     end
   end
 
+  class Validated
+    def initialize(form, deserialized_values, arbitrary_bullshit, is_success)
+      @form                = form
+      @deserialized_values = deserialized_values
+      @arbitrary_bullshit  = arbitrary_bullshit
+      @is_success = is_success
+    end
+
+    def method_missing(name, *args) # DISCUSS: no setter?
+      raise unless @form.methods.include?(name) # TODO: only respond to fields!
+      # pp @deserialized_values
+      @deserialized_values[name]
+    end
+
+    def [](name)
+      @arbitrary_bullshit[name]
+    end
+
+    def errors
+      @form.errors # FIXME: don't keep errors there!
+    end
+
+    def success?
+      @is_success
+    end
+  end
+
   def validate(params, ctx={})
     populated_instance = DeserializedFields.new # DISCUSS: this is (part of) the Twin. "write-to"
 
-    deserialized_values, deserialize_ctx = block_given? ? yield(params) : Reform::Form::Validate.deserialize(params, ctx, twin: self, populated_instance: populated_instance) # FIXME: call deserialize! on every form?
+    deserialized_values, deserialize_ctx = Reform::Form::Validate.deserialize(params, ctx, twin: self, populated_instance: populated_instance) # FIXME: call deserialize! on every form?
 
     # FIXME: only one level
     @arbitrary_bullshit = deserialize_ctx # TODO: do we need the entire {Context} instance here?
     @deserialized_values = deserialized_values
 
-    super(deserialized_values: deserialized_values) # run the actual validation using {Contract#validate}.
+    result = super(deserialized_values: deserialized_values) # run the actual validation using {Contract#validate}.
+
+    Validated.new(self, deserialized_values, deserialize_ctx, result) # DISCUSS: a validated form has different behavior than a "presented" one
   end
 
   # we need a closed structure taht only contains read values. we need values associated with their form (eg. nested, right?)
 
   # {:twin} where do we write to (currently)
   def self.deserialize(params, ctx, populated_instance:, twin:)
-    # puts "@@@@@ deserialize /// #{ctx.inspect}"
     # params = deserialize!(params)
     # deserializer.new(self).from_hash(params)
     ctx = Trailblazer::Context({input: params, populated_instance: populated_instance}, ctx)
@@ -48,24 +76,9 @@ module Reform::Form::Validate
     # This is where all parsing, defaulting, populating etc happens.
     signal, (ctx, _) = Trailblazer::Developer.wtf?(twin.class.deserializer_activity, [ctx, {}], exec_context: twin)
 
-    raise ctx[:populated_instance].inspect
+    deserialized_values = ctx[:populated_instance] # This must be a hash!
 
-    fields = []
-    twin.schema.each do |dfn|
-      fields << dfn[:name]
-    end
-
-  # FIXME: this is usually done via SetValue in the pipeline (also important with populators)
-  puts "!!!!!!!@@@@@ #{fields.inspect}"
-    deserialized_values = fields.collect { |field| ctx.key?(field) ? [field, ctx[field]] : nil }.compact.to_h
-    deserialized_values.each do |field, value|
-      puts "@@@@@ #{field.inspect} ===> #{value}"
-      twin.send("#{field}=", value) # FIXME: hahaha: this actually sets the scalar values on the form
-    end # FIXME: this creates two sources for {invoice_date}, sucks
-
-    # arbitrary_bullshit = ctx # TODO: do we need the entire {Context} instance here?
-
-    [deserialized_values, ctx] # These are only fields from params # TODO: see how we can collect those when populators are in place
+    [deserialized_values, ctx] # These are only fields from params
   end
 
   # This structure only stores fields set by the deserialization.

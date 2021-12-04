@@ -13,7 +13,7 @@ class FormTest < Minitest::Spec
       property :invoice_date,
         parse_block: -> do
           # this goes after the {read} step.
-          step :nilify # When {nilify} "fails" it means {:value} was a blank string.
+          step :nilify, Output(:failure)=>Id(:set) # When {nilify} "fails" it means {:value} was a blank string.
           step :parse_user_date#, output: ->(ctx, value:, **) { {:value => value, :"value.parse_user_date" => value}}, provides: [:"value.parse_user_date"]
           step :coerce#, output: ->(ctx, value:, **) { {:value => value, :"value.coerce" => value}}, provides: [:"value.coerce"]
         end, # :parse_block
@@ -153,29 +153,29 @@ class FormTest < Minitest::Spec
     assert_equal "#<DateTime: 2021-11-12T", form[:"invoice_date.value.coerce"].inspect[0..22]
     assert_equal "#<DateTime: 2021-11-12T", form[:"invoice_date"].inspect[0..22] # form[:invoice_date] is the "effective" value for validation
     assert_equal "Lagavulin or whatever", form[:description]
-    assert_equal true, result
-    assert_equal "#<DateTime: 2021-11-12T", form.invoice_date.inspect[0..22]
+    assert_equal true, result.success?
+    assert_equal "#<DateTime: 2021-11-12T", result.invoice_date.inspect[0..22]
 
-    assert_equal "EUR", form.currency
-    assert_equal nil, form[:"currency.value.read"]
+    assert_equal "EUR", result.currency
+    assert_equal nil, result[:"currency.value.read"]
     # puts
-    # puts form.instance_variable_get(:@arbitrary_bullshit).keys
-    assert_equal "EUR", form[:"currency.value.default"]
+    # puts result.instance_variable_get(:@arbitrary_bullshit).keys
+    assert_equal "EUR", result[:"currency.value.default"]
 
-    assert_equal %{[:input, :"invoice_date.value.read", :"invoice_date.value.nilify", :"invoice_date.value.parse_user_date", :"invoice_date.value.coerce", :invoice_date, :"description.value.read", :description, :"currency.value.read", :"currency.value.default", :currency, :"created_at.value.populate_created_at", :created_at]}, form.updated_at.inspect
+    assert_equal %{[:input, :populated_instance, :"invoice_date.value.read", :"invoice_date.value.nilify", :"invoice_date.value.parse_user_date", :"invoice_date.value.coerce", :invoice_date, :"description.value.read", :description, :"currency.value.read", :"currency.value.default", :currency, :"created_at.value.populate_created_at", :created_at]}, result.updated_at.inspect
 
 
 form = Form.new(twin.new)
     result = form.validate({})
-    assert_equal false, result
-    assert_equal nil, form.invoice_date
-    assert_equal %{{:invoice_date=>["must be DateTime"]}}, form.errors.messages.inspect
+    assert_equal false, result.success?
+    assert_equal nil, result.invoice_date
+    assert_equal %{{:invoice_date=>["is missing"]}}, result.errors.messages.inspect
 
 form = Form.new(twin.new)
     result = form.validate({invoice_date: ""}) # TODO: date: "asdfasdf"
-    assert_equal false, result
-    assert_equal nil, form.invoice_date
-    assert_equal %{{:invoice_date=>["must be DateTime"]}}, form.errors.messages.inspect
+    assert_equal false, result.success?
+    assert_equal nil, result.invoice_date
+    assert_equal %{{:invoice_date=>["must be DateTime"]}}, result.errors.messages.inspect
 
 
 # test {:inject}
@@ -187,7 +187,7 @@ form = Form.new(twin.new)
 # test {parse: false}
 form = Form.new(twin.new)
     result = form.validate({created_at: "rubbish, don't read me!"})
-    assert_equal "Hello!", form.created_at
+    assert_equal "Hello!", result.created_at
 
 
   # unit test: {deserializer}
