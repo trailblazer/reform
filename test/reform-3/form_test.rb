@@ -29,9 +29,13 @@ class FormTest < Minitest::Spec
       # TODO: {parse: false}
       property :created_at,
         parse: false,
+        set:   true, # DISCUSS: do we like this?
         parse_block: -> { step :populate_created_at }
+      property :category, # no {parse_block}.
+        parse: false
       property :updated_at,
         parse_block: -> { step :parse_updated_at }
+      property :notes, virtual: true
 
           def nilify(ctx, value:, **) # DISCUSS: move to lib? Do we want this here?
             ctx[:value] = nil if value == ""
@@ -92,7 +96,7 @@ class FormTest < Minitest::Spec
     end
 
 
-    twin = Struct.new(:invoice_date, :description, :currency, :created_at, :updated_at)
+    twin = Struct.new(:invoice_date, :description, :currency, :created_at, :updated_at, :notes, :category)
 
     # Goal is to replace Reform's crazy horrible parsing layer with something traceable, easily
     # extendable and customizable. E.g. you can add steps for your own parsing etc.
@@ -162,7 +166,7 @@ class FormTest < Minitest::Spec
     # puts result.instance_variable_get(:@arbitrary_bullshit).keys
     assert_equal "EUR", result[:"currency.value.default"]
 
-    assert_equal %{[:input, :populated_instance, :"invoice_date.value.read", :"invoice_date.value.nilify", :"invoice_date.value.parse_user_date", :"invoice_date.value.coerce", :invoice_date, :"description.value.read", :description, :"currency.value.read", :"currency.value.default", :currency, :"created_at.value.populate_created_at", :created_at]}, result.updated_at.inspect
+    assert_equal %{[:input, :populated_instance, :"invoice_date.value.read", :"invoice_date.value.nilify", :"invoice_date.value.parse_user_date", :"invoice_date.value.coerce", :invoice_date, :"description.value.read", :description, :"currency.value.read", :"currency.value.default", :currency, :"created_at.value.populate_created_at", :created_at, :category]}, result.updated_at.inspect
 
 
 form = Form.new(twin.new)
@@ -186,9 +190,14 @@ form = Form.new(twin.new)
 
 # test {parse: false}
 form = Form.new(twin.new)
-    result = form.validate({created_at: "rubbish, don't read me!"})
+    result = form.validate({created_at: "rubbish, don't read me!", category: "Food and entertainment"})
     assert_equal "Hello!", result.created_at
+    assert_nil result.category
 
+# test {virtual: true}
+form = Form.new(twin.new)
+    result = form.validate({notes: "more rubbish, read me but don't set me!"})
+    assert_equal "more rubbish, read me but don't set me!", result.notes
 
   # unit test: {deserializer}
     deserializer = Form.deserializer_activity

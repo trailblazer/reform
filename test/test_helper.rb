@@ -20,40 +20,40 @@ module Types
   include Dry.Types()
 end
 
-class BaseTest < MiniTest::Spec
-  class AlbumForm < TestForm
-    property :title
+# class BaseTest < MiniTest::Spec
+#   class AlbumForm < TestForm
+#     property :title
 
-    property :hit do
-      property :title
-    end
+#     property :hit do
+#       property :title
+#     end
 
-    collection :songs do
-      property :title
-    end
-  end
+#     collection :songs do
+#       property :title
+#     end
+#   end
 
-  Song   = Struct.new(:title, :length, :rating)
-  Album  = Struct.new(:title, :hit, :songs, :band)
-  Band   = Struct.new(:label)
-  Label  = Struct.new(:name)
-  Length = Struct.new(:minutes, :seconds)
+#   Song   = Struct.new(:title, :length, :rating)
+#   Album  = Struct.new(:title, :hit, :songs, :band)
+#   Band   = Struct.new(:label)
+#   Label  = Struct.new(:name)
+#   Length = Struct.new(:minutes, :seconds)
 
-  let(:hit) { Song.new("Roxanne") }
-end
+#   let(:hit) { Song.new("Roxanne") }
+# end
 
-MiniTest::Spec.class_eval do
-  Song  = Struct.new(:title, :album, :composer)
-  Album = Struct.new(:name, :songs, :artist)
-  Artist = Struct.new(:name)
+# MiniTest::Spec.class_eval do
+#   Song  = Struct.new(:title, :album, :composer)
+#   Album = Struct.new(:name, :songs, :artist)
+#   Artist = Struct.new(:name)
 
-  module Saveable
-    def save
-      @saved = true
-    end
+#   module Saveable
+#     def save
+#       @saved = true
+#     end
 
-    def saved?
-      @saved
-    end
-  end
-end
+#     def saved?
+#       @saved
+#     end
+#   end
+# end

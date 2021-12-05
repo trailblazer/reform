@@ -78,6 +78,10 @@ module Reform::Form::Validate
 
     deserialized_values = ctx[:populated_instance] # This must be a hash!
 
+# At this p(o)int, we have a hash of deserialized values (potentially missing keys etc as they're dependent on user input)
+# We also have the "value object" (twin) populated in {populated_instance}
+pp deserialized_values
+
     [deserialized_values, ctx] # These are only fields from params
   end
 

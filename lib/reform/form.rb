@@ -44,6 +44,7 @@ module Reform
         # we simply use a slightly slimmer PPP which doesn't have {#key?} and {#read}.
         if options[:parse] == false
           kws[:property_activity] = Deserialize::Property # normally this is {Deserialize::Property::Read}.
+          kws[:set] = options.key?(:set) ? options[:set] : false # TODO: handle this with a separate {Property} class.
         end
 
         options[:writeable] ||= options.delete(:writable) if options.key?(:writable)
@@ -208,7 +209,7 @@ module Reform
 
       end
 
-      def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read)
+      def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true)
         property_activity = Class.new(property_activity) # this activity represents one particular property's pipeline {ppp}.
         property_activity.instance_exec(&parse_block)
         property_activity.extend(Deserialize::Call)
@@ -226,7 +227,9 @@ module Reform
           true
         end
 
-        property_activity.step(method(:set), id: :set, output_filter: false) # FIXME: needs to be at the very end
+        if set # FIXME: hm, well, i hate {if}s, don't i?
+          property_activity.step(method(:set), id: :set, output_filter: false) # FIXME: needs to be at the very end
+        end
 
 
         # Find all variables provided by this PPP.
