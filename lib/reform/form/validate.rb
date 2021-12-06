@@ -23,23 +23,25 @@ module Reform::Form::Validate
     end
   end
 
-  class Validated
-    def initialize(form, deserialized_values, arbitrary_bullshit, is_success)
+  class Deserialized
+    def initialize(form, populated_instance, arbitrary_bullshit)
       @form                = form
-      @deserialized_values = deserialized_values
-      @arbitrary_bullshit  = arbitrary_bullshit
-      @is_success = is_success
+      @populated_instance = populated_instance # populated_instance
+      @arbitrary_bullshit  = arbitrary_bullshit # ctx of the PPP
     end
 
     def method_missing(name, *args) # DISCUSS: no setter?
       raise unless @form.methods.include?(name) # TODO: only respond to fields!
-      # pp @deserialized_values
-      @deserialized_values[name]
+      # pp @populated_instance
+      @populated_instance[name]
     end
 
     def [](name)
       @arbitrary_bullshit[name]
     end
+  end
+
+  class Validated
 
     def errors
       @form.errors # FIXME: don't keep errors there!
@@ -53,7 +55,7 @@ module Reform::Form::Validate
   def validate(params, ctx={})
     populated_instance = DeserializedFields.new # DISCUSS: this is (part of) the Twin. "write-to"
 
-    deserialized_values, deserialize_ctx = Reform::Form::Validate.deserialize(params, ctx, twin: self, populated_instance: populated_instance) # FIXME: call deserialize! on every form?
+    deserialized_values, deserialize_ctx, twin = Reform::Form::Validate.deserialize(params, ctx, twin: self, populated_instance: populated_instance) # FIXME: call deserialize! on every form?
 
     # FIXME: only one level
     @arbitrary_bullshit = deserialize_ctx # TODO: do we need the entire {Context} instance here?
@@ -70,20 +72,23 @@ module Reform::Form::Validate
   def self.deserialize(params, ctx, populated_instance:, twin:)
     # params = deserialize!(params)
     # deserializer.new(self).from_hash(params)
-    ctx = Trailblazer::Context({input: params, populated_instance: populated_instance}, ctx)
+    ctx = Trailblazer::Context({input: params, populated_instance: populated_instance, twin: twin}, ctx)
 
     # Run the form's deserializer, which is a simple Trailblazer::Activity.
     # This is where all parsing, defaulting, populating etc happens.
     signal, (ctx, _) = Trailblazer::Developer.wtf?(twin.class.deserializer_activity, [ctx, {}], exec_context: twin)
 
-    deserialized_values = ctx[:populated_instance] # This must be a hash!
+# FIXME: the following code should be done via {:output} just like for nested forms
 
 # At this p(o)int, we have a hash of deserialized values (potentially missing keys etc as they're dependent on user input)
 # We also have the "value object" (twin) populated in {populated_instance}
-pp deserialized_values
+# pp deserialized_values
 
-    [deserialized_values, ctx] # These are only fields from params
+    return Deserialized.new(twin, ctx[:populated_instance], ctx)
+    [ctx[:populated_instance], ctx, twin] # deserialized_values are solely fields from params.
   end
+
+  # [{values}, {all fields}, twin, {band: [{v}, {f}, twin]}]
 
   # This structure only stores fields set by the deserialization.
   class DeserializedFields < Hash

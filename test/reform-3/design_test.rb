@@ -53,6 +53,38 @@ class DesignTest < Minitest::Spec
 
 song_form_instance = song_form.new(song)
 
+params = {title: "The Brews", band: {name: "NOFX"}}
+
+populated_instance = Hash.new
+
+deserialized_form = Reform::Form::Validate.deserialize(params, {}, populated_instance: populated_instance, twin: song_form_instance)
+
+
+# assert_equal [:title, :band], deserialized_values.keys # {:band} is reference to a Twin
+# assert twin.band, deserialized_values[:band][2] # test the "twin" part
+
+assert_equal "The Brews", deserialized_form.title
+assert_equal "The Brews", deserialized_form[:"title.value.read"]
+assert_equal({:name=>"NOFX"}, deserialized_form[:"band.value.read"])
+# assert_equal %{[:input, :populated_instance, :twin, :\"title.value.read\", :title, :\"band.value.read\", :band]}, ctx.keys.inspect
+# assert_equal %{Apocalypse soon}, twin.title
+assert_equal %{Apocalypse soon}, song_form_instance.title
+
+# d,c,t = deserialized_values[:band]
+assert_equal "NOFX", deserialized_form.band.name
+assert_equal "NOFX", deserialized_form.band[:"name.value.read"]
+# assert_equal %{[:populated_instance, :twin, :input, :\"name.value.read\", :name]}, c.keys.inspect
+assert_equal "", song_form_instance.band.name
+
+# assert_equal %{{:title=>"The Brews", :band=>{:name=>"NOFX"}}}, deserialized_values.inspect
+
+
+
+# errors
+song_form_instance = song_form.new(song)
+
+
+
 # this happens during Deserialize()
 song_form_instance.instance_variable_set(:@deserialized_values, {title: song_form_instance.title} )# FIXME: no nesting here, yet.
 song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song_form_instance.band.name})

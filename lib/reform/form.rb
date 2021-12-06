@@ -57,6 +57,11 @@ module Reform
 
         definition = super(name, options, &block) # letdisposable and declarative gems sort out inheriting of properties, and so on.
 
+        if definition[:nested]
+          kws[:additional_deserialize_bla] = definition[:nested].deserializer_activity #->((ctx, flow_options), **circuit_options) {
+          #   definition[:nested].deserialize([ctx[:value], flow_options])
+          # }
+        end
 
 
         add_property_to_deserializer!(name, deserializer_activity, parse_block: parse_block, inject: parse_inject, **kws)
@@ -209,7 +214,7 @@ module Reform
 
       end
 
-      def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true)
+      def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, additional_deserialize_bla: false)
         property_activity = Class.new(property_activity) # this activity represents one particular property's pipeline {ppp}.
         property_activity.instance_exec(&parse_block)
         property_activity.extend(Deserialize::Call)
@@ -225,6 +230,28 @@ module Reform
           ctx[:populated_instance] = populated_instance.merge(key => value) # TODO: this {populated_instance} is supposed to be the form twin. in only use the immutable version to test if we use a proper clean output filter.
 
           true
+        end
+        if additional_deserialize_bla
+          property_activity.step Trailblazer::Activity::Railway.Subprocess(additional_deserialize_bla), id: :deserialize_nested,
+            input: ->(ctx, twin:, value:, **) { # input going into the nested "form"
+              {
+                populated_instance: Validate::DeserializedFields.new,
+                twin: twin.send(:band), # FIXME
+                input: value,
+              }
+            },
+            output: ->(ctx, outer_ctx, populated_instance:, twin:, **) {
+              # raise outer_context.inspect
+              {
+                value: Validate::Deserialized.new(twin, populated_instance, ctx), # this is used in {set}.
+                # populated_instance: outer_ctx[:populated_instance].merge(band: populated_instance,), # DISCUSS: should we do that later, at validation time?
+
+
+                # Here we would have to return the mutated twin
+
+              }
+            }, output_filter: false, output_with_outer_ctx: true
+
         end
 
         if set # FIXME: hm, well, i hate {if}s, don't i?
@@ -248,7 +275,7 @@ module Reform
             # input:  [:input],
             # The {:input} filter passes the actual fragment as {:input} and already deserialized
             # field values from earlier steps in {:deserialized_ctx}.
-            input:  ->(ctx, input:, **) { {input: input, deserialized_fields: ctx, populated_instance: ctx[:populated_instance]} },
+            input:  ->(ctx, input:, twin:, **) { {input: input, deserialized_fields: ctx, populated_instance: ctx[:populated_instance], twin: twin} },
             inject: [*inject, {key: ->(*) { field }}],
             # The {:output} filter adds all values from the property steps to the original ctx,
             # prefixed with the property name, such as {:"invoice_date.value.parsed"}
