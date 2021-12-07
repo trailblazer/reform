@@ -81,8 +81,9 @@ assert_equal "", song_form_instance.band.name
 
 validated_form = Reform::Contract::Validate.validate!(nil, twin: song_form_instance, deserialized_form: deserialized_form, validation_groups: song_form_instance.class.validation_groups)
 
-assert_equal false, validated_form.success?
-assert_equal [""], validated_form.errors
+_(validated_form.success?).must_equal false
+_(validated_form.errors[:title].inspect).must_equal %{[]}
+_(validated_form.errors[:album_id].inspect).must_equal %{["is missing"]}
 
 # pp validated_form
 raise
