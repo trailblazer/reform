@@ -87,7 +87,7 @@ assert_equal "", song_form_instance.band.name
 # assert_equal %{{:title=>"The Brews", :band=>{:name=>"NOFX"}}}, deserialized_values.inspect
 
 
-validated_form = Reform::Contract::Validate.validate!(nil, twin: song_form_instance, deserialized_form: deserialized_form, validation_groups: song_form_instance.class.validation_groups)
+validated_form = Reform::Contract::Validate.run_validations(nil, twin: song_form_instance, deserialized_form: deserialized_form, validation_groups: song_form_instance.class.validation_groups)
 
 # errors works
 _(validated_form.success?).must_equal false

@@ -64,7 +64,7 @@ class Reform::Contract < Disposable::Twin
     # NOTE: consider polymorphism here
                                                                   # DISCUSS: ZZdo we like that?
                                                                   # FIXME: do we need the {name} argument here?
-    def self.validate!(name, twin:, validation_groups:, schema: twin.schema, deserialized_form:)
+    def self.run_validations(name, twin:, validation_groups:, schema: twin.schema, deserialized_form:)
       # run local validations. this could be nested schemas, too.
       # puts "@@@@@ #{values_object.inspect}"
       local_errors_by_group = Reform::Validation::Groups::Validate.(validation_groups, exec_context: twin, deserialized_form: deserialized_form).compact # TODO: discss compact
@@ -100,11 +100,11 @@ raise "implement collections!!!"
       collected
     end
 
-    # Recursively call validate! on nested forms.
+    # Recursively call run_validations on nested forms.
     def self.validate_nested!(schema:, deserialized_form:)
       nested_forms = iterate_nested(schema: schema, deserialized_form: deserialized_form) do |nested_deserialized_form, definition:, i:, **|
         # this block returns a nested {Validated} form:
-        validate!(nil,
+        run_validations(nil,
           deserialized_form:  nested_deserialized_form,
           twin:               nested_deserialized_form.instance_variable_get(:@form), # FIXME: should pass {:twin} implicitely around through {DF}?
           validation_groups:  nested_deserialized_form.instance_variable_get(:@form).class.validation_groups,
