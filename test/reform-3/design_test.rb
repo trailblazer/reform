@@ -63,7 +63,7 @@ song_form_instance = song_form.new(song)
 
 params = {title: "The Brews", band: {name: "NOFX"}}
 
-populated_instance = Hash.new
+populated_instance = Reform::Form::Validate::DeserializedFields.new
 
 deserialized_form = Reform::Form::Validate.deserialize(params, {}, populated_instance: populated_instance, twin: song_form_instance)
 

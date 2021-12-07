@@ -15,6 +15,7 @@ module Reform
           if definition[:nested]
             call(property_value)
           else
+            puts " ++ @@@@@ #{definition[:name]} = #{property_value}"
             twin.send("#{definition[:name]}=", property_value)
           end
         end
