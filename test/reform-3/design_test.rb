@@ -81,9 +81,22 @@ assert_equal "", song_form_instance.band.name
 
 validated_form = Reform::Contract::Validate.validate!(nil, twin: song_form_instance, deserialized_form: deserialized_form, validation_groups: song_form_instance.class.validation_groups)
 
+# errors works
 _(validated_form.success?).must_equal false
 _(validated_form.errors[:title].inspect).must_equal %{[]}
 _(validated_form.errors[:album_id].inspect).must_equal %{["is missing"]}
+
+# accessors work
+_(validated_form.title).must_equal "The Brews"
+_(validated_form[:"title.value.read"]).must_equal "The Brews"
+
+# nested errors work
+_(validated_form.band.success?).must_equal true
+_(validated_form.band.errors[:name].inspect).must_equal %{[]}
+# nested accessors work
+_(validated_form.band[:"name.value.read"].inspect).must_equal %{"NOFX"}
+
+
 
 # pp validated_form
 raise

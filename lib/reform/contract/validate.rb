@@ -34,10 +34,14 @@ class Reform::Contract < Disposable::Twin
     end
 
     class Validated
-      def initialize(deserialized_form, result)
+      def initialize(deserialized_form, result, nested_validated_forms)
         @deserialized_form = deserialized_form
         @result            = result
         @is_success        = result.success?
+        @nested            = nested_validated_forms
+        @nested_properties = nested_validated_forms.keys
+
+# raise result.inspect
       end
 
       def errors
@@ -47,6 +51,12 @@ class Reform::Contract < Disposable::Twin
 
       def success?
         @is_success
+      end
+
+      def method_missing(name, *args)
+        return @nested[name.to_s] if @nested_properties.include?(name.to_s) # DISCUSS: return nested {Validated} for instance for {form.band}.
+
+        @deserialized_form.send(name, *args)
       end
     end
 
@@ -61,45 +71,47 @@ class Reform::Contract < Disposable::Twin
 
 puts "local_errors_by_group::::: #{ local_errors_by_group.inspect}"
 
-      nested_errors = validate_nested!(schema: schema, deserialized_form: deserialized_form)
+      nested_validated_forms = validate_nested!(schema: schema, deserialized_form: deserialized_form)
 
-puts "nested_errors ........... #{nested_errors.inspect}"
+# puts "nested_validated_forms ........... #{nested_validated_forms.inspect}"
 
       # Result: unified interface #success?, #messages, etc.
       result = Result.new(
         # custom_errors +  # FIXME
-        local_errors_by_group, nested_errors
+        local_errors_by_group#, nested_errors
       )
 puts "@@@@@ ++++ #{result.inspect}"
 
-
-      Validated.new(deserialized_form, result)
+      Validated.new(deserialized_form, result, nested_validated_forms)
     end
 
     def self.iterate_nested(schema:, deserialized_form:) # TODO: allow {collect}
+      collected = []
+
       schema.each(twin: true) do |dfn|
         # nested_schema = dfn[:nested].schema
-        is_collection = dfn[:collection] # FIXME: not sure this works. yet.
-
-        yield(deserialized_form.send(dfn[:name]), i: 0, definition: dfn)
+        if is_collection = dfn[:collection] # FIXME: not sure this works. yet.
+raise "implement collections!!!"
+        else
+          collected << [dfn[:name], yield(deserialized_form.send(dfn[:name]), i: 0, definition: dfn)]
+        end
       end
+
+      collected
     end
 
     # Recursively call validate! on nested forms.
     def self.validate_nested!(schema:, deserialized_form:)
-      arr = []
-
-      iterate_nested(schema: schema, deserialized_form: deserialized_form) do |nested_deserialized_form, definition:, i:, **|
-        result = validate!(nil,
+      nested_forms = iterate_nested(schema: schema, deserialized_form: deserialized_form) do |nested_deserialized_form, definition:, i:, **|
+        # this block returns a nested {Validated} form:
+        validate!(nil,
           deserialized_form:  nested_deserialized_form,
           twin:               nested_deserialized_form.instance_variable_get(:@form), # FIXME: should pass {:twin} implicitely around through {DF}?
           validation_groups:  nested_deserialized_form.instance_variable_get(:@form).class.validation_groups,
         )
-
-        arr << [definition[:name], i, result]
       end
 
-      arr
+      nested_forms.to_h
     end
   end
 end
