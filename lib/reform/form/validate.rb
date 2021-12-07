@@ -31,7 +31,7 @@ module Reform::Form::Validate
     end
 
     def method_missing(name, *args) # DISCUSS: no setter?
-      raise unless @form.methods.include?(name) # TODO: only respond to fields!
+      raise name.inspect unless @form.methods.include?(name) # TODO: only respond to fields!
       # pp @populated_instance
       @populated_instance[name]
     end
@@ -39,16 +39,9 @@ module Reform::Form::Validate
     def [](name)
       @arbitrary_bullshit[name]
     end
-  end
 
-  class Validated
-
-    def errors
-      @form.errors # FIXME: don't keep errors there!
-    end
-
-    def success?
-      @is_success
+    def to_input_hash
+      @populated_instance # FIXME: this still contains nested forms!
     end
   end
 
@@ -58,12 +51,27 @@ module Reform::Form::Validate
     deserialized_values, deserialize_ctx, twin = Reform::Form::Validate.deserialize(params, ctx, twin: self, populated_instance: populated_instance) # FIXME: call deserialize! on every form?
 
     # FIXME: only one level
-    @arbitrary_bullshit = deserialize_ctx # TODO: do we need the entire {Context} instance here?
-    @deserialized_values = deserialized_values
+    # @arbitrary_bullshit = deserialize_ctx # TODO: do we need the entire {Context} instance here?
+    # @deserialized_values = deserialized_values
 
     result = super(deserialized_values: deserialized_values) # run the actual validation using {Contract#validate}.
 
     Validated.new(self, deserialized_values, deserialize_ctx, result) # DISCUSS: a validated form has different behavior than a "presented" one
+  end
+
+  def self.validate(deserialized_form, twin, params, ctx)
+    populated_instance = DeserializedFields.new # DISCUSS: this is (part of) the Twin. "write-to"
+
+    deserialized_form = Reform::Form::Validate.deserialize(params, ctx, twin: twin, populated_instance: populated_instance) # FIXME: call deserialize! on every form?
+
+
+    # result = super(deserialized_values: deserialized_values) # run the actual validation using {Contract#validate}.
+
+    result = Validate.validate!(nil, deserialized_form: deserialized_form, form: twin, validation_groups: self.class.validation_groups)
+
+
+
+    Validated.new(twin, deserialized_values, deserialize_ctx, result) # DISCUSS: a validated form has different behavior than a "presented" one
   end
 
   # we need a closed structure taht only contains read values. we need values associated with their form (eg. nested, right?)

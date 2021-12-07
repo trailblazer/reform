@@ -33,18 +33,35 @@ class Reform::Contract < Disposable::Twin
       @result.to_results.select { |result| result.is_a? Reform::Contract::CustomError }
     end
 
+    class Validated
+      def initialize(deserialized_form, result)
+        @deserialized_form = deserialized_form
+        @result            = result
+        @is_success        = result.success?
+      end
+
+      def errors
+        #@form.errors # FIXME: don't keep errors there!
+        @result.errors
+      end
+
+      def success?
+        @is_success
+      end
+    end
+
     # Validate the current form instance.
     # NOTE: consider polymorphism here
                                                                   # DISCUSS: ZZdo we like that?
                                                                   # FIXME: do we need the {name} argument here?
-    def self.validate!(name, form:, validation_groups:, schema: form.schema, values_object:, deserialized_values: values_object.instance_variable_get(:@deserialized_values))
+    def self.validate!(name, twin:, validation_groups:, schema: twin.schema, deserialized_form:)
       # run local validations. this could be nested schemas, too.
-      puts "@@@@@ #{values_object.inspect}"
-      local_errors_by_group = Reform::Validation::Groups::Validate.(validation_groups, form: form, values_object: values_object, deserialized_values: deserialized_values).compact # TODO: discss compact
+      # puts "@@@@@ #{values_object.inspect}"
+      local_errors_by_group = Reform::Validation::Groups::Validate.(validation_groups, exec_context: twin, deserialized_form: deserialized_form).compact # TODO: discss compact
 
 puts "local_errors_by_group::::: #{ local_errors_by_group.inspect}"
 
-      nested_errors = validate_nested!(schema: schema, values_object: values_object, deserialized_values: deserialized_values)
+      nested_errors = validate_nested!(schema: schema, deserialized_form: deserialized_form)
 
 puts "nested_errors ........... #{nested_errors.inspect}"
 
@@ -54,24 +71,32 @@ puts "nested_errors ........... #{nested_errors.inspect}"
         local_errors_by_group, nested_errors
       )
 puts "@@@@@ ++++ #{result.inspect}"
-      result
+
+
+      Validated.new(deserialized_form, result)
     end
 
-    private
+    def self.iterate_nested(schema:, deserialized_form:) # TODO: allow {collect}
+      schema.each(twin: true) do |dfn|
+        # nested_schema = dfn[:nested].schema
+        is_collection = dfn[:collection] # FIXME: not sure this works. yet.
+
+        yield(deserialized_form.send(dfn[:name]), i: 0, definition: dfn)
+      end
+    end
 
     # Recursively call validate! on nested forms.
-    def self.validate_nested!(schema:, deserialized_values:, values_object:)
+    def self.validate_nested!(schema:, deserialized_form:)
       arr = []
 
-      schema.each(twin: true) do |dfn|
-        # on collections, this calls validate! on each item form.
-        Disposable::Twin::PropertyProcessor.new(dfn, values_object).() do |form, i|
-          nested_schema   = dfn[:nested].schema
+      iterate_nested(schema: schema, deserialized_form: deserialized_form) do |nested_deserialized_form, definition:, i:, **|
+        result = validate!(nil,
+          deserialized_form:  nested_deserialized_form,
+          twin:               nested_deserialized_form.instance_variable_get(:@form), # FIXME: should pass {:twin} implicitely around through {DF}?
+          validation_groups:  nested_deserialized_form.instance_variable_get(:@form).class.validation_groups,
+        )
 
-          nested_result = validate!(dfn[:name], values_object: form, schema: nested_schema, validation_groups: dfn[:nested].validation_groups, form:nil)
-
-          arr << [dfn[:name], i, nested_result]
-        end
+        arr << [definition[:name], i, result]
       end
 
       arr

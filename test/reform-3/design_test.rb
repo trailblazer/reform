@@ -79,6 +79,14 @@ assert_equal "", song_form_instance.band.name
 # assert_equal %{{:title=>"The Brews", :band=>{:name=>"NOFX"}}}, deserialized_values.inspect
 
 
+validated_form = Reform::Contract::Validate.validate!(nil, twin: song_form_instance, deserialized_form: deserialized_form, validation_groups: song_form_instance.class.validation_groups)
+
+assert_equal false, validated_form.success?
+assert_equal [""], validated_form.errors
+
+# pp validated_form
+raise
+
 
 # errors
 song_form_instance = song_form.new(song)
@@ -89,6 +97,7 @@ song_form_instance = song_form.new(song)
 song_form_instance.instance_variable_set(:@deserialized_values, {title: song_form_instance.title} )# FIXME: no nesting here, yet.
 song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song_form_instance.band.name})
 
+# strong interfaces between deserialization and validation, encapsulating the parsing process
 # Goal is to decouple the actual validation process from a) the to-be-validated-data source and b) ?
   # {form} is the value container. {form} is schema provider, {form} is also needed as an exec_context for validations
 

@@ -36,12 +36,12 @@ module Reform::Form::Dry
         @block = block
       end
 
-      def call(form, values) # {values} is usually {deserialized_values} from parsing.
+      def call(form, deserialized_form)
+        values = deserialized_form.to_input_hash # currently, this returns {@populated_instance}
+
         # when passing options[:schema] the class instance is already created so we just need to call
         # "call"
         return @validator.call(values) unless @validator.is_a?(Class) && @validator <= ::Dry::Validation::Contract
-
-         # puts pp values
 
         dynamic_options = {form: form}
         inject_options = @schema_inject_params.merge(dynamic_options)

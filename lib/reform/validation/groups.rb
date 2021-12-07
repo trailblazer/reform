@@ -38,12 +38,12 @@ module Reform::Validation
 
     # Runs all validations groups according to their rules and returns all Result objects.
     class Validate
-      def self.call(groups, form:, deserialized_values:, values_object:)
+      def self.call(groups, exec_context:, deserialized_form:)
         results = {}
 
         groups.collect do |(name, group, options)|
-          next unless evaluate?(options[:if], results, form)
-          results[name] = group.(form, deserialized_values) # run validation for group. store and collect <Result>.
+          next unless evaluate?(options[:if], results, exec_context)
+          results[name] = group.(exec_context, deserialized_form) # run validation for group. store and collect <Result>.
         end
       end
 
