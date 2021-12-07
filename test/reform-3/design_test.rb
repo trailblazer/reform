@@ -11,10 +11,18 @@ class DesignTest < Minitest::Spec
   # 3. Validate
   it "what" do
     Album = Struct.new(:title, :songs)
-    Song = Struct.new(:title, :band, :album_id)
-    Band = Struct.new(:name)
+    Song = Struct.new(:title, :band, :album_id) do
+      def save
+        @persisted = true
+      end
+    end
+    Band = Struct.new(:name) do
+      def save
+        @persisted = true
+      end
+    end
 
-    song = Song.new("Apocalypse soon", Band.new("")) # Could be done by Decorate()
+    song = Song.new("Apocalypse soon", band = Band.new("")) # Could be done by Decorate()
     # assuming Validate() already happened
 
     song_form = Class.new(Reform::Form) do
@@ -97,6 +105,12 @@ _(validated_form.band.errors[:name].inspect).must_equal %{[]}
 _(validated_form.band[:"name.value.read"].inspect).must_equal %{"NOFX"}
 
 
+Reform::Form::Save(deserialized_form)
+
+pp deserialized_form.instance_variable_get(:@form)
+
+# fuck mutable state
+_(song.inspect).must_equal %{#<struct DesignTest::Song title=\"The Brews\", band=#<struct DesignTest::Band name=\"NOFX\">, album_id=nil>}
 
 # pp validated_form
 raise

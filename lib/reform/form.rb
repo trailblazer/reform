@@ -305,3 +305,5 @@ module Reform
     include Call
   end
 end
+
+require "reform/form/sync"

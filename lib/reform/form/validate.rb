@@ -62,7 +62,7 @@ module Reform::Form::Validate
   def self.validate(deserialized_form, twin, params, ctx)
     populated_instance = DeserializedFields.new # DISCUSS: this is (part of) the Twin. "write-to"
 
-    deserialized_form = Reform::Form::Validate.deserialize(params, ctx, twin: twin, populated_instance: populated_instance) # FIXME: call deserialize! on every form?
+    deserialized_form = Reform::Form::Validate.deserialize(params, ctx, twin: twin, populated_instance: populated_instance)
 
 
     # result = super(deserialized_values: deserialized_values) # run the actual validation using {Contract#validate}.
@@ -92,8 +92,7 @@ module Reform::Form::Validate
 # We also have the "value object" (twin) populated in {populated_instance}
 # pp deserialized_values
 
-    return Deserialized.new(twin, ctx[:populated_instance], ctx)
-    [ctx[:populated_instance], ctx, twin] # deserialized_values are solely fields from params.
+    Deserialized.new(twin, ctx[:populated_instance], ctx)
   end
 
   # [{values}, {all fields}, twin, {band: [{v}, {f}, twin]}]

@@ -85,10 +85,10 @@ puts "@@@@@ ++++ #{result.inspect}"
       Validated.new(deserialized_form, result, nested_validated_forms)
     end
 
-    def self.iterate_nested(schema:, deserialized_form:) # TODO: allow {collect}
+    def self.iterate_nested(schema:, deserialized_form:, only_twin: true) # TODO: allow {collect}
       collected = []
 
-      schema.each(twin: true) do |dfn|
+      schema.each(twin: only_twin) do |dfn|
         # nested_schema = dfn[:nested].schema
         if is_collection = dfn[:collection] # FIXME: not sure this works. yet.
 raise "implement collections!!!"
