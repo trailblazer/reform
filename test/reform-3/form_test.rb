@@ -28,11 +28,11 @@ class FormTest < Minitest::Spec
         end
       # TODO: {parse: false}
       property :created_at,
-        parse: false,
-        set:   true, # DISCUSS: do we like this?
+        read: false,
         parse_block: -> { step :populate_created_at }
       property :category, # no {parse_block}.
-        parse: false
+        read: false,
+        set: false
       property :updated_at,
         parse_block: -> { step :parse_updated_at }
       property :notes, virtual: true

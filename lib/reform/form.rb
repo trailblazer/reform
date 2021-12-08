@@ -42,9 +42,9 @@ module Reform
 
         # When {parse: false} is set, meaning we shall *not* read the property's value from the input fragment,
         # we simply use a slightly slimmer PPP which doesn't have {#key?} and {#read}.
-        if options[:parse] == false
+        if options[:read] == false
           kws[:property_activity] = Deserialize::Property # normally this is {Deserialize::Property::Read}.
-          kws[:set] = options.key?(:set) ? options[:set] : false # TODO: handle this with a separate {Property} class.
+          kws[:set] = options.key?(:set) ? options[:set] : true # TODO: handle this with a separate {Property} class.
         end
 
         options[:writeable] ||= options.delete(:writable) if options.key?(:writable)
