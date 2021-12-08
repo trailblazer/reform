@@ -149,56 +149,63 @@ class FormTest < Minitest::Spec
 
     form = Form.new(twin.new)
 
-    result = form.validate(form_params)
+    deserialized_form, validated_form = Reform::Form.validate(form, form_params, {})
+    # result = form.validate(form_params)
 # pp form.instance_variable_get(:@arbitrary_bullshit)
 
-    assert_equal "12/11",             form[:"invoice_date.value.read"]
-    assert_equal "12/11/2021",        form[:"invoice_date.value.parse_user_date"]
-    assert_equal "#<DateTime: 2021-11-12T", form[:"invoice_date.value.coerce"].inspect[0..22]
-    assert_equal "#<DateTime: 2021-11-12T", form[:"invoice_date"].inspect[0..22] # form[:invoice_date] is the "effective" value for validation
-    assert_equal "Lagavulin or whatever", form[:description]
-    assert_equal true, result.success?
-    assert_equal "#<DateTime: 2021-11-12T", result.invoice_date.inspect[0..22]
+    assert_equal "12/11",             validated_form[:"invoice_date.value.read"]
+    assert_equal "12/11/2021",        validated_form[:"invoice_date.value.parse_user_date"]
+    assert_equal "#<DateTime: 2021-11-12T", validated_form[:"invoice_date.value.coerce"].inspect[0..22]
+    assert_equal "#<DateTime: 2021-11-12T", validated_form[:"invoice_date"].inspect[0..22] # validated_form[:invoice_date] is the "effective" value for validation
+    assert_equal "Lagavulin or whatever", validated_form[:description]
+    assert_equal true, validated_form.success?
+    assert_equal "#<DateTime: 2021-11-12T", validated_form.invoice_date.inspect[0..22]
 
-    assert_equal "EUR", result.currency
-    assert_equal nil, result[:"currency.value.read"]
+    assert_equal "EUR", validated_form.currency
+    assert_equal nil, validated_form[:"currency.value.read"]
     # puts
-    # puts result.instance_variable_get(:@arbitrary_bullshit).keys
-    assert_equal "EUR", result[:"currency.value.default"]
+    # puts validated_form.instance_variable_get(:@arbitrary_bullshit).keys
+    assert_equal "EUR", validated_form[:"currency.value.default"]
+# DISCUSS: do we want {:twin} here?
+    assert_equal %{[:input, :populated_instance, :twin, :"invoice_date.value.read", :"invoice_date.value.nilify", :"invoice_date.value.parse_user_date", :"invoice_date.value.coerce", :invoice_date, :"description.value.read", :description, :"currency.value.read", :"currency.value.default", :currency, :"created_at.value.populate_created_at", :created_at, :category]}, validated_form.updated_at.inspect
 
-    assert_equal %{[:input, :populated_instance, :"invoice_date.value.read", :"invoice_date.value.nilify", :"invoice_date.value.parse_user_date", :"invoice_date.value.coerce", :invoice_date, :"description.value.read", :description, :"currency.value.read", :"currency.value.default", :currency, :"created_at.value.populate_created_at", :created_at, :category]}, result.updated_at.inspect
-
-
-form = Form.new(twin.new)
-    result = form.validate({})
-    assert_equal false, result.success?
-    assert_equal nil, result.invoice_date
-    assert_equal %{{:invoice_date=>["is missing"]}}, result.errors.messages.inspect
 
 form = Form.new(twin.new)
-    result = form.validate({invoice_date: ""}) # TODO: date: "asdfasdf"
-    assert_equal false, result.success?
-    assert_equal nil, result.invoice_date
-    assert_equal %{{:invoice_date=>["must be DateTime"]}}, result.errors.messages.inspect
+    deserialized_form, validated_form = Reform::Form.validate(form, {}, {})
+    assert_equal false, validated_form.success?
+    assert_equal nil, validated_form.invoice_date
+    assert_equal %{{:invoice_date=>["is missing"]}}, validated_form.errors.messages.inspect
+
+form = Form.new(twin.new)
+    _form_params = {invoice_date: ""}
+    deserialized_form, validated_form = Reform::Form.validate(form, _form_params, {})
+    assert_equal false, validated_form.success?
+    assert_equal nil, validated_form.invoice_date
+    assert_equal %{{:invoice_date=>["must be DateTime"]}}, validated_form.errors.messages.inspect
 
 
 # test {:inject}
 form = Form.new(twin.new)
-    injections = {now: Time.parse("23/11/2000")}
-    result = form.validate(form_params, injections)
-    assert_equal "12/11/2000",        form[:"invoice_date.value.parse_user_date"]
+    injections = {now: Time.parse("23/11/2000")} # "ctx"
+    # result = form.validate(form_params, injections)
+    deserialized_form, validated_form = Reform::Form.validate(form, form_params, injections)
+
+    assert_equal "12/11/2000",        validated_form[:"invoice_date.value.parse_user_date"]
 
 # test {parse: false}
 form = Form.new(twin.new)
-    result = form.validate({created_at: "rubbish, don't read me!", category: "Food and entertainment"})
-    assert_equal "Hello!", result.created_at
-    assert_nil result.category
+    _form_params = {created_at: "rubbish, don't read me!", category: "Food and entertainment"}
+    deserialized_form, validated_form = Reform::Form.validate(form, _form_params, {})
+    assert_equal "Hello!", validated_form.created_at
+    assert_nil validated_form.category
 
 # test {virtual: true}
 form = Form.new(twin.new)
-    result = form.validate({notes: "more rubbish, read me but don't set me!"})
-    assert_equal "more rubbish, read me but don't set me!", result.notes
+    _form_params = {notes: "more rubbish, read me but don't set me!"}
+    deserialized_form, validated_form = Reform::Form.validate(form, _form_params, {})
+    assert_equal "more rubbish, read me but don't set me!", validated_form.notes
 
+return
   # unit test: {deserializer}
     deserializer = Form.deserializer_activity
     ctx = Trailblazer::Context({input: form_params}, {})
