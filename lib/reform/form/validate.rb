@@ -7,6 +7,9 @@ class Reform::Form
 
     deserialized_form = Validate.deserialize(params, ctx, twin: twin, populated_instance: populated_instance)
 
+    # pp deserialized_form
+    puts deserialized_form.to_input_hash.inspect
+
     return deserialized_form,
       Reform::Contract::Validate.run_validations(nil, deserialized_form: deserialized_form, twin: twin, validation_groups: twin.class.validation_groups)
   end
@@ -50,6 +53,11 @@ class Reform::Form
       def [](name)
         @arbitrary_bullshit[name]
       end
+
+      def []=(name, value) # DISCUSS: is this our official setter when you don't want to parse-populate?
+        @populated_instance[name] = value
+      end
+
 
       def to_input_hash
         @populated_instance # FIXME: this still contains nested forms!

@@ -109,6 +109,7 @@ class FormTest < Minitest::Spec
     # * it's possible to access all *pipeline variables* such as {invoice_date.parse_user_date} using {Form#[]}. It would be cool if this was probably routed to a "new" datastructure that only represents "validated" state.
     # * presenter layer has default readers for form builder, form itself is only other stuff
     # * property :created_at, inject: [:now]
+    # * writing to form works with `#[]=`, e.g. for {file_data}
     #
     # NOTES
     # * the architecture of Contract#validate is great since we can easily replace the parsing of Form#validate.
@@ -204,6 +205,15 @@ form = Form.new(twin.new)
     _form_params = {notes: "more rubbish, read me but don't set me!"}
     deserialized_form, validated_form = Reform::Form.validate(form, _form_params, {})
     assert_equal "more rubbish, read me but don't set me!", validated_form.notes
+
+
+### ------ unit tests
+  # setter
+    validated_form[:notes] = "Add me!"
+    assert_equal "Add me!", deserialized_form.notes # access {populated_instance}
+    assert_equal "Add me!", validated_form.notes # access {populated_instance}
+  # TODO: {disallow validated_form.notes=}
+
 
 return
   # unit test: {deserializer}
