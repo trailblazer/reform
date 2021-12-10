@@ -45,6 +45,8 @@ class FormTest < Minitest::Spec
           def parse_user_date(ctx, value:, now: Time.now, **)
             now_year = now.strftime("%Y")
 
+            return false if value == "false"
+
             # allow dates like 24/12 or 24/12/17 because it's super handy.
             formatted = if match = value.match(/\d{1,2}[^\d]+\d{1,2}[^\d]+(\d{2})$/)
               value.sub(/#{match[1]}$/, "20#{match[1]}") # assuming this app won't be run in 21xx.
@@ -89,10 +91,9 @@ class FormTest < Minitest::Spec
         # required(:txn_direction).value( included_in?: %w(incoming outgoing) )
       end
 
-
-      # def validate!(name, pointers = [], values: self)
-      #   super(name, pointers, values: bla)
-      # end
+      def lonesome_helper(what)
+        %{#{what}?!!!}
+      end
     end
 
 
@@ -170,6 +171,9 @@ class FormTest < Minitest::Spec
 # DISCUSS: do we want {:twin} here?
     assert_equal %{[:input, :populated_instance, :twin, :"invoice_date.value.read", :"invoice_date.value.nilify", :"invoice_date.value.parse_user_date", :"invoice_date.value.coerce", :invoice_date, :"description.value.read", :description, :"currency.value.read", :"currency.value.default", :currency, :"created_at.value.populate_created_at", :created_at, :category]}, validated_form.updated_at.inspect
 
+  # test forwarding/delegation (# TODO: much more to be tested here)
+    assert_equal %{Yo?!!!}, validated_form.lonesome_helper("Yo")
+
 
 form = Form.new(twin.new)
     deserialized_form, validated_form = Reform::Form.validate(form, {}, {})
@@ -205,6 +209,12 @@ form = Form.new(twin.new)
     _form_params = {notes: "more rubbish, read me but don't set me!"}
     deserialized_form, validated_form = Reform::Form.validate(form, _form_params, {})
     assert_equal "more rubbish, read me but don't set me!", validated_form.notes
+
+# test {invoice_date} parse returns {false}
+form = Form.new(twin.new)
+    _form_params = {invoice_date: "false"}
+    deserialized_form, validated_form = Reform::Form.validate(form, _form_params, {})
+    assert_equal "false", validated_form.invoice_date
 
 
 ### ------ unit tests

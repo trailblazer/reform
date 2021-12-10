@@ -272,11 +272,11 @@ module Reform
         if set # FIXME: hm, well, i hate {if}s, don't i?
           property_activity.step(method(:set), id: :set, output_filter: false) # FIXME: needs to be at the very end
           # FIXME: do we want this?
-          # class << self
-          #   alias _set set
-          # end
+          class << self
+            alias _set set
+          end
           # TODO: use #fail.
-          # property_activity.step method(:_set), id: :"set.fail", output_filter: false, magnetic_to: :failure, Trailblazer::Activity::Railway.Output(:success) => Trailblazer::Activity::Railway.Track(:failure)  # FIXME: needs to be at the very end
+          property_activity.step method(:_set), id: :"set.fail", output_filter: false, magnetic_to: :failure, Trailblazer::Activity::Railway.Output(:success) => Trailblazer::Activity::Railway.Track(:failure)  # FIXME: needs to be at the very end
         end
 
 

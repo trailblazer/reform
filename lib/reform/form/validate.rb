@@ -46,8 +46,13 @@ class Reform::Form
 
       def method_missing(name, *args) # DISCUSS: no setter?
         raise name.inspect unless @form.methods.include?(name) # TODO: only respond to fields!
-        # pp @populated_instance
-        @populated_instance[name]
+
+        if @populated_instance.key?(name)
+          # pp @populated_instance
+          @populated_instance[name]
+        else # helper method such as {:txn_types_for_radio_buttons} # FIXME: test this case
+          @form.send(name, *args)
+        end
       end
 
       def [](name)
