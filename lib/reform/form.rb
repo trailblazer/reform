@@ -130,7 +130,7 @@ module Reform
           def Default(field_name, static_value)
             {
               task: method(:default),
-              after: :read, magnetic_to: :failure, Trailblazer::Activity::Railway.Output(:success) => Trailblazer::Activity::Railway.Track(:success),
+              after: :read, magnetic_to: :key_not_found, Trailblazer::Activity::Railway.Output(:success) => Trailblazer::Activity::Railway.Track(:success), # DISCUSS: do we need a failure output here?
               inject: [{ value: ->(ctx, **) {static_value} }],# input: [:key],
               id: :default, field_name: :default  # we don't need {:value} here, do we?
             }
@@ -172,8 +172,23 @@ module Reform
 
         # Base steps for deserializing a particular property field (e.g. {invoice_date}).
         #
+        # Current standard wiring
+        #
+        #            |-----------> [default] v ----------=> End.key_not_found
+        # Start -> key? -> read -> [your parsing] -> set -> End.success
+        #                                |----------_set-=> End.failure
+        #
         # TODO: currently only with hash input.
+        # TODO: {default} will go back to Track(:success) and hence do user processing if set. Do we want that?
         class Property < Trailblazer::Activity::Railway(normalizers: normalizers)
+          @state.update_sequence do |sequence:, **| # FIXME: make it easier to add termini!
+            sequence = Trailblazer::Activity::Path::DSL.append_end(sequence, task: Trailblazer::Activity::End.new(semantic: :key_not_found), magnetic_to: :key_not_found, id: "End.key_not_found")
+
+            recompile_activity!(sequence)
+
+            sequence
+          end
+
 
           module StepMethod
             # Per default, step adds an {:output} filter that only returns {:value} and {value.field_name}.
@@ -198,7 +213,7 @@ module Reform
               ctx[:value] = input[key]
             end
 
-            step method(:key?), id: :key?, output_filter: false
+            step method(:key?), id: :key?, output_filter: false, Output(:failure) => Track(:key_not_found) # TODO: use a path, make {End.failure} magnetic to "key-not-found".
             step method(:read), id: :read, field_name: :read # output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}}, provides: [:"value.read"]
           end
         end # Property
@@ -256,6 +271,12 @@ module Reform
 
         if set # FIXME: hm, well, i hate {if}s, don't i?
           property_activity.step(method(:set), id: :set, output_filter: false) # FIXME: needs to be at the very end
+          # FIXME: do we want this?
+          # class << self
+          #   alias _set set
+          # end
+          # TODO: use #fail.
+          # property_activity.step method(:_set), id: :"set.fail", output_filter: false, magnetic_to: :failure, Trailblazer::Activity::Railway.Output(:success) => Trailblazer::Activity::Railway.Track(:failure)  # FIXME: needs to be at the very end
         end
 
 
@@ -281,7 +302,8 @@ module Reform
             # prefixed with the property name, such as {:"invoice_date.value.parsed"}
             output: output_hash. # {:"value.parsed" => :"invoice_date.value.parsed", ..}
               merge(populated_instance: :populated_instance),
-            Output(:failure) => Track(:success) # a failing {read} shouldn't skip the remaining properties # FIXME: test me!
+            Output(:failure) => Track(:success), # a failing {read} shouldn't skip the remaining properties # FIXME: test me!
+            Output(:key_not_found) => Track(:success) # experimental output for {:key?} failure track
         end
       end
     end

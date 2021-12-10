@@ -213,7 +213,7 @@ form = Form.new(twin.new)
     assert_equal "Add me!", deserialized_form.notes # access {populated_instance}
     assert_equal "Add me!", validated_form.notes # access {populated_instance}
   # TODO: {disallow validated_form.notes=}
-
+  # TODO: test if this gets synced/persisted.
 
 return
   # unit test: {deserializer}
