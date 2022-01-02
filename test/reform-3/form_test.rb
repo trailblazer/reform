@@ -102,7 +102,7 @@ class FormTest < Minitest::Spec
     # Goal is to replace Reform's crazy horrible parsing layer with something traceable, easily
     # extendable and customizable. E.g. you can add steps for your own parsing etc.
     # * we can use Reform's {read}
-    # * we apply custom parsing to invoice_date, e.g. "12" --> "12/10/2021"
+    # * we apply custom parsing to invoice_date, e.g. "12" --> "12/10/2022"
     #   this is not possible using "filters" in dry-v where you can only apply a pattern, then coerce: https://dry-rb.org/gems/dry-schema/1.5/advanced/filtering/
     # * a separate step does coercion, using whatever code you want (or automatically via Dry::Types)
     # * we have all values separately after the deserialization and can assign it to a Twin as we need it. This allows
@@ -156,12 +156,12 @@ class FormTest < Minitest::Spec
 # pp form.instance_variable_get(:@arbitrary_bullshit)
 
     assert_equal "12/11",             validated_form[:"invoice_date.value.read"]
-    assert_equal "12/11/2021",        validated_form[:"invoice_date.value.parse_user_date"]
-    assert_equal "#<DateTime: 2021-11-12T", validated_form[:"invoice_date.value.coerce"].inspect[0..22]
-    assert_equal "#<DateTime: 2021-11-12T", validated_form[:"invoice_date"].inspect[0..22] # validated_form[:invoice_date] is the "effective" value for validation
+    assert_equal "12/11/2022",        validated_form[:"invoice_date.value.parse_user_date"]
+    assert_equal "#<DateTime: 2022-11-12T", validated_form[:"invoice_date.value.coerce"].inspect[0..22]
+    assert_equal "#<DateTime: 2022-11-12T", validated_form[:"invoice_date"].inspect[0..22] # validated_form[:invoice_date] is the "effective" value for validation
     assert_equal "Lagavulin or whatever", validated_form[:description]
     assert_equal true, validated_form.success?
-    assert_equal "#<DateTime: 2021-11-12T", validated_form.invoice_date.inspect[0..22]
+    assert_equal "#<DateTime: 2022-11-12T", validated_form.invoice_date.inspect[0..22]
 
     assert_equal "EUR", validated_form.currency
     assert_equal nil, validated_form[:"currency.value.read"]
@@ -232,9 +232,9 @@ return
     signal, (ctx, _) = Trailblazer::Developer.wtf?(deserializer, [ctx, {}], exec_context: form)
 
     assert_equal "12/11",             ctx[:"invoice_date.value.read"]
-    assert_equal "12/11/2021",        ctx[:"invoice_date.value.parse_user_date"]
-    assert_equal "#<DateTime: 2021-", ctx[:"invoice_date.value.coerce"].inspect[0..16]
-    assert_equal "#<DateTime: 2021-", ctx[:"invoice_date"].inspect[0..16] # ctx[:invoice_date] is the "effective" value for validation
+    assert_equal "12/11/2022",        ctx[:"invoice_date.value.parse_user_date"]
+    assert_equal "#<DateTime: 2022-", ctx[:"invoice_date.value.coerce"].inspect[0..16]
+    assert_equal "#<DateTime: 2022-", ctx[:"invoice_date"].inspect[0..16] # ctx[:invoice_date] is the "effective" value for validation
     assert_equal "Lagavulin or whatever", ctx[:description]
 
     # def validate!(name, pointers = [], values: self, form: self)
