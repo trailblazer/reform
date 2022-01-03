@@ -137,7 +137,7 @@ class FormTest < Minitest::Spec
     # * What're we doing with {Form#call}/{call.rb}?
     # * custom_errors
     # * readers in Form::New should be able to lookup {Default} value, or at least get a hint. also, TODO: can we use instance methods receiving ctx etc to compute {:default}?
-
+    # * dynamic properties at validate: https://stackoverflow.com/questions/47916241/trailblazer-reform-gem-how-to-handle-this-type-of-input-validation
 
 
     form_params = {

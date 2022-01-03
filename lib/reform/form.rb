@@ -39,6 +39,7 @@ module Reform
         options[:_inherited] = options[:inherit] if options.key?(:on) && options.key?(:inherit)
 
         kws = {}
+        kws[:replace] = options[:replace] # FIXME
 
         # When {parse: false} is set, meaning we shall *not* read the property's value from the input fragment,
         # we simply use a slightly slimmer PPP which doesn't have {#key?} and {#read}.
@@ -229,7 +230,16 @@ module Reform
 
       end
 
-      def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, additional_deserialize_bla: false)
+      def set(ctx, populated_instance:, value:, key:, **)
+        # TODO: handle populators
+
+        # standard populator:
+        # populated_instance[key] = value
+        ctx[:populated_instance] = populated_instance.merge(key => value) # TODO: this {populated_instance} is supposed to be the form twin. in only use the immutable version to test if we use a proper clean output filter.
+
+        true
+      end
+      def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, additional_deserialize_bla: false, replace: nil)
         property_activity = Class.new(property_activity) # this activity represents one particular property's pipeline {ppp}.
         property_activity.instance_exec(&parse_block)
         property_activity.extend(Deserialize::Call)
@@ -237,15 +247,6 @@ module Reform
         # DISCUSS: it would be better to have :set in the {property_activity} before we execute {&parse_block}
         #          because it would allow tweaking it using your {:parse_block}.
 
-        def self.set(ctx, populated_instance:, value:, key:, **)
-          # TODO: handle populators
-
-          # standard populator:
-          # populated_instance[key] = value
-          ctx[:populated_instance] = populated_instance.merge(key => value) # TODO: this {populated_instance} is supposed to be the form twin. in only use the immutable version to test if we use a proper clean output filter.
-
-          true
-        end
         if additional_deserialize_bla
           property_activity.step Trailblazer::Activity::Railway.Subprocess(additional_deserialize_bla), id: :deserialize_nested,
             input: ->(ctx, twin:, value:, **) { # input going into the nested "form"
@@ -289,6 +290,10 @@ module Reform
         # E.g. {:"value.read"=>:"invoice_date.value.read", ..., :value=>:invoice_date}
         output_hash = (provided_variables.collect { |inner_name| [inner_name, :"#{field}.#{inner_name}"] } + [[:value, field]]).to_h
 
+        fixme_options = {}
+        fixme_options = {
+            replace: replace # FIXME, untested shit
+          } if replace
         # DISCUSS: we're mutating here.
         deserializer_activity.instance_exec do
           step Subprocess(property_activity),
@@ -303,7 +308,8 @@ module Reform
             output: output_hash. # {:"value.parsed" => :"invoice_date.value.parsed", ..}
               merge(populated_instance: :populated_instance),
             Output(:failure) => Track(:success), # a failing {read} shouldn't skip the remaining properties # FIXME: test me!
-            Output(:key_not_found) => Track(:success) # experimental output for {:key?} failure track
+            Output(:key_not_found) => Track(:success), # experimental output for {:key?} failure track
+            **fixme_options
         end
       end
     end
