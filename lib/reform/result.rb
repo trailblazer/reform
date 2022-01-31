@@ -14,41 +14,16 @@ module Reform
 
       def success?; !failure? end
 
-      # Errors compatible with ActiveModel::Errors.
-      class Errors
-        def initialize(hash)
-          @name2errors = hash
-        end
-
-        def [](name)
-          dry_messages = @name2errors[name] or return [] # FIXME: to_sym
-
-          dry_messages.collect { |msg| msg.dry_message.text } #  FIXME: dry::Message specific.
-        end
-
-        def messages
-          @name2errors.collect { |name, errors| [name, errors.collect { |err| err.dry_message.text }] }.to_h
-        end
-
-        class Error < Struct.new(:dry_message)
-
-        end
-      end
-
+      require "trailblazer/errors"
       def errors#(*args)
-        # TODO: do that after validate or something?
-        name2errors = {}
-        @results.collect do |result| # result currently is a {#<Dry::Validation::Result{:title=>"Apocalypse soon"} errors={:album_id=>["is missing"]}>}
-          result.errors.each do |m|
-            name = m.path[0]
+        errors = Trailblazer::Errors.new # TODO: allow injecting.
 
-            name2errors[name] ||= []
-            name2errors[name] << Errors::Error.new(m)
-          end
+        # TODO: do that after validate or something?
+        @results.collect do |result| # result currently is a {#<Dry::Validation::Result{:title=>"Apocalypse soon"} errors={:album_id=>["is missing"]}>}
+          errors.merge_result!(result, path: nil) # TODO: path
         end
 
-
-        Result::Errors.new(name2errors) # DISCUSS: what about nested?
+        errors
       end
 
       # def hints(*args);    filter_for(:hints, *args) end
