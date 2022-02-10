@@ -46,6 +46,8 @@ end
           )
         end
 
+        definition = Property.definition_for(name: name, nested_class: Reform::Form, block: block)
+
         # if composition and inherited we also need this setting
         # to correctly inherit modules
         options[:_inherited] = options[:inherit] if options.key?(:on) && options.key?(:inherit)
@@ -70,22 +72,15 @@ end
 
         # definition = super(name, options, &block) # letdisposable and declarative gems sort out inheriting of properties, and so on.
 
-        definition = {} # FIXME: how do we store the user options from the form?
-        if definition[:nested]
-          kws[:additional_deserialize_bla] = definition[:nested].deserializer_activity #->((ctx, flow_options), **circuit_options) {
-          #   definition[:nested].deserialize([ctx[:value], flow_options])
-          # }
-        end
-
 
         # DISCUSS: should we update store here?
         state.update!("artifact/deserializer") do |deserializer|
-          add_property_to_deserializer!(name, deserializer, parse_block: parse_block, inject: parse_inject, **kws)
+          add_property_to_deserializer!(name, deserializer, definition: definition, parse_block: parse_block, inject: parse_inject, **kws)
         end
 
         definitions = state.update!("dsl/definitions") do |defs|
           defs.merge(
-            name => {name: name} # TOOD: add more
+            name => definition
           )
         end
 
@@ -142,6 +137,18 @@ end
 
         definition
       end
+
+    # GENERIC DSL
+     # Schema
+      Definition = Struct.new(:name, :nested)
+
+      def self.definition_for(name:, block: nil, nested_class:, **options)
+        block = Class.new(nested_class) { class_eval(&block) } if block # TODO: feature, defaults
+
+        Definition.new(name, block).freeze
+      end
+    # GENERIC DSL end
+
 
 
 
@@ -262,7 +269,7 @@ end
 
         true
       end
-      def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, additional_deserialize_bla: false, replace: nil)
+      def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, definition:, replace: nil)
         property_activity = Class.new(property_activity) # this activity represents one particular property's pipeline {ppp}.
         property_activity.instance_exec(&parse_block)
         property_activity.extend(Deserialize::Call)
@@ -270,19 +277,23 @@ end
         # DISCUSS: it would be better to have :set in the {property_activity} before we execute {&parse_block}
         #          because it would allow tweaking it using your {:parse_block}.
 
-        if additional_deserialize_bla
-          property_activity.step Trailblazer::Activity::Railway.Subprocess(additional_deserialize_bla), id: :deserialize_nested,
+        if nested_form = definition[:nested]
+          nested_deserializer = nested_form.state.get("artifact/deserializer")
+          nested_schema       = nested_form.state.get("dsl/definitions")
+
+          property_activity.step Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :deserialize_nested,
             input: ->(ctx, twin:, value:, **) { # input going into the nested "form"
               {
                 populated_instance: Validate::DeserializedFields.new,
-                twin: twin.send(:band), # FIXME
+                # twin: twin.send(:band), # FIXME
+                twin: nested_form.new, # FIXME: when do we add model, etc? populator logic!
                 input: value,
               }
             },
             output: ->(ctx, outer_ctx, populated_instance:, twin:, **) {
               # raise outer_context.inspect
               {
-                value: Validate::Deserialized.new(twin, populated_instance, ctx), # this is used in {set}.
+                value: Validate::Deserialized.new(nested_schema, twin, populated_instance, ctx), # this is used in {set}.
                 # populated_instance: outer_ctx[:populated_instance].merge(band: populated_instance,), # DISCUSS: should we do that later, at validation time?
 
 

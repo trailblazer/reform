@@ -98,7 +98,9 @@ end
 assert_equal "NOFX", deserialized_form.band.name
 assert_equal "NOFX", deserialized_form.band[:"name.value.read"]
 # assert_equal %{[:populated_instance, :twin, :input, :\"name.value.read\", :name]}, c.keys.inspect
-assert_equal "", song_form_instance.band.name
+assert_raises do
+  assert_equal "", song_form_instance.band.name
+end
 
 # assert_equal %{{:title=>"The Brews", :band=>{:name=>"NOFX"}}}, deserialized_values.inspect
 

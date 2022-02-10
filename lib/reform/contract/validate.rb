@@ -1,4 +1,4 @@
-class Reform::Contract < Disposable::Twin
+class Reform::Contract #< Disposable::Twin
   module Validate
     # def initialize(*)
     #   # this will be removed in Reform 3.0. we need this for the presenting form, form builders
