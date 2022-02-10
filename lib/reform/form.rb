@@ -2,7 +2,7 @@ require "trailblazer/activity/dsl/linear"
 require "trailblazer/developer"
 require "trailblazer/declarative"
 
-
+require "delegate"
 
 # PPP: property parsing pipeline :)
 module Reform
