@@ -38,14 +38,15 @@ class Reform::Form
     end
 
     class Deserialized
-      def initialize(form, populated_instance, arbitrary_bullshit)
-        @form                = form
+      def initialize(schema, form, populated_instance, arbitrary_bullshit)
+        @schema             = schema
+        @form               = form
         @populated_instance = populated_instance # populated_instance
-        @arbitrary_bullshit  = arbitrary_bullshit # ctx of the PPP
+        @arbitrary_bullshit = arbitrary_bullshit # ctx of the PPP
       end
 
       def method_missing(name, *args) # DISCUSS: no setter?
-        raise name.inspect unless @form.methods.include?(name) # TODO: only respond to fields!
+        raise name.inspect unless @schema.key?(name)
 
         if @populated_instance.key?(name)
           # pp @populated_instance
@@ -73,10 +74,10 @@ class Reform::Form
     # we need a closed structure taht only contains read values. we need values associated with their form (eg. nested, right?)
 
     # {:twin} where do we write to (currently)
-    def self.deserialize(params, ctx, populated_instance: DeserializedFields.new, twin:)
+    def self.deserialize(params, ctx, populated_instance: DeserializedFields.new, twin:, schema:)
       # params = deserialize!(params)
       # deserializer.new(self).from_hash(params)
-      ctx = Trailblazer::Context({input: params, populated_instance: populated_instance, twin: twin}, ctx)
+      ctx = Trailblazer::Context({input: params, populated_instance: populated_instance, twin: twin, schema: schema}, ctx)
 
       # Run the form's deserializer, which is a simple Trailblazer::Activity.
       # This is where all parsing, defaulting, populating etc happens.
@@ -90,7 +91,7 @@ class Reform::Form
   # We also have the "value object" (twin) populated in {populated_instance}
   # pp deserialized_values
 
-      Deserialized.new(twin, ctx[:populated_instance], ctx)
+      Deserialized.new(schema, twin, ctx[:populated_instance], ctx)
     end
 
     # [{values}, {all fields}, twin, {band: [{v}, {f}, twin]}]
