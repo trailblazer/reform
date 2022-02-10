@@ -7,6 +7,15 @@ class DesignTest < Minitest::Spec
   # 4. Persist/sync
   # 5. Present
 
+  # ROM Changeset
+  # task = tasks.transaction do
+  #   user = users.changeset(:create, name: 'Jane').commit
+
+  #   new_task = tasks.changeset(:create, title: 'Task One').associate(user)
+
+  #   new_task.commit
+  # end
+
 
   # 3. Validate
   it "what" do
@@ -32,14 +41,14 @@ class DesignTest < Minitest::Spec
       property :band do # DISCUSS: polymorphic
         property :name
 
-        validation do
+        validation name: :FIXME, group_class: Reform::Form::Dry::Validations::Group do
           params do
             required(:name).filled
           end
         end
       end
 
-      validation do
+      validation name: :FIXME, group_class: Reform::Form::Dry::Validations::Group do
         params do
           required(:title).filled
           required(:album_id).filled
@@ -51,6 +60,8 @@ class DesignTest < Minitest::Spec
       end
     end
 
+# hydrated = Reform::Form::Hydrate(input: song, schema: song_form.schema[:hydrate])
+
 
 # at this point, the form is fully populated from Decorate and from Deserialize
 # title: "Apocalypse soon"
@@ -59,7 +70,7 @@ class DesignTest < Minitest::Spec
 #     name: "..."
 #   type:punk-band
 
-song_form_instance = song_form.new(song)
+song_form_instance = song_form.new#(song)
 
 params = {title: "The Brews", band: {name: "NOFX"}}
 

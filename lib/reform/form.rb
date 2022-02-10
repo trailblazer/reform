@@ -6,6 +6,7 @@ require "trailblazer/declarative"
 
 # PPP: property parsing pipeline :)
 module Reform
+  # This class shouldn't implement/expose any runtime behavior. but then, we do define filters here :grimace:
   class Form #< Contract
     # DISCUSS: this is a pure DSL object
     extend Trailblazer::Declarative::Schema::State
@@ -80,6 +81,17 @@ end
         # DISCUSS: should we update store here?
         state.update!("artifact/deserializer") do |deserializer|
           add_property_to_deserializer!(name, deserializer, parse_block: parse_block, inject: parse_inject, **kws)
+        end
+
+        definitions = state.update!("dsl/definitions") do |defs|
+          defs.merge(
+            name => {name: name} # TOOD: add more
+          )
+        end
+
+        require "reform/twin"
+        state.update!("artifact/twin") do |twin|
+          Reform::Twin.add_property_to_twin!(name, twin, definitions, **kws)
         end
 
 =begin
@@ -328,6 +340,8 @@ end
     end
     extend Property
 
+
+
     # require "disposable/twin/changed"
     # feature Disposable::Twin::Changed
 
@@ -355,6 +369,8 @@ end
     initialize_state!(
       "artifact/hydrate" =>       [Class.new(Trailblazer::Activity::Railway), {copy: Trailblazer::Declarative::State.method(:subclass)}],
       "artifact/deserializer" =>  [initial_deserializer_activity, {copy: Trailblazer::Declarative::State.method(:subclass)}],
+      "artifact/twin" => [Hash.new, {}], # copy # FIXME: we need real definitions here, I guess.
+      "dsl/definitions" => [Hash.new, {}] # copy # FIXME: we need real definitions here, I guess.
     )
 
     require "reform/form/dsl/validation"
