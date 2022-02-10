@@ -80,7 +80,9 @@ class Reform::Form
 
       # Run the form's deserializer, which is a simple Trailblazer::Activity.
       # This is where all parsing, defaulting, populating etc happens.
-      signal, (ctx, _) = Trailblazer::Developer.wtf?(twin.class.deserializer_activity, [ctx, {}], exec_context: twin)
+      # puts Trailblazer::Developer.render(twin.class.deserializer_activity)
+      # FIXME: retrieving the deserializer here sucks.
+      signal, (ctx, _) = Trailblazer::Developer.wtf?(twin.class.state.get("artifact/deserializer"), [ctx, {}], exec_context: twin) # exec_context because filter methods etc are defined on the FORM which is the {twin} currently
 
   # FIXME: the following code should be done via {:output} just like for nested forms
 

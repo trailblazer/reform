@@ -1,17 +1,28 @@
 require "trailblazer/activity/dsl/linear"
 require "trailblazer/developer"
+require "trailblazer/declarative"
+
+
 
 # PPP: property parsing pipeline :)
 module Reform
-  class Form < Contract
+  class Form #< Contract
+    # DISCUSS: this is a pure DSL object
+    extend Trailblazer::Declarative::Schema::State
+    extend Trailblazer::Declarative::Schema::State::Inherited
+
+def self.feature(mod) # FIXME: implement!
+  include mod
+end
+
     class InvalidOptionsCombinationError < StandardError; end
 
     def self.default_nested_class
       Form
     end
 
-    require "reform/form/validate"
-    include Validate # override Contract#validate with additional behaviour.
+    # require "reform/form/validate"
+    # include Validate # override Contract#validate with additional behaviour.
 
     require "reform/form/populator"
 
@@ -56,8 +67,9 @@ module Reform
           options = { default: [] }.merge(options)
         end
 
-        definition = super(name, options, &block) # letdisposable and declarative gems sort out inheriting of properties, and so on.
+        # definition = super(name, options, &block) # letdisposable and declarative gems sort out inheriting of properties, and so on.
 
+        definition = {} # FIXME: how do we store the user options from the form?
         if definition[:nested]
           kws[:additional_deserialize_bla] = definition[:nested].deserializer_activity #->((ctx, flow_options), **circuit_options) {
           #   definition[:nested].deserialize([ctx[:value], flow_options])
@@ -65,7 +77,10 @@ module Reform
         end
 
 
-        add_property_to_deserializer!(name, deserializer_activity, parse_block: parse_block, inject: parse_inject, **kws)
+        # DISCUSS: should we update store here?
+        state.update!("artifact/deserializer") do |deserializer|
+          add_property_to_deserializer!(name, deserializer, parse_block: parse_block, inject: parse_inject, **kws)
+        end
 
 =begin
         deserializer_options = definition[:deserializer]
@@ -116,11 +131,7 @@ module Reform
         definition
       end
 
-      def deserializer_activity
-        @deserializer_activity ||= Class.new(Trailblazer::Activity::Railway) do # FIXME: how to do that without ||=?
-          extend(Deserialize::Call)
-        end
-      end
+
 
       module Deserialize
         module Macro
@@ -311,6 +322,8 @@ module Reform
             Output(:key_not_found) => Track(:success), # experimental output for {:key?} failure track
             **fixme_options
         end
+
+        deserializer_activity
       end
     end
     extend Property
@@ -318,12 +331,12 @@ module Reform
     # require "disposable/twin/changed"
     # feature Disposable::Twin::Changed
 
-    require "disposable/twin/sync"
-    feature Disposable::Twin::Sync
-    feature Disposable::Twin::Sync::SkipGetter
+    # require "disposable/twin/sync"
+    # feature Disposable::Twin::Sync
+    # feature Disposable::Twin::Sync::SkipGetter
 
-    require "disposable/twin/save"
-    feature Disposable::Twin::Save
+    # require "disposable/twin/save"
+    # feature Disposable::Twin::Save
 
     def skip!
       Representable::Pipeline::Stop
@@ -331,7 +344,25 @@ module Reform
 
     require "reform/form/call"
     include Call
+
+# TODO: this should be at the top of class body at some point :)
+    def self.initial_deserializer_activity
+      Class.new(Trailblazer::Activity::Railway) do
+        extend(Property::Deserialize::Call)
+      end
+    end
+
+    initialize_state!(
+      "artifact/hydrate" =>       [Class.new(Trailblazer::Activity::Railway), {copy: Trailblazer::Declarative::State.method(:subclass)}],
+      "artifact/deserializer" =>  [initial_deserializer_activity, {copy: Trailblazer::Declarative::State.method(:subclass)}],
+    )
+
+    require "reform/form/dsl/validation"
+    require "reform/validation/groups"
+    extend DSL::Validation # Form.validation do .. end
+
   end
 end
+    require "reform/form/validate"
 
 require "reform/form/sync"

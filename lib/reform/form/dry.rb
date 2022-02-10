@@ -1,6 +1,5 @@
-gem 'dry-validation'
+gem "dry-validation"
 require "dry-validation"
-require "reform/validation"
 
 ::Dry::Validation.load_extensions(:hints)
 

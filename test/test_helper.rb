@@ -12,10 +12,6 @@ class TestForm < Reform::Form
   feature Reform::Form::Dry
 end
 
-class TestContract < Reform::Contract
-  feature Reform::Form::Dry
-end
-
 module Types
   include Dry.Types()
 end
