@@ -8,19 +8,16 @@ module Reform::Validation
   # Set of Validation::Group objects.
   # This implements adding, iterating, and finding groups, including "inheritance" and insertions.
   class Groups < Array
-    def initialize(group_class)
-      @group_class = group_class
-    end
-
-    def add(name, options)
+    def add(name, options, group)
       if options[:inherit]
         return self[name] if self[name]
       end
 
       i = index_for(options)
 
-      self.insert(i, [name, group = @group_class.new(options), options]) # Group.new
-      group
+      self.insert(i, [name, group, options]) # Group.new
+
+      self
     end
 
     private

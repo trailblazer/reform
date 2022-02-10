@@ -35,8 +35,8 @@ module Reform
     require "reform/contract/validate"
     include Reform::Contract::Validate
 
-    require "reform/validation"
-    include Reform::Validation # ::validates and #valid?
+    # require "reform/validation"
+    # include Reform::Validation # ::validates and #valid?
 
     # FIXME: this is only for #to_nested_hash, #sync shouldn't be part of Contract.
     require "disposable/twin/sync"
