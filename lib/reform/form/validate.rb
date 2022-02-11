@@ -76,7 +76,7 @@ class Reform::Form
     # {:twin} where do we write to (currently)
     def self.deserialize(form_class, params, ctx, populated_instance: DeserializedFields.new, schema:)
       # FIXME: do this at compile-time
-      endpoint_form = Reform::Form::Property.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Property::Definition.new(:_endpoint, form_class))
+      endpoint_form = Reform::Deserialize::DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Property::Definition.new(:_endpoint, form_class))
 
 
       # we're now running the endpoint form, its only task is to "run the populator" to create the real top-level form (plus twins, model, whatever...)
