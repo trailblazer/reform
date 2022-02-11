@@ -76,7 +76,7 @@ params = {title: "The Brews", band: {name: "NOFX"}}
 
 populated_instance = Reform::Form::Validate::DeserializedFields.new
 
-deserialized_form = Reform::Form::Validate.deserialize(params, {}, populated_instance: populated_instance, twin: song_form_instance, schema: song_form.state.get("dsl/definitions"))
+deserialized_form = Reform::Form::Validate.deserialize(song_form, params, {}, populated_instance: populated_instance, schema: song_form.state.get("dsl/definitions"))
 
 
 # assert_equal [:title, :band], deserialized_values.keys # {:band} is reference to a Twin

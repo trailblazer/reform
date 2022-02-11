@@ -138,7 +138,9 @@ class FormTest < Minitest::Spec
     # * custom_errors
     # * readers in Form::New should be able to lookup {Default} value, or at least get a hint. also, TODO: can we use instance methods receiving ctx etc to compute {:default}?
     # * dynamic properties at validate: https://stackoverflow.com/questions/47916241/trailblazer-reform-gem-how-to-handle-this-type-of-input-validation
-
+    # * proper inheritance for `validation do .. end` groups
+    # * .dotted errors like it was done with {lib/reform/errors.rb}
+    # * Reform::Module
 
     form_params = {
       invoice_date: "12/11",

@@ -258,7 +258,7 @@ end
         end
 
 
-      end
+      end # Deserialize
 
       def set(ctx, populated_instance:, value:, key:, **)
         # TODO: handle populators
@@ -269,6 +269,24 @@ end
 
         true
       end
+
+    # |-- band              (i am a property deserializer, PPP, Property::Read)
+    # |   |-- Start.default
+    # |   |-- key?
+    # |   |-- read
+    # |   |-- deserialize_nested
+    # |   |   |-- Start.default
+    # |   |   |-- name
+    # |   |   |   |-- Start.default
+    # |   |   |   |-- key?
+    # |   |   |   |-- read
+    # |   |   |   |-- set
+    # |   |   |   `-- End.success
+    # |   |   `-- End.success
+    # |   |-- set
+    # |   `-- End.success
+    # `-- End.success
+
       def add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, definition:, replace: nil)
         property_activity = Class.new(property_activity) # this activity represents one particular property's pipeline {ppp}.
         property_activity.instance_exec(&parse_block)
@@ -277,31 +295,8 @@ end
         # DISCUSS: it would be better to have :set in the {property_activity} before we execute {&parse_block}
         #          because it would allow tweaking it using your {:parse_block}.
 
-        if nested_form = definition[:nested]
-          nested_deserializer = nested_form.state.get("artifact/deserializer")
-          nested_schema       = nested_form.state.get("dsl/definitions")
-
-          property_activity.step Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :deserialize_nested,
-            input: ->(ctx, twin:, value:, **) { # input going into the nested "form"
-              {
-                populated_instance: Validate::DeserializedFields.new,
-                # twin: twin.send(:band), # FIXME
-                twin: nested_form.new, # FIXME: when do we add model, etc? populator logic!
-                input: value,
-              }
-            },
-            output: ->(ctx, outer_ctx, populated_instance:, twin:, **) {
-              # raise outer_context.inspect
-              {
-                value: Validate::Deserialized.new(nested_schema, twin, populated_instance, ctx), # this is used in {set}.
-                # populated_instance: outer_ctx[:populated_instance].merge(band: populated_instance,), # DISCUSS: should we do that later, at validation time?
-
-
-                # Here we would have to return the mutated twin
-
-              }
-            }, output_filter: false, output_with_outer_ctx: true
-
+        if definition[:nested] # FIXME: here, we have to add populator steps/filters.
+          add_nested_deserializer_to_property!(property_activity, definition)
         end
 
         if set # FIXME: hm, well, i hate {if}s, don't i?
@@ -347,6 +342,36 @@ end
         end
 
         deserializer_activity
+      end
+
+      module_function # FIXME
+      def add_nested_deserializer_to_property!(property_activity, definition)
+        nested_form = definition[:nested]
+        nested_deserializer = nested_form.state.get("artifact/deserializer")
+        nested_schema       = nested_form.state.get("dsl/definitions")
+
+        property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :deserialize_nested,
+          input: ->(ctx, twin:, value:, **) { # input going into the nested "form"
+            {
+              populated_instance: Validate::DeserializedFields.new,
+              # twin: twin.send(:band), # FIXME
+              twin: nested_form.new, # FIXME: when do we add model, etc? populator logic!
+              input: value,
+            }
+          },
+          output: ->(ctx, outer_ctx, populated_instance:, twin:, **) {
+            # raise outer_context.inspect
+            {
+              value: Validate::Deserialized.new(nested_schema, twin, populated_instance, ctx), # this is used in {set}.
+              # populated_instance: outer_ctx[:populated_instance].merge(band: populated_instance,), # DISCUSS: should we do that later, at validation time?
+
+
+              # Here we would have to return the mutated twin
+
+            }
+          }, output_filter: false, output_with_outer_ctx: true
+
+        property_activity
       end
     end
     extend Property

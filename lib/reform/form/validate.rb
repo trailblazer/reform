@@ -74,16 +74,20 @@ class Reform::Form
     # we need a closed structure taht only contains read values. we need values associated with their form (eg. nested, right?)
 
     # {:twin} where do we write to (currently)
-    def self.deserialize(params, ctx, populated_instance: DeserializedFields.new, twin:, schema:)
-      # params = deserialize!(params)
-      # deserializer.new(self).from_hash(params)
-      ctx = Trailblazer::Context({input: params, populated_instance: populated_instance, twin: twin, schema: schema}, ctx)
+    def self.deserialize(form_class, params, ctx, populated_instance: DeserializedFields.new, schema:)
+      # FIXME: do this at compile-time
+      endpoint_form = Reform::Form::Property.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Property::Definition.new(:_endpoint, form_class))
+
+
+      # we're now running the endpoint form, its only task is to "run the populator" to create the real top-level form (plus twins, model, whatever...)
+      # as the endpoint form is not a real form but just the "nested deserializer" part of a property, we don't need several fields here
+      ctx = Trailblazer::Context({populated_instance: populated_instance, twin: "nilll", value: params, schema: schema}, ctx)
 
       # Run the form's deserializer, which is a simple Trailblazer::Activity.
       # This is where all parsing, defaulting, populating etc happens.
       # puts Trailblazer::Developer.render(twin.class.deserializer_activity)
-      # FIXME: retrieving the deserializer here sucks.
-      signal, (ctx, _) = Trailblazer::Developer.wtf?(twin.class.state.get("artifact/deserializer"), [ctx, {}], exec_context: twin) # exec_context because filter methods etc are defined on the FORM which is the {twin} currently
+
+      signal, (ctx, _) = Trailblazer::Developer.wtf?(endpoint_form, [ctx, {}], exec_context: "nil") # exec_context because filter methods etc are defined on the FORM which is the {twin} currently
 
   # FIXME: the following code should be done via {:output} just like for nested forms
 
@@ -91,7 +95,7 @@ class Reform::Form
   # We also have the "value object" (twin) populated in {populated_instance}
   # pp deserialized_values
 
-      Deserialized.new(schema, twin, ctx[:populated_instance], ctx)
+      ctx[:value] # returns a {Deserialized} instance
     end
 
     # [{values}, {all fields}, twin, {band: [{v}, {f}, twin]}]
