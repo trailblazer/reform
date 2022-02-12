@@ -77,7 +77,7 @@ params = {title: "The Brews", band: {name: "NOFX"}}
 populated_instance = Reform::Deserialize::DeserializedFields.new
 
 # Deserialize/Hydrate an empty form just by iterating the schema, and for each nested form node, instantiate a form.
-deserialized_form = Reform::Deserialize.deserialize(song_form, params, {}, populated_instance: populated_instance, schema: song_form.state.get("dsl/definitions"))
+deserialized_form = Reform::Deserialize.deserialize(song_form, params, {}, populated_instance: populated_instance)
 
 
 # assert_equal [:title, :band], deserialized_values.keys # {:band} is reference to a Twin

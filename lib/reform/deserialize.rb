@@ -40,15 +40,15 @@ module Reform
     # we need a closed structure taht only contains read values. we need values associated with their form (eg. nested, right?)
 
     # {:twin} where do we write to (currently)
-    # @return Deserialized
-    def self.deserialize(form_class, params, ctx, populated_instance: DeserializedFields.new, schema:)
+    # @return Deserialized A `Deserialized` form instance
+    def self.deserialize(form_class, params, ctx, populated_instance: DeserializedFields.new)
+      # this will create a property with the "first" "nested" form being {form_class}: Definition(name: :_endpoint, nested: form_class)
       # FIXME: do this at compile-time
       endpoint_form = DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Form::Property::Definition.new(:_endpoint, form_class))
 
-
       # we're now running the endpoint form, its only task is to "run the populator" to create the real top-level form (plus twins, model, whatever...)
       # as the endpoint form is not a real form but just the "nested deserializer" part of a property, we don't need several fields here
-      ctx = Trailblazer::Context({populated_instance: populated_instance, twin: "nilll", value: params, schema: schema}, ctx)
+      ctx = Trailblazer::Context({populated_instance: populated_instance, twin: "nilll", value: params}, ctx)
 
       # Run the form's deserializer, which is a simple Trailblazer::Activity.
       # This is where all parsing, defaulting, populating etc happens.
