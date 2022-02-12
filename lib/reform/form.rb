@@ -20,9 +20,9 @@ end
 
     class InvalidOptionsCombinationError < StandardError; end
 
-    def self.default_nested_class
-      Form
-    end
+    # def self.default_nested_class
+    #   Form
+    # end
 
     # require "reform/form/validate"
     # include Validate # override Contract#validate with additional behaviour.
@@ -169,12 +169,8 @@ end
             }
           end
         end
-
-
-
-
       end # Deserialize
-    end # Deserialize
+    end # Property
 
 
     # @Runtime

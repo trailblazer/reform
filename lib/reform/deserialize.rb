@@ -1,5 +1,76 @@
 module Reform
+
   module Deserialize
+    # @Runtime
+    # Runtime form object returned after {::deserialize}.
+    class Deserialized # FIXME: different name to reflect we're a form?
+      def initialize(schema, form, populated_instance, arbitrary_bullshit)
+        @schema             = schema
+        @form               = form
+        @populated_instance = populated_instance # populated_instance
+        @arbitrary_bullshit = arbitrary_bullshit # ctx of the PPP
+      end
+
+      def method_missing(name, *args) # DISCUSS: no setter?
+        raise name.inspect unless @schema.key?(name)
+
+        if @populated_instance.key?(name)
+          # pp @populated_instance
+          @populated_instance[name]
+        else # helper method such as {:txn_types_for_radio_buttons} # FIXME: test this case
+          @form.send(name, *args)
+        end
+      end
+
+      def [](name)
+        @arbitrary_bullshit[name]
+      end
+
+      def []=(name, value) # DISCUSS: is this our official setter when you don't want to parse-populate?
+        @populated_instance[name] = value
+      end
+
+
+      def to_input_hash
+        @populated_instance # FIXME: this still contains nested forms!
+      end
+    end
+
+
+    # we need a closed structure taht only contains read values. we need values associated with their form (eg. nested, right?)
+
+    # {:twin} where do we write to (currently)
+    # @return Deserialized
+    def self.deserialize(form_class, params, ctx, populated_instance: DeserializedFields.new, schema:)
+      # FIXME: do this at compile-time
+      endpoint_form = DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Form::Property::Definition.new(:_endpoint, form_class))
+
+
+      # we're now running the endpoint form, its only task is to "run the populator" to create the real top-level form (plus twins, model, whatever...)
+      # as the endpoint form is not a real form but just the "nested deserializer" part of a property, we don't need several fields here
+      ctx = Trailblazer::Context({populated_instance: populated_instance, twin: "nilll", value: params, schema: schema}, ctx)
+
+      # Run the form's deserializer, which is a simple Trailblazer::Activity.
+      # This is where all parsing, defaulting, populating etc happens.
+      # puts Trailblazer::Developer.render(twin.class.deserializer_activity)
+
+      signal, (ctx, _) = Trailblazer::Developer.wtf?(endpoint_form, [ctx, {}], exec_context: "nil") # exec_context because filter methods etc are defined on the FORM which is the {twin} currently
+
+  # FIXME: the following code should be done via {:output} just like for nested forms
+
+  # At this p(o)int, we have a hash of deserialized values (potentially missing keys etc as they're dependent on user input)
+  # We also have the "value object" (twin) populated in {populated_instance}
+  # pp deserialized_values
+
+      ctx[:value] # returns a {Deserialized} instance
+    end
+
+    # [{values}, {all fields}, twin, {band: [{v}, {f}, twin]}]
+
+    # This structure only stores fields set by the deserialization.
+    class DeserializedFields < Hash
+    end
+
     # @Runtime
     def self.set(ctx, populated_instance:, value:, key:, **)
       # TODO: handle populators
@@ -97,7 +168,7 @@ module Reform
           # this logic is executed when {band.read} was successful, right?
           input: ->(ctx, twin:, value:, **) { # input going into the nested "form"
             {
-              populated_instance: Reform::Form::Validate::DeserializedFields.new,
+              populated_instance: DeserializedFields.new,
               # twin: twin.send(:band), # FIXME
               twin: nested_form.new, # FIXME: when do we add model, etc? populator logic!
               input: value,
@@ -106,7 +177,7 @@ module Reform
           output: ->(ctx, outer_ctx, populated_instance:, twin:, **) {
             # raise outer_context.inspect
             {
-              value: Reform::Form::Validate::Deserialized.new(nested_schema, twin, populated_instance, ctx), # this is used in {set}.
+              value: Deserialized.new(nested_schema, twin, populated_instance, ctx), # this is used in {set}.
               # populated_instance: outer_ctx[:populated_instance].merge(band: populated_instance,), # DISCUSS: should we do that later, at validation time?
 
 
