@@ -160,7 +160,7 @@ module Reform
       end
 
       def self.add_nested_deserializer_to_property!(property_activity, definition)
-        nested_form = definition[:nested]
+        nested_form         = definition[:nested]
         nested_deserializer = nested_form.state.get("artifact/deserializer")
         nested_schema       = nested_form.state.get("dsl/definitions")
 

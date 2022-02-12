@@ -5,6 +5,8 @@ require "trailblazer/declarative"
 require "delegate"
 
 require "reform/deserialize"
+require "reform/validate"
+require "reform/result"
 
 # PPP: property parsing pipeline :)
 module Reform
@@ -142,7 +144,7 @@ end
 
     # GENERIC DSL
      # Schema
-      Definition = Struct.new(:name, :nested)
+      Definition = Struct.new(:name, :nested, :collection)
 
       def self.definition_for(name:, block: nil, nested_class:, **options)
         block = Class.new(nested_class) { class_eval(&block) } if block # TODO: feature, defaults
