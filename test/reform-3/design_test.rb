@@ -60,8 +60,9 @@ class DesignTest < Minitest::Spec
       end
     end
 
-# hydrated = Reform::Form::Hydrate(input: song, schema: song_form.schema[:hydrate])
-
+hydrated = Reform::Hydrate.hydrate(song_form, nil, {})
+assert_equal "", hydrated.title
+assert_equal "", hydrated.band.name
 
 # at this point, the form is fully populated from Decorate and from Deserialize
 # title: "Apocalypse soon"

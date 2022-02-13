@@ -105,11 +105,15 @@ module Reform
       # |   `-- End.success
       # `-- End.success
 
-      def self.add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, definition:, replace: nil)
-        property_activity = Class.new(property_activity) # this activity represents one particular property's pipeline {ppp}.
-        property_activity.instance_exec(&parse_block)
+      def self.property_activity_for(activity_class, &block)
+        property_activity = Class.new(activity_class) # this activity represents one particular property's pipeline {ppp}.
+        property_activity.instance_exec(&block)
         property_activity.extend(Reform::Form::Call)
+        property_activity
+      end
 
+      def self.add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, definition:, replace: nil)
+        property_activity = property_activity_for(property_activity, &parse_block)
         # DISCUSS: it would be better to have :set in the {property_activity} before we execute {&parse_block}
         #          because it would allow tweaking it using your {:parse_block}.
 
