@@ -33,6 +33,7 @@ module Reform
       end
     end
 
+    # DISCUSS: we could be using an activity here, too, instead of using recursion?
     # Validate the current form instance.
     # NOTE: consider polymorphism here
                                                                   # DISCUSS: ZZdo we like that?

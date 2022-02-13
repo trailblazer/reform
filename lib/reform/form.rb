@@ -5,6 +5,7 @@ require "trailblazer/declarative"
 require "delegate"
 
 require "reform/deserialize"
+require "reform/hydrate"
 require "reform/validate"
 require "reform/result"
 
@@ -75,6 +76,11 @@ end
         end
 
         # definition = super(name, options, &block) # letdisposable and declarative gems sort out inheriting of properties, and so on.
+        definitions = state.update!("dsl/definitions") do |defs|
+          defs.merge(
+            name => definition
+          )
+        end
 
 
         # DISCUSS: should we update store here?
@@ -82,11 +88,10 @@ end
           Reform::Deserialize::DSL.add_property_to_deserializer!(name, deserializer, definition: definition, parse_block: parse_block, inject: parse_inject, **kws)
         end
 
-        definitions = state.update!("dsl/definitions") do |defs|
-          defs.merge(
-            name => definition
-          )
+        state.update!("artifact/hydrate") do |hydrate|
+          Reform::Hydrate::DSL.add_property_to_hydrate!(hydrate, definition: definition) # TODO: what about replace, etc?
         end
+
 
         require "reform/twin"
         state.update!("artifact/twin") do |twin|
