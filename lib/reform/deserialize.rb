@@ -41,14 +41,14 @@ module Reform
 
     # {:twin} where do we write to (currently)
     # @return Deserialized A `Deserialized` form instance
-    def self.deserialize(form_class, params, ctx)
+    def self.deserialize(form_class, params, model, ctx)
       # this will create a property with the "first" "nested" form being {form_class}: Definition(name: :_endpoint, nested: form_class)
       # FIXME: do this at compile-time
       endpoint_form = DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Form::Property::Definition.new(:_endpoint, form_class))
 
       # we're now running the endpoint form, its only task is to "run the populator" to create the real top-level form (plus twins, model, whatever...)
       # as the endpoint form is not a real form but just the "nested deserializer" part of a property, we don't need several fields here
-      ctx = Trailblazer::Context({twin: "nilll", value: params}, ctx)
+      ctx = Trailblazer::Context({twin: "nilll", value: params, model_from_populator: model}, ctx)
 
       # Run the form's deserializer, which is a simple Trailblazer::Activity.
       # This is where all parsing, defaulting, populating etc happens.
@@ -149,7 +149,7 @@ module Reform
             # input:  [:input],
             # The {:input} filter passes the actual fragment as {:input} and already deserialized
             # field values from earlier steps in {:deserialized_ctx}.
-            input:  ->(ctx, input:, twin:, **) { {input: input, deserialized_fields: ctx, populated_instance: ctx[:populated_instance], twin: twin} },
+            input:  ->(ctx, input:, twin:, model_from_populator:, **) { {input: input, deserialized_fields: ctx, populated_instance: ctx[:populated_instance], twin: twin, model_from_populator: model_from_populator} },
             inject: [*inject, {key: ->(*) { field }}],
             # The {:output} filter adds all values from the property steps to the original ctx,
             # prefixed with the property name, such as {:"invoice_date.value.parsed"}
@@ -168,14 +168,15 @@ module Reform
         nested_deserializer = nested_form.state.get("artifact/deserializer")
         nested_schema       = nested_form.state.get("dsl/definitions")
 
-        property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :deserialize_nested,
+        property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :"deserialize_nested.#{definition[:name]}",
           # this logic is executed when {band.read} was successful, right?
-          input: ->(ctx, twin:, value:, **) { # input going into the nested "form"
+          input: ->(ctx, twin:, value:, model_from_populator:, **) { # input going into the nested "form"
             {
-              populated_instance: DeserializedFields.new,
+              populated_instance: DeserializedFields[model_from_populator: model_from_populator],
               # twin: twin.send(:band), # FIXME
               twin: nested_form.new, # FIXME: when do we add model, etc? populator logic!
               input: value,
+              model_from_populator: model_from_populator,
             }
           },
           output: ->(ctx, outer_ctx, populated_instance:, twin:, **) {
@@ -271,8 +272,18 @@ module Reform
           ctx[:value] = input[key]
         end
 
+        # {:model_from_populator} is the outer model, we need to find the nested one here.
+        def self.populate(ctx, key:, input:, value:, model_from_populator:, **)
+          puts "@@@@@ ||||||||| #{key.inspect} #{model_from_populator.inspect}"
+
+          model_for_nested_property = model_from_populator.send(key)
+
+          true
+        end
+
         step method(:key?), id: :key?, output_filter: false, Output(:failure) => Track(:key_not_found) # TODO: use a path, make {End.failure} magnetic to "key-not-found".
         step method(:read), id: :read, field_name: :read # output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}}, provides: [:"value.read"]
+        step method(:populate)
       end
     end # Property
 

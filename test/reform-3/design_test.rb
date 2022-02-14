@@ -85,7 +85,8 @@ assert_equal "Mute", hydrated.band.name
 params = {title: "The Brews", band: {name: "NOFX"}}
 
 # Deserialize/Hydrate an empty form just by iterating the schema, and for each nested form node, instantiate a form.
-deserialized_form = Reform::Deserialize.deserialize(song_form, params, {})
+deserialized_form = Reform::Deserialize.deserialize(song_form, params, nil, {}) # TODO: implement the {nil} model
+deserialized_form = Reform::Deserialize.deserialize(song_form, params, empty_song, {})
 
 
 # assert_equal [:title, :band], deserialized_values.keys # {:band} is reference to a Twin
