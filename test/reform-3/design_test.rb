@@ -41,14 +41,14 @@ class DesignTest < Minitest::Spec
       property :band do # DISCUSS: polymorphic
         property :name
 
-        validation name: :FIXME, group_class: Reform::Form::Dry::Validations::Group do
+        validation group_class: Reform::Form::Dry::Validations::Group do
           params do
             required(:name).filled
           end
         end
       end
 
-      validation name: :FIXME, group_class: Reform::Form::Dry::Validations::Group do
+      validation group_class: Reform::Form::Dry::Validations::Group do
         params do
           required(:title).filled
           required(:album_id).filled
@@ -60,9 +60,16 @@ class DesignTest < Minitest::Spec
       end
     end
 
-hydrated = Reform::Hydrate.hydrate(song_form, nil, {})
+empty_song = OpenStruct.new(title: "", band: OpenStruct.new(name: ""))
+hydrated = Reform::Hydrate.hydrate(song_form, empty_song, {})
+assert_equal hydrated.class, Reform::Deserialize::Deserialized
 assert_equal "", hydrated.title
 assert_equal "", hydrated.band.name
+
+existing_song = OpenStruct.new(title: "Apocalypse soon", band: OpenStruct.new(name: "Mute"))
+hydrated = Reform::Hydrate.hydrate(song_form, existing_song, {})
+assert_equal "Apocalypse soon", hydrated.title
+assert_equal "Mute", hydrated.band.name
 
 # at this point, the form is fully populated from Decorate and from Deserialize
 # title: "Apocalypse soon"

@@ -63,7 +63,7 @@ end
         # When {parse: false} is set, meaning we shall *not* read the property's value from the input fragment,
         # we simply use a slightly slimmer PPP which doesn't have {#key?} and {#read}.
         if options[:read] == false
-          kws[:property_activity] = Deserialize::Property # normally this is {Deserialize::Property::Read}.
+          kws[:property_activity] = Reform::Deserialize::Property # normally this is {Deserialize::Property::Read}.
           kws[:set] = options.key?(:set) ? options[:set] : true # TODO: handle this with a separate {Property} class.
         end
 
@@ -185,7 +185,9 @@ end
     # which is the currently validated form.
     module Call
       def call(*args, exec_context:, **kws)
-        @activity.(*args, **kws.merge(exec_context: exec_context))
+        ctx = args[0][0]
+
+        @activity.(*args, **kws.merge(exec_context: ctx[:twin])) # FIXME: make this better
       end
     end
 
@@ -208,12 +210,11 @@ end
     end
 
     # require "reform/form/call" # FIXME: remove
-    include Call
 
 # TODO: this should be at the top of class body at some point :)
     def self.initial_deserializer_activity
       Class.new(Trailblazer::Activity::Railway) do
-        extend(Reform::Form::Call)
+        # extend(Reform::Form::Call)
       end
     end
 

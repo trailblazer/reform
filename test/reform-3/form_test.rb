@@ -76,7 +76,7 @@ class FormTest < Minitest::Spec
       require "reform/form/dry"
       feature Reform::Form::Dry
 
-      validation do
+      validation group_class: Reform::Form::Dry::Validations::Group do
         params do
           # required(:source).filled
           # required(:unit_price) { float? } #(format?: /^([\d+\.{1},.]||[\d+,{1}\..]||\d+)$/)
@@ -151,9 +151,9 @@ class FormTest < Minitest::Spec
     }
 
 
-    form = Form.new(twin.new)
+    form = Form.new#(twin.new)
 
-    deserialized_form, validated_form = Reform::Form.validate(form, form_params, {})
+    deserialized_form, validated_form = Reform::Form.validate(Form, form_params, {})
     # result = form.validate(form_params)
 # pp form.instance_variable_get(:@arbitrary_bullshit)
 

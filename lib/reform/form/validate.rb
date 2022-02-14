@@ -2,10 +2,8 @@
 # and write parse-pipelined values to their field in the form.
 class Reform::Form
   # run_validations(name, twin:, validation_groups:, schema: twin.schema, deserialized_form:)
-  def self.validate(twin, params, ctx)
-    populated_instance = DeserializedFields.new # DISCUSS: this is (part of) the Twin. "write-to"
-
-    deserialized_form = Validate.deserialize(params, ctx, twin: twin, populated_instance: populated_instance)
+  def self.validate(form_class, params, ctx)
+    deserialized_form = Reform::Deserialize.deserialize(form_class, params, ctx)
 
     # pp deserialized_form
     puts deserialized_form.to_input_hash.inspect

@@ -10,7 +10,7 @@ module Reform::Form::DSL
     end
 
     # DSL.
-    def validation(name:, group_class:, **options, &block)
+    def validation(name: :default, group_class:, **options, &block)
       group = group_class.new(options)
       group.instance_exec(&block)
 

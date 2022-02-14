@@ -13,9 +13,12 @@ module Reform
 
         hydrate_activity.send :step, Trailblazer::Activity::Railway.Subprocess(property_activity),
           id: field,
-          Trailblazer::Activity::Railway::Inject() => {key:   ->(*) { field }},
-          Trailblazer::Activity::Railway::Inject() => {value: ->(*) { "" }}, # DISCUSS: every field is blank string? this must be removed if we want to read value in {Read}.
-          Trailblazer::Activity::Railway.In() => [:populated_instance],
+
+          # Trailblazer::Activity::Railway::Inject() => {value: ->(ctx, ** ) { raise ctx.inspect }}, # DISCUSS: every field is blank string? this must be removed if we want to read value in {Read}.
+          # Trailblazer::Activity::Railway::Inject() => {input: ->(ctx, **) { raise ctx.inspect }}, # DISCUSS: every field is blank string? this must be removed if we want to read value in {Read}.
+
+          Trailblazer::Activity::Railway::Inject() => {key:   ->(*) { field }},# FIXME: totally  redundant with Deserialize.
+          Trailblazer::Activity::Railway.In() => [:populated_instance, :input],
           Trailblazer::Activity::Railway.Out() => [:populated_instance]
 
         hydrate_activity
@@ -25,6 +28,7 @@ module Reform
         nested_form         = definition[:nested]
         nested_deserializer = nested_form.state.get("artifact/hydrate")
         nested_schema       = nested_form.state.get("dsl/definitions")
+        field = definition[:name]
 
         property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :hydrate_nested,
           # this logic is executed when {band.read} was successful, right?
@@ -35,7 +39,7 @@ module Reform
               exec_context_instance: nested_form.new, # FIXME: when do we add model, etc? populator logic!
               input: value,
             }
-          },
+          }, # FIXME: totally  redundant with Deserialize.
           output: ->(ctx, populated_instance:, **) {
             # raise outer_context.inspect
             {
@@ -49,7 +53,16 @@ module Reform
     end # DSL
 
     module Property
+
       class Read < Trailblazer::Activity::Railway
+        def self.populate(ctx, input:, key:, **)
+          puts "@@@@@ #{key.inspect}       >>> #{input.inspect}"
+
+
+          ctx[:value] = input.send(key)
+          true
+        end
+        step method(:populate)
         step Deserialize.method(:set), id: :set # writes {key => value} to :populated_instance
       end
     end
@@ -64,6 +77,8 @@ module Reform
 
       # we're now running the endpoint form, its only task is to "run the populator" to create the real top-level form (plus twins, model, whatever...)
       # as the endpoint form is not a real form but just the "nested deserializer" part of a property, we don't need several fields here
+      OpenStruct.new(_endpoint: params)
+
       ctx = Trailblazer::Context({twin: "nilll", value: params}, ctx)
 
       # Run the form's deserializer, which is a simple Trailblazer::Activity.
