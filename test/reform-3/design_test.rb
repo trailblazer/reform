@@ -85,18 +85,20 @@ assert_equal "Mute", hydrated.band.name
 params = {title: "The Brews", band: {name: "NOFX"}}
 
 # Deserialize/Hydrate an empty form just by iterating the schema, and for each nested form node, instantiate a form.
-deserialized_form = Reform::Deserialize.deserialize(song_form, params, nil, {}) # TODO: implement the {nil} model
+# deserialized_form = Reform::Deserialize.deserialize(song_form, params, nil, {}) # TODO: implement the {nil} model
 deserialized_form = Reform::Deserialize.deserialize(song_form, params, empty_song, {})
 
 
 # assert_equal [:title, :band], deserialized_values.keys # {:band} is reference to a Twin
 # assert twin.band, deserialized_values[:band][2] # test the "twin" part
 
+assert_equal deserialized_form[:model_from_populator].inspect, %{#<OpenStruct title=\"\", band=#<OpenStruct name=\"\">>}
 assert_equal "The Brews", deserialized_form.title
 assert_equal "The Brews", deserialized_form[:"title.value.read"]
 assert_equal({:name=>"NOFX"}, deserialized_form[:"band.value.read"])
 # assert_equal %{[:input, :populated_instance, :twin, :\"title.value.read\", :title, :\"band.value.read\", :band]}, ctx.keys.inspect
 # assert_equal %{Apocalypse soon}, twin.title
+assert_equal deserialized_form.band[:model_from_populator].inspect, %{#<OpenStruct name=\"\">}
 
 # # FIXME
 # assert_raises do

@@ -44,7 +44,7 @@ module Reform
     def self.deserialize(form_class, params, model, ctx)
       # this will create a property with the "first" "nested" form being {form_class}: Definition(name: :_endpoint, nested: form_class)
       # FIXME: do this at compile-time
-      endpoint_form = DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Form::Property::Definition.new(:_endpoint, form_class))
+      endpoint_form = DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Form::Property::Definition.new(:_endpoint, form_class), populate: false)
 
       # we're now running the endpoint form, its only task is to "run the populator" to create the real top-level form (plus twins, model, whatever...)
       # as the endpoint form is not a real form but just the "nested deserializer" part of a property, we don't need several fields here
@@ -163,11 +163,12 @@ module Reform
         deserializer_activity
       end
 
-      def self.add_nested_deserializer_to_property!(property_activity, definition)
+      def self.add_nested_deserializer_to_property!(property_activity, definition, populate: true) # FIXME: {populate}
         nested_form         = definition[:nested]
         nested_deserializer = nested_form.state.get("artifact/deserializer")
         nested_schema       = nested_form.state.get("dsl/definitions")
 
+        property_activity.send :step, Property.method(:populate), output_filter: false, output: [:model_from_populator] if populate # FIXME: {output_filter: false} everywhere is not so cool.
         property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :"deserialize_nested.#{definition[:name]}",
           # this logic is executed when {band.read} was successful, right?
           input: ->(ctx, twin:, value:, model_from_populator:, **) { # input going into the nested "form"
@@ -259,6 +260,17 @@ module Reform
 
       extend StepMethod # we have an extended {#step} method now.
 
+      # {:model_from_populator} is the outer model, we need to find the nested one here.
+      def self.populate(ctx, key:, input:, value:, model_from_populator:, **)
+        puts "@@@@@ ||||||||| #{key.inspect} #{model_from_populator.inspect}"
+
+        model_for_nested_property = model_from_populator.send(key)
+
+        ctx[:model_from_populator] = model_for_nested_property
+
+        true
+      end
+
       # The default property that uses {#key?} and {#read} to read from the fragment.
       class Read < Property
         # Default steps
@@ -272,18 +284,8 @@ module Reform
           ctx[:value] = input[key]
         end
 
-        # {:model_from_populator} is the outer model, we need to find the nested one here.
-        def self.populate(ctx, key:, input:, value:, model_from_populator:, **)
-          puts "@@@@@ ||||||||| #{key.inspect} #{model_from_populator.inspect}"
-
-          model_for_nested_property = model_from_populator.send(key)
-
-          true
-        end
-
         step method(:key?), id: :key?, output_filter: false, Output(:failure) => Track(:key_not_found) # TODO: use a path, make {End.failure} magnetic to "key-not-found".
         step method(:read), id: :read, field_name: :read # output: ->(ctx, value:, **) { {:value => value, :"value.read" => value}}, provides: [:"value.read"]
-        step method(:populate)
       end
     end # Property
 
