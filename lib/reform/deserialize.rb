@@ -12,13 +12,12 @@ module Reform
       end
 
       def method_missing(name, *args) # DISCUSS: no setter?
-        raise name.inspect unless @schema.key?(name)
-
-        if @populated_instance.key?(name)
-          # pp @populated_instance
+        if @schema.key?(name) # this method is referring to a property of our holy form (e.g. {#band}).
           @populated_instance[name]
-        else # helper method such as {:txn_types_for_radio_buttons} # FIXME: test this case
+        elsif false # helper method such as {:txn_types_for_radio_buttons} # FIXME: test this case
           @form.send(name, *args)
+        else
+          raise name.inspect
         end
       end
 

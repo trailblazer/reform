@@ -10,3 +10,5 @@ gem "trailblazer-developer"
 # gem "disposable", path: "../disposable"
 gem "trailblazer-declarative", path: "../trailblazer-declarative"
 gem "trailblazer-errors", path: "../trailblazer-errors"
+
+gem "minitest-fest", path: "../minitest-fest"

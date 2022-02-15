@@ -209,21 +209,41 @@ song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song
       property :title
       property :band, populate: false do
         property :name
+        property :label, populate: false do
+          property :name
+          property :url
+        end
       end
     end
 
-    params = {title: "The Brews", band: {name: "NOFX"}}
-
   ## model is {nil}
-   # We don't have any paired models at all.
+  ## We don't want any label, it's missing in {params}!
+   # No paired models are created.
+    params            = {title: "The Brews", band: {name: "NOFX"}}
     deserialized_form = Reform::Deserialize.deserialize(song_form, params, nil, {})
 
-    assert_equal deserialized_form[:model_from_populator].inspect, %{nil}
-    assert_equal "The Brews", deserialized_form.title
-    assert_equal "The Brews", deserialized_form[:"title.value.read"]
+    song_and_band_assertions = test do
+      assert_equal deserialized_form[:model_from_populator].inspect, %{nil}
+      assert_equal "The Brews", deserialized_form.title
+      assert_equal "The Brews", deserialized_form[:"title.value.read"]
+      assert_equal deserialized_form.band[:model_from_populator].inspect, %{nil}
+      assert_equal "NOFX", deserialized_form.band.name
+      assert_equal "NOFX", deserialized_form.band[:"name.value.read"]
+    end
     assert_equal({:name=>"NOFX"}, deserialized_form[:"band.value.read"])
-    assert_equal deserialized_form.band[:model_from_populator].inspect, %{nil}
-    assert_equal "NOFX", deserialized_form.band.name
-    assert_equal "NOFX", deserialized_form.band[:"name.value.read"]
+    assert_nil deserialized_form.band.label
+
+
+  ## model is {nil}
+  ## label included
+   # No paired models are created.
+    params            = {title: "The Brews", band: {name: "NOFX", label: {name: "Fat Wreck"}}}
+    deserialized_form = Reform::Deserialize.deserialize(song_form, params, nil, {})
+
+    test song_and_band_assertions
+    assert_equal deserialized_form[:"band.value.read"], {:name=>"NOFX", :label=>{:name=>"Fat Wreck"}}
+    assert_equal deserialized_form.band[:"label.value.read"], {:name=>"Fat Wreck"}
+    assert_equal deserialized_form.band.label[:"name.value.read"], "Fat Wreck"
+    assert_equal deserialized_form.band.label[:model_from_populator].inspect, %{nil}
   end
 end
