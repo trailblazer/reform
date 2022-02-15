@@ -168,7 +168,13 @@ module Reform
         nested_deserializer = nested_form.state.get("artifact/deserializer")
         nested_schema       = nested_form.state.get("dsl/definitions")
 
-        property_activity.send :step, Property.method(:populate), output_filter: false, output: [:model_from_populator] if populate # FIXME: {output_filter: false} everywhere is not so cool.
+        if populate
+          property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(Populate::Populator::IfEmpty),
+            output_filter: false,
+            Trailblazer::Activity::Railway.Inject() => {populator: ->(*) { ->{Object.new} }}, # FIXME: eh, hello? where is my real filter?
+            output: {:paired_model => :model_from_populator} # FIXME: {output_filter: false} everywhere is not so cool.
+        end
+
         property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :"deserialize_nested.#{definition[:name]}",
           # this logic is executed when {band.read} was successful, right?
           input: ->(ctx, twin:, value:, model_from_populator:, **) { # input going into the nested "form"
@@ -259,17 +265,6 @@ module Reform
       end
 
       extend StepMethod # we have an extended {#step} method now.
-
-      # {:model_from_populator} is the outer model, we need to find the nested one here.
-      def self.populate(ctx, key:, input:, value:, model_from_populator:, **)
-        puts "@@@@@ ||||||||| #{key.inspect} #{model_from_populator.inspect}"
-
-        model_for_nested_property = model_from_populator.send(key)
-
-        ctx[:model_from_populator] = model_for_nested_property
-
-        true
-      end
 
       # The default property that uses {#key?} and {#read} to read from the fragment.
       class Read < Property

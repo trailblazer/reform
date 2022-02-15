@@ -1,117 +1,64 @@
+# FIXME: outdated comments
 # Implements the :populator option.
 #
 #  populator: -> (fragment:, model:, :binding)
 #  populator: -> (fragment:, collection:, index:, binding:)
 #
 # For collections, the entire collection and the currently deserialised index is passed in.
-class Reform::Form::Populator
-  def initialize(user_proc)
-    @user_proc = user_proc # the actual `populator: ->{}` block from the user, via ::property.
-    @value     = ::Representable::Option(user_proc) # we can now process Callable, procs, :symbol.
-  end
+module Reform
+  module Populate
+    class Populator < Trailblazer::Activity::Railway
+      def self.read_from_paired_model(ctx, model_from_populator:, key:, **)
+        model_for_nested_property = model_from_populator.send(key) # DISCUSS: assumption is, we can call {model.title} or whatever
 
-  def call(input, options)
-    model = get(options)
-    twin  = call!(options.merge(model: model, collection: model))
+        ctx[:paired_model] = model_for_nested_property
+      end
 
-    return twin if twin == Representable::Pipeline::Stop
+      step method(:read_from_paired_model)
 
-    # this kinda sucks. the proc may call self.composer = Artist.new, but there's no way we can
-    # return the twin instead of the model from the #composer= setter.
-    twin = get(options) unless options[:binding].array?
+      class IfEmpty < Populator
+        def self.create_paired_model(ctx, populator:, **)
+          ctx[:paired_model] = populator.() # FIXME: options? e.g. {fragment}
+        end
 
-    # we always need to return a twin/form here so we can call nested.deserialize().
-    handle_fail(twin, options)
-
-    twin
-  end
-
-  private
-
-  def call!(options)
-    form = options[:represented]
-    evaluate_option(form, options)
-  end
-
-  def evaluate_option(form, options)
-    if @user_proc.is_a?(Uber::Callable) && @user_proc.method(:call).arity == 2 # def call(form, options)
-      warn %{[Reform] Accepting `form` as a positional argument in `:populator` will be deprecated. Please use `def call(form:, **options)` signature instead.}
-
-      return @value.(form, exec_context: form, keyword_arguments: options)
-    end
-
-    @value.(exec_context: form, keyword_arguments: options.merge(form: form)) # Representable::Option call
-  end
-
-  def handle_fail(twin, options)
-    raise "[Reform] Your :populator did not return a Reform::Form instance for `#{options[:binding].name}`." if options[:binding][:nested] && !twin.is_a?(Reform::Form)
-  end
-
-  def get(options)
-    Representable::GetValue.(nil, options)
-  end
-
-  class IfEmpty < self # Populator
-    def call!(options)
-      binding, twin, index, fragment = options[:binding], options[:model], options[:index], options[:fragment] # TODO: remove once we drop 2.0.
-      form = options[:represented]
-
-      if binding.array?
-        item = twin.original[index] and return item
-
-        new_index = [index, twin.count].min # prevents nil items with initially empty/smaller collections and :skip_if's.
-        # this means the fragment index and populated nested form index might be different.
-
-        twin.insert(new_index, run!(form, fragment, options)) # form.songs.insert(Song.new)
-      else
-        return if twin
-
-        form.send(binding.setter, run!(form, fragment, options)) # form.artist=(Artist.new)
+        fail method(:create_paired_model), Output(:success) => Track(:success) # only called when {#read_from_paired_model} failed.
       end
     end
 
-    private
 
-    def run!(form, fragment, options)
-      return @user_proc.new if @user_proc.is_a?(Class) # handle populate_if_empty: Class. this excludes using Callables, though.
 
-      deprecate_positional_args(form, @user_proc, options) do
-        evaluate_option(form, options)
-      end
-    end
+  #   def call(input, options)
+  #     model = get(options)
+  #     twin  = call!(options.merge(model: model, collection: model))
 
-    def deprecate_positional_args(form, proc, options) # TODO: remove in 2.2.
-      arity = proc.is_a?(Symbol) ? form.method(proc).arity : proc.arity
-      return yield if arity == 1
-      warn "[Reform] Positional arguments for :prepopulate and friends are deprecated. Please use ->(options) and enjoy the rest of your day. Learn more at http://trailblazerb.org/gems/reform/upgrading-guide.html#to-21"
+  #     return twin if twin == Representable::Pipeline::Stop
 
-      @value.(form, options[:fragment], options[:user_options])
-    end
-  end
+  #     # this kinda sucks. the proc may call self.composer = Artist.new, but there's no way we can
+  #     # return the twin instead of the model from the #composer= setter.
+  #     twin = get(options) unless options[:binding].array?
 
-  # Sync (default) blindly grabs the corresponding form twin and returns it. This might imply that nil is returned,
-  # and in turn #validate! is called on nil.
-  class Sync < self
-    def call!(options)
-      return options[:model][options[:index]] if options[:binding].array?
-      options[:model]
-    end
-  end
+  #     # we always need to return a twin/form here so we can call nested.deserialize().
+  #     handle_fail(twin, options)
 
-  # This function is added to the deserializer's pipeline.
-  #
-  # When deserializing, the representer will call this function and thereby delegate the
-  # entire population process to the form. The form's :internal_populator will run its
-  # :populator option function and return the new/existing form instance.
-  # The deserializing representer will then continue on that returned form.
-  #
-  # Goal of this indirection is to leave all population logic in the form, while the
-  # representer really just traverses an incoming document and dispatches business logic
-  # (which population is) to the form.
-  class External
-    def call(input, options)
-      options[:represented].class.definitions
-                           .get(options[:binding][:name])[:internal_populator].(input, options)
-    end
+  #     twin
+  #   end
+
+  # class IfEmpty < self # Populator
+  #   def call!(options)
+  #     binding, twin, index, fragment = options[:binding], options[:model], options[:index], options[:fragment] # TODO: remove once we drop 2.0.
+  #     form = options[:represented]
+
+  #     if binding.array?
+  #       item = twin.original[index] and return item
+
+  #       new_index = [index, twin.count].min # prevents nil items with initially empty/smaller collections and :skip_if's.
+  #       # this means the fragment index and populated nested form index might be different.
+
+  #       twin.insert(new_index, run!(form, fragment, options)) # form.songs.insert(Song.new)
+  #     else
+  #       return if twin
+
+  #       form.send(binding.setter, run!(form, fragment, options)) # form.artist=(Artist.new)
+  #     end
   end
 end

@@ -5,6 +5,7 @@ require "trailblazer/declarative"
 require "delegate"
 
 require "reform/deserialize"
+require "reform/populate"
 require "reform/hydrate"
 require "reform/validate"
 require "reform/result"
@@ -29,8 +30,6 @@ end
 
     # require "reform/form/validate"
     # include Validate # override Contract#validate with additional behaviour.
-
-    require "reform/form/populator"
 
     # FIXME: move
     def [](name)
