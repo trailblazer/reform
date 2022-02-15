@@ -74,6 +74,19 @@ end
           options = { default: [] }.merge(options)
         end
 
+
+        # DISCUSS: where do we put the normalizer steps?
+        populator_config = nil
+        if populator = options[:populate_if_empty]
+          if populator.is_a?(Class)
+            populator_config = [Populate::Populator::IfEmpty, Trailblazer::Option(->(*) { populator.new })]
+          else
+            raise "implement custom filter"
+          end
+        end
+
+
+
         # definition = super(name, options, &block) # letdisposable and declarative gems sort out inheriting of properties, and so on.
         definitions = state.update!("dsl/definitions") do |defs|
           defs.merge(
@@ -84,7 +97,7 @@ end
 
         # DISCUSS: should we update store here?
         state.update!("artifact/deserializer") do |deserializer|
-          Reform::Deserialize::DSL.add_property_to_deserializer!(name, deserializer, definition: definition, parse_block: parse_block, inject: parse_inject, **kws)
+          Reform::Deserialize::DSL.add_property_to_deserializer!(name, deserializer, definition: definition, parse_block: parse_block, inject: parse_inject, populator: populator_config, **kws)
         end
 
         state.update!("artifact/hydrate") do |hydrate|
@@ -107,31 +120,6 @@ end
         end
         if block = definition[:populator] # populator wins over populate_if_empty when :inherit
           internal_populator = Populator.new(block)
-        end
-        definition.merge!(internal_populator: internal_populator) unless options[:internal_populator]
-        external_populator = Populator::External.new
-
-        # always compute a parse_pipeline for each property of the deserializer and inject it via :parse_pipeline.
-        # first, letrepresentable compute the pipeline functions by invoking #parse_functions.
-        if definition[:nested]
-          parse_pipeline = ->(input, opts) do
-            functions = opts[:binding].send(:parse_functions)
-            pipeline  = Representable::Pipeline[*functions] # Pipeline[StopOnExcluded, AssignName, ReadFragment, StopOnNotFound, OverwriteOnNil, Collect[#<Representable::Function::CreateObject:0xa6148ec>, #<Representable::Function::Decorate:0xa6148b0>, Deserialize], Set]
-
-            pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator,            replace: Representable::CreateObject::Instance)
-            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::Decorate,       delete: true)
-            pipeline  = Representable::Pipeline::Insert.(pipeline, Deserialize,                   replace: Representable::Deserialize)
-            pipeline  = Representable::Pipeline::Insert.(pipeline, Representable::SetValue,       delete: true) # FIXME: only diff to options without :populator
-          end
-        else
-          parse_pipeline = ->(input, opts) do
-            functions = opts[:binding].send(:parse_functions)
-            pipeline  = Representable::Pipeline[*functions] # Pipeline[StopOnExcluded, AssignName, ReadFragment, StopOnNotFound, OverwriteOnNil, Collect[#<Representable::Function::CreateObject:0xa6148ec>, #<Representable::Function::Decorate:0xa6148b0>, Deserialize], Set]
-
-            # FIXME: this won't work with property :name, inherit: true (where there is a populator set already).
-            pipeline  = Representable::Pipeline::Insert.(pipeline, external_populator, replace: Representable::SetValue) if definition[:populator] # FIXME: only diff to options without :populator
-            pipeline
-          end
         end
 
         if proc = definition[:skip_if]

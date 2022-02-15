@@ -44,7 +44,7 @@ module Reform
     def self.deserialize(form_class, params, model, ctx)
       # this will create a property with the "first" "nested" form being {form_class}: Definition(name: :_endpoint, nested: form_class)
       # FIXME: do this at compile-time
-      endpoint_form = DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Form::Property::Definition.new(:_endpoint, form_class), populate: false)
+      endpoint_form = DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Form::Property::Definition.new(:_endpoint, form_class), populator: false)
 
       # we're now running the endpoint form, its only task is to "run the populator" to create the real top-level form (plus twins, model, whatever...)
       # as the endpoint form is not a real form but just the "nested deserializer" part of a property, we don't need several fields here
@@ -112,13 +112,13 @@ module Reform
         property_activity
       end
 
-      def self.add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, definition:, replace: nil)
+      def self.add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, definition:, replace: nil, populator: false)
         property_activity = property_activity_for(property_activity, &parse_block)
         # DISCUSS: it would be better to have :set in the {property_activity} before we execute {&parse_block}
         #          because it would allow tweaking it using your {:parse_block}.
 
         if definition[:nested] # FIXME: here, we have to add populator steps/filters.
-          add_nested_deserializer_to_property!(property_activity, definition)
+          add_nested_deserializer_to_property!(property_activity, definition, populator: populator)
         end
 
         if set # FIXME: hm, well, i hate {if}s, don't i?
@@ -163,15 +163,17 @@ module Reform
         deserializer_activity
       end
 
-      def self.add_nested_deserializer_to_property!(property_activity, definition, populate: true) # FIXME: {populate}
+      def self.add_nested_deserializer_to_property!(property_activity, definition, populator: false) # FIXME: {populate}
         nested_form         = definition[:nested]
         nested_deserializer = nested_form.state.get("artifact/deserializer")
         nested_schema       = nested_form.state.get("dsl/definitions")
 
-        if populate
-          property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(Populate::Populator::IfEmpty),
+        if populator
+          populator_class, populator_filter = populator # DISCUSS: not sure this is a cool structure.
+
+          property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(populator_class), # Eg. Populator::IfEmpty
             output_filter: false,
-            Trailblazer::Activity::Railway.Inject() => {populator: ->(*) { ->{Object.new} }}, # FIXME: eh, hello? where is my real filter?
+            Trailblazer::Activity::Railway.Inject() => {populator: ->(*) { populator_filter }},
             output: {:paired_model => :model_from_populator} # FIXME: {output_filter: false} everywhere is not so cool.
         end
 

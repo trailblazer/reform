@@ -18,18 +18,19 @@ class DesignTest < Minitest::Spec
 
 
   # 3. Validate
+  Album = Struct.new(:title, :songs)
+  Song = Struct.new(:title, :band, :album_id) do
+    def save
+      @persisted = true
+    end
+  end
+  Band = Struct.new(:name) do
+    def save
+      @persisted = true
+    end
+  end
+
   it "what" do
-    Album = Struct.new(:title, :songs)
-    Song = Struct.new(:title, :band, :album_id) do
-      def save
-        @persisted = true
-      end
-    end
-    Band = Struct.new(:name) do
-      def save
-        @persisted = true
-      end
-    end
 
     song = Song.new("Apocalypse soon", band = Band.new("")) # Could be done by Decorate()
     # assuming Validate() already happened
@@ -38,7 +39,7 @@ class DesignTest < Minitest::Spec
       feature Reform::Form::Dry
 
       property :title
-      property :band do # DISCUSS: polymorphic
+      property :band, populate_if_empty: Band do # DISCUSS: polymorphic
         property :name
 
         validation group_class: Reform::Form::Dry::Validations::Group do
@@ -113,7 +114,8 @@ params = {title: "The Brews", band: {name: "NOFX"}}
   assert_equal({:name=>"NOFX"}, deserialized_form[:"band.value.read"])
   # assert_equal %{[:input, :populated_instance, :twin, :\"title.value.read\", :title, :\"band.value.read\", :band]}, ctx.keys.inspect
   # assert_equal %{Apocalypse soon}, twin.title
-  assert_equal deserialized_form.band[:model_from_populator].inspect, %{#<Object name=\"\">}
+  # {Band} instance created by {IfEmpty}.
+  assert_equal deserialized_form.band[:model_from_populator].inspect, %{#<struct DesignTest::Band name=nil>}
   assert_equal "NOFX", deserialized_form.band.name
   assert_equal "NOFX", deserialized_form.band[:"name.value.read"]
 
@@ -200,5 +202,28 @@ song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song
     result.errors[:title].inspect.must_equal %{["must be filled"]} # correct message for blank string.
     result.errors[:album_id].inspect.must_equal %{["is missing"]}
 
+  end
+
+  it "{populate: false}" do
+    song_form = Class.new(Reform::Form) do
+      property :title
+      property :band, populate: false do
+        property :name
+      end
+    end
+
+    params = {title: "The Brews", band: {name: "NOFX"}}
+
+  ## model is {nil}
+   # We don't have any paired models at all.
+    deserialized_form = Reform::Deserialize.deserialize(song_form, params, nil, {})
+
+    assert_equal deserialized_form[:model_from_populator].inspect, %{nil}
+    assert_equal "The Brews", deserialized_form.title
+    assert_equal "The Brews", deserialized_form[:"title.value.read"]
+    assert_equal({:name=>"NOFX"}, deserialized_form[:"band.value.read"])
+    assert_equal deserialized_form.band[:model_from_populator].inspect, %{nil}
+    assert_equal "NOFX", deserialized_form.band.name
+    assert_equal "NOFX", deserialized_form.band[:"name.value.read"]
   end
 end

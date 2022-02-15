@@ -16,9 +16,11 @@ module Reform
 
       step method(:read_from_paired_model)
 
+      # TODO: collections
+      # TODO: make different filter types different steps so you see what's happening in the trace.
       class IfEmpty < Populator
         def self.create_paired_model(ctx, populator:, **)
-          ctx[:paired_model] = populator.() # FIXME: options? e.g. {fragment}
+          ctx[:paired_model] = populator.(exec_context: "FIXME") # FIXME: options? e.g. {fragment}
         end
 
         fail method(:create_paired_model), Output(:success) => Track(:success) # only called when {#read_from_paired_model} failed.
