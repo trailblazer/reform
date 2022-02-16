@@ -24,11 +24,12 @@ class DesignTest < Minitest::Spec
       @persisted = true
     end
   end
-  Band = Struct.new(:name) do
+  Band = Struct.new(:name, :label) do
     def save
       @persisted = true
     end
   end
+  Label = Struct.new(:name, :url)
 
   it "what" do
 
@@ -115,7 +116,7 @@ params = {title: "The Brews", band: {name: "NOFX"}}
   # assert_equal %{[:input, :populated_instance, :twin, :\"title.value.read\", :title, :\"band.value.read\", :band]}, ctx.keys.inspect
   # assert_equal %{Apocalypse soon}, twin.title
   # {Band} instance created by {IfEmpty}.
-  assert_equal deserialized_form.band[:model_from_populator].inspect, %{#<struct DesignTest::Band name=nil>}
+  assert_equal deserialized_form.band[:model_from_populator].inspect, %{#<struct DesignTest::Band name=nil, label=nil>}
   assert_equal "NOFX", deserialized_form.band.name
   assert_equal "NOFX", deserialized_form.band[:"name.value.read"]
 
@@ -204,6 +205,7 @@ song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song
 
   end
 
+  # TODO: make {populate: false} default.
   it "{populate: false}" do
     song_form = Class.new(Reform::Form) do
       property :title
@@ -222,11 +224,11 @@ song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song
     params            = {title: "The Brews", band: {name: "NOFX"}}
     deserialized_form = Reform::Deserialize.deserialize(song_form, params, nil, {})
 
-    song_and_band_assertions = test do |top_form_model: %{nil}, **|
+    song_and_band_assertions = test do |top_form_model: %{nil}, paired_band: %{nil}, **|
       assert_equal deserialized_form[:model_from_populator].inspect, top_form_model
       assert_equal "The Brews", deserialized_form.title
       assert_equal "The Brews", deserialized_form[:"title.value.read"]
-      assert_equal deserialized_form.band[:model_from_populator].inspect, %{nil}
+      assert_equal deserialized_form.band[:model_from_populator].inspect, paired_band
       assert_equal "NOFX", deserialized_form.band.name
       assert_equal "NOFX", deserialized_form.band[:"name.value.read"]
     end
@@ -251,8 +253,35 @@ song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song
 
     test song_and_band_assertions
     assert_equal deserialized_form[:"band.value.read"], {:name=>"NOFX", :label=>{:name=>"Fat Wreck"}}
-    assert_equal deserialized_form.band[:"label.value.read"], {:name=>"Fat Wreck"}
-    assert_equal deserialized_form.band.label[:"name.value.read"], "Fat Wreck"
-    assert_equal deserialized_form.band.label[:model_from_populator].inspect, %{nil}
+
+    label_assertions = test do |paired_label: %{nil}|
+      assert_equal deserialized_form.band[:"label.value.read"], {:name=>"Fat Wreck"}
+      assert_equal deserialized_form.band.label[:"name.value.read"], "Fat Wreck"
+      assert_equal deserialized_form.band.label[:model_from_populator].inspect, paired_label
+    end
+
+  ## model is 3-level containing all required readable models
+   # No paired models are created as we can read them!
+
+    song_form = Class.new(Reform::Form) do
+      property :title
+      property :band, populate_if_empty: Class do
+        property :name
+        property :label, populate_if_empty: Class do
+          property :name
+          property :url
+        end
+      end
+    end
+
+    song              = Song.new("XXX", Band.new("YYY", Label.new("ZZZ")))
+    params            = {title: "The Brews", band: {name: "NOFX", label: {name: "Fat Wreck"}}}
+    deserialized_form = Reform::Deserialize.deserialize(song_form, params, song, {})
+
+    test song_and_band_assertions,
+      top_form_model: %{#<struct DesignTest::Song title="XXX", band=#<struct DesignTest::Band name="YYY", label=#<struct DesignTest::Label name="ZZZ", url=nil>>, album_id=nil>},
+      paired_band:    %{#<struct DesignTest::Band name="YYY", label=#<struct DesignTest::Label name="ZZZ", url=nil>>}
+    test label_assertions,
+      paired_label: %{#<struct DesignTest::Label name="ZZZ", url=nil>}
   end
 end
