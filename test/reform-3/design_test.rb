@@ -222,8 +222,8 @@ song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song
     params            = {title: "The Brews", band: {name: "NOFX"}}
     deserialized_form = Reform::Deserialize.deserialize(song_form, params, nil, {})
 
-    song_and_band_assertions = test do
-      assert_equal deserialized_form[:model_from_populator].inspect, %{nil}
+    song_and_band_assertions = test do |top_form_model: %{nil}, **|
+      assert_equal deserialized_form[:model_from_populator].inspect, top_form_model
       assert_equal "The Brews", deserialized_form.title
       assert_equal "The Brews", deserialized_form[:"title.value.read"]
       assert_equal deserialized_form.band[:model_from_populator].inspect, %{nil}
@@ -233,9 +233,18 @@ song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song
     assert_equal({:name=>"NOFX"}, deserialized_form[:"band.value.read"])
     assert_nil deserialized_form.band.label
 
+  ## pass a model that is being ignored,
+  ## it's still being set as the paired model on the top-form, though
+    params            = {title: "The Brews", band: {name: "NOFX"}}
+    deserialized_form = Reform::Deserialize.deserialize(song_form, params, "i am ignored", {})
+    # top model is set, all other models are nil
+    test song_and_band_assertions, top_form_model: %{"i am ignored"}
+    assert_equal({:name=>"NOFX"}, deserialized_form[:"band.value.read"])
+    assert_nil deserialized_form.band.label
+
 
   ## model is {nil}
-  ## label included
+  ## label included - we test 3rd-level NESTING
    # No paired models are created.
     params            = {title: "The Brews", band: {name: "NOFX", label: {name: "Fat Wreck"}}}
     deserialized_form = Reform::Deserialize.deserialize(song_form, params, nil, {})

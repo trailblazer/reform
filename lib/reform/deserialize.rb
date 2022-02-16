@@ -43,11 +43,11 @@ module Reform
     def self.deserialize(form_class, params, model, ctx)
       # this will create a property with the "first" "nested" form being {form_class}: Definition(name: :_endpoint, nested: form_class)
       # FIXME: do this at compile-time
-      endpoint_form = DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Form::Property::Definition.new(:_endpoint, form_class), populator: false)
+      endpoint_form = DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Form::Property::Definition.new(:_endpoint, form_class), expect_paired_model: true)
 
       # we're now running the endpoint form, its only task is to "run the populator" to create the real top-level form (plus twins, model, whatever...)
       # as the endpoint form is not a real form but just the "nested deserializer" part of a property, we don't need several fields here
-      ctx = Trailblazer::Context({twin: "nilll", value: params, model_from_populator: model}, ctx)
+      ctx = Trailblazer::Context({twin: "nilll", value: params, paired_model: model}, ctx)
 
       # Run the form's deserializer, which is a simple Trailblazer::Activity.
       # This is where all parsing, defaulting, populating etc happens.
@@ -111,13 +111,18 @@ module Reform
         property_activity
       end
 
-      def self.add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, definition:, replace: nil, populator: false)
+      def self.add_property_to_deserializer!(field, deserializer_activity, parse_block:, inject:, property_activity: Deserialize::Property::Read, set: true, definition:, replace: nil, populator:)
         property_activity = property_activity_for(property_activity, &parse_block)
         # DISCUSS: it would be better to have :set in the {property_activity} before we execute {&parse_block}
         #          because it would allow tweaking it using your {:parse_block}.
 
         if definition[:nested] # FIXME: here, we have to add populator steps/filters.
-          add_nested_deserializer_to_property!(property_activity, definition, populator: populator)
+          if populator.any?
+            add_populator!(property_activity, definition, populator: populator)
+
+          else
+            add_nested_deserializer_to_property!(property_activity, definition)
+          end
         end
 
         if set # FIXME: hm, well, i hate {if}s, don't i?
@@ -148,7 +153,7 @@ module Reform
             # input:  [:input],
             # The {:input} filter passes the actual fragment as {:input} and already deserialized
             # field values from earlier steps in {:deserialized_ctx}.
-            input:  ->(ctx, input:, twin:, model_from_populator:, **) { {input: input, deserialized_fields: ctx, populated_instance: ctx[:populated_instance], twin: twin, model_from_populator: model_from_populator} },
+            input:  ->(ctx, input:, twin:, **) { {input: input, deserialized_fields: ctx, populated_instance: ctx[:populated_instance], twin: twin, model_from_populator: ctx[:model_from_populator]} }, # FIXME: model_from_populator should not be passed if no populator used
             inject: [*inject, {key: ->(*) { field }}],
             # The {:output} filter adds all values from the property steps to the original ctx,
             # prefixed with the property name, such as {:"invoice_date.value.parsed"}
@@ -162,33 +167,65 @@ module Reform
         deserializer_activity
       end
 
-      def self.add_nested_deserializer_to_property!(property_activity, definition, populator: false) # FIXME: {populate}
+      # TODO: add populators for scalars
+      def self.add_populator!(property_activity, definition, populator:)
+          populator_class, populator_filter = populator # DISCUSS: not sure this is a cool structure.
+
+          # |-- populate.band
+          # |   |   |   |-- Start.default
+          # |   |   |   |-- #<Method: #<Class:>.read_from_paired_model>
+          # |   |   |   |-- deserialize_nested.band
+          # |   |   |   |   |-- Start.default
+          # |   |   |   |   |-- name
+          # |   |   |   |   |   |-- Start.default
+          # |   |   |   |   |   |-- key?
+          # |   |   |   |   |   |-- read
+          populating_activity = Class.new(populator_class) do
+          end
+            add_nested_deserializer_to_property!(populating_activity, definition, expect_paired_model: true)
+
+          property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(populating_activity), # Eg. Populator::IfEmpty
+            id: "populate.#{definition[:name]}",
+            output_filter: false, # FIXME: {output_filter: false} everywhere is not so cool.
+            Trailblazer::Activity::Railway.Inject() => {populator: ->(*) { populator_filter }},
+            output: [:value] # we only return the Deserialized instance.
+
+      end
+
+      def self.add_nested_deserializer_to_property!(target, definition, expect_paired_model: false)
         nested_form         = definition[:nested]
         nested_deserializer = nested_form.state.get("artifact/deserializer")
         nested_schema       = nested_form.state.get("dsl/definitions")
 
-        if populator
-          populator_class, populator_filter = populator # DISCUSS: not sure this is a cool structure.
-
-          property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(populator_class), # Eg. Populator::IfEmpty
-            output_filter: false,
-            Trailblazer::Activity::Railway.Inject() => {populator: ->(*) { populator_filter }},
-            output: {:paired_model => :model_from_populator} # FIXME: {output_filter: false} everywhere is not so cool.
-        end
-
-        property_activity.send :step, Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :"deserialize_nested.#{definition[:name]}",
-          # this logic is executed when {band.read} was successful, right?
-          input: ->(ctx, twin:, value:, model_from_populator:, **) { # input going into the nested "form"
+        input = if expect_paired_model
+          ->(ctx, twin:, value:, paired_model:, **) { # input going into the nested "form"
             {
-              populated_instance: DeserializedFields[model_from_populator: model_from_populator],
+              populated_instance: DeserializedFields[model_from_populator: paired_model],
               # twin: twin.send(:band), # FIXME
               twin: nested_form.new, # FIXME: when do we add model, etc? populator logic!
               input: value,
-              model_from_populator: model_from_populator,
+              model_from_populator: paired_model,
             }
-          },
-          output: ->(ctx, outer_ctx, populated_instance:, twin:, **) {
-            # raise outer_context.inspect
+          # this logic is executed when {band.read} was successful, right?
+          }
+
+        else
+          ->(ctx, twin:, value:, **) { # input going into the nested "form"
+
+            {
+              populated_instance: DeserializedFields.new,
+              # twin: twin.send(:band), # FIXME
+              twin: nested_form.new, # FIXME: when do we add model, etc? populator logic!
+              input: value,
+            }
+          # this logic is executed when {band.read} was successful, right?
+          }
+        end
+
+
+        target.send :step, Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :"deserialize_nested.#{definition[:name]}",
+          input: input,
+          output: ->(ctx, populated_instance:, twin:, **) {
             {
               value: Deserialized.new(nested_schema, twin, populated_instance, ctx), # this is used in {set}.
               # populated_instance: outer_ctx[:populated_instance].merge(band: populated_instance,), # DISCUSS: should we do that later, at validation time?
@@ -197,9 +234,10 @@ module Reform
               # Here we would have to return the mutated twin
 
             }
-          }, output_filter: false, output_with_outer_ctx: true
+          },
+          output_filter: false
 
-        property_activity
+        target
       end
     # end
 

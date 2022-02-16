@@ -77,13 +77,19 @@ end
 
         # DISCUSS: where do we put the normalizer steps?
         populator_config = nil
+    if definition[:nested] # FIXME: populators currenty only work with nested forms
         if populator = options[:populate_if_empty]
           if populator.is_a?(Class)
             populator_config = [Populate::Populator::IfEmpty, Trailblazer::Option(->(*) { populator.new })]
           else
             raise "implement custom filter"
           end
+        elsif !options[:populate]
+          populator_config = [] # FIXME
         end
+
+
+    end
 
 
 

@@ -6,6 +6,7 @@
 #
 # For collections, the entire collection and the currently deserialised index is passed in.
 module Reform
+  # populator == "i want to, during parsing/deserialize, find a paired model"
   module Populate
     class Populator < Trailblazer::Activity::Railway
       def self.read_from_paired_model(ctx, model_from_populator:, key:, **)
