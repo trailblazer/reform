@@ -180,7 +180,7 @@ end
       def call(*args, exec_context:, **kws)
         ctx = args[0][0]
 
-        @activity.(*args, **kws.merge(exec_context: ctx[:twin])) # FIXME: make this better
+        @activity.(*args, **kws.merge(exec_context: ctx[:form_instance])) # FIXME: make this better
       end
     end
 

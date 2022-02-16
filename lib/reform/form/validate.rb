@@ -2,20 +2,23 @@
 # and write parse-pipelined values to their field in the form.
 class Reform::Form
   # run_validations(name, twin:, validation_groups:, schema: twin.schema, deserialized_form:)
-  def self.validate(form_class, params, ctx)
-    deserialized_form = Reform::Deserialize.deserialize(form_class, params, ctx)
+  def self.validate(form_class, params, ctx, paired_model: nil)
+    deserialized_form = Reform::Deserialize.deserialize(form_class, params, paired_model, ctx)
 
     # pp deserialized_form
-    puts deserialized_form.to_input_hash.inspect
+    # puts deserialized_form.to_input_hash.inspect
 
     return deserialized_form,
-      Reform::Contract::Validate.run_validations(nil, deserialized_form: deserialized_form, twin: twin, validation_groups: twin.class.validation_groups)
+      Reform::Validate.run_validations(nil,
+        form_class:         form_class,
+        deserialized_form:  deserialized_form
+      )
   end
 
   module Validate
     module Skip
       class AllBlank # FIXME: what the fuck is this?
-        include Uber::Callable
+        # include Uber::Callable
 
         def call(input:, binding:, **)
           # TODO: Schema should provide property names as plain list.
@@ -34,17 +37,5 @@ class Reform::Form
         end
       end
     end
-
-    private
-
-  #  TODO: eg. rails form accessor shit
-    # # Meant to return params processable by the representer. This is the hook for munching date fields, etc.
-    # def deserialize!(params)
-    #   # NOTE: it is completely up to the form user how they want to deserialize (e.g. using an external JSON-API representer).
-    #   # use the deserializer as an external instance to operate on the Twin API,
-    #   # e.g. adding new items in collections using #<< etc.
-    #   # DISCUSS: using self here will call the form's setters like title= which might be overridden.
-    #   params
-    # end
   end
 end

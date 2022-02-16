@@ -261,7 +261,7 @@ song_form_instance.band.instance_variable_set(:@deserialized_values, {name: song
     end
 
   ## model is 3-level containing all required readable models
-   # No paired models are created as we can read them!
+   # No paired models are created via populator (we can read or "sync" them)!
 
     song_form = Class.new(Reform::Form) do
       property :title

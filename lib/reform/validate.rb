@@ -18,7 +18,6 @@ module Reform
       end
 
       def errors
-        #@form.errors # FIXME: don't keep errors there!
         @result.errors
       end
 

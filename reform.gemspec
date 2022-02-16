@@ -22,7 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "minitest"
   spec.add_development_dependency "minitest-fest"
-  spec.add_development_dependency "pry-byebug"
-  spec.add_development_dependency "multi_json"
   spec.add_development_dependency "rake"
 end

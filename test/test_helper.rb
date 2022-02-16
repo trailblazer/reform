@@ -1,14 +1,10 @@
 require "reform"
 require "minitest/autorun"
 require "minitest/fest"
-require "representable/debug"
-require "declarative/testing"
-require "pp"
-require "pry-byebug"
 
 require "reform/form/dry"
 
-
+require "ostruct"
 
 # setup test classes so we can test without dry being included
 class TestForm < Reform::Form

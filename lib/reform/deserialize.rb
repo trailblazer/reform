@@ -47,7 +47,7 @@ module Reform
 
       # we're now running the endpoint form, its only task is to "run the populator" to create the real top-level form (plus twins, model, whatever...)
       # as the endpoint form is not a real form but just the "nested deserializer" part of a property, we don't need several fields here
-      ctx = Trailblazer::Context({twin: "nilll", value: params, paired_model: model}, ctx)
+      ctx = Trailblazer::Context({value: params, paired_model: model}, ctx)
 
       # Run the form's deserializer, which is a simple Trailblazer::Activity.
       # This is where all parsing, defaulting, populating etc happens.
@@ -153,7 +153,7 @@ module Reform
             # input:  [:input],
             # The {:input} filter passes the actual fragment as {:input} and already deserialized
             # field values from earlier steps in {:deserialized_ctx}.
-            input:  ->(ctx, input:, twin:, **) { {input: input, deserialized_fields: ctx, populated_instance: ctx[:populated_instance], twin: twin, model_from_populator: ctx[:model_from_populator]} }, # FIXME: model_from_populator should not be passed if no populator used
+            input:  ->(ctx, input:, form_instance:, **) { {input: input, deserialized_fields: ctx, populated_instance: ctx[:populated_instance], form_instance: form_instance, model_from_populator: ctx[:model_from_populator]} }, # FIXME: model_from_populator should not be passed if no populator used
             inject: [*inject, {key: ->(*) { field }}],
             # The {:output} filter adds all values from the property steps to the original ctx,
             # prefixed with the property name, such as {:"invoice_date.value.parsed"}
@@ -198,11 +198,11 @@ module Reform
         nested_schema       = nested_form.state.get("dsl/definitions")
 
         input = if expect_paired_model
-          ->(ctx, twin:, value:, paired_model:, **) { # input going into the nested "form"
+          ->(ctx, value:, paired_model:, **) { # input going into the nested "form"
             {
               populated_instance: DeserializedFields[model_from_populator: paired_model],
               # twin: twin.send(:band), # FIXME
-              twin: nested_form.new, # FIXME: when do we add model, etc? populator logic!
+              form_instance: nested_form.new, # FIXME: when do we add model, etc? populator logic!
               input: value,
               model_from_populator: paired_model,
             }
@@ -210,12 +210,12 @@ module Reform
           }
 
         else
-          ->(ctx, twin:, value:, **) { # input going into the nested "form"
+          ->(ctx, value:, **) { # input going into the nested "form"
 
             {
               populated_instance: DeserializedFields.new,
               # twin: twin.send(:band), # FIXME
-              twin: nested_form.new, # FIXME: when do we add model, etc? populator logic!
+              form_instance: nested_form.new, # FIXME: when do we add model, etc? populator logic!
               input: value,
             }
           # this logic is executed when {band.read} was successful, right?
@@ -225,9 +225,9 @@ module Reform
 
         target.send :step, Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :"deserialize_nested.#{definition[:name]}",
           input: input,
-          output: ->(ctx, populated_instance:, twin:, **) {
+          output: ->(ctx, populated_instance:, form_instance:, **) {
             {
-              value: Deserialized.new(nested_schema, twin, populated_instance, ctx), # this is used in {set}.
+              value: Deserialized.new(nested_schema, form_instance, populated_instance, ctx), # this is used in {set}.
               # populated_instance: outer_ctx[:populated_instance].merge(band: populated_instance,), # DISCUSS: should we do that later, at validation time?
 
 

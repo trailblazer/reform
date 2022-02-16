@@ -141,6 +141,8 @@ class FormTest < Minitest::Spec
     # * proper inheritance for `validation do .. end` groups
     # * .dotted errors like it was done with {lib/reform/errors.rb}
     # * Reform::Module
+    #  TODO: eg. rails form accessor shit
+
 
     form_params = {
       invoice_date: "12/11",
@@ -171,7 +173,7 @@ class FormTest < Minitest::Spec
     # puts validated_form.instance_variable_get(:@arbitrary_bullshit).keys
     assert_equal "EUR", validated_form[:"currency.value.default"]
 # DISCUSS: do we want {:twin} here?
-    assert_equal %{[:input, :populated_instance, :twin, :"invoice_date.value.read", :"invoice_date.value.nilify", :"invoice_date.value.parse_user_date", :"invoice_date.value.coerce", :invoice_date, :"description.value.read", :description, :"currency.value.read", :"currency.value.default", :currency, :"created_at.value.populate_created_at", :created_at, :category]}, validated_form.updated_at.inspect
+    assert_equal validated_form.updated_at.inspect, %{[:populated_instance, :form_instance, :input, :model_from_populator, :"invoice_date.value.read", :"invoice_date.value.nilify", :"invoice_date.value.parse_user_date", :"invoice_date.value.coerce", :invoice_date, :"description.value.read", :description, :"currency.value.read", :"currency.value.default", :currency, :"created_at.value.populate_created_at", :created_at, :category]}
 
   # test forwarding/delegation (# TODO: much more to be tested here)
     assert_equal %{Yo?!!!}, validated_form.lonesome_helper("Yo")
