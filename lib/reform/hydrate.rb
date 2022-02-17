@@ -88,6 +88,8 @@ module Reform
           puts "@@@@@x #{value.inspect}"
 
           ctx[:model_from_populator] = value # here, we could find, run logic, skip etc.
+
+          true # FIXME: how do we know population worked?
         end
 
         pass method(:read) # read from the "params" model

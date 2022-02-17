@@ -62,29 +62,30 @@ class DesignTest < Minitest::Spec
       end
     end
 
-empty_song = OpenStruct.new(title: "", band: OpenStruct.new(name: ""))
-hydrated = Reform::Hydrate.hydrate(song_form, empty_song, {})
-assert_equal hydrated.class, Reform::Form::Deserialized
-assert_equal hydrated[:model_from_populator].inspect, %{#<OpenStruct title="", band=#<OpenStruct name="">>}
-assert_equal "", hydrated.title
-assert_equal hydrated.band[:model_from_populator].inspect, %{#<OpenStruct name="">}
-assert_equal "", hydrated.band.name
+## empty object has {nil} scalars
+  empty_song = OpenStruct.new(title: nil, band: OpenStruct.new(name: ""))
+  hydrated = Reform::Hydrate.hydrate(song_form, empty_song, {})
+  assert_equal hydrated.class, Reform::Form::Deserialized
+  assert_equal hydrated[:model_from_populator].inspect, %{#<OpenStruct title=nil, band=#<OpenStruct name="">>}
+  assert_nil   hydrated.title
+  assert_equal hydrated.band[:model_from_populator].inspect, %{#<OpenStruct name="">}
+  assert_equal "", hydrated.band.name
 
-existing_song = OpenStruct.new(title: "Apocalypse soon", band: OpenStruct.new(name: "Mute"))
-hydrated = Reform::Hydrate.hydrate(song_form, existing_song, {})
-assert_equal "Apocalypse soon", hydrated.title
-assert_equal "Mute", hydrated.band.name
+  existing_song = OpenStruct.new(title: "Apocalypse soon", band: OpenStruct.new(name: "Mute"))
+  hydrated = Reform::Hydrate.hydrate(song_form, existing_song, {})
+  assert_equal "Apocalypse soon", hydrated.title
+  assert_equal "Mute", hydrated.band.name
 
-# at this point, the form is fully populated from Decorate and from Deserialize
-# title: "Apocalypse soon"
-# bands:
-#   type:rock-band
-#     name: "..."
-#   type:punk-band
+  # at this point, the form is fully populated from Decorate and from Deserialize
+  # title: "Apocalypse soon"
+  # bands:
+  #   type:rock-band
+  #     name: "..."
+  #   type:punk-band
 
-# song_form_instance = song_form.new#(song)
+  # song_form_instance = song_form.new#(song)
 
-params = {title: "The Brews", band: {name: "NOFX"}}
+  params = {title: "The Brews", band: {name: "NOFX"}}
 
 ## deserialize/populate without paired model
   # deserialized_form = Reform::Deserialize.deserialize(song_form, params, nil, {}) # TODO: implement the {nil} model
@@ -94,7 +95,7 @@ params = {title: "The Brews", band: {name: "NOFX"}}
   # Deserialize/Hydrate an empty form just by iterating the schema, and for each nested form node, instantiate a form.
   deserialized_form = Reform::Deserialize.deserialize(song_form, params, empty_song, {})
 
-  assert_equal deserialized_form[:model_from_populator].inspect, %{#<OpenStruct title=\"\", band=#<OpenStruct name=\"\">>}
+  assert_equal deserialized_form[:model_from_populator].inspect, %{#<OpenStruct title=nil, band=#<OpenStruct name=\"\">>}
   assert_equal "The Brews", deserialized_form.title
   assert_equal "The Brews", deserialized_form[:"title.value.read"]
   assert_equal({:name=>"NOFX"}, deserialized_form[:"band.value.read"])
