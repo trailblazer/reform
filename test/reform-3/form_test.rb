@@ -94,6 +94,10 @@ class FormTest < Minitest::Spec
       def lonesome_helper(what)
         %{#{what}?!!!}
       end
+
+      def invoice_date_fmt
+        self[:invoice_date].strftime("%F")
+      end
     end
 
 
@@ -153,7 +157,7 @@ class FormTest < Minitest::Spec
     }
 
 
-    form = Form.new#(twin.new)
+    form = Form.new
 
     deserialized_form, validated_form = Reform::Form.validate(Form, form_params, {})
     # result = form.validate(form_params)
@@ -176,48 +180,45 @@ class FormTest < Minitest::Spec
     assert_equal validated_form.updated_at.inspect, %{[:populated_instance, :form_instance, :input, :model_from_populator, :"invoice_date.value.read", :"invoice_date.value.nilify", :"invoice_date.value.parse_user_date", :"invoice_date.value.coerce", :invoice_date, :"description.value.read", :description, :"currency.value.read", :"currency.value.default", :currency, :"created_at.value.populate_created_at", :created_at, :category]}
 
   # test forwarding/delegation (# TODO: much more to be tested here)
+  ## we can call a Form instance method (helper) from Deserialized.
+  ## The form helper in turn can access deserialized data like {#invoice_date}.
     assert_equal %{Yo?!!!}, validated_form.lonesome_helper("Yo")
+    # assert_equal validated_form.invoice_date_fmt, %{} #  FIXME: add this!
 
 
-form = Form.new(twin.new)
-    deserialized_form, validated_form = Reform::Form.validate(form, {}, {})
+    deserialized_form, validated_form = Reform::Form.validate(Form, {}, {})
     assert_equal false, validated_form.success?
     assert_equal nil, validated_form.invoice_date
     assert_equal %{{:invoice_date=>["is missing"]}}, validated_form.errors.messages.inspect
 
-form = Form.new(twin.new)
     _form_params = {invoice_date: ""}
-    deserialized_form, validated_form = Reform::Form.validate(form, _form_params, {})
+    deserialized_form, validated_form = Reform::Form.validate(Form, _form_params, {})
     assert_equal false, validated_form.success?
     assert_equal nil, validated_form.invoice_date
     assert_equal %{{:invoice_date=>["must be DateTime"]}}, validated_form.errors.messages.inspect
 
 
 # test {:inject}
-form = Form.new(twin.new)
     injections = {now: Time.parse("23/11/2000")} # "ctx"
-    # result = form.validate(form_params, injections)
-    deserialized_form, validated_form = Reform::Form.validate(form, form_params, injections)
+    # result = form.validate(Form_params, injections)
+    deserialized_form, validated_form = Reform::Form.validate(Form, form_params, injections)
 
-    assert_equal "12/11/2000",        validated_form[:"invoice_date.value.parse_user_date"]
+    assert_equal validated_form[:"invoice_date.value.parse_user_date"], "12/11/2000"
 
 # test {parse: false}
-form = Form.new(twin.new)
     _form_params = {created_at: "rubbish, don't read me!", category: "Food and entertainment"}
-    deserialized_form, validated_form = Reform::Form.validate(form, _form_params, {})
+    deserialized_form, validated_form = Reform::Form.validate(Form, _form_params, {})
     assert_equal "Hello!", validated_form.created_at
     assert_nil validated_form.category
 
 # test {virtual: true}
-form = Form.new(twin.new)
     _form_params = {notes: "more rubbish, read me but don't set me!"}
-    deserialized_form, validated_form = Reform::Form.validate(form, _form_params, {})
+    deserialized_form, validated_form = Reform::Form.validate(Form, _form_params, {})
     assert_equal "more rubbish, read me but don't set me!", validated_form.notes
 
 # test {invoice_date} parse returns {false}
-form = Form.new(twin.new)
     _form_params = {invoice_date: "false"}
-    deserialized_form, validated_form = Reform::Form.validate(form, _form_params, {})
+    deserialized_form, validated_form = Reform::Form.validate(Form, _form_params, {})
     assert_equal "false", validated_form.invoice_date
 
 

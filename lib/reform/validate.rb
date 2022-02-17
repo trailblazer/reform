@@ -25,6 +25,10 @@ module Reform
         @is_success
       end
 
+      def [](name)
+        @deserialized_form[name]
+      end
+
       def method_missing(name, *args)
         return @nested[name] if @nested_properties.include?(name) # DISCUSS: return nested {Validated} for instance for {form.band}.
 

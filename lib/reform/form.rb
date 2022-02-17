@@ -24,19 +24,6 @@ end
 
     class InvalidOptionsCombinationError < StandardError; end
 
-    # def self.default_nested_class
-    #   Form
-    # end
-
-    # require "reform/form/validate"
-    # include Validate # override Contract#validate with additional behaviour.
-
-    # FIXME: move
-    def [](name)
-      @arbitrary_bullshit ||= {} # FIXME
-      @arbitrary_bullshit[name]
-    end
-
     # DISCUSS: should this be {form/property.rb}?
     module Property
       # Add macro logic, e.g. for :populator.
