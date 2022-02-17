@@ -215,4 +215,7 @@ end
 
 require "reform/form/sync"
 
+require "reform/form/deserialized"
+require "reform/form/validated"
+
 

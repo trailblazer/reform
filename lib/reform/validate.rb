@@ -6,36 +6,6 @@ module Reform
       @result.to_results.select { |result| result.is_a? Reform::Contract::CustomError }
     end
 
-    class Validated
-      def initialize(deserialized_form, result, nested_validated_forms)
-        @deserialized_form = deserialized_form
-        @result            = result
-        @is_success        = result.success?
-        @nested            = nested_validated_forms
-        @nested_properties = nested_validated_forms.keys
-
-# raise result.inspect
-      end
-
-      def errors
-        @result.errors
-      end
-
-      def success?
-        @is_success
-      end
-
-      def [](name)
-        @deserialized_form[name]
-      end
-
-      def method_missing(name, *args)
-        return @nested[name] if @nested_properties.include?(name) # DISCUSS: return nested {Validated} for instance for {form.band}.
-
-        @deserialized_form.send(name, *args)
-      end
-    end
-
     # DISCUSS: we could be using an activity here, too, instead of using recursion?
     # Validate the current form instance.
     # NOTE: consider polymorphism here
@@ -59,7 +29,7 @@ puts "local_errors_by_group::::: #{ local_errors_by_group.inspect}"
       )
 puts "@@@@@ ++++ #{result.inspect}"
 
-      Validated.new(deserialized_form, result, nested_validated_forms)
+      Form::Validated.new(deserialized_form, result, nested_validated_forms)
     end
 
     def self.iterate_nested(schema:, deserialized_form:) # TODO: allow {collect}
