@@ -64,7 +64,7 @@ class DesignTest < Minitest::Spec
 
 empty_song = OpenStruct.new(title: "", band: OpenStruct.new(name: ""))
 hydrated = Reform::Hydrate.hydrate(song_form, empty_song, {})
-assert_equal hydrated.class, Reform::Deserialize::Deserialized
+assert_equal hydrated.class, Reform::Form::Deserialized
 assert_equal hydrated[:model_from_populator].inspect, %{#<OpenStruct title="", band=#<OpenStruct name="">>}
 assert_equal "", hydrated.title
 assert_equal hydrated.band[:model_from_populator].inspect, %{#<OpenStruct name="">}

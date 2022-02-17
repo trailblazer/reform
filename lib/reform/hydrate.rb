@@ -63,7 +63,7 @@ module Reform
           output: ->(ctx, populated_instance:, **) {
             # raise outer_context.inspect
             {
-              value: Deserialize::Deserialized.new(nested_schema, nil, populated_instance, ctx.to_h.merge(model_from_populator: populated_instance[:model_from_populator])), # this is used in {set}.
+              value: Form::Deserialized.new(nested_schema, nil, populated_instance, ctx.to_h.merge(model_from_populator: populated_instance[:model_from_populator])), # this is used in {set}.
             }
           },
           **step_options

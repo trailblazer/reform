@@ -146,6 +146,7 @@ class FormTest < Minitest::Spec
     # * .dotted errors like it was done with {lib/reform/errors.rb}
     # * Reform::Module
     #  TODO: eg. rails form accessor shit
+    # * test nested {:inject}
 
 
     form_params = {

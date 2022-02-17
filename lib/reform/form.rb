@@ -87,10 +87,13 @@ end
           )
         end
 
+        injects = nil
 
         # DISCUSS: should we update store here?
         state.update!("artifact/deserializer") do |deserializer|
-          Reform::Deserialize::DSL.add_property_to_deserializer!(name, deserializer, definition: definition, parse_block: parse_block, inject: parse_inject, populator: populator_config, **kws)
+          new_deserializer, injects = Reform::Deserialize::DSL.add_property_to_deserializer!(name, deserializer, definition: definition, parse_block: parse_block, inject: parse_inject, populator: populator_config, **kws)
+
+          new_deserializer
         end
 
         state.update!("artifact/hydrate") do |hydrate|
@@ -101,6 +104,10 @@ end
         require "reform/twin"
         state.update!("artifact/twin") do |twin|
           Reform::Twin.add_property_to_twin!(name, twin, definitions, **kws)
+        end
+
+        state.update!("dsl/inject") do |ary|
+          ary + injects
         end
 
 =begin
@@ -131,6 +138,7 @@ end
      # Schema
       Definition = Struct.new(:name, :nested, :collection)
 
+      # creates nested definitions
       def self.definition_for(name:, block: nil, nested_class:, **options)
         block = Class.new(nested_class) { class_eval(&block) } if block # TODO: feature, defaults
 
@@ -201,8 +209,9 @@ end
     initialize_state!(
       "artifact/hydrate" =>       [Class.new(Trailblazer::Activity::Railway), {copy: Trailblazer::Declarative::State.method(:subclass)}],
       "artifact/deserializer" =>  [initial_deserializer_activity, {copy: Trailblazer::Declarative::State.method(:subclass)}],
-      "artifact/twin" => [Hash.new, {}], # copy # FIXME: we need real definitions here, I guess.
-      "dsl/definitions" => [Hash.new, {}] # copy # FIXME: we need real definitions here, I guess.
+      "artifact/twin"         => [Hash.new, {}], # copy # FIXME: we need real definitions here, I guess.
+      "dsl/definitions"       => [Hash.new, {}], # copy # FIXME: we need real definitions here, I guess.
+      "dsl/inject"            => [Array.new, {}] # copy
     )
 
     require "reform/form/dsl/validation"

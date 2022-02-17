@@ -2,12 +2,14 @@ module Reform
   module Deserialize
     # we need a closed structure taht only contains read values. we need values associated with their form (eg. nested, right?)
 
-    # {:twin} where do we write to (currently)
+    # @Runtime
     # @return Deserialized A `Deserialized` form instance
     def self.deserialize(form_class, params, model, ctx)
       # this will create a property with the "first" "nested" form being {form_class}: Definition(name: :_endpoint, nested: form_class)
       # FIXME: do this at compile-time
-      endpoint_form = DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Form::Property::Definition.new(:_endpoint, form_class), expect_paired_model: true)
+      injects = form_class.state.get("dsl/inject")
+
+      endpoint_form = DSL.add_nested_deserializer_to_property!(Class.new(Trailblazer::Activity::Railway), Form::Property::Definition.new(:_endpoint, form_class), expect_paired_model: true, injects: injects)
 
       # we're now running the endpoint form, its only task is to "run the populator" to create the real top-level form (plus twins, model, whatever...)
       # as the endpoint form is not a real form but just the "nested deserializer" part of a property, we don't need several fields here
@@ -85,8 +87,8 @@ module Reform
             add_populator!(property_activity, definition, populator: populator)
 
           else
-            add_nested_deserializer_to_property!(property_activity, definition)
-          end
+            add_nested_deserializer_to_property!(property_activity, definition, injects: inject) # FIXME: inject all necessary injections here
+           end
         end
 
         if set # FIXME: hm, well, i hate {if}s, don't i?
@@ -111,6 +113,7 @@ module Reform
             replace: replace # FIXME, untested shit
           } if replace
         # DISCUSS: we're mutating here.
+
         deserializer_activity.instance_exec do
           step Subprocess(property_activity),
             id:     field,
@@ -128,7 +131,7 @@ module Reform
             **fixme_options
         end
 
-        deserializer_activity
+        return deserializer_activity, inject
       end
 
       # TODO: add populators for scalars
@@ -156,12 +159,14 @@ module Reform
 
       end
 
-      def self.add_nested_deserializer_to_property!(target, definition, expect_paired_model: false)
+      def self.add_nested_deserializer_to_property!(target, definition, expect_paired_model: false, injects: [])
         nested_form         = definition[:nested]
         nested_deserializer = nested_form.state.get("artifact/deserializer")
         nested_schema       = nested_form.state.get("dsl/definitions")
 
-        input = if expect_paired_model
+        step_options = {}
+
+        step_options[:input] = if expect_paired_model
           ->(ctx, value:, paired_model:, **) { # input going into the nested "form"
             {
               populated_instance: DeserializedFields[model_from_populator: paired_model],
@@ -186,19 +191,17 @@ module Reform
           }
         end
 
+        step_options.merge!(Trailblazer::Activity::Railway.Inject() => injects) if injects.any?
 
-        target.send :step, Trailblazer::Activity::Railway.Subprocess(nested_deserializer), id: :"deserialize_nested.#{definition[:name]}",
-          input: input,
+        target.send :step, Trailblazer::Activity::Railway.Subprocess(nested_deserializer),
+          id:     :"deserialize_nested.#{definition[:name]}",
           output: ->(ctx, populated_instance:, form_instance:, **) {
             {
               value: Form::Deserialized.new(nested_schema, form_instance, populated_instance, ctx), # this is used in {set}.
-              # populated_instance: outer_ctx[:populated_instance].merge(band: populated_instance,), # DISCUSS: should we do that later, at validation time?
-
-
               # Here we would have to return the mutated twin
-
             }
           },
+          **step_options,
           output_filter: false
 
         target
