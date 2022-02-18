@@ -23,6 +23,8 @@ class DesignTest < Minitest::Spec
       property :band do
         property :name
       end
+
+      def header; "<h1>Create</h2>"; end
     end
 
 
@@ -35,6 +37,9 @@ class DesignTest < Minitest::Spec
     assert_equal hydrated[:model_from_populator].inspect, %{#<struct DesignTest::Song title=nil, band=nil, album_id=nil>}
     assert_nil   hydrated.title
     assert_nil hydrated.band
+
+  ## we can access helpers from the form
+    assert_equal hydrated.header, %{<h1>Create</h2>}
   end
 
 
