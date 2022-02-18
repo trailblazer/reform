@@ -147,6 +147,7 @@ class FormTest < Minitest::Spec
     # * Reform::Module
     #  TODO: eg. rails form accessor shit
     # * test nested {:inject}
+    # * popuplators skip!
 
 
     form_params = {

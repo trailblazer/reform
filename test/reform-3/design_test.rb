@@ -182,9 +182,15 @@ _(validated_form.band.errors[:name].inspect).must_equal %{[]}
 _(validated_form.band[:"name.value.read"].inspect).must_equal %{"NOFX"}
 
 
+
+#pp deserialized_form.instance_variable_get(:@form)
+raise deserialized_form.to_input_hash.inspect
+
+
+
 Reform::Form::Save(deserialized_form)
 
-pp deserialized_form.instance_variable_get(:@form)
+
 
 # fuck mutable state
 _(song.inspect).must_equal %{#<struct DesignTest::Song title=\"The Brews\", band=#<struct DesignTest::Band name=\"NOFX\">, album_id=nil>}
