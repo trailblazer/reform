@@ -27,7 +27,7 @@ end
     # DISCUSS: should this be {form/property.rb}?
     module Property
       # Add macro logic, e.g. for :populator.
-      def property(name, options={}, &block)
+      def property(name, virtual: false, **options, &block)
         parse_block   = options[:parse_block] || ->(*) {} # FIXME: use fucking kwargs everywhere!
         parse_inject  = options[:parse_inject] || [] # per {#property} we can define injection variables for the PPP.
 
@@ -37,7 +37,7 @@ end
           )
         end
 
-        definition = Property.definition_for(name: name, nested_class: Reform::Form, block: block)
+        definition = Property.definition_for(name: name, nested_class: Reform::Form, block: block, virtual: virtual)
 
         # if composition and inherited we also need this setting
         # to correctly inherit modules
@@ -54,12 +54,6 @@ end
         end
 
         options[:writeable] ||= options.delete(:writable) if options.key?(:writable)
-
-        # for virtual collection we need at least to have the collection equal to [] to
-        # avoid issue when the populator
-        if (options.keys & %i[collection virtual]).size == 2
-          options = { default: [] }.merge(options)
-        end
 
 
         # DISCUSS: where do we put the normalizer steps?
@@ -136,13 +130,13 @@ end
 
     # GENERIC DSL
      # Schema
-      Definition = Struct.new(:name, :nested, :collection)
+      Definition = Struct.new(:name, :nested, :collection, :virtual)
 
       # creates nested definitions
-      def self.definition_for(name:, block: nil, nested_class:, **options)
+      def self.definition_for(name:, block: nil, nested_class:, virtual:, **options)
         block = Class.new(nested_class) { class_eval(&block) } if block # TODO: feature, defaults
 
-        Definition.new(name, block).freeze
+        Definition.new(name, block, false, virtual).freeze
       end
     # GENERIC DSL end
 

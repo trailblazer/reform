@@ -3,6 +3,10 @@ module Reform
   module Hydrate
     module DSL
       def self.add_property_to_hydrate!(hydrate_activity, definition:, property_activity: Hydrate::Property::Read)
+        if definition[:virtual]
+          property_activity = Hydrate::Property::Virtual
+        end
+
         property_activity = Deserialize::DSL.property_activity_for(property_activity, &-> {})
         field             = definition[:name]
 
@@ -13,10 +17,6 @@ module Reform
 
         hydrate_activity.send :step, Trailblazer::Activity::Railway.Subprocess(property_activity),
           id: field,
-
-          # Trailblazer::Activity::Railway::Inject() => {value: ->(ctx, ** ) { raise ctx.inspect }}, # DISCUSS: every field is blank string? this must be removed if we want to read value in {Read}.
-          # Trailblazer::Activity::Railway::Inject() => {input: ->(ctx, **) { raise ctx.inspect }}, # DISCUSS: every field is blank string? this must be removed if we want to read value in {Read}.
-
           Trailblazer::Activity::Railway::Inject() => {key:   ->(*) { field }},# FIXME: totally  redundant with Deserialize.
           Trailblazer::Activity::Railway.In() => [:populated_instance, :input],
           Trailblazer::Activity::Railway.Out() => [:populated_instance]
@@ -88,13 +88,21 @@ module Reform
           puts "@@@@@x #{value.inspect}"
 
           ctx[:model_from_populator] = value # here, we could find, run logic, skip etc.
-
-          true # FIXME: how do we know population worked?
         end
 
         pass method(:read) # read from the "params" model
-        step method(:populate)
+        step method(:populate), Output(:failure) => Id(:set)
+        # here comes the Subprocess(nested) if we're nested!
         step Deserialize.method(:set), id: :set # writes {:populated_instance[key] = value}
+      end
+
+      class Virtual < Trailblazer::Activity::Railway
+        def self.nil_value(ctx, **) # FIXME: rather use inject outside?
+          ctx[:value] = nil
+        end
+
+        pass method(:nil_value), id: :nil_value
+        step Deserialize.method(:set), id: :set  # DISCUSS: do we need this set?
       end
     end
 

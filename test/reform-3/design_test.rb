@@ -16,6 +16,27 @@ class DesignTest < Minitest::Spec
   #   new_task.commit
   # end
 
+  it "hydrate: creates object graph" do
+    song_form = Class.new(Reform::Form) do
+      property :title
+      property :singer, virtual: true
+      property :band do
+        property :name
+      end
+    end
+
+
+  ## empty object has {nil} scalars
+  ## virtual {singer} is not read
+    empty_song = Song.new()
+    hydrated = Reform::Hydrate.hydrate(song_form, empty_song, {})
+
+    assert_equal hydrated.class, Reform::Form::Deserialized
+    assert_equal hydrated[:model_from_populator].inspect, %{#<struct DesignTest::Song title=nil, band=nil, album_id=nil>}
+    assert_nil   hydrated.title
+    assert_nil hydrated.band
+  end
+
 
   # 3. Validate
   Album = Struct.new(:title, :songs)
@@ -61,6 +82,7 @@ class DesignTest < Minitest::Spec
         end
       end
     end
+
 
 ## empty object has {nil} scalars
   empty_song = OpenStruct.new(title: nil, band: OpenStruct.new(name: ""))
