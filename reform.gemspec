@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency             "disposable",     ">= 0.5.0", "< 1.0.0"
-  spec.add_dependency             "representable",  ">= 3.1.1", "< 3.2.0"
+  spec.add_dependency             "representable",  ">= 3.1.1", "< 4"
   spec.add_dependency             "uber",           "< 0.2.0"
 
   spec.add_development_dependency "bundler"
