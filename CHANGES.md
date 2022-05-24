@@ -1,3 +1,7 @@
+## 2.6.2
+
+* Loosen `representable` dependency to `< 4`.
+
 ## 2.6.1
 
 * Loosen `disposable` dependency to `>= 0.5.0`.
