@@ -26,11 +26,15 @@ class Reform::Contract::Result::Errors
     @dotted_errors
   end
 
-  def full_messages
-	  @dotted_errors.collect { |path, errors|
-		  human_field = path.to_s.gsub(/([\.\_])+/, " ").gsub(/(\b\w)+/) { |s| s.capitalize }
-			 errors.collect { |message| "#{human_field} #{message}" }
-		}.flatten
+  def full_messages(errors = @dotted_errors)
+    errors.collect { |path, errors|
+      human_field = path.to_s.gsub(/([\.\_])+/, " ").gsub(/(\b\w)+/) { |s| s.capitalize }
+      errors.collect { |message| "#{human_field} #{message}" }
+    }.flatten
+  end
+
+  def full_messages_for(field)
+    full_messages(@dotted_errors.select{ |path| path.to_s == field.to_s })
   end
 
   def [](name)
