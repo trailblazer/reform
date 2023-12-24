@@ -174,6 +174,21 @@ class ErrorsTest < MiniTest::Spec
     end
   end
 
+  describe "#full_messages_for" do
+    it "renders full messages for given field correctly" do
+      result = form.validate(
+        "title"   => "",
+        "artists" => [],
+        "band"    => {"name" => "", "label" => {"name" => ""}}
+      )
+
+      assert_equal result, false
+      assert_equal form.errors.full_messages_for(:title), ["Title must be filled"]
+      assert_equal form.errors.full_messages_for('band.name'), ["Band Name must be filled"]
+      assert_equal form.band.errors.full_messages_for(:name), ["Name must be filled"]
+    end
+  end
+
   describe "#add" do
     let(:album_title) { nil }
     it do
