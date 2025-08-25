@@ -71,7 +71,14 @@ class ContractTest < Minitest::Spec
   end
 
   describe "#options_for" do
-    it { assert_equal AlbumForm.options_for(:name).extend(Declarative::Inspect).inspect, "#<Disposable::Twin::Definition: @options={:private_name=>:name, :name=>\"name\"}>" }
-    it { assert_equal AlbumForm.new(album).options_for(:name).extend(Declarative::Inspect).inspect, "#<Disposable::Twin::Definition: @options={:private_name=>:name, :name=>\"name\"}>" }
+    it do
+      options = AlbumForm.options_for(:name).extend(Declarative::Inspect).instance_variable_get(:@options)
+      assert_equal options, {private_name: :name, name: "name"}
+    end
+
+    it do
+      options = AlbumForm.new(album).options_for(:name).extend(Declarative::Inspect).instance_variable_get(:@options)
+      assert_equal options, {private_name: :name, name: "name"}
+    end
   end
 end

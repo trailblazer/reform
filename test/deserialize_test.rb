@@ -62,7 +62,8 @@ class DeserializeTest < Minitest::Spec
       form = CompilationForm.new(Album.new)
       form.validate("artist" => {"name" => "Horowitz"}) # the deserializer doesn't know symbols.
       form.sync
-      assert_equal form.artist.model, Artist.new("Horowitz", %{{"name"=>"Horowitz"}})
+      assert_equal form.artist.model.name, "Horowitz"
+      assert_equal Object.new.instance_eval(form.artist.model.callname), {"name" => "Horowitz"}
     end
   end
 end

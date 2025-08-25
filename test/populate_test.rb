@@ -74,7 +74,7 @@ class PopulatorTest < Minitest::Spec
         {"title" => "Re-Education", "composer" => {"name" => "Rise Against"}}], # new song with new composer.
     )
 
-    assert_equal form.errors.messages.inspect, "{}"
+    assert_equal form.errors.messages, {}
 
     # form has updated.
     assert_equal form.name, "The Dissent Of Man"
@@ -248,7 +248,7 @@ class PopulateIfEmptyTest < Minitest::Spec
         {"title" => "Re-Education", "composer" => {"name" => "Rise Against"}}], # new song with new composer.
     )
 
-    assert_equal form.errors.messages.inspect, "{}"
+    assert_equal form.errors.messages, {}
 
     # form has updated.
     assert_equal form.name, "The Dissent Of Man"
@@ -280,7 +280,7 @@ class PopulateIfEmptyTest < Minitest::Spec
     # test lambda was executed in form context.
     assert form.artist.model.is_a? AlbumForm::Sting
     # test lambda block arguments.
-    assert_equal form.artist.model.args.to_s, "[{\"name\"=>\"From Autumn To Ashes\"}, nil]"
+    assert_equal Object.new.instance_eval(form.artist.model.args.to_s), [{"name" => "From Autumn To Ashes"}, nil]
 
     assert_nil album.artist
   end
@@ -320,7 +320,7 @@ class PopulateIfEmptyWithDeletionTest < Minitest::Spec
       "songs" => [{"title" => "Broken, delete me!"}, {"title" => "Roxanne"}]
     )
 
-    assert_equal form.errors.messages.inspect, "{}"
+    assert_equal form.errors.messages, {}
 
     assert_equal form.songs.size, 1
     assert_equal form.songs[0].title, "Roxanne"

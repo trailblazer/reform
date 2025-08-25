@@ -159,12 +159,12 @@ class DryValidationExplicitSchemaTest < Minitest::Spec
   # valid.
   it do
     assert form.validate(name: "Helloween", email: "yep")
-    assert_equal form.errors.messages.inspect, "{}"
+    assert_equal form.errors.messages, {}
   end
 
   it "invalid" do
     assert_equal form.validate(name: "", email: "yep"), false
-    assert_equal form.errors.messages.inspect, "{:name=>[\"must be filled\"]}"
+    assert_equal form.errors.messages, {name: ["must be filled"]}
   end
 end
 
@@ -222,7 +222,7 @@ class DryValidationDefaultGroupTest < Minitest::Spec
       confirm_password: "pA55w0rd"
     )
     assert form.active
-    assert_equal "{}", form.errors.messages.inspect
+    assert_equal form.errors.messages, {}
   end
 
   it "invalid" do
@@ -234,7 +234,7 @@ class DryValidationDefaultGroupTest < Minitest::Spec
       color: "purple"
     ), false
     assert form.active
-    assert_equal form.errors.messages.inspect, "{:confirm_password=>[\"must be filled\"], :color=>[\"must be one of: red orange green\"]}"
+    assert_equal form.errors.messages, { confirm_password: ["must be filled"], color: ["must be one of: red orange green"] }
   end
 end
 
@@ -282,7 +282,7 @@ class ValidationGroupsTest < Minitest::Spec
         password: "99",
         confirm_password: "99"
       )
-      assert_equal form.errors.messages.inspect, "{}"
+      assert_equal form.errors.messages, {}
     end
 
     # invalid.
@@ -295,17 +295,17 @@ class ValidationGroupsTest < Minitest::Spec
     # 2nd group fails.
     it do
       assert_equal form.validate(username: "Helloween", email: "yo", confirm_password: "9", special_class: SomeClass.new(id: 15)), false
-      assert_equal form.errors.messages.inspect, "{:email=>[\"size cannot be less than 3\"], :confirm_password=>[\"size cannot be less than 2\"]}"
+      assert_equal form.errors.messages, { email: ["size cannot be less than 3"], confirm_password: ["size cannot be less than 2"] }
     end
     # 3rd group fails.
     it do
       assert_equal form.validate(username: "Helloween", email: "yo!", confirm_password: "9", special_class: SomeClass.new(id: 15)), false
-      assert_equal form.errors.messages.inspect, "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"must be filled\", \"size cannot be less than 2\"]}"
+      assert_equal form.errors.messages, { confirm_password: ["size cannot be less than 2"], password: ["must be filled", "size cannot be less than 2"] }
     end
     # 4th group with after: fails.
     it do
       assert_equal form.validate(username: "Helloween", email: "yo!", password: "1", confirm_password: "9", special_class: SomeClass.new(id: 15)), false
-      assert_equal form.errors.messages.inspect, "{:confirm_password=>[\"size cannot be less than 2\"], :password=>[\"size cannot be less than 2\"]}"
+      assert_equal form.errors.messages, { confirm_password: ["size cannot be less than 2"], password: ["size cannot be less than 2"] }
     end
   end
 
@@ -331,13 +331,13 @@ class ValidationGroupsTest < Minitest::Spec
       # valid.
       it do
         assert form.validate(username: "Nick")
-        assert_equal form.errors.messages.inspect, "{}"
+        assert_equal form.errors.messages, {}
       end
 
       # invalid.
       it do
         assert_equal form.validate(username: "Fred"), false
-        assert_equal form.errors.messages.inspect, "{:username=>[\"must be equal to Nick\"]}"
+        assert_equal form.errors.messages, { username: ["must be equal to Nick"] }
       end
     end
   end
@@ -375,7 +375,7 @@ class ValidationGroupsTest < Minitest::Spec
     it do
       skip "waiting dry-v to add this as feature https://github.com/dry-rb/dry-schema/issues/33"
       assert form.validate(username: "Helloween", email: "yep", password: "extrasafe")
-      assert_equal form.errors.messages.inspect, "{}"
+      assert_equal form.errors.messages, {}
     end
 
     # invalid.
@@ -388,7 +388,7 @@ class ValidationGroupsTest < Minitest::Spec
     it do
       skip "waiting dry-v to add this as feature https://github.com/dry-rb/dry-schema/issues/33"
       assert_equal form.validate(email: 1), false
-      assert_equal form.errors.messages.inspect, "{:password=>[\"must be filled\", \"size cannot be less than 6\"], :username=>[\"must be filled\"], :email=>[\"you're a bad person\"]}"
+      assert_equal form.errors.messages, { password: ["must be filled", "size cannot be less than 6"], username: ["must be filled"], email: ["you're a bad person"] }
     end
   end
 
@@ -647,7 +647,7 @@ class ValidationGroupsTest < Minitest::Spec
     # invalid.
     it do
       assert_equal form.validate(email: 9), false
-      assert_equal form.errors.messages.inspect, "{:username=>[\"must be filled\"]}"
+      assert_equal form.errors.messages, { username: ["must be filled"] }
     end
   end
 

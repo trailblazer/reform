@@ -10,6 +10,6 @@ class ParsePipelineTest < Minitest::Spec
   it "allows passing :parse_pipeline directly" do
     form = AlbumForm.new(Album.new)
     form.validate("name" => "Greatest Hits")
-    assert_equal form.name, "{\"name\"=>\"Greatest Hits\"}"
+    assert_equal Object.new.instance_eval(form.name), {"name" => "Greatest Hits"}
   end
 end

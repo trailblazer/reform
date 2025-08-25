@@ -37,7 +37,7 @@ class ContractValidateTest < Minitest::Spec
   # valid
   it do
     assert form.validate
-    assert_equal form.errors.messages.inspect, "{}"
+    assert_equal form.errors.messages, {}
   end
 
   # invalid
@@ -46,7 +46,7 @@ class ContractValidateTest < Minitest::Spec
     album.name = nil
 
     assert_equal form.validate, false
-    assert_equal form.errors.messages.inspect, "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"]}"
+    assert_equal form.errors.messages, { name: ["must be filled"], :"songs.composer.name" => ["must be filled"] }
   end
 end
 
@@ -98,7 +98,7 @@ class ValidateWithoutConfigurationTest < Minitest::Spec
       "artist" => {"name" => "The Police"}
     )
 
-    assert_equal form.errors.messages.inspect, "{}"
+    assert_equal form.errors.messages, {}
 
     # form has updated.
     assert_equal form.name, "Best Of"
@@ -195,7 +195,7 @@ class ValidateWithInternalPopulatorOptionTest < Minitest::Spec
       "artist" => {"name" => "The Police"}
     )
 
-    assert_equal form.errors.messages.inspect, "{}"
+    assert_equal form.errors.messages, {}
 
     # form has updated.
     assert_equal form.name, "Best Of"
@@ -220,7 +220,7 @@ class ValidateWithInternalPopulatorOptionTest < Minitest::Spec
       "artist" => {"name" => ""},
     ), false
 
-    assert_equal form.errors.messages.inspect, "{:name=>[\"must be filled\"], :\"songs.composer.name\"=>[\"must be filled\"], :\"artist.name\"=>[\"must be filled\"]}"
+    assert_equal form.errors.messages, { name: ["must be filled"], :"songs.composer.name" => ["must be filled"], :"artist.name" => ["must be filled"] }
   end
 
   # adding to collection via :instance.
@@ -230,7 +230,7 @@ class ValidateWithInternalPopulatorOptionTest < Minitest::Spec
       "songs"  => [{"title" => "Fallout"}, {"title" => "Roxanne"}, {"title" => "Rime Of The Ancient Mariner"}]
     )
 
-    assert_equal form.errors.messages.inspect, "{}"
+    assert_equal form.errors.messages, {}
 
     # form has updated.
     assert_equal form.name, "The Dissent Of Man"
