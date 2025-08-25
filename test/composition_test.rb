@@ -1,6 +1,6 @@
 require "test_helper"
 
-class FormCompositionInheritanceTest < MiniTest::Spec
+class FormCompositionInheritanceTest < Minitest::Spec
   module SizePrice
     include Reform::Form::Module
 
@@ -37,7 +37,7 @@ class FormCompositionInheritanceTest < MiniTest::Spec
   it { assert_equal form.price(for_size: :s), 2 }
 end
 
-class FormCompositionTest < MiniTest::Spec
+class FormCompositionTest < Minitest::Spec
   Song      = Struct.new(:id, :title, :band)
   Requester = Struct.new(:id, :name, :requester)
   Band      = Struct.new(:title)
@@ -161,7 +161,7 @@ class FormCompositionTest < MiniTest::Spec
   end
 end
 
-class FormCompositionCollectionTest < MiniTest::Spec
+class FormCompositionCollectionTest < Minitest::Spec
   Book = Struct.new(:id, :name)
   Library = Struct.new(:id) do
     def books

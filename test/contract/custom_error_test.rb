@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CustomerErrorTest < MiniTest::Spec
+class CustomerErrorTest < Minitest::Spec
   let(:key)            { :name }
   let(:error_text)     { "text2" }
   let(:starting_error) { [OpenStruct.new(errors: {title: ["text1"]})] }

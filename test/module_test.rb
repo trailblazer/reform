@@ -1,7 +1,7 @@
 require "test_helper"
 require "reform/form/coercion"
 
-class ModuleInclusionTest < MiniTest::Spec
+class ModuleInclusionTest < Minitest::Spec
   module BandPropertyForm
     include Reform::Form::Module
 

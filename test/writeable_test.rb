@@ -1,6 +1,6 @@
 require "test_helper"
 
-class WriteableTest < MiniTest::Spec
+class WriteableTest < Minitest::Spec
   Location = Struct.new(:country)
 
   class LocationForm < TestForm
@@ -29,7 +29,7 @@ class WriteableTest < MiniTest::Spec
 end
 
 # writable option is alias of writeable option.
-class WritableTest < MiniTest::Spec
+class WritableTest < Minitest::Spec
   Location = Struct.new(:country)
 
   class LocationForm < TestForm

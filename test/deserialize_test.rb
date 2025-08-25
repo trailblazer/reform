@@ -1,7 +1,7 @@
 require "test_helper"
 require "representable/json"
 
-class DeserializeTest < MiniTest::Spec
+class DeserializeTest < Minitest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:title, :artist)
   Artist = Struct.new(:name, :callname)
@@ -67,7 +67,7 @@ class DeserializeTest < MiniTest::Spec
   end
 end
 
-class ValidateWithBlockTest < MiniTest::Spec
+class ValidateWithBlockTest < Minitest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:title, :artist)
   Artist = Struct.new(:name)

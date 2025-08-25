@@ -1,7 +1,7 @@
 require "reform"
 require "minitest/autorun"
 
-class ValidationLibraryProvidedTest < MiniTest::Spec
+class ValidationLibraryProvidedTest < Minitest::Spec
   it "no validation library loaded" do
     assert_raises Reform::Validation::NoValidationLibraryError do
       class PersonForm < Reform::Form

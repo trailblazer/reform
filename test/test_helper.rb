@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "reform"
 require "minitest/autorun"
 require "representable/debug"
@@ -19,7 +21,7 @@ module Types
   include Dry.Types()
 end
 
-class BaseTest < MiniTest::Spec
+class BaseTest < Minitest::Spec
   class AlbumForm < TestForm
     property :title
 
@@ -41,7 +43,7 @@ class BaseTest < MiniTest::Spec
   let(:hit) { Song.new("Roxanne") }
 end
 
-MiniTest::Spec.class_eval do
+Minitest::Spec.class_eval do
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)

@@ -1,7 +1,7 @@
 require "test_helper"
 require "reform/form/coercion"
 
-class ChangedTest < MiniTest::Spec
+class ChangedTest < Minitest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)

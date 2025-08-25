@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ParseOptionTest < MiniTest::Spec
+class ParseOptionTest < Minitest::Spec
   Comment = Struct.new(:content, :user)
   User    = Struct.new(:name)
 

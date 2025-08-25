@@ -238,7 +238,7 @@ class DryValidationDefaultGroupTest < Minitest::Spec
   end
 end
 
-class ValidationGroupsTest < MiniTest::Spec
+class ValidationGroupsTest < Minitest::Spec
   describe "basic validations" do
     Session = Struct.new(:username, :email, :password, :confirm_password, :special_class)
     SomeClass = Struct.new(:id)
@@ -309,7 +309,7 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
-  class ValidationWithOptionsTest < MiniTest::Spec
+  class ValidationWithOptionsTest < Minitest::Spec
     describe "basic validations" do
       Session = Struct.new(:username)
       class SessionForm < TestForm
@@ -651,7 +651,7 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
-  class NestedSchemaValidationTest < MiniTest::Spec
+  class NestedSchemaValidationTest < Minitest::Spec
     AddressSchema = Dry::Schema.Params do
       required(:company).filled(:int?)
     end
@@ -676,7 +676,7 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
-  class NestedSchemaValidationWithFormTest < MiniTest::Spec
+  class NestedSchemaValidationWithFormTest < Minitest::Spec
     class CompanyForm < TestForm
       property :company
 
@@ -699,7 +699,7 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
-  class CollectionPropertyWithCustomRuleTest < MiniTest::Spec
+  class CollectionPropertyWithCustomRuleTest < Minitest::Spec
     Artist = Struct.new(:first_name, :last_name)
     Song   = Struct.new(:title, :enabled)
     Album  = Struct.new(:title, :songs, :artist)
@@ -759,7 +759,7 @@ class ValidationGroupsTest < MiniTest::Spec
     end
   end
 
-  class DryVWithSchemaAndParams < MiniTest::Spec
+  class DryVWithSchemaAndParams < Minitest::Spec
     Foo = Struct.new(:age)
 
     class ParamsForm < TestForm

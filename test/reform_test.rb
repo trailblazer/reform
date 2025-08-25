@@ -180,7 +180,7 @@ class OverridingAccessorsTest < BaseTest
   end
 end
 
-class MethodInFormTest < MiniTest::Spec
+class MethodInFormTest < Minitest::Spec
   class AlbumForm < TestForm
     property :title
 

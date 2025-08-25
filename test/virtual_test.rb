@@ -1,6 +1,6 @@
 require "test_helper"
 
-class VirtualTest < MiniTest::Spec
+class VirtualTest < Minitest::Spec
   class CreditCardForm < TestForm
     property :credit_card_number, virtual: true # no read, no write, it's virtual.
     collection :transactions, virtual: true, populate_if_empty: OpenStruct do
@@ -27,7 +27,7 @@ class VirtualTest < MiniTest::Spec
   }
 end
 
-class VirtualAndDefaultTest < MiniTest::Spec
+class VirtualAndDefaultTest < Minitest::Spec
   class CreditCardForm < TestForm
     property :credit_card_number, virtual: true, default: "123" # no read, no write, it's virtual.
     collection :transactions, virtual: true, populate_if_empty: OpenStruct, default: [OpenStruct.new(id: 2)] do

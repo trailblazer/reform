@@ -1,6 +1,6 @@
 require "test_helper"
 
-class SetupTest < MiniTest::Spec
+class SetupTest < Minitest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)

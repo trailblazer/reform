@@ -1,6 +1,6 @@
 require "test_helper"
 
-class PopulatorSkipTest < MiniTest::Spec
+class PopulatorSkipTest < Minitest::Spec
   Album = Struct.new(:songs)
   Song  = Struct.new(:title)
 

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ErrorsTest < MiniTest::Spec
+class ErrorsTest < Minitest::Spec
   class AlbumForm < TestForm
     property :title
     validation do

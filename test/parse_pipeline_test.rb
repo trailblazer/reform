@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ParsePipelineTest < MiniTest::Spec
+class ParsePipelineTest < Minitest::Spec
   Album = Struct.new(:name)
 
   class AlbumForm < TestForm

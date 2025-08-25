@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ReadableTest < MiniTest::Spec
+class ReadableTest < Minitest::Spec
   Credentials = Struct.new(:password)
 
   class PasswordForm < TestForm

@@ -2,7 +2,7 @@ require "test_helper"
 
 # Overridden setter won't be called in setup.
 # Overridden getter won't be called in sync.
-class SetupSkipSetterAndGetterTest < MiniTest::Spec
+class SetupSkipSetterAndGetterTest < Minitest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:title, :artist)
   Artist = Struct.new(:name)

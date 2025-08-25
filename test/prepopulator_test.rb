@@ -1,6 +1,6 @@
 require "test_helper"
 
-class PrepopulatorTest < MiniTest::Spec
+class PrepopulatorTest < Minitest::Spec
   Song = Struct.new(:title, :band, :length)
   Band = Struct.new(:name)
 
@@ -60,7 +60,7 @@ class PrepopulatorTest < MiniTest::Spec
 end
 
 # calling form.prepopulate! shouldn't crash.
-class PrepopulateWithoutConfiguration < MiniTest::Spec
+class PrepopulateWithoutConfiguration < Minitest::Spec
   Song = Struct.new(:title)
 
   class AlbumForm < TestForm
@@ -78,7 +78,7 @@ class PrepopulateWithoutConfiguration < MiniTest::Spec
   it { assert_equal subject.songs.size, 0 }
 end
 
-class ManualPrepopulatorOverridingTest < MiniTest::Spec
+class ManualPrepopulatorOverridingTest < Minitest::Spec
   Song = Struct.new(:title, :band, :length)
   Band = Struct.new(:name)
 

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class FormOptionTest < MiniTest::Spec
+class FormOptionTest < Minitest::Spec
   Song  = Struct.new(:title)
   Album = Struct.new(:song)
 

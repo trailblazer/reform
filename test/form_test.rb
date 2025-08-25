@@ -1,6 +1,6 @@
 require "test_helper"
 
-class FormTest < MiniTest::Spec
+class FormTest < Minitest::Spec
   Artist = Struct.new(:name)
 
   class AlbumForm < TestForm

@@ -75,7 +75,7 @@ class SaveTest < BaseTest
   end
 end
 
-# class SaveWithDynamicOptionsTest < MiniTest::Spec
+# class SaveWithDynamicOptionsTest < Minitest::Spec
 #   Song = Struct.new(:id, :title, :length) do
 #     include Saveable
 #   end

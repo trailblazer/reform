@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ContractValidateTest < MiniTest::Spec
+class ContractValidateTest < Minitest::Spec
   class AlbumForm < TestContract
     property :name
     validation do
@@ -51,7 +51,7 @@ class ContractValidateTest < MiniTest::Spec
 end
 
 # no configuration results in "sync" (formerly known as parse_strategy: :sync).
-class ValidateWithoutConfigurationTest < MiniTest::Spec
+class ValidateWithoutConfigurationTest < Minitest::Spec
   class AlbumForm < TestForm
     property :name
     validation do
@@ -146,7 +146,7 @@ class ValidateWithoutConfigurationTest < MiniTest::Spec
   end
 end
 
-class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
+class ValidateWithInternalPopulatorOptionTest < Minitest::Spec
   class AlbumForm < TestForm
     property :name
     validation do
@@ -267,7 +267,7 @@ class ValidateWithInternalPopulatorOptionTest < MiniTest::Spec
 end
 
 # memory leak test
-class ValidateUsingDifferentFormObject < MiniTest::Spec
+class ValidateUsingDifferentFormObject < Minitest::Spec
   class AlbumForm < TestForm
     property :name
 

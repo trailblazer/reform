@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ReadonlyTest < MiniTest::Spec
+class ReadonlyTest < Minitest::Spec
   class SongForm < TestForm
     property :artist
     property :title, writeable: false

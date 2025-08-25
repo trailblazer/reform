@@ -1,6 +1,6 @@
 require "test_helper"
 
-class PopulatorTest < MiniTest::Spec
+class PopulatorTest < Minitest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)
@@ -189,7 +189,7 @@ class PopulateWithProcTest < Minitest::Spec
   end
 end
 
-class PopulateIfEmptyTest < MiniTest::Spec
+class PopulateIfEmptyTest < Minitest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
   Artist = Struct.new(:name)
@@ -287,7 +287,7 @@ class PopulateIfEmptyTest < MiniTest::Spec
 end
 
 # delete songs while deserializing.
-class PopulateIfEmptyWithDeletionTest < MiniTest::Spec
+class PopulateIfEmptyWithDeletionTest < Minitest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
 
@@ -327,7 +327,7 @@ class PopulateIfEmptyWithDeletionTest < MiniTest::Spec
   end
 end
 
-class PopulateWithFormKeyTest < MiniTest::Spec
+class PopulateWithFormKeyTest < Minitest::Spec
   Song  = Struct.new(:title, :album, :composer)
   Album = Struct.new(:name, :songs, :artist)
 
