@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "debug"
 require "reform"
 require "minitest/autorun"
 require "representable/debug"
