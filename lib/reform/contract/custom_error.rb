@@ -34,7 +34,15 @@ module Reform
         # to_h required for dry_v 1.x since the errors are Dry object instead of an hash
         @results.map(&:errors)
                 .detect { |hash| hash.to_h.key?(@key) }
-                .tap { |hash| hash.nil? ? @results << self : hash.to_h[@key] |= Array(@error_text) }
+                .tap do |hash|
+                  if hash.nil?
+                    @results << self
+                  else
+                    unless hash.to_h[@key].include?(@error_text)
+                      hash.to_h[@key] << @error_text
+                    end
+                  end
+                end
       end
     end
   end
