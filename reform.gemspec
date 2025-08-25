@@ -26,5 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest-line"
   spec.add_development_dependency "multi_json"
   spec.add_development_dependency "rake"
-  spec.add_development_dependency "debug"
+  spec.add_development_dependency "debug" if RUBY_ENGINE == "ruby"
 end

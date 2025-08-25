@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
-require "debug"
+begin
+  require "debug"
+rescue LoadError
+  # debug gem not available, continue without it
+end
+
 require "reform"
 require "minitest/autorun"
 require "representable/debug"
